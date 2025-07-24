@@ -95,9 +95,12 @@
         }
         /* Apply Farsi font to specific input types/classes */
         input#goldPrice,
-        .gold-wage {
+        .gold-wage,
+        select#profitRate, /* Added for profitRate select */
+        select.product-type-select { /* Also for product type select */
             font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
         }
+
 
         input[type="text"]:focus,
         input[type="number"]:focus,
@@ -229,7 +232,6 @@
             border-radius: 10px;
             margin-top: 30px;
             border-left: 5px solid #3498db;
-            /* Ensure result section also uses the main fonts */
             font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
         }
 
@@ -240,7 +242,6 @@
             padding: 8px 0;
             border-bottom: 1px dashed #dcdcdc;
             font-size: 1.1em;
-            /* Ensure result item spans also use the main fonts */
             font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
         }
 
@@ -249,13 +250,13 @@
             font-weight: bold;
             color: #2c3e50;
             font-size: 1.2em;
-            margin-top: 15px; /* Added spacing for clarity */
+            margin-top: 15px;
         }
         .result-item.total-tax {
-            color: #e67e22; /* Different color for total tax */
+            color: #e67e22;
         }
-        .result-item.final-total { /* Changed class name for clarity */
-            color: #e74c3c; /* Red color for final total */
+        .result-item.final-total {
+            color: #e74c3c;
         }
 
         .result-item span:first-child {
@@ -263,27 +264,25 @@
         }
 
         .result-item span:last-child {
-            color: #007bff; /* A distinct color for numerical results */
-            direction: ltr; /* Ensure numbers are LTR */
+            color: #007bff;
+            direction: ltr;
         }
-        /* Override for final-total's number to be red as well */
         .result-item.final-total span:last-child {
-            color: #e74c3c; /* Ensure the number itself is red */
+            color: #e74c3c;
         }
 
 
         select#profitRate {
-            appearance: none; /* Remove default arrow */
+            appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
             background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M205.66%2099.66L128%20177.34%2050.34%2099.66z%22%2F%3E%3C%2Fsvg%3E');
             background-repeat: no-repeat;
-            background-position: left 15px center; /* Adjust position for RTL */
+            background-position: left 15px center;
             background-size: 12px;
-            padding-left: 40px; /* Make space for the arrow */
+            padding-left: 40px;
             padding-right: 15px;
         }
-        /* Style for product type select to align with other inputs */
         select.product-type-select {
             padding: 12px 15px;
             border: 1px solid #ddd;
@@ -543,7 +542,7 @@
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'numeric');
                 wageInput.setAttribute('maxlength', '2'); 
-                wageInWordsDisplay.style.display = 'none';
+                wageInWordsDisplay.style.display = 'block'; // Ensure display is block for percent also
             } else { 
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'numeric');
@@ -583,10 +582,10 @@
                 let percentValue = parseInt(value, 10);
                 if (isNaN(percentValue) || percentValue < 1 || percentValue > 99) {
                     inputElement.value = ''; 
-                    wageInWordsDisplay.textContent = ''; // Clear display for invalid percent
+                    wageInWordsDisplay.textContent = ''; 
                 } else {
-                    inputElement.value = convertToFarsiDigits(percentValue.toString()); // Display in Farsi digits
-                    wageInWordsDisplay.textContent = convertToFarsiDigits(percentValue.toString()) + ' درصد'; // Show "X درصد"
+                    inputElement.value = convertToFarsiDigits(percentValue.toString()); 
+                    wageInWordsDisplay.textContent = convertToFarsiDigits(percentValue.toString()) + ' درصد'; 
                 }
             }
             calculateFactor();
@@ -671,6 +670,7 @@
             const items = itemContainer.querySelectorAll('.item-row');
             items.forEach((item, index) => {
                 const removeButton = item.querySelector('.remove-item');
+                // Hide remove button for the first item (index 0)
                 if (index === 0) { 
                     removeButton.style.display = 'none'; 
                 } else {
@@ -688,15 +688,28 @@
                 return; 
             }
 
-            const profitRate = parseFloat(document.getElementById('profitRate').value) / 100;
+            const profitRateElement = document.getElementById('profitRate');
+            const profitRate = parseFloat(profitRateElement.value) / 100;
             const includeTax = document.getElementById('includeTax').checked;
+
+            // Update profit rate display to Farsi
+            profitRateElement.innerHTML = ''; // Clear existing options
+            for (let i = 1; i <= 7; i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = convertToFarsiDigits(i) + '%';
+                if (i === 7) { // Set 7% as selected by default
+                    option.selected = true;
+                }
+                profitRateElement.appendChild(option);
+            }
 
             let totalOverallPriceWithoutTax = 0; 
             let totalCalculatedTax = 0;
             let itemResultsHtml = '';
 
             const itemRows = document.querySelectorAll('.item-row');
-            itemRows.forEach((row, index) => {
+            itemRows.forEach((row) => { // Removed index here as it's not needed for the label
                 const weightInput = row.querySelector('.gold-weight');
                 const productTypeSelect = row.querySelector('.product-type-select');
                 const wageInput = row.querySelector('.gold-wage');
@@ -729,11 +742,15 @@
                     totalCalculatedTax += itemTaxableAmount * 0.10; 
                 }
 
-                const itemLabel = productType ? `قیمت آیتم ${index + 1} (${productType}):` : `قیمت آیتم ${index + 1}:`;
+                // Construct item label based on productType
+                let itemLabel = 'قیمت';
+                if (productType) {
+                    itemLabel += ` (${productType})`;
+                }
 
                 itemResultsHtml += `
                     <div class="result-item">
-                        <span>${itemLabel}</span>
+                        <span>${itemLabel}:</span>
                         <span>${formatCurrency(itemPrice)}</span>
                     </div>
                 `;
