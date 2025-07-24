@@ -99,7 +99,9 @@
         input#goldPrice,
         .gold-wage,
         select#profitRate, /* Added for profitRate select */
-        select.product-type-select { /* Also for product type select */
+        select.product-type-select,
+        .gold-weight, /* Apply to all weight inputs */
+        .gold-buy-weight { /* New: Apply to buy weight input */
             font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
         }
 
@@ -285,6 +287,12 @@
         .result-item.final-total {
             color: #e74c3c;
         }
+        /* New style for deducted amount */
+        .result-item.deducted-amount {
+            color: #d35400; /* Orange-red for subtracted amount */
+            font-size: 1em; /* Slightly smaller than total */
+        }
+
 
         .result-item span:first-child {
             color: #555;
@@ -294,7 +302,8 @@
             color: #007bff;
             direction: ltr;
         }
-        .result-item.final-total span:last-child {
+        .result-item.final-total span:last-child,
+        .result-item.deducted-amount span:last-child { /* Apply to deducted amount too */
             color: #e74c3c;
         }
 
@@ -412,6 +421,10 @@
                         <input type="text" id="wage1" class="gold-wage">
                         <span class="input-inline-display" id="wageInWords1"></span>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label for="buyWeight1">وزن خرید طلا (گرم) - اختیاری:</label>
+                    <input type="number" id="buyWeight1" class="gold-buy-weight" step="0.001" min="0">
                 </div>
             </div>
         </div>
@@ -703,6 +716,10 @@
                             <span class="input-inline-display" id="wageInWords${itemIdCounter}"></span>
                         </div>
                     </div>
+                    <div class="form-group">
+                        <label for="buyWeight${itemIdCounter}">وزن خرید طلا (گرم) - اختیاری:</label>
+                        <input type="number" id="buyWeight${itemIdCounter}" class="gold-buy-weight" step="0.001" min="0">
+                    </div>
                 </div>
             `;
             itemContainer.firstElementChild.insertAdjacentHTML('afterend', newItemHtml);
@@ -766,17 +783,20 @@
 
             let totalOverallPriceWithoutTax = 0; 
             let totalCalculatedTax = 0;
+            let totalDeductedAmount = 0; // New variable for total deducted amount
             let itemResultsHtml = '';
 
             const itemRows = document.querySelectorAll('.item-row');
-            itemRows.forEach((row) => { // Removed index here as it's not needed for the label
+            itemRows.forEach((row) => { 
                 const weightInput = row.querySelector('.gold-weight');
                 const productTypeSelect = row.querySelector('.product-type-select');
                 const wageInput = row.querySelector('.gold-wage');
                 const wageType = row.querySelector('input[name^="wageType"]:checked').value;
+                const buyWeightInput = row.querySelector('.gold-buy-weight'); // Get buy weight input
 
                 const weight = parseFloat(weightInput.value) || 0;
                 const productType = productTypeSelect ? productTypeSelect.value : '';
+                const buyWeight = parseFloat(buyWeightInput ? buyWeightInput.value : '0') || 0; // Get buy weight value
 
                 let wageAmount = 0;
                 let profitAmount = 0;
@@ -784,6 +804,8 @@
                 let itemTaxableAmount = 0; 
 
                 const baseItemPrice = rawGoldPrice * weight;
+                const deductedAmountForItem = rawGoldPrice * buyWeight; // Calculate deducted amount for this item
+                totalDeductedAmount += deductedAmountForItem; // Add to total deducted amount
 
                 if (wageType === 'percent') {
                     const wagePercent = parseFloat(convertToEnglishDigits(wageInput.value)) / 100 || 0;
@@ -821,6 +843,9 @@
                 totalFinalPrice += totalCalculatedTax;
             }
 
+            // Deduct the total amount for bought gold
+            totalFinalPrice -= totalDeductedAmount;
+
             const resultSection = document.getElementById('resultSection');
             resultSection.innerHTML = itemResultsHtml;
 
@@ -829,6 +854,16 @@
                     <div class="result-item total-tax">
                         <span>مالیات:</span>
                         <span>${formatCurrency(totalCalculatedTax)}</span>
+                    </div>
+                `;
+            }
+
+            // Display deducted amount if any
+            if (totalDeductedAmount > 0) {
+                resultSection.innerHTML += `
+                    <div class="result-item deducted-amount">
+                        <span>کسر بابت خرید طلا:</span>
+                        <span>${formatCurrency(totalDeductedAmount)}</span>
                     </div>
                 `;
             }
