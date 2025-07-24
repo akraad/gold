@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>فاکتور طلا</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         @font-face {
             font-family: 'Vazirmatn';
@@ -103,15 +102,6 @@
             outline: none;
         }
 
-        .input-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-            pointer-events: none; /* Make icon unclickable */
-        }
-
         .price-text-display {
             font-size: 0.9em;
             color: #666;
@@ -142,9 +132,7 @@
             background-color: #27ae60;
         }
 
-        .add-item-button i {
-            margin-left: 10px;
-        }
+        /* Removed add-item-button i style */
 
         .item-row {
             border: 1px dashed #c0c0c0;
@@ -256,6 +244,13 @@
             font-weight: bold;
             color: #2c3e50;
             font-size: 1.2em;
+            margin-top: 15px; /* Added spacing for clarity */
+        }
+        .result-item.total-tax {
+            color: #e67e22; /* Different color for total tax */
+        }
+        .result-item.total-all {
+            color: #27ae60; /* Different color for final total */
         }
 
         .result-item span:first-child {
@@ -314,23 +309,21 @@
 </head>
 <body>
     <div class="container">
-        <h1><i class="fas fa-gem" style="color: #ffd700; margin-left: 10px;"></i> فاکتور طلا <i class="fas fa-calculator" style="color: #a7a7a7; margin-right: 10px;"></i></h1>
+        <h1>فاکتور طلا</h1>
 
         <div class="form-group">
             <label for="goldPrice">قیمت هر گرم طلا (تومان):</label>
             <div class="price-text-display" id="goldPriceInWords"></div>
-            <input type="text" id="goldPrice" maxlength="9">
-            <i class="fas fa-money-bill-wave input-icon" style="right: 15px; left: auto;"></i>
+            <input type="text" id="goldPrice" maxlength="9" required>
         </div>
 
         <div id="itemContainer">
             <div class="item-row" data-item-id="1">
-                <button type="button" class="remove-item" onclick="removeItem(this)" style="display:none;"><i class="fas fa-times-circle"></i></button>
+                <button type="button" class="remove-item" onclick="removeItem(this)" style="display:none;"></button>
                 <div class="flex-group">
                     <div class="form-group">
                         <label for="weight1">وزن طلا (گرم):</label>
                         <input type="number" id="weight1" class="gold-weight" step="0.001" min="0">
-                        <i class="fas fa-weight input-icon" style="right: 15px; left: auto;"></i>
                     </div>
                     <div class="form-group">
                         <label for="wage1">اجرت:</label>
@@ -344,13 +337,12 @@
                         </div>
                         <input type="text" id="wage1" class="gold-wage">
                         <div class="price-text-display" id="wageInWords1" style="font-size: 0.8em;"></div>
-                        <i class="fas fa-percent input-icon wage-icon" style="right: 15px; left: auto;"></i>
                     </div>
                 </div>
             </div>
         </div>
 
-        <button type="button" class="add-item-button" onclick="addItem()"><i class="fas fa-plus-circle"></i> افزودن آیتم جدید</button>
+        <button type="button" class="add-item-button" onclick="addItem()">افزودن آیتم جدید</button>
 
         <div class="form-group">
             <label for="profitRate">سود فروشنده:</label>
@@ -371,16 +363,8 @@
             </label>
         </div>
 
-        <div class="result-section">
-            <div class="result-item">
-                <span>قیمت نهایی:</span>
-                <span id="finalPrice">0 تومان</span>
+        <div class="result-section" id="resultSection">
             </div>
-            <div class="result-item">
-                <span>مالیات کل:</span>
-                <span id="totalTax">0 تومان</span>
-            </div>
-        </div>
     </div>
 
     <script>
@@ -399,6 +383,8 @@
                 const farsiIndex = farsiDigits.indexOf(char);
                 if (farsiIndex !== -1) {
                     englishNum += farsiIndex;
+                } else if (char === ',') {
+                    // Ignore commas when converting back to English digits
                 } else {
                     englishNum += char;
                 }
@@ -476,21 +462,15 @@
 
         function updateGoldPriceDisplay() {
             const goldPriceInput = document.getElementById('goldPrice');
-            let value = goldPriceInput.value.replace(/,/g, ''); // Remove existing commas for calculation
+            let value = convertToEnglishDigits(goldPriceInput.value); // Convert any Farsi to English for processing
 
             // Enforce max length of 7 digits
             if (value.length > 7) {
                 value = value.substring(0, 7);
             }
-
-            // Enforce minimum length of 6 digits if user has typed more than 0
-            if (value.length > 0 && value.length < 6) {
-                // Optionally, you can add a visual cue or prevent further input,
-                // but for now, we just let it be short until user adds more.
-                // Or: value = "000000".substring(0, 6 - value.length) + value; // pad with zeros if needed
-            }
-
-            goldPriceInput.value = formatNumberWithCommas(value); // Re-format with commas
+            
+            // Format for display
+            goldPriceInput.value = formatNumberWithCommas(value);
 
             const goldPriceInWords = document.getElementById('goldPriceInWords');
             const numericValue = parseInt(value, 10);
@@ -503,12 +483,9 @@
         }
 
         function formatNumberWithCommas(num) {
-            // Remove all non-digit characters first
-            let cleanNum = num.replace(/\D/g, '');
-            // Add commas
-            return cleanNum.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+            let cleanNum = convertToEnglishDigits(num).replace(/\D/g, ''); // Ensure English digits and remove non-digits
+            return convertToFarsiDigits(cleanNum.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
         }
-
 
         document.getElementById('goldPrice').addEventListener('input', updateGoldPriceDisplay);
         document.getElementById('goldPrice').addEventListener('blur', updateGoldPriceDisplay); // Update on blur too
@@ -517,22 +494,19 @@
             const itemRow = radio.closest('.item-row');
             const wageInput = itemRow.querySelector('.gold-wage');
             const wageInWordsDisplay = itemRow.querySelector('.price-text-display');
-            const wageIcon = itemRow.querySelector('.wage-icon');
+            
+            wageInput.value = ''; // Clear input on type change
 
             if (radio.value === 'percent') {
-                wageInput.value = ''; // Clear input on type change
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'numeric');
                 wageInput.setAttribute('maxlength', '1'); // Only 1 digit for percent
                 wageInWordsDisplay.style.display = 'none';
-                if (wageIcon) wageIcon.className = 'fas fa-percent input-icon wage-icon';
             } else { // wageType === 'amount'
-                wageInput.value = ''; // Clear input on type change
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'numeric');
                 wageInput.setAttribute('maxlength', '9'); // Max length for amount in Toman (7 digits + 2 commas)
                 wageInWordsDisplay.style.display = 'block';
-                if (wageIcon) wageIcon.className = 'fas fa-money-bill-wave input-icon wage-icon';
             }
             updateWageInWordsDisplay(wageInput); // Update display after changing type
             calculateFactor();
@@ -550,9 +524,7 @@
                 if (value.length > 7) {
                     value = value.substring(0, 7);
                 }
-                // No minimum length enforcement on input, only for word conversion
-                // if (value.length > 0 && value.length < 6) { /* no action, let user continue typing */ }
-
+                
                 inputElement.value = formatCurrencyForWage(value); // Format for display
 
                 const numericValue = parseInt(value, 10);
@@ -571,7 +543,7 @@
                 if (isNaN(percentValue) || percentValue < 1 || percentValue > 7) {
                     inputElement.value = ''; // Clear if invalid
                 } else {
-                    inputElement.value = percentValue.toString();
+                    inputElement.value = percentValue.toString(); // Keep it English internally for calculation
                 }
                 wageInWordsDisplay.textContent = ''; // Clear for percent type
             }
@@ -596,12 +568,11 @@
             itemIdCounter++;
             const newItemHtml = `
                 <div class="item-row" data-item-id="${itemIdCounter}">
-                    <button type="button" class="remove-item" onclick="removeItem(this)"><i class="fas fa-times-circle"></i></button>
+                    <button type="button" class="remove-item" onclick="removeItem(this)"></button>
                     <div class="flex-group">
                         <div class="form-group">
                             <label for="weight${itemIdCounter}">وزن طلا (گرم):</label>
                             <input type="number" id="weight${itemIdCounter}" class="gold-weight" step="0.001" min="0">
-                            <i class="fas fa-weight input-icon" style="right: 15px; left: auto;"></i>
                         </div>
                         <div class="form-group">
                             <label for="wage${itemIdCounter}">اجرت:</label>
@@ -615,7 +586,6 @@
                             </div>
                             <input type="text" id="wage${itemIdCounter}" class="gold-wage">
                             <div class="price-text-display" id="wageInWords${itemIdCounter}" style="font-size: 0.8em;"></div>
-                            <i class="fas fa-percent input-icon wage-icon" style="right: 15px; left: auto;"></i>
                         </div>
                     </div>
                 </div>
@@ -652,15 +622,23 @@
 
         function calculateFactor() {
             const goldPriceInput = document.getElementById('goldPrice');
-            const rawGoldPrice = parseInt(goldPriceInput.value.replace(/,/g, ''), 10) || 0;
+            const rawGoldPrice = parseInt(convertToEnglishDigits(goldPriceInput.value.replace(/,/g, '')), 10);
+            
+            // Check if gold price is entered
+            if (isNaN(rawGoldPrice) || rawGoldPrice <= 0) {
+                document.getElementById('resultSection').innerHTML = ''; // Clear results if price is invalid
+                return; 
+            }
+
             const profitRate = parseInt(document.getElementById('profitRate').value, 10) / 100;
             const includeTax = document.getElementById('includeTax').checked;
 
-            let totalFinalPrice = 0;
+            let totalOverallPrice = 0; // Final total of all items + tax
             let totalCalculatedTax = 0;
+            let itemResultsHtml = '';
 
             const itemRows = document.querySelectorAll('.item-row');
-            itemRows.forEach(row => {
+            itemRows.forEach((row, index) => {
                 const weightInput = row.querySelector('.gold-weight');
                 const wageInput = row.querySelector('.gold-wage');
                 const wageType = row.querySelector('input[name^="wageType"]:checked').value;
@@ -681,24 +659,51 @@
                     wageAmount = parseInt(convertToEnglishDigits(wageInput.value.replace(/,/g, '')), 10) || 0;
                 }
 
-                // Calculate profit based on the formula: (goldPrice + wage) * profitRate
-                // For each item, profit is calculated on (Gold Price * Weight + Wage)
+                // Calculate profit based on the formula: (goldPrice * weight + wage) * profitRate
                 profitAmount = (baseItemPrice + wageAmount) * profitRate;
 
 
                 // Final price for this item
                 itemPrice = baseItemPrice + wageAmount + profitAmount;
-                totalFinalPrice += itemPrice;
+                totalOverallPrice += itemPrice; // Summing up item prices before adding tax to total overall
 
                 // Taxable amount for this item
                 itemTaxableAmount = wageAmount + profitAmount;
                 if (includeTax) {
                     totalCalculatedTax += itemTaxableAmount * 0.10; // 10% tax
                 }
-            });
 
-            document.getElementById('finalPrice').textContent = formatCurrency(totalFinalPrice) + ' تومان';
-            document.getElementById('totalTax').textContent = formatCurrency(totalCalculatedTax) + ' تومان';
+                itemResultsHtml += `
+                    <div class="result-item">
+                        <span>قیمت آیتم ${index + 1}:</span>
+                        <span>${formatCurrency(itemPrice)}</span>
+                    </div>
+                `;
+            });
+            
+            // Add tax to the total overall price if included
+            if (includeTax) {
+                totalOverallPrice += totalCalculatedTax;
+            }
+
+            const resultSection = document.getElementById('resultSection');
+            resultSection.innerHTML = itemResultsHtml;
+
+            if (includeTax) {
+                resultSection.innerHTML += `
+                    <div class="result-item total-tax">
+                        <span>جمع مالیات تمام آیتم ها:</span>
+                        <span>${formatCurrency(totalCalculatedTax)}</span>
+                    </div>
+                `;
+            }
+
+            resultSection.innerHTML += `
+                <div class="result-item total-all">
+                    <span>جمع قیمت تمام آیتم ها + مالیات:</span>
+                    <span>${formatCurrency(totalOverallPrice)}</span>
+                </div>
+            `;
         }
 
         function addInputEventListeners(element) {
