@@ -816,8 +816,8 @@
                 const wageType = row.querySelector('input[name^="wageType"]:checked').value;
                 const buyWeightInput = row.querySelector('.gold-buy-weight'); 
 
-                let weight = parseFloat(weightInput.value) || 0;
-                let buyWeight = parseFloat(buyWeightInput ? buyWeightInput.value : '0') || 0; 
+                let weight = parseFloat(convertToEnglishDigits(weightInput.value)) || 0; // Corrected
+                let buyWeight = parseFloat(convertToEnglishDigits(buyWeightInput ? buyWeightInput.value : '0')) || 0; // Corrected
 
                 // Apply max limit for weight and buy weight
                 if (weight > 200) {
@@ -878,22 +878,24 @@
             totalFinalPrice -= totalDeductedAmount;
 
             // Handle rounding suggestion
-            const lastDigit = Math.round(totalFinalPrice) % 1000;
+            const lastThreeDigits = Math.round(totalFinalPrice) % 1000;
             let suggestedDiscountToRound = 0;
 
-            // If last 3 digits are not zero, calculate what's needed to round down to nearest thousand
-            if (lastDigit !== 0) {
-                suggestedDiscountToRound = lastDigit;
+            if (lastThreeDigits !== 0) {
+                suggestedDiscountToRound = lastThreeDigits;
             }
 
             // Only suggest if the current discount input is empty and there's a suggestion
+            // Also, ensure the suggestion hasn't been made and rejected recently
             if (discountInput.value.trim() === '' && suggestedDiscountToRound > 0 && suggestedDiscountToRound !== lastSuggestedDiscount) {
                 const confirmRound = confirm(`مبلغ کل ${formatCurrency(totalFinalPrice)} می‌باشد. آیا مایلید با تخفیف ${formatCurrency(suggestedDiscountToRound)} تومان، فاکتور به ${formatCurrency(totalFinalPrice - suggestedDiscountToRound)} تومان رند شود؟`);
                 if (confirmRound) {
                     discountInput.value = convertToFarsiDigits(suggestedDiscountToRound);
                     discountAmount = suggestedDiscountToRound;
+                    lastSuggestedDiscount = suggestedDiscountToRound; // Store that this was accepted
+                } else {
+                    lastSuggestedDiscount = suggestedDiscountToRound; // Store that this was rejected
                 }
-                lastSuggestedDiscount = suggestedDiscountToRound; // Store the suggested discount
             } else if (discountInput.value.trim() !== '') {
                 lastSuggestedDiscount = discountAmount; // If user manually entered, store that
             } else {
@@ -955,20 +957,16 @@
                         // Apply 200g limit
                         if (parseFloat(value) > 200) {
                             value = '200';
-                            e.target.value = convertToFarsiDigits(value);
-                        } else {
-                             e.target.value = convertToFarsiDigits(value); 
                         }
+                        e.target.value = convertToFarsiDigits(value); // Convert back to Farsi for display
                         calculateFactor();
                     });
                     input.addEventListener('blur', (e) => {
                         let value = convertToEnglishDigits(e.target.value);
                         if (parseFloat(value) > 200) {
                             value = '200';
-                            e.target.value = convertToFarsiDigits(value);
-                        } else {
-                             e.target.value = convertToFarsiDigits(value); 
                         }
+                        e.target.value = convertToFarsiDigits(value); // Convert back to Farsi on blur
                         calculateFactor();
                     });
                 } else if (input.id === 'discount') {
