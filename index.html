@@ -224,6 +224,8 @@
             border-radius: 10px;
             margin-top: 30px;
             border-left: 5px solid #3498db;
+            /* Ensure result section also uses the main fonts */
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
         }
 
         .result-item {
@@ -233,6 +235,8 @@
             padding: 8px 0;
             border-bottom: 1px dashed #dcdcdc;
             font-size: 1.1em;
+            /* Ensure result item spans also use the main fonts */
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
         }
 
         .result-item:last-child {
@@ -246,7 +250,7 @@
             color: #e67e22; /* Different color for total tax */
         }
         .result-item.final-total { /* Changed class name for clarity */
-            color: #27ae60; /* Different color for final total */
+            color: #e74c3c; /* Red color for final total */
         }
 
         .result-item span:first-child {
@@ -257,6 +261,11 @@
             color: #007bff; /* A distinct color for numerical results */
             direction: ltr; /* Ensure numbers are LTR */
         }
+        /* Override for final-total's number to be red as well */
+        .result-item.final-total span:last-child {
+            color: #e74c3c; /* Ensure the number itself is red */
+        }
+
 
         select#profitRate {
             appearance: none; /* Remove default arrow */
@@ -674,18 +683,17 @@
 
         function calculateFactor() {
             const goldPriceInput = document.getElementById('goldPrice');
-            const rawGoldPrice = parseInt(convertToEnglishDigits(goldPriceInput.value.replace(/,/g, '')), 10);
+            const rawGoldPrice = parseFloat(convertToEnglishDigits(goldPriceInput.value.replace(/,/g, ''))) || 0;
             
-            // Check if gold price is entered and valid
-            if (isNaN(rawGoldPrice) || rawGoldPrice <= 0) {
-                document.getElementById('resultSection').innerHTML = ''; // Clear results if price is invalid
+            if (rawGoldPrice === 0) {
+                document.getElementById('resultSection').innerHTML = '';
                 return; 
             }
 
-            const profitRate = parseInt(document.getElementById('profitRate').value, 10) / 100;
+            const profitRate = parseFloat(document.getElementById('profitRate').value) / 100;
             const includeTax = document.getElementById('includeTax').checked;
 
-            let totalOverallPriceWithoutTax = 0; // Sum of item prices before tax is applied to overall total
+            let totalOverallPriceWithoutTax = 0; 
             let totalCalculatedTax = 0;
             let itemResultsHtml = '';
 
@@ -702,30 +710,25 @@
                 let wageAmount = 0;
                 let profitAmount = 0;
                 let itemPrice = 0;
-                let itemTaxableAmount = 0; // sum of wage and profit for this item
+                let itemTaxableAmount = 0; 
 
-                // Calculate item price (excluding profit and wage for now)
                 const baseItemPrice = rawGoldPrice * weight;
 
                 if (wageType === 'percent') {
                     const wagePercent = parseFloat(convertToEnglishDigits(wageInput.value)) / 100 || 0;
                     wageAmount = baseItemPrice * wagePercent;
-                } else { // wageType === 'amount'
-                    wageAmount = parseInt(convertToEnglishDigits(wageInput.value.replace(/,/g, '')), 10) || 0;
+                } else { 
+                    wageAmount = parseFloat(convertToEnglishDigits(wageInput.value.replace(/,/g, ''))) || 0;
                 }
 
-                // Calculate profit based on the formula: (goldPrice * weight + wage) * profitRate
                 profitAmount = (baseItemPrice + wageAmount) * profitRate;
 
-
-                // Final price for this item
                 itemPrice = baseItemPrice + wageAmount + profitAmount;
-                totalOverallPriceWithoutTax += itemPrice; // Summing up item prices before adding tax to total overall
+                totalOverallPriceWithoutTax += itemPrice;
 
-                // Taxable amount for this item
                 itemTaxableAmount = wageAmount + profitAmount;
                 if (includeTax) {
-                    totalCalculatedTax += itemTaxableAmount * 0.10; // 10% tax
+                    totalCalculatedTax += itemTaxableAmount * 0.10; 
                 }
 
                 const itemLabel = productType ? `قیمت آیتم ${index + 1} (${productType}):` : `قیمت آیتم ${index + 1}:`;
@@ -739,7 +742,6 @@
             });
             
             let totalFinalPrice = totalOverallPriceWithoutTax;
-            // Add tax to the total final price if included
             if (includeTax) {
                 totalFinalPrice += totalCalculatedTax;
             }
@@ -773,19 +775,20 @@
                     input.addEventListener('blur', () => updateWageInWordsDisplay(input));
                 } else {
                     input.addEventListener('input', calculateFactor);
+                    input.addEventListener('change', calculateFactor); 
                 }
             });
         }
 
         // Initial setup
         document.addEventListener('DOMContentLoaded', () => {
-            updateRemoveButtonsVisibility(); // Hide remove button for the first item initially
-            addInputEventListeners(document); // Add listeners to initial elements
-            updateGoldPriceDisplay(); // Initial display for gold price
-            // Set initial state for wage input in the first item
+            updateRemoveButtonsVisibility(); 
+            addInputEventListeners(document); 
+            updateGoldPriceDisplay(); 
             const firstWageInput = document.getElementById('wage1');
             const firstWageTypeRadio = document.querySelector('input[name="wageType1"][value="percent"]');
-            toggleWageInput(firstWageTypeRadio); // Initialize wage input based on default radio
+            toggleWageInput(firstWageTypeRadio); 
+            calculateFactor(); 
         });
     </script>
 </body>
