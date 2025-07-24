@@ -92,6 +92,8 @@
             color: #333;
             transition: border-color 0.3s, box-shadow 0.3s;
             background-color: #fdfdfd;
+            position: relative; /* For inline display */
+            z-index: 1; /* Ensure input is above the inline display */
         }
         /* Apply Farsi font to specific input types/classes */
         input#goldPrice,
@@ -101,7 +103,6 @@
             font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
         }
 
-
         input[type="text"]:focus,
         input[type="number"]:focus,
         select:focus {
@@ -110,24 +111,50 @@
             outline: none;
         }
 
-        .price-text-display {
-            font-size: 0.9em;
-            color: #666;
-            text-align: right;
-            margin-top: -15px;
-            margin-bottom: 10px;
-            height: 1.2em; /* Ensure space even when empty */
-            overflow: hidden;
+        /* Styles for inline text display inside input */
+        .input-inline-wrapper {
+            position: relative;
+            width: 100%;
         }
 
+        .input-inline-display {
+            position: absolute;
+            left: 15px; /* Adjust as needed for padding */
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 0.9em;
+            color: #888;
+            pointer-events: none; /* Allows clicks to pass through to the input */
+            direction: rtl; /* Ensure text flows correctly */
+            white-space: nowrap; /* Prevent wrapping */
+            overflow: hidden; /* Hide overflow */
+            text-overflow: ellipsis; /* Add ellipsis for overflow */
+            max-width: calc(100% - 70px); /* Adjust based on input padding-right and length of number */
+            z-index: 2; /* Ensure text is above input */
+        }
+        
+        /* Adjust input padding to prevent text overlap */
+        input#goldPrice {
+            padding-right: 15px; /* Default for numbers */
+            padding-left: 70px; /* Space for the text display */
+            text-align: right;
+        }
+        
+        .gold-wage {
+            padding-right: 15px; /* Default for numbers */
+            padding-left: 70px; /* Space for the text display */
+            text-align: right;
+        }
+
+
         .add-item-button {
-            background-color: #2c3e50; /* Changed to dark blue */
+            background-color: #3498db; /* Changed to simple blue */
             color: white;
-            padding: 8px 15px; /* Smaller padding */
+            padding: 6px 12px; /* Smaller padding */
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.95em; /* Smaller font size */
+            font-size: 0.9em; /* Smaller font size */
             width: auto; /* Auto width */
             transition: background-color 0.3s ease;
             display: block; /* Make it a block element to center with margin */
@@ -135,7 +162,7 @@
         }
 
         .add-item-button:hover {
-            background-color: #1a242f; /* Darker blue on hover */
+            background-color: #2186c4; /* Darker blue on hover */
         }
         
         .item-row {
@@ -319,8 +346,8 @@
                 font-size: 0.95em;
             }
             .add-item-button {
-                padding: 10px 15px;
-                font-size: 1em;
+                padding: 8px 13px;
+                font-size: 0.95em;
             }
             .result-item {
                 font-size: 1em;
@@ -341,8 +368,10 @@
 
         <div class="form-group">
             <label for="goldPrice">قیمت هر گرم طلا (تومان):</label>
-            <div class="price-text-display" id="goldPriceInWords"></div>
-            <input type="text" id="goldPrice" maxlength="9" required>
+            <div class="input-inline-wrapper">
+                <input type="text" id="goldPrice" maxlength="9" required>
+                <span class="input-inline-display" id="goldPriceInWords"></span>
+            </div>
         </div>
 
         <div id="itemContainer">
@@ -379,8 +408,10 @@
                             <input type="radio" name="wageType1" value="amount" onchange="toggleWageInput(this)"> تومان
                         </label>
                     </div>
-                    <input type="text" id="wage1" class="gold-wage">
-                    <div class="price-text-display" id="wageInWords1" style="font-size: 0.8em;"></div>
+                    <div class="input-inline-wrapper">
+                        <input type="text" id="wage1" class="gold-wage">
+                        <span class="input-inline-display" id="wageInWords1"></span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -426,8 +457,8 @@
                 const farsiIndex = farsiDigits.indexOf(char);
                 if (farsiIndex !== -1) {
                     englishNum += farsiIndex;
-                } else if (char === ',') {
-                    // Ignore commas when converting back to English digits
+                } else if (char === ',' || char === '.') { // Also handle dot for decimals
+                    englishNum += char;
                 } else {
                     englishNum += char;
                 }
@@ -451,6 +482,18 @@
         }
 
         function convertNumberToWords(num) {
+            // Handle decimal part for percentages
+            if (typeof num === 'string' && num.includes('.')) {
+                const [integerPart, decimalPart] = num.split('.');
+                let words = convertNumberToWords(parseInt(integerPart, 10));
+                if (decimalPart) {
+                    words += ' ممیز ' + convertNumberToWords(parseInt(decimalPart, 10));
+                }
+                return words;
+            }
+
+            num = parseInt(num, 10); // Ensure integer for standard conversion
+
             const units = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
             const tens = ['', 'ده', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
             const teens = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
@@ -505,20 +548,20 @@
 
         function updateGoldPriceDisplay() {
             const goldPriceInput = document.getElementById('goldPrice');
+            const goldPriceInWordsSpan = document.getElementById('goldPriceInWords');
             let value = convertToEnglishDigits(goldPriceInput.value); 
 
-            if (value.length > 7) {
-                value = value.substring(0, 7);
+            if (value.length > 9) { // Increased to 9 for better usability if needed, though max 7 was fine for words
+                value = value.substring(0, 9);
             }
             
             goldPriceInput.value = formatNumberWithCommas(value);
 
-            const goldPriceInWords = document.getElementById('goldPriceInWords');
-            const numericValue = parseInt(value, 10);
+            const numericValue = parseInt(value.replace(/,/g, ''), 10);
             if (!isNaN(numericValue) && numericValue > 0) {
-                goldPriceInWords.textContent = convertNumberToWords(numericValue) + ' تومان';
+                goldPriceInWordsSpan.textContent = convertNumberToWords(numericValue) + ' تومان';
             } else {
-                goldPriceInWords.textContent = '';
+                goldPriceInWordsSpan.textContent = '';
             }
             calculateFactor();
         }
@@ -534,20 +577,20 @@
         function toggleWageInput(radio) {
             const itemRow = radio.closest('.item-row');
             const wageInput = itemRow.querySelector('.gold-wage');
-            const wageInWordsDisplay = itemRow.querySelector('.price-text-display');
+            const wageInWordsDisplay = itemRow.querySelector('.input-inline-display');
             
             wageInput.value = ''; 
 
             if (radio.value === 'percent') {
-                wageInput.setAttribute('type', 'text');
-                wageInput.setAttribute('inputmode', 'numeric');
-                wageInput.setAttribute('maxlength', '2'); 
-                wageInWordsDisplay.style.display = 'block'; // Ensure display is block for percent also
+                wageInput.setAttribute('type', 'text'); // Keep as text to allow decimal point
+                wageInput.setAttribute('inputmode', 'decimal'); // Suggest decimal keyboard
+                wageInput.setAttribute('maxlength', '5'); // e.g., 99.99
+                wageInWordsDisplay.style.display = 'inline-block';
             } else { 
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'numeric');
                 wageInput.setAttribute('maxlength', '9'); 
-                wageInWordsDisplay.style.display = 'block';
+                wageInWordsDisplay.style.display = 'inline-block';
             }
             updateWageInWordsDisplay(wageInput); 
             calculateFactor();
@@ -555,14 +598,14 @@
 
         function updateWageInWordsDisplay(inputElement) {
             const itemRow = inputElement.closest('.item-row');
-            const wageInWordsDisplay = itemRow.querySelector('.price-text-display');
+            const wageInWordsDisplay = itemRow.querySelector('.input-inline-display');
             const wageType = itemRow.querySelector('input[name^="wageType"]:checked').value;
 
             if (wageType === 'amount') {
                 let value = convertToEnglishDigits(inputElement.value.replace(/,/g, ''));
 
-                if (value.length > 7) {
-                    value = value.substring(0, 7);
+                if (value.length > 9) { // Increased to 9
+                    value = value.substring(0, 9);
                 }
                 
                 inputElement.value = formatCurrencyForWage(value); 
@@ -576,16 +619,31 @@
             } else { // percent type
                 let value = convertToEnglishDigits(inputElement.value);
                 
-                if (value.length > 2) {
-                    value = value.substring(0, 2);
+                // Allow up to 2 digits before and 2 after decimal point (e.g., 99.99)
+                const parts = value.split('.');
+                let integerPart = parts[0];
+                let decimalPart = parts[1];
+
+                if (integerPart.length > 2) {
+                    integerPart = integerPart.substring(0, 2);
                 }
-                let percentValue = parseInt(value, 10);
-                if (isNaN(percentValue) || percentValue < 1 || percentValue > 99) {
+                if (decimalPart && decimalPart.length > 2) {
+                    decimalPart = decimalPart.substring(0, 2);
+                }
+                
+                value = integerPart;
+                if (decimalPart !== undefined) {
+                    value += '.' + decimalPart;
+                }
+
+                let percentValue = parseFloat(value);
+                
+                if (isNaN(percentValue) || percentValue < 0 || percentValue > 99.99) { // Adjust max value for percentage with decimal
                     inputElement.value = ''; 
                     wageInWordsDisplay.textContent = ''; 
                 } else {
-                    inputElement.value = convertToFarsiDigits(percentValue.toString()); 
-                    wageInWordsDisplay.textContent = convertToFarsiDigits(percentValue.toString()) + ' درصد'; 
+                    inputElement.value = convertToFarsiDigits(value.toString()); 
+                    wageInWordsDisplay.textContent = convertNumberToWords(value) + ' درصد'; 
                 }
             }
             calculateFactor();
@@ -640,8 +698,10 @@
                                 <input type="radio" name="wageType${itemIdCounter}" value="amount" onchange="toggleWageInput(this)"> تومان
                             </label>
                         </div>
-                        <input type="text" id="wage${itemIdCounter}" class="gold-wage">
-                        <div class="price-text-display" id="wageInWords${itemIdCounter}" style="font-size: 0.8em;"></div>
+                        <div class="input-inline-wrapper">
+                            <input type="text" id="wage${itemIdCounter}" class="gold-wage">
+                            <span class="input-inline-display" id="wageInWords${itemIdCounter}"></span>
+                        </div>
                     </div>
                 </div>
             `;
@@ -767,7 +827,8 @@
             if (includeTax) {
                 resultSection.innerHTML += `
                     <div class="result-item total-tax">
-                        <span>مالیات:</span> <span>${formatCurrency(totalCalculatedTax)}</span>
+                        <span>مالیات:</span>
+                        <span>${formatCurrency(totalCalculatedTax)}</span>
                     </div>
                 `;
             }
