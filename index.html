@@ -319,7 +319,7 @@
         <div class="form-group">
             <label for="goldPrice">قیمت هر گرم طلا (تومان):</label>
             <div class="price-text-display" id="goldPriceInWords"></div>
-            <input type="text" id="goldPrice" placeholder="مثال: 3450000" maxlength="9">
+            <input type="text" id="goldPrice" maxlength="9">
             <i class="fas fa-money-bill-wave input-icon" style="right: 15px; left: auto;"></i>
         </div>
 
@@ -329,7 +329,7 @@
                 <div class="flex-group">
                     <div class="form-group">
                         <label for="weight1">وزن طلا (گرم):</label>
-                        <input type="number" id="weight1" class="gold-weight" step="0.001" placeholder="مثال: 1.5" min="0">
+                        <input type="number" id="weight1" class="gold-weight" step="0.001" min="0">
                         <i class="fas fa-weight input-icon" style="right: 15px; left: auto;"></i>
                     </div>
                     <div class="form-group">
@@ -342,7 +342,7 @@
                                 <input type="radio" name="wageType1" value="amount" onchange="toggleWageInput(this)"> تومان
                             </label>
                         </div>
-                        <input type="text" id="wage1" class="gold-wage" placeholder="مثال: 7 (درصد) یا 150000 (تومان)">
+                        <input type="text" id="wage1" class="gold-wage">
                         <div class="price-text-display" id="wageInWords1" style="font-size: 0.8em;"></div>
                         <i class="fas fa-percent input-icon wage-icon" style="right: 15px; left: auto;"></i>
                     </div>
@@ -454,7 +454,7 @@
                         }
                     }
                 }
-                return parts.join(' و ');
+                return parts.filter(Boolean).join(' و ');
             }
 
             let counter = 0;
@@ -477,15 +477,22 @@
         function updateGoldPriceDisplay() {
             const goldPriceInput = document.getElementById('goldPrice');
             let value = goldPriceInput.value.replace(/,/g, ''); // Remove existing commas for calculation
-            const goldPriceInWords = document.getElementById('goldPriceInWords');
 
+            // Enforce max length of 7 digits
             if (value.length > 7) {
                 value = value.substring(0, 7);
-                goldPriceInput.value = value;
+            }
+
+            // Enforce minimum length of 6 digits if user has typed more than 0
+            if (value.length > 0 && value.length < 6) {
+                // Optionally, you can add a visual cue or prevent further input,
+                // but for now, we just let it be short until user adds more.
+                // Or: value = "000000".substring(0, 6 - value.length) + value; // pad with zeros if needed
             }
 
             goldPriceInput.value = formatNumberWithCommas(value); // Re-format with commas
 
+            const goldPriceInWords = document.getElementById('goldPriceInWords');
             const numericValue = parseInt(value, 10);
             if (!isNaN(numericValue) && numericValue > 0) {
                 goldPriceInWords.textContent = convertNumberToWords(numericValue) + ' تومان';
@@ -503,15 +510,8 @@
         }
 
 
-        document.getElementById('goldPrice').addEventListener('input', function() {
-            let input = this.value.replace(/,/g, ''); // Remove commas for length check
-            if (input.length > 7) {
-                input = input.substring(0, 7);
-            }
-            this.value = formatNumberWithCommas(input);
-            updateGoldPriceDisplay();
-        });
-
+        document.getElementById('goldPrice').addEventListener('input', updateGoldPriceDisplay);
+        document.getElementById('goldPrice').addEventListener('blur', updateGoldPriceDisplay); // Update on blur too
 
         function toggleWageInput(radio) {
             const itemRow = radio.closest('.item-row');
@@ -520,28 +520,21 @@
             const wageIcon = itemRow.querySelector('.wage-icon');
 
             if (radio.value === 'percent') {
-                wageInput.placeholder = 'مثال: 7 (درصد)';
+                wageInput.value = ''; // Clear input on type change
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'numeric');
-                wageInput.removeAttribute('maxlength'); // No max length for percent
+                wageInput.setAttribute('maxlength', '1'); // Only 1 digit for percent
                 wageInWordsDisplay.style.display = 'none';
                 if (wageIcon) wageIcon.className = 'fas fa-percent input-icon wage-icon';
-            } else {
-                wageInput.placeholder = 'مثال: 150000 (تومان)';
+            } else { // wageType === 'amount'
+                wageInput.value = ''; // Clear input on type change
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'numeric');
-                wageInput.setAttribute('maxlength', '9'); // Max length for amount in Toman
+                wageInput.setAttribute('maxlength', '9'); // Max length for amount in Toman (7 digits + 2 commas)
                 wageInWordsDisplay.style.display = 'block';
                 if (wageIcon) wageIcon.className = 'fas fa-money-bill-wave input-icon wage-icon';
             }
-            // Clear and re-evaluate the input value when toggling
-            let currentValue = wageInput.value.replace(/,/g, '');
-            if (radio.value === 'amount') {
-                wageInput.value = formatCurrency(parseInt(currentValue, 10) || 0);
-            } else {
-                wageInput.value = convertToEnglishDigits(currentValue);
-            }
-            updateWageInWordsDisplay(wageInput);
+            updateWageInWordsDisplay(wageInput); // Update display after changing type
             calculateFactor();
         }
 
@@ -551,13 +544,16 @@
             const wageType = itemRow.querySelector('input[name^="wageType"]:checked').value;
 
             if (wageType === 'amount') {
-                let value = inputElement.value.replace(/,/g, '');
-                if (value.length > 9) {
-                    value = value.substring(0, 9);
-                    inputElement.value = formatCurrency(parseInt(value, 10));
-                } else {
-                    inputElement.value = formatCurrency(parseInt(value, 10));
+                let value = convertToEnglishDigits(inputElement.value.replace(/,/g, ''));
+
+                // Enforce min 6, max 7 digits for Toman, then format
+                if (value.length > 7) {
+                    value = value.substring(0, 7);
                 }
+                // No minimum length enforcement on input, only for word conversion
+                // if (value.length > 0 && value.length < 6) { /* no action, let user continue typing */ }
+
+                inputElement.value = formatCurrencyForWage(value); // Format for display
 
                 const numericValue = parseInt(value, 10);
                 if (!isNaN(numericValue) && numericValue > 0) {
@@ -565,10 +561,35 @@
                 } else {
                     wageInWordsDisplay.textContent = '';
                 }
-            } else {
+            } else { // percent type
+                let value = convertToEnglishDigits(inputElement.value);
+                // Only allow 1 to 7 for percent
+                if (value.length > 1) {
+                    value = value.substring(0, 1);
+                }
+                let percentValue = parseInt(value, 10);
+                if (isNaN(percentValue) || percentValue < 1 || percentValue > 7) {
+                    inputElement.value = ''; // Clear if invalid
+                } else {
+                    inputElement.value = percentValue.toString();
+                }
                 wageInWordsDisplay.textContent = ''; // Clear for percent type
-                inputElement.value = convertToEnglishDigits(inputElement.value);
             }
+            calculateFactor();
+        }
+
+        function formatCurrencyForWage(numStr) {
+            // Take the numeric string (e.g., "1500000") and format it
+            let formatted = '';
+            let counter = 0;
+            for (let i = numStr.length - 1; i >= 0; i--) {
+                formatted = numStr[i] + formatted;
+                counter++;
+                if (counter % 3 === 0 && i !== 0) {
+                    formatted = ',' + formatted;
+                }
+            }
+            return convertToFarsiDigits(formatted);
         }
 
         function addItem() {
@@ -579,7 +600,7 @@
                     <div class="flex-group">
                         <div class="form-group">
                             <label for="weight${itemIdCounter}">وزن طلا (گرم):</label>
-                            <input type="number" id="weight${itemIdCounter}" class="gold-weight" step="0.001" placeholder="مثال: 1.5" min="0">
+                            <input type="number" id="weight${itemIdCounter}" class="gold-weight" step="0.001" min="0">
                             <i class="fas fa-weight input-icon" style="right: 15px; left: auto;"></i>
                         </div>
                         <div class="form-group">
@@ -592,21 +613,26 @@
                                     <input type="radio" name="wageType${itemIdCounter}" value="amount" onchange="toggleWageInput(this)"> تومان
                                 </label>
                             </div>
-                            <input type="text" id="wage${itemIdCounter}" class="gold-wage" placeholder="مثال: 7 (درصد) یا 150000 (تومان)">
+                            <input type="text" id="wage${itemIdCounter}" class="gold-wage">
                             <div class="price-text-display" id="wageInWords${itemIdCounter}" style="font-size: 0.8em;"></div>
                             <i class="fas fa-percent input-icon wage-icon" style="right: 15px; left: auto;"></i>
                         </div>
                     </div>
                 </div>
             `;
-            itemContainer.insertAdjacentHTML('beforeend', newItemHtml);
+            // Insert new item right after the first (fixed) item
+            itemContainer.firstElementChild.insertAdjacentHTML('afterend', newItemHtml);
             updateRemoveButtonsVisibility();
-            addInputEventListeners(itemContainer.lastElementChild);
+            addInputEventListeners(itemContainer.querySelector(`[data-item-id="${itemIdCounter}"]`));
             calculateFactor();
         }
 
         function removeItem(button) {
             const itemRow = button.closest('.item-row');
+            // Ensure we don't remove the first item
+            if (itemRow.dataset.itemId === '1') {
+                return; // Prevent removal of the first item
+            }
             itemRow.remove();
             updateRemoveButtonsVisibility();
             calculateFactor();
@@ -616,10 +642,10 @@
             const items = itemContainer.querySelectorAll('.item-row');
             items.forEach((item, index) => {
                 const removeButton = item.querySelector('.remove-item');
-                if (items.length > 1) {
-                    removeButton.style.display = 'block';
+                if (index === 0) { // First item
+                    removeButton.style.display = 'none'; // Always hide remove button for the first item
                 } else {
-                    removeButton.style.display = 'none';
+                    removeButton.style.display = 'block';
                 }
             });
         }
@@ -677,16 +703,14 @@
 
         function addInputEventListeners(element) {
             element.querySelectorAll('input, select').forEach(input => {
-                input.addEventListener('input', () => {
-                    if (input.id === 'goldPrice') {
-                        updateGoldPriceDisplay();
-                    } else if (input.classList.contains('gold-wage')) {
-                        updateWageInWordsDisplay(input);
-                        calculateFactor();
-                    } else {
-                        calculateFactor();
-                    }
-                });
+                if (input.id === 'goldPrice') {
+                    // Already handled by specific listeners
+                } else if (input.classList.contains('gold-wage')) {
+                    input.addEventListener('input', () => updateWageInWordsDisplay(input));
+                    input.addEventListener('blur', () => updateWageInWordsDisplay(input));
+                } else {
+                    input.addEventListener('input', calculateFactor);
+                }
             });
         }
 
@@ -695,6 +719,10 @@
             updateRemoveButtonsVisibility(); // Hide remove button for the first item initially
             addInputEventListeners(document); // Add listeners to initial elements
             updateGoldPriceDisplay(); // Initial display for gold price
+            // Set initial state for wage input in the first item
+            const firstWageInput = document.getElementById('wage1');
+            const firstWageTypeRadio = document.querySelector('input[name="wageType1"]:checked');
+            toggleWageInput(firstWageTypeRadio); // Initialize wage input based on default radio
         });
     </script>
 </body>
