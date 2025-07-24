@@ -115,25 +115,21 @@
         .add-item-button {
             background-color: #2ecc71;
             color: white;
-            padding: 12px 20px;
+            padding: 8px 15px; /* Smaller padding */
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 1.1em;
-            width: 100%;
+            font-size: 0.95em; /* Smaller font size */
+            width: auto; /* Auto width */
             transition: background-color 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 25px;
+            display: block; /* Make it a block element to center with margin */
+            margin: 25px auto 0 auto; /* Center the button */
         }
 
         .add-item-button:hover {
             background-color: #27ae60;
         }
-
-        /* Removed add-item-button i style */
-
+        
         .item-row {
             border: 1px dashed #c0c0c0;
             padding: 15px;
@@ -249,7 +245,7 @@
         .result-item.total-tax {
             color: #e67e22; /* Different color for total tax */
         }
-        .result-item.total-all {
+        .result-item.final-total { /* Changed class name for clarity */
             color: #27ae60; /* Different color for final total */
         }
 
@@ -271,6 +267,25 @@
             background-position: left 15px center; /* Adjust position for RTL */
             background-size: 12px;
             padding-left: 40px; /* Make space for the arrow */
+            padding-right: 15px;
+        }
+        /* Style for product type select to align with other inputs */
+        select.product-type-select {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1em;
+            color: #333;
+            background-color: #fdfdfd;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M205.66%2099.66L128%20177.34%2050.34%2099.66z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: left 15px center;
+            background-size: 12px;
+            padding-left: 40px;
             padding-right: 15px;
         }
 
@@ -326,18 +341,33 @@
                         <input type="number" id="weight1" class="gold-weight" step="0.001" min="0">
                     </div>
                     <div class="form-group">
-                        <label for="wage1">اجرت:</label>
-                        <div class="currency-toggle">
-                            <label>
-                                <input type="radio" name="wageType1" value="percent" checked onchange="toggleWageInput(this)"> درصد
-                            </label>
-                            <label>
-                                <input type="radio" name="wageType1" value="amount" onchange="toggleWageInput(this)"> تومان
-                            </label>
-                        </div>
-                        <input type="text" id="wage1" class="gold-wage">
-                        <div class="price-text-display" id="wageInWords1" style="font-size: 0.8em;"></div>
+                        <label for="productType1">نوع محصول:</label>
+                        <select id="productType1" class="product-type-select">
+                            <option value="">انتخاب کنید</option>
+                            <option value="زنجیر">زنجیر</option>
+                            <option value="دستبند">دستبند</option>
+                            <option value="النگو">النگو</option>
+                            <option value="سرویس">سرویس</option>
+                            <option value="نیم‌ست">نیم‌ست</option>
+                            <option value="گوشواره">گوشواره</option>
+                            <option value="مدال">مدال</option>
+                            <option value="گردنبند">گردنبند</option>
+                            <option value="خلخال">خلخال</option>
+                        </select>
                     </div>
+                </div>
+                <div class="form-group">
+                    <label for="wage1">اجرت:</label>
+                    <div class="currency-toggle">
+                        <label>
+                            <input type="radio" name="wageType1" value="percent" checked onchange="toggleWageInput(this)"> درصد
+                        </label>
+                        <label>
+                            <input type="radio" name="wageType1" value="amount" onchange="toggleWageInput(this)"> تومان
+                        </label>
+                    </div>
+                    <input type="text" id="wage1" class="gold-wage">
+                    <div class="price-text-display" id="wageInWords1" style="font-size: 0.8em;"></div>
                 </div>
             </div>
         </div>
@@ -500,7 +530,7 @@
             if (radio.value === 'percent') {
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'numeric');
-                wageInput.setAttribute('maxlength', '1'); // Only 1 digit for percent
+                wageInput.setAttribute('maxlength', '2'); // Max 2 digits for percent (1-99)
                 wageInWordsDisplay.style.display = 'none';
             } else { // wageType === 'amount'
                 wageInput.setAttribute('type', 'text');
@@ -535,12 +565,13 @@
                 }
             } else { // percent type
                 let value = convertToEnglishDigits(inputElement.value);
-                // Only allow 1 to 7 for percent
-                if (value.length > 1) {
-                    value = value.substring(0, 1);
+                
+                // Allow up to 2 digits for percent (1-99)
+                if (value.length > 2) {
+                    value = value.substring(0, 2);
                 }
                 let percentValue = parseInt(value, 10);
-                if (isNaN(percentValue) || percentValue < 1 || percentValue > 7) {
+                if (isNaN(percentValue) || percentValue < 1 || percentValue > 99) {
                     inputElement.value = ''; // Clear if invalid
                 } else {
                     inputElement.value = percentValue.toString(); // Keep it English internally for calculation
@@ -575,18 +606,33 @@
                             <input type="number" id="weight${itemIdCounter}" class="gold-weight" step="0.001" min="0">
                         </div>
                         <div class="form-group">
-                            <label for="wage${itemIdCounter}">اجرت:</label>
-                            <div class="currency-toggle">
-                                <label>
-                                    <input type="radio" name="wageType${itemIdCounter}" value="percent" checked onchange="toggleWageInput(this)"> درصد
-                                </label>
-                                <label>
-                                    <input type="radio" name="wageType${itemIdCounter}" value="amount" onchange="toggleWageInput(this)"> تومان
-                                </label>
-                            </div>
-                            <input type="text" id="wage${itemIdCounter}" class="gold-wage">
-                            <div class="price-text-display" id="wageInWords${itemIdCounter}" style="font-size: 0.8em;"></div>
+                            <label for="productType${itemIdCounter}">نوع محصول:</label>
+                            <select id="productType${itemIdCounter}" class="product-type-select">
+                                <option value="">انتخاب کنید</option>
+                                <option value="زنجیر">زنجیر</option>
+                                <option value="دستبند">دستبند</option>
+                                <option value="النگو">النگو</option>
+                                <option value="سرویس">سرویس</option>
+                                <option value="نیم‌ست">نیم‌ست</option>
+                                <option value="گوشواره">گوشواره</option>
+                                <option value="مدال">مدال</option>
+                                <option value="گردنبند">گردنبند</option>
+                                <option value="خلخال">خلخال</option>
+                            </select>
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="wage${itemIdCounter}">اجرت:</label>
+                        <div class="currency-toggle">
+                            <label>
+                                <input type="radio" name="wageType${itemIdCounter}" value="percent" checked onchange="toggleWageInput(this)"> درصد
+                            </label>
+                            <label>
+                                <input type="radio" name="wageType${itemIdCounter}" value="amount" onchange="toggleWageInput(this)"> تومان
+                            </label>
+                        </div>
+                        <input type="text" id="wage${itemIdCounter}" class="gold-wage">
+                        <div class="price-text-display" id="wageInWords${itemIdCounter}" style="font-size: 0.8em;"></div>
                     </div>
                 </div>
             `;
@@ -594,6 +640,12 @@
             itemContainer.firstElementChild.insertAdjacentHTML('afterend', newItemHtml);
             updateRemoveButtonsVisibility();
             addInputEventListeners(itemContainer.querySelector(`[data-item-id="${itemIdCounter}"]`));
+            
+            // Set initial wage type for the new item
+            const newItemWageInput = document.getElementById(`wage${itemIdCounter}`);
+            const newItemWageTypeRadio = document.querySelector(`input[name="wageType${itemIdCounter}"][value="percent"]`);
+            toggleWageInput(newItemWageTypeRadio);
+
             calculateFactor();
         }
 
@@ -624,7 +676,7 @@
             const goldPriceInput = document.getElementById('goldPrice');
             const rawGoldPrice = parseInt(convertToEnglishDigits(goldPriceInput.value.replace(/,/g, '')), 10);
             
-            // Check if gold price is entered
+            // Check if gold price is entered and valid
             if (isNaN(rawGoldPrice) || rawGoldPrice <= 0) {
                 document.getElementById('resultSection').innerHTML = ''; // Clear results if price is invalid
                 return; 
@@ -633,17 +685,20 @@
             const profitRate = parseInt(document.getElementById('profitRate').value, 10) / 100;
             const includeTax = document.getElementById('includeTax').checked;
 
-            let totalOverallPrice = 0; // Final total of all items + tax
+            let totalOverallPriceWithoutTax = 0; // Sum of item prices before tax is applied to overall total
             let totalCalculatedTax = 0;
             let itemResultsHtml = '';
 
             const itemRows = document.querySelectorAll('.item-row');
             itemRows.forEach((row, index) => {
                 const weightInput = row.querySelector('.gold-weight');
+                const productTypeSelect = row.querySelector('.product-type-select');
                 const wageInput = row.querySelector('.gold-wage');
                 const wageType = row.querySelector('input[name^="wageType"]:checked').value;
 
                 const weight = parseFloat(weightInput.value) || 0;
+                const productType = productTypeSelect ? productTypeSelect.value : '';
+
                 let wageAmount = 0;
                 let profitAmount = 0;
                 let itemPrice = 0;
@@ -665,7 +720,7 @@
 
                 // Final price for this item
                 itemPrice = baseItemPrice + wageAmount + profitAmount;
-                totalOverallPrice += itemPrice; // Summing up item prices before adding tax to total overall
+                totalOverallPriceWithoutTax += itemPrice; // Summing up item prices before adding tax to total overall
 
                 // Taxable amount for this item
                 itemTaxableAmount = wageAmount + profitAmount;
@@ -673,17 +728,20 @@
                     totalCalculatedTax += itemTaxableAmount * 0.10; // 10% tax
                 }
 
+                const itemLabel = productType ? `قیمت آیتم ${index + 1} (${productType}):` : `قیمت آیتم ${index + 1}:`;
+
                 itemResultsHtml += `
                     <div class="result-item">
-                        <span>قیمت آیتم ${index + 1}:</span>
+                        <span>${itemLabel}</span>
                         <span>${formatCurrency(itemPrice)}</span>
                     </div>
                 `;
             });
             
-            // Add tax to the total overall price if included
+            let totalFinalPrice = totalOverallPriceWithoutTax;
+            // Add tax to the total final price if included
             if (includeTax) {
-                totalOverallPrice += totalCalculatedTax;
+                totalFinalPrice += totalCalculatedTax;
             }
 
             const resultSection = document.getElementById('resultSection');
@@ -692,16 +750,16 @@
             if (includeTax) {
                 resultSection.innerHTML += `
                     <div class="result-item total-tax">
-                        <span>جمع مالیات تمام آیتم ها:</span>
+                        <span>مالیات کل:</span>
                         <span>${formatCurrency(totalCalculatedTax)}</span>
                     </div>
                 `;
             }
 
             resultSection.innerHTML += `
-                <div class="result-item total-all">
-                    <span>جمع قیمت تمام آیتم ها + مالیات:</span>
-                    <span>${formatCurrency(totalOverallPrice)}</span>
+                <div class="result-item final-total">
+                    <span>قیمت کل نهایی:</span>
+                    <span>${formatCurrency(totalFinalPrice)}</span>
                 </div>
             `;
         }
@@ -726,7 +784,7 @@
             updateGoldPriceDisplay(); // Initial display for gold price
             // Set initial state for wage input in the first item
             const firstWageInput = document.getElementById('wage1');
-            const firstWageTypeRadio = document.querySelector('input[name="wageType1"]:checked');
+            const firstWageTypeRadio = document.querySelector('input[name="wageType1"][value="percent"]');
             toggleWageInput(firstWageTypeRadio); // Initialize wage input based on default radio
         });
     </script>
