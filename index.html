@@ -101,8 +101,10 @@
         select#profitRate, /* Added for profitRate select */
         select.product-type-select,
         .gold-weight, /* Apply to all weight inputs */
-        .gold-buy-weight { /* New: Apply to buy weight input */
+        .gold-buy-weight, /* Apply to buy weight input */
+        input#discount { /* Apply to discount input */
             font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
+            text-align: right; /* Ensure numbers align right */
         }
 
         input[type="text"]:focus,
@@ -136,27 +138,21 @@
         }
         
         /* Adjust input padding to prevent text overlap */
-        input#goldPrice {
-            padding-right: 15px; /* Default for numbers */
-            padding-left: 70px; /* Space for the text display */
-            text-align: right;
-        }
-        
+        input#goldPrice,
         .gold-wage {
-            padding-right: 15px; /* Default for numbers */
             padding-left: 70px; /* Space for the text display */
-            text-align: right;
         }
+        /* No specific padding-left for gold-buy-weight as it doesn't have inline text */
 
 
         .add-item-button {
             background-color: #3498db; /* Changed to simple blue */
             color: white;
-            padding: 6px 12px; /* Smaller padding */
+            padding: 5px 10px; /* Even smaller padding */
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.9em; /* Smaller font size */
+            font-size: 0.85em; /* Even smaller font size */
             width: auto; /* Auto width */
             transition: background-color 0.3s ease;
             display: block; /* Make it a block element to center with margin */
@@ -284,13 +280,18 @@
         .result-item.total-tax {
             color: #e67e22;
         }
+        /* Changed final-total color to green */
         .result-item.final-total {
-            color: #e74c3c;
+            color: #27ae60; /* Green color */
         }
         /* New style for deducted amount */
         .result-item.deducted-amount {
             color: #d35400; /* Orange-red for subtracted amount */
             font-size: 1em; /* Slightly smaller than total */
+        }
+        .result-item.discount-amount {
+            color: #8e44ad; /* Purple color for discount */
+            font-size: 1em;
         }
 
 
@@ -302,9 +303,14 @@
             color: #007bff;
             direction: ltr;
         }
-        .result-item.final-total span:last-child,
         .result-item.deducted-amount span:last-child { /* Apply to deducted amount too */
             color: #e74c3c;
+        }
+        .result-item.final-total span:last-child { /* Override for final total to green */
+            color: #27ae60;
+        }
+        .result-item.discount-amount span:last-child { /* Apply to discount amount */
+            color: #8e44ad;
         }
 
 
@@ -389,7 +395,7 @@
                 <div class="flex-group">
                     <div class="form-group">
                         <label for="weight1">وزن طلا (گرم):</label>
-                        <input type="number" id="weight1" class="gold-weight" step="0.001" min="0">
+                        <input type="number" id="weight1" class="gold-weight" step="0.001" min="0" max="200">
                     </div>
                     <div class="form-group">
                         <label for="productType1">نوع محصول:</label>
@@ -423,8 +429,8 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="buyWeight1">وزن خرید طلا (گرم) - اختیاری:</label>
-                    <input type="number" id="buyWeight1" class="gold-buy-weight" step="0.001" min="0">
+                    <label for="buyWeight1">خرید طلا (گرم):</label>
+                    <input type="number" id="buyWeight1" class="gold-buy-weight" step="0.001" min="0" max="200">
                 </div>
             </div>
         </div>
@@ -450,6 +456,11 @@
             </label>
         </div>
 
+        <div class="form-group">
+            <label for="discount">تخفیف (تومان):</label>
+            <input type="text" id="discount" class="discount-input">
+        </div>
+
         <div class="result-section" id="resultSection">
             </div>
     </div>
@@ -458,19 +469,29 @@
         const farsiDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
         const itemContainer = document.getElementById('itemContainer');
         let itemIdCounter = 1;
+        let lastSuggestedDiscount = 0; // To store the last suggested discount
 
         function convertToFarsiDigits(num) {
-            return num.toString().split('').map(digit => farsiDigits[parseInt(digit)] || digit).join('');
+            if (num === null || num === undefined) {
+                return '';
+            }
+            return String(num).split('').map(digit => {
+                if (digit === '.') return '.'; 
+                if (digit === ',') return ','; // Keep commas as is for formatting
+                const farsiDigit = farsiDigits[parseInt(digit)];
+                return farsiDigit !== undefined ? farsiDigit : digit;
+            }).join('');
         }
 
         function convertToEnglishDigits(num) {
             let englishNum = '';
+            num = String(num); 
             for (let i = 0; i < num.length; i++) {
                 const char = num[i];
                 const farsiIndex = farsiDigits.indexOf(char);
                 if (farsiIndex !== -1) {
                     englishNum += farsiIndex;
-                } else if (char === ',' || char === '.') { // Also handle dot for decimals
+                } else if (char === ',' || char === '.') { 
                     englishNum += char;
                 } else {
                     englishNum += char;
@@ -481,7 +502,7 @@
 
         function formatCurrency(num) {
             if (num === null || isNaN(num)) return '۰';
-            let numStr = Math.round(num).toString();
+            let numStr = Math.round(num).toString(); 
             let formatted = '';
             let counter = 0;
             for (let i = numStr.length - 1; i >= 0; i--) {
@@ -495,25 +516,27 @@
         }
 
         function convertNumberToWords(num) {
-            // Handle decimal part for percentages
-            if (typeof num === 'string' && num.includes('.')) {
+            num = String(num);
+
+            if (num.includes('.')) {
                 const [integerPart, decimalPart] = num.split('.');
-                let words = convertNumberToWords(parseInt(integerPart, 10));
+                let words = convertNumberToWords(parseInt(integerPart, 10)); 
                 if (decimalPart) {
-                    words += ' ممیز ' + convertNumberToWords(parseInt(decimalPart, 10));
+                    const decimalWords = decimalPart.split('').map(digit => farsiDigits.indexOf(digit) !== -1 ? farsiDigits.indexOf(digit).toString() : digit).join('');
+                    words += ' ممیز ' + convertNumberToWords(parseInt(decimalWords, 10));
                 }
                 return words;
             }
 
-            num = parseInt(num, 10); // Ensure integer for standard conversion
+            num = parseInt(num, 10);
+            if (isNaN(num)) return '';
+            if (num === 0) return 'صفر';
 
             const units = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
             const tens = ['', 'ده', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
             const teens = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
             const hundreds = ['', 'صد', 'دویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
             const thousands = ['', 'هزار', 'میلیون', 'میلیارد', 'تریلیون'];
-
-            if (num === 0) return 'صفر';
 
             let result = [];
             let numStr = String(num);
@@ -564,7 +587,7 @@
             const goldPriceInWordsSpan = document.getElementById('goldPriceInWords');
             let value = convertToEnglishDigits(goldPriceInput.value); 
 
-            if (value.length > 9) { // Increased to 9 for better usability if needed, though max 7 was fine for words
+            if (value.length > 9) {
                 value = value.substring(0, 9);
             }
             
@@ -595,9 +618,9 @@
             wageInput.value = ''; 
 
             if (radio.value === 'percent') {
-                wageInput.setAttribute('type', 'text'); // Keep as text to allow decimal point
-                wageInput.setAttribute('inputmode', 'decimal'); // Suggest decimal keyboard
-                wageInput.setAttribute('maxlength', '5'); // e.g., 99.99
+                wageInput.setAttribute('type', 'text');
+                wageInput.setAttribute('inputmode', 'decimal');
+                wageInput.setAttribute('maxlength', '5');
                 wageInWordsDisplay.style.display = 'inline-block';
             } else { 
                 wageInput.setAttribute('type', 'text');
@@ -617,7 +640,7 @@
             if (wageType === 'amount') {
                 let value = convertToEnglishDigits(inputElement.value.replace(/,/g, ''));
 
-                if (value.length > 9) { // Increased to 9
+                if (value.length > 9) {
                     value = value.substring(0, 9);
                 }
                 
@@ -632,7 +655,6 @@
             } else { // percent type
                 let value = convertToEnglishDigits(inputElement.value);
                 
-                // Allow up to 2 digits before and 2 after decimal point (e.g., 99.99)
                 const parts = value.split('.');
                 let integerPart = parts[0];
                 let decimalPart = parts[1];
@@ -651,7 +673,7 @@
 
                 let percentValue = parseFloat(value);
                 
-                if (isNaN(percentValue) || percentValue < 0 || percentValue > 99.99) { // Adjust max value for percentage with decimal
+                if (isNaN(percentValue) || percentValue < 0 || percentValue > 99.99) {
                     inputElement.value = ''; 
                     wageInWordsDisplay.textContent = ''; 
                 } else {
@@ -683,7 +705,7 @@
                     <div class="flex-group">
                         <div class="form-group">
                             <label for="weight${itemIdCounter}">وزن طلا (گرم):</label>
-                            <input type="number" id="weight${itemIdCounter}" class="gold-weight" step="0.001" min="0">
+                            <input type="number" id="weight${itemIdCounter}" class="gold-weight" step="0.001" min="0" max="200">
                         </div>
                         <div class="form-group">
                             <label for="productType${itemIdCounter}">نوع محصول:</label>
@@ -717,8 +739,8 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="buyWeight${itemIdCounter}">وزن خرید طلا (گرم) - اختیاری:</label>
-                        <input type="number" id="buyWeight${itemIdCounter}" class="gold-buy-weight" step="0.001" min="0">
+                        <label for="buyWeight${itemIdCounter}">خرید طلا (گرم):</label>
+                        <input type="number" id="buyWeight${itemIdCounter}" class="gold-buy-weight" step="0.001" min="0" max="200">
                     </div>
                 </div>
             `;
@@ -747,7 +769,6 @@
             const items = itemContainer.querySelectorAll('.item-row');
             items.forEach((item, index) => {
                 const removeButton = item.querySelector('.remove-item');
-                // Hide remove button for the first item (index 0)
                 if (index === 0) { 
                     removeButton.style.display = 'none'; 
                 } else {
@@ -768,14 +789,15 @@
             const profitRateElement = document.getElementById('profitRate');
             const profitRate = parseFloat(profitRateElement.value) / 100;
             const includeTax = document.getElementById('includeTax').checked;
+            const discountInput = document.getElementById('discount');
+            let discountAmount = parseFloat(convertToEnglishDigits(discountInput.value.replace(/,/g, ''))) || 0;
 
-            // Update profit rate display to Farsi
-            profitRateElement.innerHTML = ''; // Clear existing options
+            profitRateElement.innerHTML = ''; 
             for (let i = 1; i <= 7; i++) {
                 const option = document.createElement('option');
                 option.value = i;
                 option.textContent = convertToFarsiDigits(i) + '%';
-                if (i === 7) { // Set 7% as selected by default
+                if (i === 7) { 
                     option.selected = true;
                 }
                 profitRateElement.appendChild(option);
@@ -783,7 +805,7 @@
 
             let totalOverallPriceWithoutTax = 0; 
             let totalCalculatedTax = 0;
-            let totalDeductedAmount = 0; // New variable for total deducted amount
+            let totalDeductedAmount = 0; 
             let itemResultsHtml = '';
 
             const itemRows = document.querySelectorAll('.item-row');
@@ -792,11 +814,22 @@
                 const productTypeSelect = row.querySelector('.product-type-select');
                 const wageInput = row.querySelector('.gold-wage');
                 const wageType = row.querySelector('input[name^="wageType"]:checked').value;
-                const buyWeightInput = row.querySelector('.gold-buy-weight'); // Get buy weight input
+                const buyWeightInput = row.querySelector('.gold-buy-weight'); 
 
-                const weight = parseFloat(weightInput.value) || 0;
+                let weight = parseFloat(weightInput.value) || 0;
+                let buyWeight = parseFloat(buyWeightInput ? buyWeightInput.value : '0') || 0; 
+
+                // Apply max limit for weight and buy weight
+                if (weight > 200) {
+                    weight = 200;
+                    weightInput.value = convertToFarsiDigits(weight);
+                }
+                if (buyWeight > 200) {
+                    buyWeight = 200;
+                    buyWeightInput.value = convertToFarsiDigits(buyWeight);
+                }
+
                 const productType = productTypeSelect ? productTypeSelect.value : '';
-                const buyWeight = parseFloat(buyWeightInput ? buyWeightInput.value : '0') || 0; // Get buy weight value
 
                 let wageAmount = 0;
                 let profitAmount = 0;
@@ -804,8 +837,8 @@
                 let itemTaxableAmount = 0; 
 
                 const baseItemPrice = rawGoldPrice * weight;
-                const deductedAmountForItem = rawGoldPrice * buyWeight; // Calculate deducted amount for this item
-                totalDeductedAmount += deductedAmountForItem; // Add to total deducted amount
+                const deductedAmountForItem = rawGoldPrice * buyWeight; 
+                totalDeductedAmount += deductedAmountForItem; 
 
                 if (wageType === 'percent') {
                     const wagePercent = parseFloat(convertToEnglishDigits(wageInput.value)) / 100 || 0;
@@ -824,7 +857,6 @@
                     totalCalculatedTax += itemTaxableAmount * 0.10; 
                 }
 
-                // Construct item label based on productType
                 let itemLabel = 'قیمت';
                 if (productType) {
                     itemLabel += ` (${productType})`;
@@ -843,8 +875,34 @@
                 totalFinalPrice += totalCalculatedTax;
             }
 
-            // Deduct the total amount for bought gold
             totalFinalPrice -= totalDeductedAmount;
+
+            // Handle rounding suggestion
+            const lastDigit = Math.round(totalFinalPrice) % 1000;
+            let suggestedDiscountToRound = 0;
+
+            // If last 3 digits are not zero, calculate what's needed to round down to nearest thousand
+            if (lastDigit !== 0) {
+                suggestedDiscountToRound = lastDigit;
+            }
+
+            // Only suggest if the current discount input is empty and there's a suggestion
+            if (discountInput.value.trim() === '' && suggestedDiscountToRound > 0 && suggestedDiscountToRound !== lastSuggestedDiscount) {
+                const confirmRound = confirm(`مبلغ کل ${formatCurrency(totalFinalPrice)} می‌باشد. آیا مایلید با تخفیف ${formatCurrency(suggestedDiscountToRound)} تومان، فاکتور به ${formatCurrency(totalFinalPrice - suggestedDiscountToRound)} تومان رند شود؟`);
+                if (confirmRound) {
+                    discountInput.value = convertToFarsiDigits(suggestedDiscountToRound);
+                    discountAmount = suggestedDiscountToRound;
+                }
+                lastSuggestedDiscount = suggestedDiscountToRound; // Store the suggested discount
+            } else if (discountInput.value.trim() !== '') {
+                lastSuggestedDiscount = discountAmount; // If user manually entered, store that
+            } else {
+                lastSuggestedDiscount = 0; // Reset if no discount and no suggestion
+            }
+
+
+            totalFinalPrice -= discountAmount;
+
 
             const resultSection = document.getElementById('resultSection');
             resultSection.innerHTML = itemResultsHtml;
@@ -858,7 +916,6 @@
                 `;
             }
 
-            // Display deducted amount if any
             if (totalDeductedAmount > 0) {
                 resultSection.innerHTML += `
                     <div class="result-item deducted-amount">
@@ -868,9 +925,18 @@
                 `;
             }
 
+            if (discountAmount > 0) {
+                resultSection.innerHTML += `
+                    <div class="result-item discount-amount">
+                        <span>کسر بابت تخفیف:</span>
+                        <span>${formatCurrency(discountAmount)}</span>
+                    </div>
+                `;
+            }
+
             resultSection.innerHTML += `
                 <div class="result-item final-total">
-                    <span>قیمت کل نهایی:</span>
+                    <span>قیمت کل:</span>
                     <span>${formatCurrency(totalFinalPrice)}</span>
                 </div>
             `;
@@ -883,7 +949,41 @@
                 } else if (input.classList.contains('gold-wage')) {
                     input.addEventListener('input', () => updateWageInWordsDisplay(input));
                     input.addEventListener('blur', () => updateWageInWordsDisplay(input));
-                } else {
+                } else if (input.classList.contains('gold-buy-weight') || input.classList.contains('gold-weight')) {
+                    input.addEventListener('input', (e) => {
+                        let value = convertToEnglishDigits(e.target.value);
+                        // Apply 200g limit
+                        if (parseFloat(value) > 200) {
+                            value = '200';
+                            e.target.value = convertToFarsiDigits(value);
+                        } else {
+                             e.target.value = convertToFarsiDigits(value); 
+                        }
+                        calculateFactor();
+                    });
+                    input.addEventListener('blur', (e) => {
+                        let value = convertToEnglishDigits(e.target.value);
+                        if (parseFloat(value) > 200) {
+                            value = '200';
+                            e.target.value = convertToFarsiDigits(value);
+                        } else {
+                             e.target.value = convertToFarsiDigits(value); 
+                        }
+                        calculateFactor();
+                    });
+                } else if (input.id === 'discount') {
+                    input.addEventListener('input', (e) => {
+                        let value = convertToEnglishDigits(e.target.value.replace(/,/g, ''));
+                        e.target.value = formatNumberWithCommas(value); // Format with commas
+                        calculateFactor();
+                    });
+                    input.addEventListener('blur', (e) => {
+                        let value = convertToEnglishDigits(e.target.value.replace(/,/g, ''));
+                        e.target.value = formatNumberWithCommas(value); 
+                        calculateFactor();
+                    });
+                }
+                else {
                     input.addEventListener('input', calculateFactor);
                     input.addEventListener('change', calculateFactor); 
                 }
