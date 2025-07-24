@@ -251,6 +251,55 @@
             accent-color: #3498db;
         }
 
+        /* Styles for Discount Suggestion Box */
+        .discount-suggestion-box {
+            background-color: #e6ffe6; /* Light green */
+            border: 1px solid #4CAF50; /* Green border */
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
+        }
+
+        .discount-suggestion-box p {
+            margin: 0;
+            color: #333;
+            font-size: 1em;
+        }
+
+        .discount-suggestion-box .suggestion-amount {
+            font-weight: bold;
+            color: #28a745; /* Darker green for amount */
+            font-size: 1.1em;
+            margin-right: 10px;
+        }
+
+        .discount-suggestion-box button {
+            background-color: #28a745; /* Green button */
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.3s ease;
+        }
+
+        .discount-suggestion-box button:hover {
+            background-color: #218838; /* Darker green on hover */
+        }
+
+        .discount-suggestion-box button.remove-suggestion {
+            background-color: #dc3545; /* Red for remove */
+        }
+
+        .discount-suggestion-box button.remove-suggestion:hover {
+            background-color: #c82333; /* Darker red on hover */
+        }
+
         .result-section {
             background-color: #ecf0f1;
             padding: 20px;
@@ -395,7 +444,7 @@
                 <div class="flex-group">
                     <div class="form-group">
                         <label for="weight1">وزن طلا (گرم):</label>
-                        <input type="text" id="weight1" class="gold-weight" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="7">
+                        <input type="text" id="weight1" class="gold-weight" inputmode="decimal" pattern="[0-9]*[.,٫]?[0-9]*" maxlength="9">
                     </div>
                     <div class="form-group">
                         <label for="productType1">نوع محصول:</label>
@@ -430,7 +479,7 @@
                 </div>
                 <div class="form-group">
                     <label for="buyWeight1">خرید طلا (گرم):</label>
-                    <input type="text" id="buyWeight1" class="gold-buy-weight" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="7">
+                    <input type="text" id="buyWeight1" class="gold-buy-weight" inputmode="decimal" pattern="[0-9]*[.,٫]?[0-9]*" maxlength="9">
                 </div>
             </div>
         </div>
@@ -461,15 +510,24 @@
             <input type="text" id="discount" class="discount-input">
         </div>
 
+        <div id="discountSuggestionBox" class="discount-suggestion-box" style="display: none;">
+            <p>
+                پیشنهاد تخفیف برای رند شدن فاکتور:
+                <span id="suggestedDiscountAmount" class="suggestion-amount"></span>
+            </p>
+            <button id="applyDiscountBtn" onclick="applySuggestedDiscount()">اعمال تخفیف</button>
+        </div>
+
         <div class="result-section" id="resultSection">
-            </div>
+        </div>
     </div>
 
     <script>
         const farsiDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
         const itemContainer = document.getElementById('itemContainer');
         let itemIdCounter = 1;
-        let lastSuggestedDiscount = 0; // To store the last suggested discount
+        let currentSuggestedDiscount = 0; // To store the currently suggested discount value
+        let isSuggestedDiscountApplied = false; // Track if the suggested discount is currently applied
 
         function convertToFarsiDigits(num) {
             if (num === null || num === undefined) {
@@ -477,8 +535,8 @@
             }
             // Ensure num is a string to iterate over
             let numStr = String(num); 
-            // Replace dot with Farsi decimal separator if necessary, or just process digits
-            numStr = numStr.replace(/\./g, '٫'); // Replace standard dot with Farsi decimal separator
+            // Replace standard dot with Farsi decimal separator
+            numStr = numStr.replace(/\./g, '٫'); 
             
             return numStr.split('').map(digit => {
                 if (digit === '٫') return '٫'; // Keep Farsi decimal separator
@@ -530,8 +588,12 @@
                 const decimalPart = parts[1];
                 let words = convertNumberToWords(parseInt(integerPart, 10)); 
                 if (decimalPart) {
-                    const decimalWords = decimalPart.split('').map(digit => farsiDigits.indexOf(digit) !== -1 ? farsiDigits.indexOf(digit).toString() : digit).join('');
-                    words += ' ممیز ' + convertNumberToWords(parseInt(decimalWords, 10));
+                    // Convert decimal part to a number to get its word representation, handle leading zeros if necessary
+                    const decimalNumeric = parseFloat('0.' + decimalPart);
+                    if (!isNaN(decimalNumeric) && decimalNumeric > 0) {
+                         const decimalDigitsAsWords = decimalPart.split('').map(d => convertNumberToWords(parseInt(d))).join(' و ');
+                         words += ' ممیز ' + decimalDigitsAsWords;
+                    }
                 }
                 return words;
             }
@@ -541,8 +603,8 @@
             if (num === 0) return 'صفر';
 
             const units = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
-            const tens = ['', 'ده', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
             const teens = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
+            const tens = ['', 'ده', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
             const hundreds = ['', 'صد', 'دویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
             const thousands = ['', 'هزار', 'میلیون', 'میلیارد', 'تریلیون'];
 
@@ -713,7 +775,7 @@
                     <div class="flex-group">
                         <div class="form-group">
                             <label for="weight${itemIdCounter}">وزن طلا (گرم):</label>
-                            <input type="text" id="weight${itemIdCounter}" class="gold-weight" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="7">
+                            <input type="text" id="weight${itemIdCounter}" class="gold-weight" inputmode="decimal" pattern="[0-9]*[.,٫]?[0-9]*" maxlength="9">
                         </div>
                         <div class="form-group">
                             <label for="productType${itemIdCounter}">نوع محصول:</label>
@@ -748,7 +810,7 @@
                     </div>
                     <div class="form-group">
                         <label for="buyWeight${itemIdCounter}">خرید طلا (گرم):</label>
-                        <input type="text" id="buyWeight${itemIdCounter}" class="gold-buy-weight" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="7">
+                        <input type="text" id="buyWeight${itemIdCounter}" class="gold-buy-weight" inputmode="decimal" pattern="[0-9]*[.,٫]?[0-9]*" maxlength="9">
                     </div>
                 </div>
             `;
@@ -785,12 +847,31 @@
             });
         }
 
+        function applySuggestedDiscount() {
+            const discountInput = document.getElementById('discount');
+            const applyBtn = document.getElementById('applyDiscountBtn');
+
+            if (!isSuggestedDiscountApplied) {
+                discountInput.value = convertToFarsiDigits(currentSuggestedDiscount);
+                applyBtn.textContent = 'حذف تخفیف پیشنهادی';
+                applyBtn.classList.add('remove-suggestion');
+                isSuggestedDiscountApplied = true;
+            } else {
+                discountInput.value = '';
+                applyBtn.textContent = 'اعمال تخفیف';
+                applyBtn.classList.remove('remove-suggestion');
+                isSuggestedDiscountApplied = false;
+            }
+            calculateFactor();
+        }
+
         function calculateFactor() {
             const goldPriceInput = document.getElementById('goldPrice');
             const rawGoldPrice = parseFloat(convertToEnglishDigits(goldPriceInput.value.replace(/,/g, ''))) || 0;
             
             if (rawGoldPrice === 0) {
                 document.getElementById('resultSection').innerHTML = '';
+                document.getElementById('discountSuggestionBox').style.display = 'none';
                 return; 
             }
 
@@ -800,6 +881,7 @@
             const discountInput = document.getElementById('discount');
             let discountAmount = parseFloat(convertToEnglishDigits(discountInput.value.replace(/,/g, ''))) || 0;
 
+            // Re-populate profitRate options to ensure 7% is always selected by default if page reloads
             profitRateElement.innerHTML = ''; 
             for (let i = 1; i <= 7; i++) {
                 const option = document.createElement('option');
@@ -827,20 +909,6 @@
                 // Ensure conversion to English digits for parsing, and replace Farsi decimal with dot
                 let weight = parseFloat(convertToEnglishDigits(weightInput.value.replace(/٫/g, '.'))) || 0;
                 let buyWeight = parseFloat(convertToEnglishDigits((buyWeightInput ? buyWeightInput.value : '0').replace(/٫/g, '.'))) || 0;
-
-                // Apply max limit for weight and buy weight
-                if (weight > 200) {
-                    weight = 200;
-                    weightInput.value = convertToFarsiDigits(weight);
-                } else {
-                    weightInput.value = convertToFarsiDigits(weight); // Update to formatted Farsi
-                }
-                if (buyWeight > 200) {
-                    buyWeight = 200;
-                    buyWeightInput.value = convertToFarsiDigits(buyWeight);
-                } else {
-                    buyWeightInput.value = convertToFarsiDigits(buyWeight); // Update to formatted Farsi
-                }
 
                 const productType = productTypeSelect ? productTypeSelect.value : '';
 
@@ -890,163 +958,13 @@
 
             totalFinalPrice -= totalDeductedAmount;
 
-            // Handle rounding suggestion
+            // Handle rounding suggestion logic
             const lastThreeDigits = Math.round(totalFinalPrice) % 1000;
-            let suggestedDiscountToRound = 0;
+            const discountSuggestionBox = document.getElementById('discountSuggestionBox');
+            const suggestedDiscountAmountSpan = document.getElementById('suggestedDiscountAmount');
+            const applyDiscountBtn = document.getElementById('applyDiscountBtn');
 
             if (lastThreeDigits !== 0) {
-                suggestedDiscountToRound = lastThreeDigits;
-            }
-
-            if (discountInput.value.trim() === '' && suggestedDiscountToRound > 0 && suggestedDiscountToRound !== lastSuggestedDiscount) {
-                const confirmRound = confirm(`مبلغ کل ${formatCurrency(totalFinalPrice)} می‌باشد. آیا مایلید با تخفیف ${formatCurrency(suggestedDiscountToRound)} تومان، فاکتور به ${formatCurrency(totalFinalPrice - suggestedDiscountToRound)} تومان رند شود؟`);
-                if (confirmRound) {
-                    discountInput.value = convertToFarsiDigits(suggestedDiscountToRound);
-                    discountAmount = suggestedDiscountToRound;
-                    lastSuggestedDiscount = suggestedDiscountToRound; 
-                } else {
-                    lastSuggestedDiscount = suggestedDiscountToRound; 
-                }
-            } else if (discountInput.value.trim() !== '') {
-                lastSuggestedDiscount = discountAmount; 
-            } else {
-                lastSuggestedDiscount = 0; 
-            }
-
-
-            totalFinalPrice -= discountAmount;
-
-
-            const resultSection = document.getElementById('resultSection');
-            resultSection.innerHTML = itemResultsHtml;
-
-            if (includeTax) {
-                resultSection.innerHTML += `
-                    <div class="result-item total-tax">
-                        <span>مالیات:</span>
-                        <span>${formatCurrency(totalCalculatedTax)}</span>
-                    </div>
-                `;
-            }
-
-            if (totalDeductedAmount > 0) {
-                resultSection.innerHTML += `
-                    <div class="result-item deducted-amount">
-                        <span>کسر بابت خرید طلا:</span>
-                        <span>${formatCurrency(totalDeductedAmount)}</span>
-                    </div>
-                `;
-            }
-
-            if (discountAmount > 0) {
-                resultSection.innerHTML += `
-                    <div class="result-item discount-amount">
-                        <span>کسر بابت تخفیف:</span>
-                        <span>${formatCurrency(discountAmount)}</span>
-                    </div>
-                `;
-            }
-
-            resultSection.innerHTML += `
-                <div class="result-item final-total">
-                    <span>قیمت کل:</span>
-                    <span>${formatCurrency(totalFinalPrice)}</span>
-                </div>
-            `;
-        }
-
-        function addInputEventListeners(element) {
-            element.querySelectorAll('input, select').forEach(input => {
-                if (input.id === 'goldPrice') {
-                    // Already handled by specific listeners
-                } else if (input.classList.contains('gold-wage')) {
-                    input.addEventListener('input', () => updateWageInWordsDisplay(input));
-                    input.addEventListener('blur', () => updateWageInWordsDisplay(input));
-                } else if (input.classList.contains('gold-buy-weight') || input.classList.contains('gold-weight')) {
-                    input.addEventListener('input', (e) => {
-                        let rawValue = e.target.value;
-                        let cleanValue = convertToEnglishDigits(rawValue.replace(/,/g, '')); // Remove commas, convert to English
-                        
-                        // Handle decimal point for numbers
-                        const parts = cleanValue.split('.');
-                        let integerPart = parts[0];
-                        let decimalPart = parts[1];
-
-                        // Limit integer part to prevent excessively long numbers before decimal
-                        if (integerPart.length > 5) { // e.g., 200.000 max, so 5 digits for integer
-                            integerPart = integerPart.substring(0, 5);
-                        }
-                        if (decimalPart && decimalPart.length > 3) { // 3 decimal places
-                            decimalPart = decimalPart.substring(0, 3);
-                        }
-
-                        let numericValue = parseFloat(integerPart + (decimalPart ? '.' + decimalPart : ''));
-
-                        // Apply 200g limit
-                        if (!isNaN(numericValue) && numericValue > 200) {
-                            numericValue = 200;
-                        }
-                        
-                        // Format back to Farsi with commas and potentially decimal
-                        let formattedValue = convertToFarsiDigits(String(numericValue));
-                        if (rawValue.endsWith('٫') && !formattedValue.endsWith('٫')) { // Keep Farsi decimal if user typed it
-                             formattedValue += '٫';
-                        }
-                        e.target.value = formattedValue;
-                        calculateFactor();
-                    });
-                    input.addEventListener('blur', (e) => {
-                        let rawValue = e.target.value;
-                        let cleanValue = convertToEnglishDigits(rawValue.replace(/,/g, ''));
-                        
-                        const parts = cleanValue.split('.');
-                        let integerPart = parts[0];
-                        let decimalPart = parts[1];
-
-                        if (integerPart.length > 5) {
-                            integerPart = integerPart.substring(0, 5);
-                        }
-                        if (decimalPart && decimalPart.length > 3) {
-                            decimalPart = decimalPart.substring(0, 3);
-                        }
-                        let numericValue = parseFloat(integerPart + (decimalPart ? '.' + decimalPart : ''));
-
-                        if (!isNaN(numericValue) && numericValue > 200) {
-                            numericValue = 200;
-                        }
-
-                        e.target.value = convertToFarsiDigits(String(numericValue)); // Format on blur
-                        calculateFactor();
-                    });
-                } else if (input.id === 'discount') {
-                    input.addEventListener('input', (e) => {
-                        let value = convertToEnglishDigits(e.target.value.replace(/,/g, ''));
-                        e.target.value = formatNumberWithCommas(value); // Format with commas
-                        calculateFactor();
-                    });
-                    input.addEventListener('blur', (e) => {
-                        let value = convertToEnglishDigits(e.target.value.replace(/,/g, ''));
-                        e.target.value = formatNumberWithCommas(value); 
-                        calculateFactor();
-                    });
-                }
-                else {
-                    input.addEventListener('input', calculateFactor);
-                    input.addEventListener('change', calculateFactor); 
-                }
-            });
-        }
-
-        // Initial setup
-        document.addEventListener('DOMContentLoaded', () => {
-            updateRemoveButtonsVisibility(); 
-            addInputEventListeners(document); 
-            updateGoldPriceDisplay(); 
-            const firstWageInput = document.getElementById('wage1');
-            const firstWageTypeRadio = document.querySelector('input[name="wageType1"][value="percent"]');
-            toggleWageInput(firstWageTypeRadio); 
-            calculateFactor(); 
-        });
-    </script>
-</body>
-</html>
+                currentSuggestedDiscount = lastThreeDigits;
+                suggestedDiscountAmountSpan.textContent = formatCurrency(currentSuggestedDiscount) + ' تومان';
+                discountSuggestionBox.style.display = 'flex'; //
