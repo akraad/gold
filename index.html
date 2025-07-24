@@ -103,6 +103,7 @@
         .gold-weight, /* Apply to all weight inputs */
         .gold-buy-weight { /* New: Apply to buy weight input */
             font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
+            text-align: right; /* Ensure numbers align right */
         }
 
         input[type="text"]:focus,
@@ -136,27 +137,21 @@
         }
         
         /* Adjust input padding to prevent text overlap */
-        input#goldPrice {
-            padding-right: 15px; /* Default for numbers */
-            padding-left: 70px; /* Space for the text display */
-            text-align: right;
-        }
-        
+        input#goldPrice,
         .gold-wage {
-            padding-right: 15px; /* Default for numbers */
             padding-left: 70px; /* Space for the text display */
-            text-align: right;
         }
+        /* No specific padding-left for gold-buy-weight as it doesn't have inline text */
 
 
         .add-item-button {
             background-color: #3498db; /* Changed to simple blue */
             color: white;
-            padding: 6px 12px; /* Smaller padding */
+            padding: 5px 10px; /* Even smaller padding */
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.9em; /* Smaller font size */
+            font-size: 0.85em; /* Even smaller font size */
             width: auto; /* Auto width */
             transition: background-color 0.3s ease;
             display: block; /* Make it a block element to center with margin */
@@ -284,8 +279,9 @@
         .result-item.total-tax {
             color: #e67e22;
         }
+        /* Changed final-total color to green */
         .result-item.final-total {
-            color: #e74c3c;
+            color: #27ae60; /* Green color */
         }
         /* New style for deducted amount */
         .result-item.deducted-amount {
@@ -305,6 +301,9 @@
         .result-item.final-total span:last-child,
         .result-item.deducted-amount span:last-child { /* Apply to deducted amount too */
             color: #e74c3c;
+        }
+        .result-item.final-total span:last-child { /* Override for final total to green */
+            color: #27ae60;
         }
 
 
@@ -423,7 +422,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="buyWeight1">وزن خرید طلا (گرم) - اختیاری:</label>
+                    <label for="buyWeight1">خرید طلا (گرم):</label>
                     <input type="number" id="buyWeight1" class="gold-buy-weight" step="0.001" min="0">
                 </div>
             </div>
@@ -460,17 +459,27 @@
         let itemIdCounter = 1;
 
         function convertToFarsiDigits(num) {
-            return num.toString().split('').map(digit => farsiDigits[parseInt(digit)] || digit).join('');
+            // Handle null or undefined input gracefully
+            if (num === null || num === undefined) {
+                return '';
+            }
+            return String(num).split('').map(digit => {
+                if (digit === '.') return '.'; // Keep decimal point as is
+                const farsiDigit = farsiDigits[parseInt(digit)];
+                return farsiDigit !== undefined ? farsiDigit : digit; // Return original if not a digit
+            }).join('');
         }
 
         function convertToEnglishDigits(num) {
             let englishNum = '';
+            // Ensure num is treated as a string
+            num = String(num); 
             for (let i = 0; i < num.length; i++) {
                 const char = num[i];
                 const farsiIndex = farsiDigits.indexOf(char);
                 if (farsiIndex !== -1) {
                     englishNum += farsiIndex;
-                } else if (char === ',' || char === '.') { // Also handle dot for decimals
+                } else if (char === ',' || char === '.') { 
                     englishNum += char;
                 } else {
                     englishNum += char;
@@ -481,7 +490,8 @@
 
         function formatCurrency(num) {
             if (num === null || isNaN(num)) return '۰';
-            let numStr = Math.round(num).toString();
+            // Round the number before formatting for display
+            let numStr = Math.round(num).toString(); 
             let formatted = '';
             let counter = 0;
             for (let i = numStr.length - 1; i >= 0; i--) {
@@ -495,25 +505,31 @@
         }
 
         function convertNumberToWords(num) {
-            // Handle decimal part for percentages
-            if (typeof num === 'string' && num.includes('.')) {
+            // Ensure num is a string to handle potential decimals
+            num = String(num);
+
+            // Handle decimal part for percentages (e.g., "۹.۵")
+            if (num.includes('.')) {
                 const [integerPart, decimalPart] = num.split('.');
-                let words = convertNumberToWords(parseInt(integerPart, 10));
+                let words = convertNumberToWords(parseInt(integerPart, 10)); // Convert integer part to words
                 if (decimalPart) {
-                    words += ' ممیز ' + convertNumberToWords(parseInt(decimalPart, 10));
+                    // Convert decimal part digits to words
+                    const decimalWords = decimalPart.split('').map(digit => farsiDigits.indexOf(digit) !== -1 ? farsiDigits.indexOf(digit).toString() : digit).join('');
+                    words += ' ممیز ' + convertNumberToWords(parseInt(decimalWords, 10));
                 }
                 return words;
             }
 
+            // For integer parts
             num = parseInt(num, 10); // Ensure integer for standard conversion
+            if (isNaN(num)) return ''; // Handle cases where input is not a valid number
+            if (num === 0) return 'صفر';
 
             const units = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
             const tens = ['', 'ده', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
             const teens = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
             const hundreds = ['', 'صد', 'دویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
             const thousands = ['', 'هزار', 'میلیون', 'میلیارد', 'تریلیون'];
-
-            if (num === 0) return 'صفر';
 
             let result = [];
             let numStr = String(num);
@@ -717,7 +733,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="buyWeight${itemIdCounter}">وزن خرید طلا (گرم) - اختیاری:</label>
+                        <label for="buyWeight${itemIdCounter}">خرید طلا (گرم):</label>
                         <input type="number" id="buyWeight${itemIdCounter}" class="gold-buy-weight" step="0.001" min="0">
                     </div>
                 </div>
@@ -783,7 +799,7 @@
 
             let totalOverallPriceWithoutTax = 0; 
             let totalCalculatedTax = 0;
-            let totalDeductedAmount = 0; // New variable for total deducted amount
+            let totalDeductedAmount = 0; 
             let itemResultsHtml = '';
 
             const itemRows = document.querySelectorAll('.item-row');
@@ -792,11 +808,11 @@
                 const productTypeSelect = row.querySelector('.product-type-select');
                 const wageInput = row.querySelector('.gold-wage');
                 const wageType = row.querySelector('input[name^="wageType"]:checked').value;
-                const buyWeightInput = row.querySelector('.gold-buy-weight'); // Get buy weight input
+                const buyWeightInput = row.querySelector('.gold-buy-weight'); 
 
                 const weight = parseFloat(weightInput.value) || 0;
                 const productType = productTypeSelect ? productTypeSelect.value : '';
-                const buyWeight = parseFloat(buyWeightInput ? buyWeightInput.value : '0') || 0; // Get buy weight value
+                const buyWeight = parseFloat(buyWeightInput ? buyWeightInput.value : '0') || 0; 
 
                 let wageAmount = 0;
                 let profitAmount = 0;
@@ -804,8 +820,8 @@
                 let itemTaxableAmount = 0; 
 
                 const baseItemPrice = rawGoldPrice * weight;
-                const deductedAmountForItem = rawGoldPrice * buyWeight; // Calculate deducted amount for this item
-                totalDeductedAmount += deductedAmountForItem; // Add to total deducted amount
+                const deductedAmountForItem = rawGoldPrice * buyWeight; 
+                totalDeductedAmount += deductedAmountForItem; 
 
                 if (wageType === 'percent') {
                     const wagePercent = parseFloat(convertToEnglishDigits(wageInput.value)) / 100 || 0;
@@ -843,7 +859,6 @@
                 totalFinalPrice += totalCalculatedTax;
             }
 
-            // Deduct the total amount for bought gold
             totalFinalPrice -= totalDeductedAmount;
 
             const resultSection = document.getElementById('resultSection');
@@ -858,7 +873,6 @@
                 `;
             }
 
-            // Display deducted amount if any
             if (totalDeductedAmount > 0) {
                 resultSection.innerHTML += `
                     <div class="result-item deducted-amount">
@@ -870,7 +884,7 @@
 
             resultSection.innerHTML += `
                 <div class="result-item final-total">
-                    <span>قیمت کل نهایی:</span>
+                    <span>قیمت کل:</span>
                     <span>${formatCurrency(totalFinalPrice)}</span>
                 </div>
             `;
@@ -883,7 +897,19 @@
                 } else if (input.classList.contains('gold-wage')) {
                     input.addEventListener('input', () => updateWageInWordsDisplay(input));
                     input.addEventListener('blur', () => updateWageInWordsDisplay(input));
-                } else {
+                } else if (input.classList.contains('gold-buy-weight')) { // Add event listener for buy weight
+                    input.addEventListener('input', (e) => {
+                        let value = convertToEnglishDigits(e.target.value);
+                        e.target.value = convertToFarsiDigits(value); // Convert to Farsi for display
+                        calculateFactor();
+                    });
+                    input.addEventListener('blur', (e) => {
+                        let value = convertToEnglishDigits(e.target.value);
+                        e.target.value = convertToFarsiDigits(value); // Convert to Farsi on blur too
+                        calculateFactor();
+                    });
+                }
+                else {
                     input.addEventListener('input', calculateFactor);
                     input.addEventListener('change', calculateFactor); 
                 }
