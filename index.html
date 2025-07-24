@@ -93,6 +93,11 @@
             transition: border-color 0.3s, box-shadow 0.3s;
             background-color: #fdfdfd;
         }
+        /* Apply Farsi font to specific input types/classes */
+        input#goldPrice,
+        .gold-wage {
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
+        }
 
         input[type="text"]:focus,
         input[type="number"]:focus,
@@ -343,7 +348,7 @@
 
         <div id="itemContainer">
             <div class="item-row" data-item-id="1">
-                <button type="button" class="remove-item" onclick="removeItem(this)" style="display:none;"></button>
+                <button type="button" class="remove-item" onclick="removeItem(this)">✖</button> 
                 <div class="flex-group">
                     <div class="form-group">
                         <label for="weight1">وزن طلا (گرم):</label>
@@ -501,14 +506,12 @@
 
         function updateGoldPriceDisplay() {
             const goldPriceInput = document.getElementById('goldPrice');
-            let value = convertToEnglishDigits(goldPriceInput.value); // Convert any Farsi to English for processing
+            let value = convertToEnglishDigits(goldPriceInput.value); 
 
-            // Enforce max length of 7 digits
             if (value.length > 7) {
                 value = value.substring(0, 7);
             }
             
-            // Format for display
             goldPriceInput.value = formatNumberWithCommas(value);
 
             const goldPriceInWords = document.getElementById('goldPriceInWords');
@@ -522,32 +525,32 @@
         }
 
         function formatNumberWithCommas(num) {
-            let cleanNum = convertToEnglishDigits(num).replace(/\D/g, ''); // Ensure English digits and remove non-digits
+            let cleanNum = convertToEnglishDigits(num).replace(/\D/g, ''); 
             return convertToFarsiDigits(cleanNum.replace(/\B(?=(\d{3})+(?!\d))/g, ','));
         }
 
         document.getElementById('goldPrice').addEventListener('input', updateGoldPriceDisplay);
-        document.getElementById('goldPrice').addEventListener('blur', updateGoldPriceDisplay); // Update on blur too
+        document.getElementById('goldPrice').addEventListener('blur', updateGoldPriceDisplay); 
 
         function toggleWageInput(radio) {
             const itemRow = radio.closest('.item-row');
             const wageInput = itemRow.querySelector('.gold-wage');
             const wageInWordsDisplay = itemRow.querySelector('.price-text-display');
             
-            wageInput.value = ''; // Clear input on type change
+            wageInput.value = ''; 
 
             if (radio.value === 'percent') {
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'numeric');
-                wageInput.setAttribute('maxlength', '2'); // Max 2 digits for percent (1-99)
+                wageInput.setAttribute('maxlength', '2'); 
                 wageInWordsDisplay.style.display = 'none';
-            } else { // wageType === 'amount'
+            } else { 
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'numeric');
-                wageInput.setAttribute('maxlength', '9'); // Max length for amount in Toman (7 digits + 2 commas)
+                wageInput.setAttribute('maxlength', '9'); 
                 wageInWordsDisplay.style.display = 'block';
             }
-            updateWageInWordsDisplay(wageInput); // Update display after changing type
+            updateWageInWordsDisplay(wageInput); 
             calculateFactor();
         }
 
@@ -559,12 +562,11 @@
             if (wageType === 'amount') {
                 let value = convertToEnglishDigits(inputElement.value.replace(/,/g, ''));
 
-                // Enforce min 6, max 7 digits for Toman, then format
                 if (value.length > 7) {
                     value = value.substring(0, 7);
                 }
                 
-                inputElement.value = formatCurrencyForWage(value); // Format for display
+                inputElement.value = formatCurrencyForWage(value); 
 
                 const numericValue = parseInt(value, 10);
                 if (!isNaN(numericValue) && numericValue > 0) {
@@ -575,23 +577,22 @@
             } else { // percent type
                 let value = convertToEnglishDigits(inputElement.value);
                 
-                // Allow up to 2 digits for percent (1-99)
                 if (value.length > 2) {
                     value = value.substring(0, 2);
                 }
                 let percentValue = parseInt(value, 10);
                 if (isNaN(percentValue) || percentValue < 1 || percentValue > 99) {
-                    inputElement.value = ''; // Clear if invalid
+                    inputElement.value = ''; 
+                    wageInWordsDisplay.textContent = ''; // Clear display for invalid percent
                 } else {
-                    inputElement.value = percentValue.toString(); // Keep it English internally for calculation
+                    inputElement.value = convertToFarsiDigits(percentValue.toString()); // Display in Farsi digits
+                    wageInWordsDisplay.textContent = convertToFarsiDigits(percentValue.toString()) + ' درصد'; // Show "X درصد"
                 }
-                wageInWordsDisplay.textContent = ''; // Clear for percent type
             }
             calculateFactor();
         }
 
         function formatCurrencyForWage(numStr) {
-            // Take the numeric string (e.g., "1500000") and format it
             let formatted = '';
             let counter = 0;
             for (let i = numStr.length - 1; i >= 0; i--) {
@@ -608,7 +609,7 @@
             itemIdCounter++;
             const newItemHtml = `
                 <div class="item-row" data-item-id="${itemIdCounter}">
-                    <button type="button" class="remove-item" onclick="removeItem(this)"></button>
+                    <button type="button" class="remove-item" onclick="removeItem(this)">✖</button>
                     <div class="flex-group">
                         <div class="form-group">
                             <label for="weight${itemIdCounter}">وزن طلا (گرم):</label>
@@ -645,12 +646,10 @@
                     </div>
                 </div>
             `;
-            // Insert new item right after the first (fixed) item
             itemContainer.firstElementChild.insertAdjacentHTML('afterend', newItemHtml);
             updateRemoveButtonsVisibility();
             addInputEventListeners(itemContainer.querySelector(`[data-item-id="${itemIdCounter}"]`));
             
-            // Set initial wage type for the new item
             const newItemWageInput = document.getElementById(`wage${itemIdCounter}`);
             const newItemWageTypeRadio = document.querySelector(`input[name="wageType${itemIdCounter}"][value="percent"]`);
             toggleWageInput(newItemWageTypeRadio);
@@ -660,9 +659,8 @@
 
         function removeItem(button) {
             const itemRow = button.closest('.item-row');
-            // Ensure we don't remove the first item
             if (itemRow.dataset.itemId === '1') {
-                return; // Prevent removal of the first item
+                return; 
             }
             itemRow.remove();
             updateRemoveButtonsVisibility();
@@ -673,8 +671,8 @@
             const items = itemContainer.querySelectorAll('.item-row');
             items.forEach((item, index) => {
                 const removeButton = item.querySelector('.remove-item');
-                if (index === 0) { // First item
-                    removeButton.style.display = 'none'; // Always hide remove button for the first item
+                if (index === 0) { 
+                    removeButton.style.display = 'none'; 
                 } else {
                     removeButton.style.display = 'block';
                 }
