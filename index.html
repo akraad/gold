@@ -121,7 +121,7 @@
         }
 
         .add-item-button {
-            background-color: #2ecc71;
+            background-color: #2c3e50; /* Changed to dark blue */
             color: white;
             padding: 8px 15px; /* Smaller padding */
             border: none;
@@ -135,7 +135,7 @@
         }
 
         .add-item-button:hover {
-            background-color: #27ae60;
+            background-color: #1a242f; /* Darker blue on hover */
         }
         
         .item-row {
@@ -767,8 +767,7 @@
             if (includeTax) {
                 resultSection.innerHTML += `
                     <div class="result-item total-tax">
-                        <span>مالیات کل:</span>
-                        <span>${formatCurrency(totalCalculatedTax)}</span>
+                        <span>مالیات:</span> <span>${formatCurrency(totalCalculatedTax)}</span>
                     </div>
                 `;
             }
