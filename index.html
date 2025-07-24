@@ -395,7 +395,7 @@
                 <div class="flex-group">
                     <div class="form-group">
                         <label for="weight1">وزن طلا (گرم):</label>
-                        <input type="number" id="weight1" class="gold-weight" step="0.001" min="0" max="200">
+                        <input type="text" id="weight1" class="gold-weight" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="7">
                     </div>
                     <div class="form-group">
                         <label for="productType1">نوع محصول:</label>
@@ -430,7 +430,7 @@
                 </div>
                 <div class="form-group">
                     <label for="buyWeight1">خرید طلا (گرم):</label>
-                    <input type="number" id="buyWeight1" class="gold-buy-weight" step="0.001" min="0" max="200">
+                    <input type="text" id="buyWeight1" class="gold-buy-weight" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="7">
                 </div>
             </div>
         </div>
@@ -475,9 +475,14 @@
             if (num === null || num === undefined) {
                 return '';
             }
-            return String(num).split('').map(digit => {
-                if (digit === '.') return '.'; 
-                if (digit === ',') return ','; // Keep commas as is for formatting
+            // Ensure num is a string to iterate over
+            let numStr = String(num); 
+            // Replace dot with Farsi decimal separator if necessary, or just process digits
+            numStr = numStr.replace(/\./g, '٫'); // Replace standard dot with Farsi decimal separator
+            
+            return numStr.split('').map(digit => {
+                if (digit === '٫') return '٫'; // Keep Farsi decimal separator
+                if (digit === ',') return ','; // Keep commas for formatting
                 const farsiDigit = farsiDigits[parseInt(digit)];
                 return farsiDigit !== undefined ? farsiDigit : digit;
             }).join('');
@@ -485,7 +490,8 @@
 
         function convertToEnglishDigits(num) {
             let englishNum = '';
-            num = String(num); 
+            // Ensure num is treated as a string, and replace Farsi decimal with dot
+            num = String(num).replace(/٫/g, '.'); 
             for (let i = 0; i < num.length; i++) {
                 const char = num[i];
                 const farsiIndex = farsiDigits.indexOf(char);
@@ -518,8 +524,10 @@
         function convertNumberToWords(num) {
             num = String(num);
 
-            if (num.includes('.')) {
-                const [integerPart, decimalPart] = num.split('.');
+            if (num.includes('.') || num.includes('٫')) { // Check for both decimal separators
+                const parts = num.split(/[.٫]/); // Split by either dot or Farsi decimal
+                const integerPart = parts[0];
+                const decimalPart = parts[1];
                 let words = convertNumberToWords(parseInt(integerPart, 10)); 
                 if (decimalPart) {
                     const decimalWords = decimalPart.split('').map(digit => farsiDigits.indexOf(digit) !== -1 ? farsiDigits.indexOf(digit).toString() : digit).join('');
@@ -705,7 +713,7 @@
                     <div class="flex-group">
                         <div class="form-group">
                             <label for="weight${itemIdCounter}">وزن طلا (گرم):</label>
-                            <input type="number" id="weight${itemIdCounter}" class="gold-weight" step="0.001" min="0" max="200">
+                            <input type="text" id="weight${itemIdCounter}" class="gold-weight" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="7">
                         </div>
                         <div class="form-group">
                             <label for="productType${itemIdCounter}">نوع محصول:</label>
@@ -740,7 +748,7 @@
                     </div>
                     <div class="form-group">
                         <label for="buyWeight${itemIdCounter}">خرید طلا (گرم):</label>
-                        <input type="number" id="buyWeight${itemIdCounter}" class="gold-buy-weight" step="0.001" min="0" max="200">
+                        <input type="text" id="buyWeight${itemIdCounter}" class="gold-buy-weight" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" maxlength="7">
                     </div>
                 </div>
             `;
@@ -816,17 +824,22 @@
                 const wageType = row.querySelector('input[name^="wageType"]:checked').value;
                 const buyWeightInput = row.querySelector('.gold-buy-weight'); 
 
-                let weight = parseFloat(convertToEnglishDigits(weightInput.value)) || 0; // Corrected
-                let buyWeight = parseFloat(convertToEnglishDigits(buyWeightInput ? buyWeightInput.value : '0')) || 0; // Corrected
+                // Ensure conversion to English digits for parsing, and replace Farsi decimal with dot
+                let weight = parseFloat(convertToEnglishDigits(weightInput.value.replace(/٫/g, '.'))) || 0;
+                let buyWeight = parseFloat(convertToEnglishDigits((buyWeightInput ? buyWeightInput.value : '0').replace(/٫/g, '.'))) || 0;
 
                 // Apply max limit for weight and buy weight
                 if (weight > 200) {
                     weight = 200;
                     weightInput.value = convertToFarsiDigits(weight);
+                } else {
+                    weightInput.value = convertToFarsiDigits(weight); // Update to formatted Farsi
                 }
                 if (buyWeight > 200) {
                     buyWeight = 200;
                     buyWeightInput.value = convertToFarsiDigits(buyWeight);
+                } else {
+                    buyWeightInput.value = convertToFarsiDigits(buyWeight); // Update to formatted Farsi
                 }
 
                 const productType = productTypeSelect ? productTypeSelect.value : '';
@@ -885,21 +898,19 @@
                 suggestedDiscountToRound = lastThreeDigits;
             }
 
-            // Only suggest if the current discount input is empty and there's a suggestion
-            // Also, ensure the suggestion hasn't been made and rejected recently
             if (discountInput.value.trim() === '' && suggestedDiscountToRound > 0 && suggestedDiscountToRound !== lastSuggestedDiscount) {
                 const confirmRound = confirm(`مبلغ کل ${formatCurrency(totalFinalPrice)} می‌باشد. آیا مایلید با تخفیف ${formatCurrency(suggestedDiscountToRound)} تومان، فاکتور به ${formatCurrency(totalFinalPrice - suggestedDiscountToRound)} تومان رند شود؟`);
                 if (confirmRound) {
                     discountInput.value = convertToFarsiDigits(suggestedDiscountToRound);
                     discountAmount = suggestedDiscountToRound;
-                    lastSuggestedDiscount = suggestedDiscountToRound; // Store that this was accepted
+                    lastSuggestedDiscount = suggestedDiscountToRound; 
                 } else {
-                    lastSuggestedDiscount = suggestedDiscountToRound; // Store that this was rejected
+                    lastSuggestedDiscount = suggestedDiscountToRound; 
                 }
             } else if (discountInput.value.trim() !== '') {
-                lastSuggestedDiscount = discountAmount; // If user manually entered, store that
+                lastSuggestedDiscount = discountAmount; 
             } else {
-                lastSuggestedDiscount = 0; // Reset if no discount and no suggestion
+                lastSuggestedDiscount = 0; 
             }
 
 
@@ -953,20 +964,58 @@
                     input.addEventListener('blur', () => updateWageInWordsDisplay(input));
                 } else if (input.classList.contains('gold-buy-weight') || input.classList.contains('gold-weight')) {
                     input.addEventListener('input', (e) => {
-                        let value = convertToEnglishDigits(e.target.value);
-                        // Apply 200g limit
-                        if (parseFloat(value) > 200) {
-                            value = '200';
+                        let rawValue = e.target.value;
+                        let cleanValue = convertToEnglishDigits(rawValue.replace(/,/g, '')); // Remove commas, convert to English
+                        
+                        // Handle decimal point for numbers
+                        const parts = cleanValue.split('.');
+                        let integerPart = parts[0];
+                        let decimalPart = parts[1];
+
+                        // Limit integer part to prevent excessively long numbers before decimal
+                        if (integerPart.length > 5) { // e.g., 200.000 max, so 5 digits for integer
+                            integerPart = integerPart.substring(0, 5);
                         }
-                        e.target.value = convertToFarsiDigits(value); // Convert back to Farsi for display
+                        if (decimalPart && decimalPart.length > 3) { // 3 decimal places
+                            decimalPart = decimalPart.substring(0, 3);
+                        }
+
+                        let numericValue = parseFloat(integerPart + (decimalPart ? '.' + decimalPart : ''));
+
+                        // Apply 200g limit
+                        if (!isNaN(numericValue) && numericValue > 200) {
+                            numericValue = 200;
+                        }
+                        
+                        // Format back to Farsi with commas and potentially decimal
+                        let formattedValue = convertToFarsiDigits(String(numericValue));
+                        if (rawValue.endsWith('٫') && !formattedValue.endsWith('٫')) { // Keep Farsi decimal if user typed it
+                             formattedValue += '٫';
+                        }
+                        e.target.value = formattedValue;
                         calculateFactor();
                     });
                     input.addEventListener('blur', (e) => {
-                        let value = convertToEnglishDigits(e.target.value);
-                        if (parseFloat(value) > 200) {
-                            value = '200';
+                        let rawValue = e.target.value;
+                        let cleanValue = convertToEnglishDigits(rawValue.replace(/,/g, ''));
+                        
+                        const parts = cleanValue.split('.');
+                        let integerPart = parts[0];
+                        let decimalPart = parts[1];
+
+                        if (integerPart.length > 5) {
+                            integerPart = integerPart.substring(0, 5);
                         }
-                        e.target.value = convertToFarsiDigits(value); // Convert back to Farsi on blur
+                        if (decimalPart && decimalPart.length > 3) {
+                            decimalPart = decimalPart.substring(0, 3);
+                        }
+                        let numericValue = parseFloat(integerPart + (decimalPart ? '.' + decimalPart : ''));
+
+                        if (!isNaN(numericValue) && numericValue > 200) {
+                            numericValue = 200;
+                        }
+
+                        e.target.value = convertToFarsiDigits(String(numericValue)); // Format on blur
                         calculateFactor();
                     });
                 } else if (input.id === 'discount') {
