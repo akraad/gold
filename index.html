@@ -32,62 +32,62 @@
             align-items: flex-start;
             min-height: 100vh;
             margin: 0;
-            padding: 10px; /* Reduced overall padding */
+            padding: 20px 10px;
             box-sizing: border-box;
             color: #333;
         }
 
         .container {
             background-color: #ffffff;
-            padding: 20px; /* Reduced container padding */
+            padding: 25px;
             border-radius: 12px;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
             width: 100%;
-            max-width: 500px; /* Still good max-width for most phones */
+            max-width: 500px;
             box-sizing: border-box;
         }
 
         h1 {
             text-align: center;
             color: #2c3e50;
-            margin-bottom: 25px; /* Slightly reduced margin */
-            font-size: 1.6em; /* Slightly smaller heading */
+            margin-bottom: 30px;
+            font-size: 1.8em;
             position: relative;
         }
 
         h1::after {
             content: '';
-            width: 50px; /* Smaller underline */
-            height: 2px; /* Thinner underline */
+            width: 60px;
+            height: 3px;
             background-color: #3498db;
             position: absolute;
-            bottom: -8px; /* Adjusted position */
+            bottom: -10px;
             left: 50%;
             transform: translateX(-50%);
-            border-radius: 1px;
+            border-radius: 2px;
         }
 
         .form-group {
-            margin-bottom: 15px; /* Reduced margin between form groups */
+            margin-bottom: 20px;
             position: relative;
         }
 
         label {
             display: block;
-            margin-bottom: 6px; /* Reduced margin below label */
+            margin-bottom: 8px;
             font-weight: bold;
             color: #555;
-            font-size: 0.9em; /* Smaller label font */
+            font-size: 0.95em;
         }
 
         input:not([type="radio"]):not([type="checkbox"]),
         select {
             width: 100%;
-            padding: 10px 12px; /* Smaller padding for inputs/selects */
+            padding: 12px 15px;
             border: 1px solid #ddd;
-            border-radius: 6px; /* Slightly smaller border-radius */
+            border-radius: 8px;
             box-sizing: border-box;
-            font-size: 0.9em; /* Smaller input font */
+            font-size: 1em;
             color: #333;
             transition: border-color 0.3s, box-shadow 0.3s;
             background-color: #fdfdfd;
@@ -109,10 +109,11 @@
         input:not([type="radio"]):not([type="checkbox"]):focus,
         select:focus {
             border-color: #3498db;
-            box-shadow: 0 0 6px rgba(52, 152, 219, 0.2); /* Smaller shadow */
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
             outline: none;
         }
 
+        /* --- MODIFIED CSS FOR INPUT-INLINE-DISPLAY --- */
         .input-inline-wrapper {
             position: relative;
             width: 100%;
@@ -120,38 +121,40 @@
 
         .input-inline-display {
             position: absolute;
-            left: 10px; /* Adjusted position for smaller padding */
+            left: 15px; /* Position it from the left */
             top: 50%;
             transform: translateY(-50%);
-            font-size: 0.8em; /* Default font size for inline words */
+            font-size: 0.9em; /* Default font size */
             color: #888;
-            pointer-events: none;
+            pointer-events: none; /* Allows clicks to pass through to the input */
             direction: rtl;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: calc(100% - 60px); /* Adjusted max-width */
+            white-space: nowrap; /* Keep it on a single line by default */
+            overflow: hidden; /* Hide overflowing text */
+            text-overflow: ellipsis; /* Add ellipsis for hidden text */
+            max-width: calc(100% - 70px); /* Max width to avoid overlapping with actual input number */
             z-index: 2;
-            transition: font-size 0.2s ease-out;
+            transition: font-size 0.2s ease-out; /* Smooth transition for font size change */
         }
 
         input#goldPrice,
         .gold-wage {
-            padding-left: 60px; /* Make space for the words on the left (adjusted) */
+            padding-left: 70px; /* Make space for the words on the left */
         }
+        /* --- END OF MODIFIED CSS --- */
+
 
         .add-item-button {
             background-color: #3498db;
             color: white;
-            padding: 10px 18px; /* Smaller button padding */
+            padding: 12px 20px;
             border: none;
-            border-radius: 6px; /* Smaller border-radius */
+            border-radius: 8px;
             cursor: pointer;
-            font-size: 0.95em; /* Slightly smaller font */
+            font-size: 1em;
             width: auto;
             transition: background-color 0.3s ease;
             display: block;
-            margin: 20px auto 0 auto; /* Reduced margin */
+            margin: 25px auto 0 auto;
         }
 
         .add-item-button:hover {
@@ -160,9 +163,9 @@
 
         .item-row {
             border: 1px dashed #c0c0c0;
-            padding: 12px; /* Reduced item row padding */
-            border-radius: 8px; /* Smaller border-radius */
-            margin-top: 15px; /* Reduced margin */
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
             background-color: #fbfbfb;
             position: relative;
             animation: fadeIn 0.5s ease-out;
@@ -175,14 +178,14 @@
 
         .item-row .remove-item {
             position: absolute;
-            top: 5px; /* Adjusted position */
-            left: 5px; /* Adjusted position */
+            top: 8px;
+            left: 8px;
             background: none;
             border: none;
             color: #e74c3c;
-            font-size: 1.2em; /* Slightly smaller icon */
+            font-size: 1.3em;
             cursor: pointer;
-            padding: 3px;
+            padding: 5px;
             border-radius: 50%;
             transition: background-color 0.2s;
         }
@@ -192,12 +195,12 @@
         }
 
         .item-row .form-group {
-            margin-bottom: 12px; /* Reduced margin within item row */
+            margin-bottom: 15px;
         }
 
         .flex-group {
             display: flex;
-            gap: 10px; /* Reduced gap */
+            gap: 15px;
         }
 
         .flex-group > div {
@@ -207,34 +210,33 @@
         .currency-toggle {
             display: flex;
             align-items: center;
-            gap: 8px; /* Reduced gap */
-            margin-bottom: 12px; /* Reduced margin */
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         .currency-toggle label {
             margin-bottom: 0;
-            font-size: 0.85em; /* Smaller font for radio labels */
         }
 
         .currency-toggle input:not([type="radio"]) {
             width: auto;
-            margin-left: 4px; /* Adjusted margin */
+            margin-left: 5px;
         }
 
         .checkbox-group {
             display: flex;
-            flex-wrap: wrap;
-            gap: 12px 20px; /* Reduced gap */
+            flex-wrap: wrap; /* Allow wrapping for smaller screens */
+            gap: 15px 25px; /* Adjust gap for better spacing */
             align-items: center;
-            margin-bottom: 20px; /* Reduced margin */
+            margin-bottom: 25px;
             justify-content: space-between;
-            padding: 6px 0; /* Reduced padding */
+            padding: 8px 0;
             border-top: 1px solid #eee;
             border-bottom: 1px solid #eee;
         }
 
         .checkbox-group > div {
-            display: flex;
+            display: flex; /* Make each checkbox item a flex container */
             align-items: center;
         }
 
@@ -245,22 +247,21 @@
             display: flex;
             align-items: center;
             cursor: pointer;
-            font-size: 0.9em; /* Smaller checkbox label font */
         }
 
-        .checkbox-group input[type="checkbox"] {
-            width: 16px; /* Smaller checkbox size */
-            height: 16px; /* Smaller checkbox size */
-            margin-left: 8px; /* Adjusted margin */
+        .checkbox-group input[type="checkbox"] { /* Target checkbox specifically */
+            width: 18px;
+            height: 18px;
+            margin-left: 10px;
             accent-color: #3498db;
         }
 
         .result-section {
             background-color: #ecf0f1;
-            padding: 15px; /* Reduced result section padding */
-            border-radius: 8px; /* Smaller border-radius */
-            margin-top: 25px; /* Reduced margin */
-            border-left: 4px solid #3498db; /* Thinner border */
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border-left: 5px solid #3498db;
             font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
         }
 
@@ -268,9 +269,9 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 6px 0; /* Reduced padding */
+            padding: 8px 0;
             border-bottom: 1px dashed #dcdcdc;
-            font-size: 1em; /* Adjusted result item font size */
+            font-size: 1.1em;
             font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
         }
 
@@ -278,8 +279,8 @@
             border-bottom: none;
             font-weight: bold;
             color: #2c3e50;
-            font-size: 1.1em; /* Adjusted final total font size */
-            margin-top: 10px; /* Reduced margin */
+            font-size: 1.2em;
+            margin-top: 15px;
         }
         .result-item.total-tax {
             color: #e67e22;
@@ -290,14 +291,14 @@
         .result-item.buy-gold-amount,
         .result-item.buy-diff-gold-amount {
             color: #d35400;
-            font-size: 0.95em; /* Slightly smaller for buy amounts */
+            font-size: 1em;
         }
         .result-item.discount-amount {
             color: #e74c3c;
-            font-size: 0.95em; /* Slightly smaller for discount amount */
+            font-size: 1em;
         }
         .result-item.customer-payout {
-            color: #e74c3c;
+            color: #e74c3c; /* Red for payout */
             font-weight: bold;
         }
 
@@ -328,17 +329,17 @@
             -moz-appearance: none;
             background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M205.66%2099.66L128%20177.34%2050.34%2099.66z%22%2F%3E%3C%2Fsvg%3E');
             background-repeat: no-repeat;
-            background-position: left 12px center; /* Adjusted position */
-            background-size: 10px; /* Smaller arrow */
-            padding-left: 35px; /* Adjusted padding */
-            padding-right: 12px;
+            background-position: left 15px center;
+            background-size: 12px;
+            padding-left: 40px;
+            padding-right: 15px;
         }
         select.product-type-select {
-            padding: 10px 12px; /* Smaller padding */
+            padding: 12px 15px;
             border: 1px solid #ddd;
-            border-radius: 6px;
+            border-radius: 8px;
             box-sizing: border-box;
-            font-size: 0.9em;
+            font-size: 1em;
             color: #333;
             background-color: #fdfdfd;
             appearance: none;
@@ -346,18 +347,18 @@
             -moz-appearance: none;
             background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M205.66%2099.66L128%20177.34%2050.34%2099.66z%22%2F%3E%3C%2Fsvg%3E');
             background-repeat: no-repeat;
-            background-position: left 12px center;
-            background-size: 10px;
-            padding-left: 35px;
-            padding-right: 12px;
+            background-position: left 15px center;
+            background-size: 12px;
+            padding-left: 40px;
+            padding-right: 15px;
         }
 
         .suggested-discounts-section {
             background-color: #f0fff0;
             border: 1px solid #e0eee0;
-            border-left: 4px solid #8fbc8f; /* Thinner border */
-            padding: 12px; /* Reduced padding */
-            margin-top: 8px; /* Reduced margin */
+            border-left: 5px solid #8fbc8f;
+            padding: 15px;
+            margin-top: 10px;
             border-radius: 8px;
         }
 
@@ -365,11 +366,11 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 6px 8px; /* Reduced padding */
+            padding: 8px 10px;
             border-bottom: 1px dashed #dcdcdc;
-            cursor: pointer;
+            cursor: pointer; /* Make the whole item clickable */
             transition: background-color 0.2s ease;
-            border-radius: 5px;
+            border-radius: 5px; /* Add slight border radius for hover effect */
         }
         .suggested-discount-item:last-child {
             border-bottom: none;
@@ -379,13 +380,14 @@
         }
 
         .suggested-discount-item.active {
-            background-color: #d4f7d4;
-            border: 1px solid #4CAF50;
-            box-shadow: 0 0 4px rgba(76, 175, 80, 0.3); /* Smaller shadow */
+            background-color: #d4f7d4; /* Lighter green for active item */
+            border: 1px solid #4CAF50; /* Green border for active */
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
         }
 
+
         .suggested-discount-text {
-            font-size: 0.85em; /* Smaller font for discount text */
+            font-size: 0.95em;
             color: #38761d;
             flex-grow: 1;
             display: flex;
@@ -397,75 +399,51 @@
             color: #2f5f2f;
         }
         .suggested-discount-text .final-price {
-            font-size: 0.75em; /* Smaller font for final price in suggestion */
+            font-size: 0.85em;
             color: #666;
-            margin-top: 1px; /* Reduced margin */
-            direction: rtl;
+            margin-top: 2px;
+            direction: rtl; /* For mixed LTR/RTL content */
         }
         .suggested-discount-text .final-price span {
-            direction: ltr;
+            direction: ltr; /* Ensure numbers are LTR */
         }
 
-        /* --- Media Queries for smaller screens (like phones) --- */
         @media (max-width: 600px) {
-            body {
-                padding: 5px; /* Even less padding on very small screens */
-            }
             .container {
-                padding: 15px; /* Even less padding for container */
+                padding: 18px;
             }
             h1 {
-                font-size: 1.5em; /* Slightly smaller h1 */
+                font-size: 1.6em;
             }
-            label {
-                font-size: 0.85em; /* Smaller label font on very small screens */
+            .form-group label {
+                font-size: 0.9em;
             }
             input:not([type="radio"]):not([type="checkbox"]),
             select {
-                padding: 8px 10px; /* Even smaller padding for inputs/selects */
-                font-size: 0.85em; /* Even smaller input font */
-                border-radius: 5px;
-            }
-            .input-inline-display {
-                font-size: 0.75em; /* Smaller font for inline words on small screens */
-                left: 8px; /* Further adjusted position */
-                max-width: calc(100% - 50px); /* Further adjusted max-width */
-            }
-            input#goldPrice,
-            .gold-wage {
-                padding-left: 50px; /* Further adjusted space */
+                padding: 10px 12px;
+                font-size: 0.95em;
             }
             .add-item-button {
-                padding: 8px 15px; /* Smaller button */
-                font-size: 0.9em;
-            }
-            .item-row {
-                padding: 10px; /* Smaller item row padding */
-            }
-            .item-row .remove-item {
-                font-size: 1.1em;
-            }
-            .currency-toggle label {
-                font-size: 0.8em;
-            }
-            .checkbox-group label {
-                font-size: 0.85em;
+                padding: 8px 13px;
+                font-size: 0.95em;
             }
             .result-item {
-                font-size: 0.95em; /* Smaller result item font */
+                font-size: 1em;
             }
             .result-item:last-child {
-                font-size: 1.05em; /* Smaller final total font */
-            }
-            .suggested-discount-text {
-                font-size: 0.8em; /* Even smaller font for discount text */
-            }
-            .suggested-discount-text .final-price {
-                font-size: 0.7em; /* Even smaller font for final price in suggestion */
+                font-size: 1.1em;
             }
             .flex-group {
-                flex-direction: column; /* Stack items vertically on very small screens for better readability */
-                gap: 8px; /* Reduced gap for stacked items */
+                flex-direction: column;
+                gap: 10px;
+            }
+            .suggested-discount-item {
+                flex-direction: row; /* Keep row layout, but maybe wrap text */
+                align-items: center;
+                gap: 5px;
+            }
+            .suggested-discount-text {
+                align-items: flex-start; /* Ensure text aligns left */
             }
             .checkbox-group {
                 flex-direction: column; /* Stack checkboxes vertically on small screens */
@@ -584,7 +562,7 @@
 
         let itemIdCounter = 1;
         let activeDiscountValue = 0; // Stores the value of the currently applied suggested discount
-        let activeDiscountType = null; // Stores the type ('round10k', 'round50k', 'round100k', 'round1m')
+        let activeDiscountType = null; // Stores the type ('round10k', 'round50k', 'round100k')
 
         function convertToFarsiDigits(num) {
             if (num === null || num === undefined || num === '') {
@@ -710,17 +688,28 @@
         // --- NEW FUNCTION TO ADJUST FONT SIZE ---
         function adjustFontSizeForWords(spanElement, text) {
             const textLength = text.length;
-            let newFontSize = 0.8em; // Adjusted default font size in em for mobile
+            let newFontSize = 0.9; // Default font size in em
 
+            // Adjust thresholds based on your preference and testing
             if (textLength > 35) {
-                newFontSize = 0.5em; // Very small
+                newFontSize = 0.6; // Very small
             } else if (textLength > 28) {
-                newFontSize = 0.6em; // Smaller
+                newFontSize = 0.7; // Smaller
             } else if (textLength > 20) {
-                newFontSize = 0.7em; // Slightly smaller
+                newFontSize = 0.8; // Slightly smaller
             }
-            
-            spanElement.style.fontSize = `${newFontSize}`;
+            // If text is very short (e.g., less than 5 characters like "صفر تومان"), you might want to increase font size a bit
+            // if (textLength <= 5 && textLength > 0) {
+            //    newFontSize = 1.0;
+            // }
+
+            spanElement.style.fontSize = `${newFontSize}em`;
+            // You might want to hide it completely if it's still too long or unreadable
+            // if (newFontSize < 0.7 && textLength > 40) {
+            //    spanElement.style.display = 'none';
+            // } else {
+            //    spanElement.style.display = 'block'; // Or inline-block if needed
+            // }
         }
         // --- END NEW FUNCTION ---
 
@@ -742,7 +731,7 @@
                 adjustFontSizeForWords(goldPriceInWordsSpan, words); // Call the new function
             } else {
                 goldPriceInWordsSpan.textContent = '';
-                goldPriceInWordsSpan.style.fontSize = '0.8em'; // Reset font size when empty/zero
+                goldPriceInWordsSpan.style.fontSize = '0.9em'; // Reset font size when empty/zero
             }
             calculateFactor();
         }
@@ -769,10 +758,12 @@
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'decimal');
                 wageInput.setAttribute('maxlength', '5');
+                // wageInWordsDisplay.style.display = 'inline-block'; // Reverted
             } else {
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'numeric');
                 wageInput.setAttribute('maxlength', '9');
+                // wageInWordsDisplay.style.display = 'inline-block'; // Reverted
             }
             updateWageInWordsDisplay(wageInput);
             calculateFactor();
@@ -799,7 +790,7 @@
                     adjustFontSizeForWords(wageInWordsDisplay, words); // Call the new function
                 } else {
                     wageInWordsDisplay.textContent = '';
-                    wageInWordsDisplay.style.fontSize = '0.8em'; // Reset font size
+                    wageInWordsDisplay.style.fontSize = '0.9em'; // Reset font size
                 }
             } else { // percent type
                 let value = convertToEnglishDigits(inputElement.value);
@@ -825,7 +816,7 @@
                 if (isNaN(percentValue) || percentValue < 0 || percentValue > 99.99) {
                     inputElement.value = '';
                     wageInWordsDisplay.textContent = '';
-                    wageInWordsDisplay.style.fontSize = '0.8em'; // Reset font size
+                    wageInWordsDisplay.style.fontSize = '0.9em'; // Reset font size
                 } else {
                     const words = convertNumberToWords(value) + ' درصد';
                     inputElement.value = convertToFarsiDigits(value.toString());
@@ -1107,23 +1098,6 @@
                         });
                     }
                 }
-
-                // --- NEW: Round to nearest 1,000,000 down (Million) ---
-                const remainder1m = roundedPriceForSuggestions % 1000000;
-                if (remainder1m > 0) {
-                    const discount = remainder1m;
-                    const newFinalPrice = roundedPriceForSuggestions - discount;
-                    // Only add if it's a larger discount than previous ones
-                    if (newFinalPrice >= 0 && discount > (suggestedDiscounts[suggestedDiscounts.length - 1] ? suggestedDiscounts[suggestedDiscounts.length - 1].discountAmount : 0)) {
-                        suggestedDiscounts.push({
-                            type: 'round1m',
-                            text: 'رند به ۱ میلیون تومان پایین‌تر:',
-                            discountAmount: discount,
-                            finalPrice: newFinalPrice
-                        });
-                    }
-                }
-                // --- END NEW ---
             }
             
             // Sort discounts by amount (smallest to largest)
