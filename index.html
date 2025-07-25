@@ -113,6 +113,7 @@
             outline: none;
         }
 
+        /* --- MODIFIED CSS FOR INPUT-INLINE-DISPLAY --- */
         .input-inline-wrapper {
             position: relative;
             width: 100%;
@@ -120,24 +121,27 @@
 
         .input-inline-display {
             position: absolute;
-            left: 15px;
+            left: 15px; /* Position it from the left */
             top: 50%;
             transform: translateY(-50%);
-            font-size: 0.9em;
+            font-size: 0.9em; /* Default font size */
             color: #888;
-            pointer-events: none;
+            pointer-events: none; /* Allows clicks to pass through to the input */
             direction: rtl;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: calc(100% - 70px);
+            white-space: nowrap; /* Keep it on a single line by default */
+            overflow: hidden; /* Hide overflowing text */
+            text-overflow: ellipsis; /* Add ellipsis for hidden text */
+            max-width: calc(100% - 70px); /* Max width to avoid overlapping with actual input number */
             z-index: 2;
+            transition: font-size 0.2s ease-out; /* Smooth transition for font size change */
         }
 
         input#goldPrice,
         .gold-wage {
-            padding-left: 70px;
+            padding-left: 70px; /* Make space for the words on the left */
         }
+        /* --- END OF MODIFIED CSS --- */
+
 
         .add-item-button {
             background-color: #3498db;
@@ -341,7 +345,7 @@
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
-            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M205.66%2099.66L128%20177.34%2050.34%2099.66z%22%2F%3E%3C%2Fsvg%3E');
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M205.66%2099.66L128%20177.34%2050.34%2099.66z%22%2F%3E%3C%2Fsvg%3E');
             background-repeat: no-repeat;
             background-position: left 15px center;
             background-size: 12px;
@@ -653,7 +657,8 @@
                         parts.push(units[t]);
                     } else if (t >= 10 && t < 20) {
                         parts.push(teens[t - 10]);
-                    } else {
+                    }
+                    else {
                         parts.push(tens[Math.floor(t / 10)]);
                         if (t % 10 > 0) {
                             parts.push(units[t % 10]);
@@ -680,6 +685,34 @@
             return result.filter(Boolean).join(' و ');
         }
 
+        // --- NEW FUNCTION TO ADJUST FONT SIZE ---
+        function adjustFontSizeForWords(spanElement, text) {
+            const textLength = text.length;
+            let newFontSize = 0.9; // Default font size in em
+
+            // Adjust thresholds based on your preference and testing
+            if (textLength > 35) {
+                newFontSize = 0.6; // Very small
+            } else if (textLength > 28) {
+                newFontSize = 0.7; // Smaller
+            } else if (textLength > 20) {
+                newFontSize = 0.8; // Slightly smaller
+            }
+            // If text is very short (e.g., less than 5 characters like "صفر تومان"), you might want to increase font size a bit
+            // if (textLength <= 5 && textLength > 0) {
+            //    newFontSize = 1.0;
+            // }
+
+            spanElement.style.fontSize = `${newFontSize}em`;
+            // You might want to hide it completely if it's still too long or unreadable
+            // if (newFontSize < 0.7 && textLength > 40) {
+            //    spanElement.style.display = 'none';
+            // } else {
+            //    spanElement.style.display = 'block'; // Or inline-block if needed
+            // }
+        }
+        // --- END NEW FUNCTION ---
+
         function updateGoldPriceDisplay() {
             const goldPriceInput = document.getElementById('goldPrice');
             const goldPriceInWordsSpan = document.getElementById('goldPriceInWords');
@@ -693,9 +726,12 @@
 
             const numericValue = parseInt(value.replace(/,/g, ''), 10);
             if (!isNaN(numericValue) && numericValue > 0) {
-                goldPriceInWordsSpan.textContent = convertNumberToWords(numericValue) + ' تومان';
+                const words = convertNumberToWords(numericValue) + ' تومان';
+                goldPriceInWordsSpan.textContent = words;
+                adjustFontSizeForWords(goldPriceInWordsSpan, words); // Call the new function
             } else {
                 goldPriceInWordsSpan.textContent = '';
+                goldPriceInWordsSpan.style.fontSize = '0.9em'; // Reset font size when empty/zero
             }
             calculateFactor();
         }
@@ -716,18 +752,18 @@
             const wageInput = itemRow.querySelector('.gold-wage');
             const wageInWordsDisplay = itemRow.querySelector('.input-inline-display');
 
-            wageInput.value = '';
+            wageInput.value = ''; // Clear input on type change
 
             if (radio.value === 'percent') {
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'decimal');
                 wageInput.setAttribute('maxlength', '5');
-                wageInWordsDisplay.style.display = 'inline-block';
+                // wageInWordsDisplay.style.display = 'inline-block'; // Reverted
             } else {
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'numeric');
                 wageInput.setAttribute('maxlength', '9');
-                wageInWordsDisplay.style.display = 'inline-block';
+                // wageInWordsDisplay.style.display = 'inline-block'; // Reverted
             }
             updateWageInWordsDisplay(wageInput);
             calculateFactor();
@@ -749,9 +785,12 @@
 
                 const numericValue = parseInt(value, 10);
                 if (!isNaN(numericValue) && numericValue > 0) {
-                    wageInWordsDisplay.textContent = convertNumberToWords(numericValue) + ' تومان';
+                    const words = convertNumberToWords(numericValue) + ' تومان';
+                    wageInWordsDisplay.textContent = words;
+                    adjustFontSizeForWords(wageInWordsDisplay, words); // Call the new function
                 } else {
                     wageInWordsDisplay.textContent = '';
+                    wageInWordsDisplay.style.fontSize = '0.9em'; // Reset font size
                 }
             } else { // percent type
                 let value = convertToEnglishDigits(inputElement.value);
@@ -777,9 +816,12 @@
                 if (isNaN(percentValue) || percentValue < 0 || percentValue > 99.99) {
                     inputElement.value = '';
                     wageInWordsDisplay.textContent = '';
+                    wageInWordsDisplay.style.fontSize = '0.9em'; // Reset font size
                 } else {
+                    const words = convertNumberToWords(value) + ' درصد';
                     inputElement.value = convertToFarsiDigits(value.toString());
-                    wageInWordsDisplay.textContent = convertNumberToWords(value) + ' درصد';
+                    wageInWordsDisplay.textContent = words;
+                    adjustFontSizeForWords(wageInWordsDisplay, words); // Call the new function
                 }
             }
             calculateFactor();
