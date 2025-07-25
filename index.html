@@ -480,15 +480,18 @@
         .generated-invoice-display strong {
             color: #2f844f; /* Darker green for emphasis */
         }
-
-        .generated-invoice-display .invoice-item-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 3px 0;
+        
+        /* New invoice item styling */
+        .generated-invoice-display .invoice-item-group {
             border-bottom: 1px dotted #e0e0e0;
+            padding-bottom: 5px;
+            margin-bottom: 5px;
         }
-        .generated-invoice-display .invoice-item-row:last-of-type {
+        .generated-invoice-display .invoice-item-group:last-of-type {
             border-bottom: none;
+        }
+        .generated-invoice-display .invoice-item-group p {
+            margin: 2px 0;
         }
 
         .generated-invoice-display .invoice-section-divider {
@@ -507,6 +510,16 @@
             border-top: 2px solid #2ecc71;
             padding-top: 10px;
         }
+        /* Specific colors for invoice */
+        .generated-invoice-display .discount-value {
+            color: #e74c3c; /* Red for discount */
+            font-weight: bold;
+        }
+        .generated-invoice-display .total-final-value {
+            color: #007bff; /* Blue for total price */
+            font-weight: bold;
+        }
+
 
         .generate-invoice-button,
         .print-invoice-button {
@@ -1131,6 +1144,22 @@
             });
         }
 
+        function applySuggestedDiscount(amount, type) {
+            activeDiscountValue = amount;
+            activeDiscountType = type;
+            discountInput.value = formatNumberWithCommas(amount);
+
+            document.querySelectorAll('.suggested-discount-item').forEach(item => {
+                item.classList.remove('active');
+            });
+            // Find the clicked item and add active class
+            const activeItem = document.querySelector(`.suggested-discount-item[onclick*="'${type}'"]`);
+            if (activeItem) {
+                activeItem.classList.add('active');
+            }
+            calculateFactor();
+        }
+
         function calculateFactor() {
             const goldPriceInput = document.getElementById('goldPrice');
             const rawGoldPrice = parseFloat(convertToEnglishDigits(goldPriceInput.value.replace(/,/g, ''))) || 0;
@@ -1459,62 +1488,70 @@
                 invoiceHtml += `<p>شماره تماس: <strong>${convertToFarsiDigits(customerPhone)}</strong></p>`;
             }
             invoiceHtml += `<p>قیمت روز طلا ۱۸ عیار: <strong>${formatCurrency(finalCalculatedData.goldPricePerGram)} تومان</strong></p>`;
-            invoiceHtml += `<div class="invoice-section-divider">جزئیات طلاهای فروخته شده:</div>`;
+            
+            // --- مشخصات طلا ---
+            invoiceHtml += `<div class="invoice-section-divider">مشخصات طلا:</div>`;
 
             if (finalCalculatedData.itemDetails.length === 0 || finalCalculatedData.itemDetails.every(item => item.weight === 0)) {
                 invoiceHtml += `<p>هیچ آیتم طلایی ثبت نشده است.</p>`;
             } else {
                 finalCalculatedData.itemDetails.forEach(item => {
                     if (item.weight > 0) { // Only show items that actually have weight
-                        invoiceHtml += `<div class="invoice-item-row">`;
-                        invoiceHtml += `<span><strong>${item.name}</strong> - وزن: ${convertToFarsiDigits(item.weight.toFixed(3))} گرم</span>`;
-                        let itemDetailsPart = '';
+                        invoiceHtml += `<div class="invoice-item-group">`;
+                        invoiceHtml += `<p>اسم طلا: <strong>${item.name}</strong></p>`;
+                        invoiceHtml += `<p>وزن: ${convertToFarsiDigits(item.weight.toFixed(3))} گرم</p>`;
+                        
                         if (item.wage > 0) {
-                            itemDetailsPart += ` - اجرت: `;
+                            let wageDisplay = '';
                             if (item.wageType === 'percent') {
-                                // Recalculate percent to display in invoice based on initial price * weight
                                 const originalWeightPrice = finalCalculatedData.goldPricePerGram * item.weight;
                                 const originalWagePercent = (item.wage / originalWeightPrice) * 100;
-                                itemDetailsPart += `${convertToFarsiDigits(originalWagePercent.toFixed(2))}%`;
+                                wageDisplay = `${convertToFarsiDigits(originalWagePercent.toFixed(2))}%`;
                             } else {
-                                itemDetailsPart += `${formatCurrency(item.wage)} تومان`;
+                                wageDisplay = `${formatCurrency(item.wage)} تومان`;
                             }
+                            invoiceHtml += `<p>اجرت: ${wageDisplay}</p>`;
                         }
                         if (item.tax > 0) {
-                            itemDetailsPart += ` - ارزش افزوده: ${formatCurrency(item.tax)} تومان`;
+                            invoiceHtml += `<p>ارزش افزوده: ${formatCurrency(item.tax)} تومان</p>`;
                         }
-                        invoiceHtml += `<span>${itemDetailsPart}</span>`;
                         invoiceHtml += `</div>`;
                     }
                 });
             }
 
+            // --- خرید طلا مشتری ---
             if (finalCalculatedData.totalBoughtGoldValue > 0) {
-                invoiceHtml += `<div class="invoice-section-divider">جزئیات خرید طلا از مشتری:</div>`;
+                invoiceHtml += `<div class="invoice-section-divider"></div>`; // Divider
+                invoiceHtml += `<p><strong>خرید طلا:</strong></p>`;
                 let totalBoughtWeight = 0;
                 document.querySelectorAll('.gold-buy-weight').forEach(input => {
                     totalBoughtWeight += parseFloat(convertToEnglishDigits(input.value)) || 0;
                 });
-
+                invoiceHtml += `<p>وزن: ${convertToFarsiDigits(totalBoughtWeight.toFixed(3))} گرم</p>`;
+                
+                // Determine which price to show for bought gold
+                let boughtGoldPriceToShow = 0;
                 if (finalCalculatedData.buyDiffGoldWithDiscount && finalCalculatedData.buyDiffGoldAmountWithDiscount > 0) {
-                    invoiceHtml += `<p>وزن کل طلای خریداری شده: ${convertToFarsiDigits(totalBoughtWeight.toFixed(3))} گرم</p>`;
-                    invoiceHtml += `<p>مبلغ خرید طلا (مظنه): <strong>${formatCurrency(finalCalculatedData.buyGoldAmountAtMuzanne)} تومان</strong></p>`;
-                    invoiceHtml += `<p>مبلغ خرید مازاد طلا (کسر 2%): <strong>${formatCurrency(finalCalculatedData.buyDiffGoldAmountWithDiscount)} تومان</strong></p>`;
+                    boughtGoldPriceToShow = finalCalculatedData.buyGoldAmountAtMuzanne + finalCalculatedData.buyDiffGoldAmountWithDiscount;
                 } else {
-                    invoiceHtml += `<p>وزن کل طلای خریداری شده: ${convertToFarsiDigits(totalBoughtWeight.toFixed(3))} گرم</p>`;
-                    invoiceHtml += `<p>مبلغ خرید طلا: <strong>${formatCurrency(finalCalculatedData.totalBoughtGoldValue)} تومان</strong></p>`;
+                    boughtGoldPriceToShow = finalCalculatedData.totalBoughtGoldValue;
                 }
+                invoiceHtml += `<p>قیمت: ${formatCurrency(boughtGoldPriceToShow)} تومان</p>`;
             }
 
-            if (finalCalculatedData.discountAmount > 0) {
-                invoiceHtml += `<p>کسر بابت تخفیف: <strong>${formatCurrency(finalCalculatedData.discountAmount)} تومان</strong></p>`;
+            // --- تخفیف ---
+            if (finalCalculData.discountAmount > 0) {
+                invoiceHtml += `<div class="invoice-section-divider"></div>`; // Divider
+                invoiceHtml += `<p class="discount-value">تخفیف: ${formatCurrency(finalCalculatedData.discountAmount)} تومان</p>`;
             }
 
+            // --- قیمت کل ---
             invoiceHtml += `<div class="invoice-section-divider total-price-line">`;
             if (finalCalculatedData.isCustomerPayout) {
-                invoiceHtml += `مبلغ تقدیمی به مشتری: <strong>${formatCurrency(finalCalculatedData.customerPayoutAmount)} تومان</strong>`;
+                invoiceHtml += `مبلغ تقدیمی به مشتری: <span class="total-final-value">${formatCurrency(finalCalculatedData.customerPayoutAmount)} تومان</span>`;
             } else {
-                invoiceHtml += `قیمت کل: <strong>${formatCurrency(finalCalculatedData.finalTotalAmount)} تومان</strong>`;
+                invoiceHtml += `قیمت کل: <span class="total-final-value">${formatCurrency(finalCalculatedData.finalTotalAmount)} تومان</span>`;
             }
             invoiceHtml += `</div>`;
 
