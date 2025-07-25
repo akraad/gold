@@ -80,8 +80,8 @@
             font-size: 0.95em;
         }
 
-        input:not([type="radio"]):not([type="checkbox"]),
-        select {
+        input:not([type="radio"]):not([type="checkbox"]):not(.buy-option-input),
+        select:not(.buy-option-input) {
             width: 100%;
             padding: 12px 15px;
             border: 1px solid #ddd;
@@ -94,24 +94,35 @@
             position: relative;
             z-index: 1;
         }
-
+        
         input#goldPrice,
         .gold-wage,
         select#profitRate,
         select.product-type-select,
         .gold-weight,
-        .gold-buy-weight,
-        input#discount,
-        .coin-price-input,
-        .parsian-buy-weight,
-        .ingot-buy-weight,
-        .buy-option-input { /* Ensure all relevant inputs use Persian font */
+        input#discount {
             font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
             text-align: right;
         }
+        /* NEW: Specific styles for smaller input in buy sections */
+        .buy-option-input {
+            width: 100%;
+            padding: 8px 10px; /* Smaller padding */
+            border: 1px solid #ddd;
+            border-radius: 6px; /* Slightly smaller radius */
+            box-sizing: border-box;
+            font-size: 0.9em; /* Smaller font size */
+            color: #333;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: #fdfdfd;
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif; /* Ensure font is applied */
+            text-align: right;
+        }
+
 
         input:not([type="radio"]):not([type="checkbox"]):focus,
-        select:focus {
+        select:focus,
+        .buy-option-input:focus { /* Include buy-option-input for focus style */
             border-color: #3498db;
             box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
             outline: none;
@@ -294,7 +305,7 @@
             color: #d35400;
             font-size: 1em;
         }
-        /* NEW: Distinct color for "خرید طلا از مشتری" */
+        /* Distinct color for "خرید طلا از مشتری" */
         .result-item.buy-item span:first-child {
             color: #e74c3c; /* Red color for distinction */
             font-weight: bold;
@@ -488,6 +499,8 @@
 
         .generated-invoice-display p {
             margin: 5px 0;
+            font-size: 0.9em; /* Smaller font for invoice items */
+            line-height: 1.4; /* Adjusted line height */
         }
 
         .generated-invoice-display strong {
@@ -503,9 +516,6 @@
         .generated-invoice-display .invoice-item-group:last-of-type {
             border-bottom: none;
         }
-        .generated-invoice-display .invoice-item-group p {
-            margin: 2px 0;
-        }
 
         .generated-invoice-display .invoice-section-divider {
             border-top: 1px solid #c0c0c0;
@@ -516,7 +526,7 @@
         }
 
         .generated-invoice-display .total-price-line {
-            font-size: 1.2em;
+            font-size: 1.1em; /* Slightly smaller for total line in invoice */
             font-weight: bold;
             color: #27ae60;
             margin-top: 15px;
@@ -532,13 +542,14 @@
             color: #007bff; /* Blue for total price */
             font-weight: bold;
         }
-        /* NEW: Invoice specific color for "خرید طلا از مشتری" */
+        /* Invoice specific color for "خرید طلا از مشتری" */
         .generated-invoice-display .buy-item-value {
             color: #e74c3c; /* Red for bought gold from customer */
             font-weight: bold;
         }
         .generated-invoice-display .buy-item-value span { /* Ensure numbers within these spans are LTR */
             direction: ltr;
+            font-size: 0.9em; /* Smaller font for numbers in invoice buy items */
         }
 
 
@@ -562,7 +573,7 @@
             background-color: #218838;
         }
 
-        /* NEW: Buy Section Styles - RESTRUCTURED */
+        /* NEW: Buy Section Styles */
         .buy-section-container {
             margin-top: 25px;
             border: 1px solid #e0e0e0;
@@ -611,11 +622,12 @@
             padding: 15px 15px;
         }
 
-        .buy-option-group { /* General styling for individual buy option fields */
-            margin-bottom: 15px;
-            padding: 10px;
-            border: 1px dashed #dcdcdc;
-            border-radius: 8px;
+        /* NEW: Styles for buy gold/parsian/ingot options - more compact */
+        .buy-option-group {
+            margin-bottom: 10px; /* Smaller margin */
+            padding: 10px; /* Smaller padding */
+            border: 1px dashed #e0e0e0; /* Lighter dashed border */
+            border-radius: 6px; /* Slightly smaller radius */
             background-color: #fff;
             position: relative;
         }
@@ -625,14 +637,14 @@
 
         .buy-option-group .remove-buy-item {
             position: absolute;
-            top: 5px;
-            left: 5px;
+            top: 3px; /* Adjust position */
+            left: 3px; /* Adjust position */
             background: none;
             border: none;
             color: #e74c3c;
-            font-size: 1.1em;
+            font-size: 1em; /* Smaller icon */
             cursor: pointer;
-            padding: 5px;
+            padding: 3px; /* Smaller padding for button */
             border-radius: 50%;
             transition: background-color 0.2s;
         }
@@ -640,67 +652,87 @@
             background-color: #ffe0e0;
         }
 
-        .coin-select-wrapper {
-            margin-top: 10px;
+        /* NEW: Coin section specific styles - flatter structure */
+        .coin-item-group { /* Replaces buy-option-group for coins, to be direct child of container */
+            margin-bottom: 10px; /* Consistent margin */
+            padding: 10px;
+            border: 1px dashed #e0e0e0;
+            border-radius: 6px;
+            background-color: #fff;
+            position: relative;
         }
-        
-        .coin-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            background-color: #f9f9f9;
-            border: 1px solid #eee;
-            padding: 8px;
-            border-radius: 5px;
-        }
-        .coin-item:last-of-type {
+        .coin-item-group:last-child {
             margin-bottom: 0;
         }
-        .coin-item .coin-remove-button {
+
+        .coin-item-group .remove-buy-item { /* Reuse remove-buy-item for outer coin group */
+            position: absolute;
+            top: 3px;
+            left: 3px;
             background: none;
             border: none;
             color: #e74c3c;
-            font-size: 1.1em;
+            font-size: 1em;
             cursor: pointer;
+            padding: 3px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+        .coin-item-group .remove-buy-item:hover {
+            background-color: #ffe0e0;
+        }
+
+        .coin-sub-item { /* Each individual coin select/input row */
+            display: flex;
+            align-items: center;
+            gap: 8px; /* Slightly smaller gap */
+            margin-bottom: 8px; /* Smaller margin for rows */
+            /* background-color: #f9f9f9; */ /* Removed background */
+            /* border: 1px solid #eee; */ /* Removed border */
+            padding: 0; /* Removed padding */
+            border-radius: 3px; /* Smaller border radius */
+        }
+        .coin-sub-item:last-of-type {
+            margin-bottom: 0;
+        }
+        .coin-sub-item .coin-remove-button {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            font-size: 1em; /* Smaller icon */
+            cursor: pointer;
+            padding: 3px;
         }
         .add-coin-button {
             background-color: #4CAF50;
             color: white;
-            padding: 8px 12px;
+            padding: 6px 10px; /* Smaller padding */
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 0.9em;
+            font-size: 0.85em; /* Smaller font size */
             margin-top: 10px;
             transition: background-color 0.3s ease;
+            display: block; /* To center it */
+            margin-left: auto;
+            margin-right: auto;
         }
         .add-coin-button:hover {
             background-color: #45a049;
         }
-
-        .buy-option-input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 0.95em;
-            color: #333;
-        }
-
+        /* New: Button for adding buy items - smaller */
         .add-buy-item-button {
             background-color: #6c757d;
             color: white;
-            padding: 10px 15px;
+            padding: 8px 12px; /* Smaller padding */
             border: none;
-            border-radius: 8px;
+            border-radius: 6px; /* Slightly smaller radius */
             cursor: pointer;
-            font-size: 0.9em;
+            font-size: 0.85em; /* Smaller font size */
             width: auto;
             transition: background-color 0.3s ease;
             display: block;
-            margin: 20px auto 0 auto;
+            margin: 15px auto 0 auto; /* Adjust margin */
         }
         .add-buy-item-button:hover {
             background-color: #5a6268;
@@ -730,7 +762,8 @@
             .checkbox-group,
             .form-group:has(#profitRate),
             .form-group:has(#discount),
-            .suggested-discounts-section {
+            .suggested-discounts-section,
+            .result-section { /* Hide result section on print */
                 display: none !important;
             }
             /* Re-enable display for item container and its elements to ensure sold items are also visible */
@@ -823,23 +856,24 @@
                 max-height: fit-content !important; /* Ensure content is visible */
                 padding: 0 !important;
             }
-            .buy-option-group {
+            .buy-option-group, .coin-item-group { /* General for all buy groups */
                 border: none;
                 padding: 0;
                 margin-bottom: 5px;
                 background-color: #fff;
             }
-            .buy-option-group p {
+            .buy-option-group p, .coin-item-group p {
                 margin: 2px 0;
             }
             .buy-option-group .remove-buy-item,
             .add-buy-item-button,
-            .coin-select-wrapper .add-coin-button,
-            .coin-select-wrapper .coin-remove-button,
+            .coin-item-group .remove-buy-item,
+            .add-coin-button,
+            .coin-sub-item .coin-remove-button,
             .buy-option-input { /* Hide inputs for print, only display the final computed value in invoice */
                 display: none !important;
             }
-            .buy-option-group strong {
+            .buy-option-group strong, .coin-item-group strong {
                 font-weight: bold;
                 color: #e74c3c; /* Keep red for bought items */
             }
@@ -855,15 +889,24 @@
             .form-group label {
                 font-size: 0.9em;
             }
-            input:not([type="radio"]):not([type="checkbox"]),
-            select {
+            input:not([type="radio"]):not([type="checkbox"]):not(.buy-option-input),
+            select:not(.buy-option-input) {
                 padding: 10px 12px;
                 font-size: 0.95em;
+            }
+            .buy-option-input { /* Also adjust for smaller screens */
+                padding: 6px 8px;
+                font-size: 0.85em;
             }
             .add-item-button {
                 padding: 8px 13px;
                 font-size: 0.95em;
             }
+            .add-buy-item-button, .add-coin-button { /* Adjust size for new buttons */
+                padding: 6px 10px;
+                font-size: 0.8em;
+            }
+
             .result-item {
                 font-size: 1em;
             }
@@ -897,7 +940,7 @@
                 padding: 10px;
             }
             .generated-invoice-display p {
-                font-size: 0.95em;
+                font-size: 0.85em; /* Even smaller for invoice on mobile */
             }
         }
     </style>
@@ -960,7 +1003,7 @@
 
         <div class="buy-section-container" id="buyGoldSection">
             <h2 class="buy-section-header" onclick="toggleBuySection('buyGoldSection')">
-                بخش خرید طلا (از مشتری) <span class="toggle-icon">▼</span>
+                خرید طلا (از مشتری) <span class="toggle-icon">▼</span>
             </h2>
             <div class="buy-section-content">
                 <div id="buyGoldItemContainer">
@@ -972,47 +1015,43 @@
                         </div>
                     </div>
                 </div>
-                <button type="button" class="add-buy-item-button" onclick="addBuyGoldItem()">افزودن طلای خریداری شده جدید</button>
+                <button type="button" class="add-buy-item-button" onclick="addBuyGoldItem()">افزودن طلای جدید</button>
             </div>
         </div>
 
         <div class="buy-section-container" id="buyCoinSection">
             <h2 class="buy-section-header" onclick="toggleBuySection('buyCoinSection')">
-                بخش خرید سکه (از مشتری) <span class="toggle-icon">▼</span>
+                خرید سکه (از مشتری) <span class="toggle-icon">▼</span>
             </h2>
             <div class="buy-section-content">
                 <div id="buyCoinItemContainer">
-                    <div class="buy-option-group" data-buy-item-id="coin1">
+                    <div class="coin-item-group" data-buy-item-id="coin1">
                         <button type="button" class="remove-buy-item" onclick="removeBuyItem(this)">✖</button>
-                        <div class="form-group coin-select-wrapper">
-                            <label>مدل سکه:</label>
-                            <div id="coinSelectsCoin1">
-                                <div class="coin-item">
-                                    <select class="buy-option-input coin-model-select" onchange="updateCoinPriceInput(this, 'coin1')">
-                                        <option value="">انتخاب مدل سکه</option>
-                                        <option value="ربع ۸۶">ربع ۸۶</option>
-                                        <option value="نیم ۸۶">نیم ۸۶</option>
-                                        <option value="امامی ۸۶">امامی ۸۶</option>
-                                        <option value="ربع زیر ۸۶">ربع زیر ۸۶</option>
-                                        <option value="نیم زیر ۸۶">نیم زیر ۸۶</option>
-                                        <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
-                                        <option value="یک گرمی بانکی">یک گرمی بانکی</option>
-                                    </select>
-                                    <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" style="flex-grow: 1;">
-                                    <button type="button" class="coin-remove-button" onclick="removeCoinItem(this)">✖</button>
-                                </div>
+                        <div id="coinSelectsCoin1">
+                            <div class="coin-sub-item">
+                                <select class="buy-option-input coin-model-select" onchange="updateCoinPriceInput(this, 'coin1')">
+                                    <option value="">انتخاب مدل سکه</option>
+                                    <option value="ربع ۸۶">ربع ۸۶</option>
+                                    <option value="نیم ۸۶">نیم ۸۶</option>
+                                    <option value="امامی ۸۶">امامی ۸۶</option>
+                                    <option value="ربع زیر ۸۶">ربع زیر ۸۶</option>
+                                    <option value="نیم زیر ۸۶">نیم زیر ۸۶</option>
+                                    <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
+                                    <option value="یک گرمی بانکی">یک گرمی بانکی</option>
+                                </select>
+                                <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" style="flex-grow: 1;">
+                                <button type="button" class="coin-remove-button" onclick="removeCoinSubItem(this)">✖</button>
                             </div>
-                            <button type="button" class="add-coin-button" onclick="addCoinSelect('coin1')">افزودن سکه دیگر</button>
                         </div>
+                        <button type="button" class="add-coin-button" onclick="addCoinSelect('coin1')">افزودن سکه جدید</button>
                     </div>
                 </div>
-                <button type="button" class="add-buy-item-button" onclick="addBuyCoinItem()">افزودن سکه خریداری شده جدید</button>
             </div>
         </div>
 
         <div class="buy-section-container" id="buyParsianIngotSection">
             <h2 class="buy-section-header" onclick="toggleBuySection('buyParsianIngotSection')">
-                بخش خرید پارسیان و شمش (از مشتری) <span class="toggle-icon">▼</span>
+                خرید پارسیان و شمش (از مشتری) <span class="toggle-icon">▼</span>
             </h2>
             <div class="buy-section-content">
                 <div class="buy-option-group" data-buy-item-id="parsian1">
@@ -1095,7 +1134,7 @@
     <script>
         const farsiDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
         const itemContainer = document.getElementById('itemContainer');
-        const buyGoldItemContainer = document.getElementById('buyGoldItemContainer'); // Corrected ID
+        const buyGoldItemContainer = document.getElementById('buyGoldItemContainer'); 
         const buyCoinItemContainer = document.getElementById('buyCoinItemContainer');
         const suggestedDiscountsSection = document.getElementById('suggestedDiscountsSection');
         const discountInput = document.getElementById('discount');
@@ -1103,19 +1142,19 @@
 
         let itemIdCounter = 1;
         let buyGoldItemIdCounter = 1; // Counter for "خرید طلا" items
-        let buyCoinItemIdCounter = 1; // Counter for "خرید سکه" items
+        let buyCoinGroupCounter = 1; // Counter for "خرید سکه" groups (each group can have multiple coins)
         let activeDiscountValue = 0;
         let activeDiscountType = null;
 
-        // NEW GLOBAL VARIABLES to store calculated values for invoice display
+        // GLOBAL VARIABLES to store calculated values for invoice display
         let finalCalculatedData = {
             goldPricePerGram: 0,
             itemDetails: [], // Sold items
             boughtItems: [], // All bought items (gold, coin, parsian, ingot)
-            totalBoughtValue: 0, // Sum of all bought items
+            totalBoughtValue: 0, 
             buyDiffGoldWithDiscount: false,
-            buyGoldAmountAtMuzanne: 0, // From previous calculation, if needed for invoice
-            buyDiffGoldAmountWithDiscount: 0, // From previous calculation, if needed for invoice
+            buyGoldAmountAtMuzanne: 0, 
+            buyDiffGoldAmountWithDiscount: 0, 
             totalCalculatedTax: 0,
             discountAmount: 0,
             finalTotalAmount: 0,
@@ -1424,7 +1463,7 @@
                     </div>
                 </div>
             `;
-            itemContainer.insertAdjacentHTML('beforeend', newItemHtml); // Changed to appendChild to add at the end
+            itemContainer.insertAdjacentHTML('beforeend', newItemHtml); 
             updateRemoveButtonsVisibility();
             addInputEventListeners(itemContainer.querySelector(`[data-item-id="${itemIdCounter}"]`));
 
@@ -1455,7 +1494,7 @@
             const items = itemContainer.querySelectorAll('.item-row');
             items.forEach((item, index) => {
                 const removeButton = item.querySelector('.remove-item');
-                if (items.length === 1) { // If only one item, hide its remove button
+                if (items.length === 1) { 
                     removeButton.style.display = 'none';
                 } else {
                     removeButton.style.display = 'block';
@@ -1483,45 +1522,52 @@
 
         // NEW: Buy Coin Item functions
         function addBuyCoinItem() {
-            buyCoinItemIdCounter++;
+            buyCoinGroupCounter++;
             const newBuyItemHtml = `
-                <div class="buy-option-group" data-buy-item-id="coin${buyCoinItemIdCounter}">
+                <div class="coin-item-group" data-buy-item-id="coin${buyCoinGroupCounter}">
                     <button type="button" class="remove-buy-item" onclick="removeBuyItem(this)">✖</button>
-                    <div class="form-group coin-select-wrapper">
-                        <label>مدل سکه:</label>
-                        <div id="coinSelectsCoin${buyCoinItemIdCounter}">
-                            <div class="coin-item">
-                                <select class="buy-option-input coin-model-select" onchange="updateCoinPriceInput(this, 'coin${buyCoinItemIdCounter}')">
-                                    <option value="">انتخاب مدل سکه</option>
-                                    <option value="ربع ۸۶">ربع ۸۶</option>
-                                    <option value="نیم ۸۶">نیم ۸۶</option>
-                                    <option value="امامی ۸۶">امامی ۸۶</option>
-                                    <option value="ربع زیر ۸۶">ربع زیر ۸۶</option>
-                                    <option value="نیم زیر ۸۶">نیم زیر ۸۶</option>
-                                    <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
-                                    <option value="یک گرمی بانکی">یک گرمی بانکی</option>
-                                </select>
-                                <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" style="flex-grow: 1;">
-                                <button type="button" class="coin-remove-button" onclick="removeCoinItem(this)">✖</button>
-                            </div>
+                    <div id="coinSelectsCoin${buyCoinGroupCounter}">
+                        <div class="coin-sub-item">
+                            <select class="buy-option-input coin-model-select" onchange="updateCoinPriceInput(this, 'coin${buyCoinGroupCounter}')">
+                                <option value="">انتخاب مدل سکه</option>
+                                <option value="ربع ۸۶">ربع ۸۶</option>
+                                <option value="نیم ۸۶">نیم ۸۶</option>
+                                <option value="امامی ۸۶">امامی ۸۶</option>
+                                <option value="ربع زیر ۸۶">ربع زیر ۸۶</option>
+                                <option value="نیم زیر ۸۶">نیم زیر ۸۶</option>
+                                <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
+                                <option value="یک گرمی بانکی">یک گرمی بانکی</option>
+                            </select>
+                            <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" style="flex-grow: 1;">
+                            <button type="button" class="coin-remove-button" onclick="removeCoinSubItem(this)">✖</button>
                         </div>
-                        <button type="button" class="add-coin-button" onclick="addCoinSelect('coin${buyCoinItemIdCounter}')">افزودن سکه دیگر</button>
                     </div>
+                    <button type="button" class="add-coin-button" onclick="addCoinSelect('coin${buyCoinGroupCounter}')">افزودن سکه جدید</button>
                 </div>
             `;
             buyCoinItemContainer.insertAdjacentHTML('beforeend', newBuyItemHtml);
-            addInputEventListeners(buyCoinItemContainer.querySelector(`[data-buy-item-id="coin${buyCoinItemIdCounter}"]`));
+            addInputEventListeners(buyCoinItemContainer.querySelector(`[data-buy-item-id="coin${buyCoinGroupCounter}"]`));
             updateRemoveBuyButtonsVisibility('buyCoinItemContainer');
             calculateFactor();
         }
 
         function removeBuyItem(button) {
-            const buyItemRow = button.closest('.buy-option-group');
+            const buyItemRow = button.closest('.buy-option-group') || button.closest('.coin-item-group'); // Check both classes
             const parentContainer = buyItemRow.closest('.buy-section-content').querySelector('div[id$="ItemContainer"]');
             
-            if (parentContainer && parentContainer.querySelectorAll('.buy-option-group').length === 1) {
+            if (parentContainer && parentContainer.querySelectorAll('.buy-option-group, .coin-item-group').length === 1) { // Check both
                 // If it's the last item in its container, just clear inputs instead of removing
                 buyItemRow.querySelectorAll('input, select').forEach(input => input.value = '');
+                // For coin items, also ensure the inner coin-sub-items are reset to one
+                if (buyItemRow.classList.contains('coin-item-group')) {
+                    const coinSelectsDiv = buyItemRow.querySelector(`[id^="coinSelectsCoin"]`);
+                    if (coinSelectsDiv) {
+                        const existingCoinSubItems = coinSelectsDiv.querySelectorAll('.coin-sub-item');
+                        for(let i = 1; i < existingCoinSubItems.length; i++) {
+                            existingCoinSubItems[i].remove(); // Remove all but the first one
+                        }
+                    }
+                }
             } else {
                 buyItemRow.remove();
             }
@@ -1533,7 +1579,7 @@
             const container = document.getElementById(containerId);
             if (!container) return; 
 
-            const items = container.querySelectorAll('.buy-option-group');
+            const items = container.querySelectorAll('.buy-option-group, .coin-item-group'); // Check both
             if (items.length === 1) {
                 items[0].querySelector('.remove-buy-item').style.display = 'none';
             } else {
@@ -1546,7 +1592,7 @@
         function addCoinSelect(buyItemId) {
             const coinSelectsDiv = document.getElementById(`coinSelects${buyItemId}`);
             const newCoinItemHtml = `
-                <div class="coin-item">
+                <div class="coin-sub-item">
                     <select class="buy-option-input coin-model-select" onchange="updateCoinPriceInput(this, '${buyItemId}')">
                         <option value="">انتخاب مدل سکه</option>
                         <option value="ربع ۸۶">ربع ۸۶</option>
@@ -1558,26 +1604,26 @@
                         <option value="یک گرمی بانکی">یک گرمی بانکی</option>
                     </select>
                     <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" style="flex-grow: 1;">
-                    <button type="button" class="coin-remove-button" onclick="removeCoinItem(this)">✖</button>
+                    <button type="button" class="coin-remove-button" onclick="removeCoinSubItem(this)">✖</button>
                 </div>
             `;
             coinSelectsDiv.insertAdjacentHTML('beforeend', newCoinItemHtml);
             const newCoinPriceInput = coinSelectsDiv.lastElementChild.querySelector('.coin-price-input');
             newCoinPriceInput.addEventListener('input', (e) => {
                 e.target.value = formatNumberWithCommas(convertToEnglishDigits(e.target.value));
-                calculateFactor(); // Added calculateFactor
+                calculateFactor();
             });
             newCoinPriceInput.addEventListener('blur', (e) => {
                 e.target.value = formatNumberWithCommas(convertToEnglishDigits(e.target.value));
-                calculateFactor(); // Added calculateFactor
+                calculateFactor();
             });
             calculateFactor();
         }
 
-        function removeCoinItem(button) {
-            const coinItem = button.closest('.coin-item');
+        function removeCoinSubItem(button) {
+            const coinItem = button.closest('.coin-sub-item');
             const parentDiv = coinItem.parentNode;
-            if (parentDiv.querySelectorAll('.coin-item').length === 1) {
+            if (parentDiv.querySelectorAll('.coin-sub-item').length === 1) {
                 // If it's the last coin item, just clear its inputs
                 coinItem.querySelector('.coin-model-select').value = '';
                 coinItem.querySelector('.coin-price-input').value = '';
@@ -1588,7 +1634,7 @@
         }
 
         function updateCoinPriceInput(selectElement, buyItemId) {
-            const coinItem = selectElement.closest('.coin-item');
+            const coinItem = selectElement.closest('.coin-sub-item');
             const priceInput = coinItem.querySelector('.coin-price-input');
             priceInput.value = ''; // Clear price when model changes
             calculateFactor();
@@ -1611,7 +1657,7 @@
 
         function calculateFactor() {
             const goldPriceInput = document.getElementById('goldPrice');
-            const rawGoldPrice = parseFloat(convertToEnglishDigits(goldPriceInput.value)) || 0; // Use convertToEnglishDigits directly
+            const rawGoldPrice = parseFloat(convertToEnglishDigits(goldPriceInput.value)) || 0; 
 
             if (rawGoldPrice === 0) {
                 document.getElementById('resultSection').innerHTML = '';
@@ -1626,19 +1672,7 @@
             const includeTax = document.getElementById('includeTax').checked;
             const buyDiffGoldWithDiscount = document.getElementById('buyDiffGoldWithDiscount').checked;
             
-            let currentManualDiscount = parseFloat(convertToEnglishDigits(discountInput.value)) || 0; // Use convertToEnglishDigits
-
-            // Ensure profitRate options are always set correctly (this part should not clear options, just set selected)
-            // profitRateElement.innerHTML = ''; // Removed this line, it was clearing the options
-            // for (let i = 1; i <= 7; i++) {
-            //     const option = document.createElement('option');
-            //     option.value = i;
-            //     option.textContent = convertToFarsiDigits(i) + '%';
-            //     if (i === 7) {
-            //         option.selected = true;
-            //     }
-            //     profitRateElement.appendChild(option);
-            // }
+            let currentManualDiscount = parseFloat(convertToEnglishDigits(discountInput.value)) || 0; 
 
             let totalOverallPriceWithoutTax = 0;
             let totalCalculatedTax = 0;
@@ -1652,7 +1686,7 @@
                 const productTypeSelect = row.querySelector('.product-type-select');
                 const wageInput = row.querySelector('.gold-wage');
                 const wageTypeRadio = row.querySelector(`input[name="wageType${row.dataset.itemId}"]:checked`);
-                const wageType = wageTypeRadio ? wageTypeRadio.value : 'percent'; // Default to percent
+                const wageType = wageTypeRadio ? wageTypeRadio.value : 'percent'; 
 
                 let weight = parseFloat(convertToEnglishDigits(weightInput.value)) || 0;
 
@@ -1706,7 +1740,7 @@
                 });
             });
 
-            // NEW: Calculate bought items from all sections
+            // Calculate bought items from all sections
             let totalBoughtValue = 0;
             let totalBoughtGoldWeightForDiff = 0; // Only for pure gold from "خرید طلا" section
 
@@ -1721,31 +1755,31 @@
                     totalBoughtGoldWeightForDiff += weight;
                     boughtItemsDetails.push({
                         type: 'gold',
-                        description: `طلای آب شده (${convertToFarsiDigits(weight.toFixed(3))} گرم)`,
+                        description: `خرید طلا (${convertToFarsiDigits(weight.toFixed(3))} گرم)`,
                         value: itemPrice
                     });
                 }
             });
 
             // 2. Calculate from Buy Coin section
-            document.querySelectorAll('#buyCoinItemContainer .buy-option-group').forEach(row => {
-                const coinItems = row.querySelectorAll('.coin-item');
+            document.querySelectorAll('#buyCoinItemContainer .coin-item-group').forEach(group => { // Changed to coin-item-group
+                const coinSubItems = group.querySelectorAll('.coin-sub-item');
                 let totalCoinValueInGroup = 0;
                 let coinDescriptionParts = [];
-                coinItems.forEach(coinItem => {
+                coinSubItems.forEach(coinItem => {
                     const modelSelect = coinItem.querySelector('.coin-model-select');
                     const priceInput = coinItem.querySelector('.coin-price-input');
                     const model = modelSelect.value;
                     const price = parseFloat(convertToEnglishDigits(priceInput.value)) || 0;
                     if (model && price > 0) {
                         totalCoinValueInGroup += price;
-                        coinDescriptionParts.push(`${model}: ${formatCurrency(price)} تومان`);
+                        coinDescriptionParts.push(`${model}: <span dir="ltr">${formatCurrency(price)}</span> تومان`);
                     }
                 });
                 if (totalCoinValueInGroup > 0) {
                     boughtItemsDetails.push({
                         type: 'coin',
-                        description: `سکه: <br>` + coinDescriptionParts.join('<br>'),
+                        description: `خرید سکه: <br>` + coinDescriptionParts.join('<br>'),
                         value: totalCoinValueInGroup
                     });
                 }
@@ -1758,7 +1792,7 @@
             if (parsianPrice > 0) {
                 boughtItemsDetails.push({
                     type: 'parsian',
-                    description: `سکه پارسیان: ${convertToFarsiDigits(parsianWeight.toFixed(3))} گرم`,
+                    description: `خرید سکه پارسیان: ${convertToFarsiDigits(parsianWeight.toFixed(3))} گرم`,
                     value: parsianPrice
                 });
             }
@@ -1766,11 +1800,11 @@
             // 4. Calculate from Buy Ingot section
             const ingotWeightInput = document.getElementById('buyIngotWeight1');
             let ingotWeight = parseFloat(convertToEnglishDigits(ingotWeightInput.value)) || 0;
-            let ingotPrice = (ingotWeight * 995 / 750) * rawGoldPrice; // Formula for ingot
+            let ingotPrice = (ingotWeight * 995 / 750) * rawGoldPrice; // Formula for ingot (assuming it's per 750 for 18k equivalent)
             if (ingotPrice > 0) {
                 boughtItemsDetails.push({
                     type: 'ingot',
-                    description: `شمش: ${convertToFarsiDigits(ingotWeight.toFixed(3))} گرم`,
+                    description: `خرید شمش: ${convertToFarsiDigits(ingotWeight.toFixed(3))} گرم`,
                     value: ingotPrice
                 });
             }
@@ -1788,8 +1822,8 @@
             let buyGoldAmountAtMuzanne = 0; 
             let buyDiffGoldAmountWithDiscount = 0; 
 
-            let totalEffectiveBoughtGoldFromCustomer = 0; // This will replace the pure gold part of totalBoughtValue
-            let totalBoughtNonGoldFromCustomer = 0; // Coins, Parsian, Ingot
+            let totalEffectiveBoughtGoldFromCustomer = 0; 
+            let totalBoughtNonGoldFromCustomer = 0; 
 
             boughtItemsDetails.forEach(item => {
                 if (item.type !== 'gold') {
@@ -1798,9 +1832,9 @@
             });
 
             if (buyDiffGoldWithDiscount && netGoldWeightDiff > 0) { 
-                buyGoldAmountAtMuzanne = soldGoldWeight * rawGoldPrice; // Gold up to sold amount at full price
+                buyGoldAmountAtMuzanne = soldGoldWeight * rawGoldPrice; 
                 let diffWeight = netGoldWeightDiff;
-                let priceWithDiscount = rawGoldPrice * (1 - 0.02); // Muzanne price - 2%
+                let priceWithDiscount = rawGoldPrice * (1 - 0.02); 
                 buyDiffGoldAmountWithDiscount = diffWeight * priceWithDiscount;
                 totalEffectiveBoughtGoldFromCustomer = buyGoldAmountAtMuzanne + buyDiffGoldAmountWithDiscount;
             } else { 
@@ -1841,7 +1875,7 @@
                 if (remainder50k > 0) {
                     const discount = remainder50k;
                     const newFinalPrice = roundedPriceForSuggestions - discount;
-                    if (newFinalPrice >= 0) { // No need for discount > previous check here, just check if it's a valid suggestion
+                    if (newFinalPrice >= 0) { 
                         suggestedDiscounts.push({
                             type: 'round50k',
                             text: 'رند به ۵۰ هزار تومان پایین‌تر:',
@@ -1855,7 +1889,7 @@
                 if (remainder100k > 0) {
                     const discount = remainder100k;
                     const newFinalPrice = roundedPriceForSuggestions - discount;
-                    if (newFinalPrice >= 0) { // No need for discount > previous check here
+                    if (newFinalPrice >= 0) { 
                         suggestedDiscounts.push({
                             type: 'round100k',
                             text: 'رند به ۱۰۰ هزار تومان پایین‌تر:',
@@ -1895,7 +1929,6 @@
                     discountToApply = activeSug.discountAmount;
                     discountInput.value = formatNumberWithCommas(activeSug.discountAmount);
                 } else {
-                    // If activeDiscountType is set but the suggestion is no longer valid (e.g., price changed), clear it
                     activeDiscountType = null;
                     activeDiscountValue = 0;
                     discountInput.value = '';
@@ -1923,6 +1956,7 @@
                 resultSection.innerHTML += `<div class="result-item buy-item"><span></span><span></span></div>`; 
                 boughtItemsDetails.forEach(item => {
                     if (item.value > 0) {
+                        // Display main item
                         resultSection.innerHTML += `
                             <div class="result-item buy-item">
                                 <span>${item.description.split('<br>')[0].replace(':', '')}:</span>
@@ -1945,7 +1979,7 @@
                 });
                 resultSection.innerHTML += `
                     <div class="result-item buy-item">
-                        <span>جمع کل خرید از مشتری:</span>
+                        <span>مجموع خرید از مشتری:</span>
                         <span>${formatCurrency(totalBoughtValue)}</span>
                     </div>
                 `;
@@ -2044,7 +2078,7 @@
                             }
                             invoiceHtml += `<p>اجرت: ${wageDisplay}</p>`;
                         }
-                        if (finalCalculatedData.totalCalculatedTax > 0 && item.tax > 0) { // Only show tax if it's being calculated at all and this item has tax
+                        if (finalCalculatedData.totalCalculatedTax > 0 && item.tax > 0) { 
                             invoiceHtml += `<p>ارزش افزوده: <span dir="ltr">${formatCurrency(item.tax)}</span> تومان</p>`;
                         }
                         invoiceHtml += `</div>`;
@@ -2072,7 +2106,7 @@
                         invoiceHtml += `</div>`;
                     }
                 });
-                invoiceHtml += `<p class="buy-item-value"><strong>جمع کل خرید از مشتری: <span dir="ltr">${formatCurrency(finalCalculatedData.totalBoughtValue)}</span> تومان</strong></p>`;
+                invoiceHtml += `<p class="buy-item-value"><strong>مجموع خرید از مشتری: <span dir="ltr">${formatCurrency(finalCalculatedData.totalBoughtValue)}</span> تومان</strong></p>`;
             }
 
 
@@ -2098,142 +2132,4 @@
         }
 
         function addInputEventListeners(element) {
-            element.querySelectorAll('input, select').forEach(input => {
-                if (input.id === 'goldPrice') {
-                    // Handled by specific event listeners above
-                } else if (input.classList.contains('gold-wage')) {
-                    input.addEventListener('input', () => updateWageInWordsDisplay(input));
-                    input.addEventListener('blur', () => updateWageInWordsDisplay(input));
-                } else if (input.classList.contains('gold-weight') || input.classList.contains('parsian-buy-weight') || input.classList.contains('ingot-buy-weight')) {
-                    input.addEventListener('input', (e) => {
-                        let rawValue = e.target.value;
-                        let cleanValue = convertToEnglishDigits(rawValue);
-                        
-                        // Allow only one decimal point
-                        const parts = cleanValue.split('.');
-                        if (parts.length > 2) {
-                            cleanValue = parts[0] + '.' + parts.slice(1).join('');
-                        }
-                        
-                        e.target.value = convertToFarsiDigits(cleanValue); // Display in Farsi digits
-                        calculateFactor();
-                    });
-                    input.addEventListener('blur', (e) => {
-                        let rawValue = e.target.value;
-                        let cleanValue = convertToEnglishDigits(rawValue);
-                        if (cleanValue.endsWith('.')) {
-                            cleanValue = cleanValue.slice(0, -1);
-                        }
-                        e.target.value = (cleanValue === '' || parseFloat(cleanValue) === 0) ? '' : convertToFarsiDigits(cleanValue);
-                        calculateFactor();
-                    });
-                } else if (input.classList.contains('gold-buy-weight')) { // Separate for buy gold to ensure remove button logic
-                    input.addEventListener('input', (e) => {
-                        let rawValue = e.target.value;
-                        let cleanValue = convertToEnglishDigits(rawValue);
-                        const parts = cleanValue.split('.');
-                        if (parts.length > 2) {
-                            cleanValue = parts[0] + '.' + parts.slice(1).join('');
-                        }
-                        e.target.value = convertToFarsiDigits(cleanValue);
-                        calculateFactor();
-                    });
-                    input.addEventListener('blur', (e) => {
-                        let rawValue = e.target.value;
-                        let cleanValue = convertToEnglishDigits(rawValue);
-                        if (cleanValue.endsWith('.')) {
-                            cleanValue = cleanValue.slice(0, -1);
-                        }
-                        e.target.value = (cleanValue === '' || parseFloat(cleanValue) === 0) ? '' : convertToFarsiDigits(cleanValue);
-                        calculateFactor();
-                    });
-                }
-                else if (input.classList.contains('coin-price-input')) {
-                     input.addEventListener('input', (e) => {
-                        e.target.value = formatNumberWithCommas(convertToEnglishDigits(e.target.value));
-                        calculateFactor();
-                    });
-                    input.addEventListener('blur', (e) => {
-                        e.target.value = formatNumberWithCommas(convertToEnglishDigits(e.target.value));
-                        calculateFactor();
-                    });
-                } else if (input.id === 'discount') {
-                    input.addEventListener('input', (e) => {
-                        activeDiscountType = null;
-                        activeDiscountValue = 0;
-                        document.querySelectorAll('.suggested-discount-item').forEach(item => {
-                            item.classList.remove('active');
-                        });
-
-                        let value = convertToEnglishDigits(e.target.value); // Removed replace(/,/g, '')
-                        e.target.value = formatNumberWithCommas(value);
-                        calculateFactor();
-                    });
-                    input.addEventListener('blur', (e) => {
-                        let value = convertToEnglishDigits(e.target.value); // Removed replace(/,/g, '')
-                        e.target.value = formatNumberWithCommas(value);
-                        calculateFactor();
-                    });
-                } else if (input.classList.contains('customer-input')) {
-                    input.addEventListener('input', () => {
-                        // No calculation needed directly, but can trigger generateInvoiceDisplay if desired
-                    });
-                }
-                else { // For all other inputs and selects (like product type, profit rate, checkboxes)
-                    input.addEventListener('input', calculateFactor);
-                    input.addEventListener('change', calculateFactor);
-                }
-            });
-        }
-
-        // NEW: Collapsible sections logic
-        function toggleBuySection(sectionId) {
-            const section = document.getElementById(sectionId);
-            const content = section.querySelector('.buy-section-content');
-            const header = section.querySelector('.buy-section-header');
-
-            content.classList.toggle('expanded');
-            header.classList.toggle('expanded');
-        }
-
-        // Initial setup
-        document.addEventListener('DOMContentLoaded', () => {
-            updateRemoveButtonsVisibility();
-            updateRemoveBuyButtonsVisibility('buyGoldItemContainer'); // Initialize for gold buy section
-            updateRemoveBuyButtonsVisibility('buyCoinItemContainer'); // Initialize for coin buy section
-
-            addInputEventListeners(document); // Attach listeners to all existing inputs
-            updateGoldPriceDisplay(); // Initial update for gold price and calculation
-            
-            // Ensure initial wage type is applied for the first item
-            const firstWageInput = document.getElementById('wage1');
-            const firstWageTypeRadio = document.querySelector('input[name="wageType1"][value="percent"]');
-            if (firstWageTypeRadio) {
-                toggleWageInput(firstWageTypeRadio); 
-            }
-            
-            // Set default values for Parsian and Ingot to empty if 0
-            const parsianWeightInput = document.getElementById('buyParsianWeight1');
-            const ingotWeightInput = document.getElementById('buyIngotWeight1');
-            if (parseFloat(convertToEnglishDigits(parsianWeightInput.value)) === 0 && parsianWeightInput.value.trim() === '') {
-                parsianWeightInput.value = '';
-            }
-            if (parseFloat(convertToEnglishDigits(ingotWeightInput.value)) === 0 && ingotWeightInput.value.trim() === '') {
-                ingotWeightInput.value = '';
-            }
-
-            // Collapse all buy sections and invoice section by default
-            document.getElementById('buyGoldSection').querySelector('.buy-section-content').classList.remove('expanded');
-            document.getElementById('buyGoldSection').querySelector('.buy-section-header').classList.remove('expanded');
-            document.getElementById('buyCoinSection').querySelector('.buy-section-content').classList.remove('expanded');
-            document.getElementById('buyCoinSection').querySelector('.buy-section-header').classList.remove('expanded');
-            document.getElementById('buyParsianIngotSection').querySelector('.buy-section-content').classList.remove('expanded');
-            document.getElementById('buyParsianIngotSection').querySelector('.buy-section-header').classList.remove('expanded');
-            document.getElementById('invoiceOutputContent').classList.remove('expanded');
-            document.getElementById('invoiceOutputWrapper').querySelector('.invoice-output-header').classList.remove('expanded');
-
-            calculateFactor(); // Initial calculation on load
-        });
-    </script>
-</body>
-</html>
+            element
