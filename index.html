@@ -282,7 +282,7 @@
             font-size: 1em;
         }
         .result-item.discount-amount {
-            color: #8e44ad;
+            color: #e74c3c; /* Changed to red as requested */
             font-size: 1em;
         }
 
@@ -301,7 +301,7 @@
             color: #27ae60;
         }
         .result-item.discount-amount span:last-child {
-            color: #8e44ad;
+            color: #e74c3c; /* Changed to red as requested */
         }
 
 
@@ -350,6 +350,15 @@
         .suggested-discount-text {
             font-size: 0.9em;
             color: #38761d;
+        }
+        
+        .suggested-discount-container.bold {
+            border-left-color: #008080; /* Teal for "tople" discount */
+            background-color: #e0ffff; /* Light cyan background */
+            font-weight: bold;
+        }
+        .suggested-discount-container.bold .suggested-discount-text {
+            color: #006060; /* Darker teal text */
         }
 
         .apply-discount-button {
@@ -432,7 +441,7 @@
                 <div class="flex-group">
                     <div class="form-group">
                         <label for="weight1">وزن طلا (گرم):</label>
-                        <input type="text" id="weight1" class="gold-weight" inputmode="decimal" pattern="[-+]?[0-9]*[,.]?[0-9]*">
+                        <input type="text" id="weight1" class="gold-weight" inputmode="decimal" pattern="[-+]?[0-9]*[.,]?[0-9]*">
                     </div>
                     <div class="form-group">
                         <label for="productType1">نوع محصول:</label>
@@ -467,7 +476,7 @@
                 </div>
                 <div class="form-group">
                     <label for="buyWeight1">خرید طلا (گرم):</label>
-                    <input type="text" id="buyWeight1" class="gold-buy-weight" inputmode="decimal" pattern="[-+]?[0-9]*[,.]?[0-9]*">
+                    <input type="text" id="buyWeight1" class="gold-buy-weight" inputmode="decimal" pattern="[-+]?[0-9]*[.,]?[0-9]*">
                 </div>
             </div>
         </div>
@@ -508,6 +517,16 @@
             </div>
         </div>
 
+        <div id="bigSuggestedDiscountContainer" style="display: none;">
+            <div class="suggested-discount-container bold">
+                <div class="suggested-discount-text">
+                    <span>تخفیف تپل! رند شدن به پایین: </span>
+                    <span id="bigSuggestedDiscountAmount"></span> <span>تومان</span>
+                </div>
+                <button id="applyBigDiscountButton" class="apply-discount-button">اعمال تخفیف</button>
+            </div>
+        </div>
+
         <div class="result-section" id="resultSection">
         </div>
     </div>
@@ -518,21 +537,25 @@
         const suggestedDiscountContainer = document.getElementById('suggestedDiscountContainer');
         const suggestedDiscountAmountElement = document.getElementById('suggestedDiscountAmount');
         const applyDiscountButton = document.getElementById('applyDiscountButton');
+        const bigSuggestedDiscountContainer = document.getElementById('bigSuggestedDiscountContainer');
+        const bigSuggestedDiscountAmountElement = document.getElementById('bigSuggestedDiscountAmount');
+        const applyBigDiscountButton = document.getElementById('applyBigDiscountButton');
+
         let itemIdCounter = 1;
         let isSuggestedDiscountApplied = false;
-        let lastCalculatedTotalFinalPrice = 0; // برای نگهداری آخرین قیمت نهایی محاسبه شده
-        let currentSuggestedDiscount = 0; // برای نگهداری مقدار تخفیف پیشنهادی فعلی
+        let isBigSuggestedDiscountApplied = false;
+        let currentSuggestedDiscount = 0;
+        let currentBigSuggestedDiscount = 0;
 
         function convertToFarsiDigits(num) {
             if (num === null || num === undefined) {
                 return '';
             }
             let numStr = String(num);
-            // Replace standard dot with Farsi decimal separator, but only if it's a decimal point
             numStr = numStr.replace(/\./g, '٫');
             return numStr.split('').map(digit => {
-                if (digit === '٫') return '٫'; // Keep Farsi decimal separator
-                if (digit === ',') return ','; // Keep commas for formatting
+                if (digit === '٫') return '٫';
+                if (digit === ',') return ',';
                 const farsiDigit = farsiDigits[parseInt(digit)];
                 return farsiDigit !== undefined ? farsiDigit : digit;
             }).join('');
@@ -540,7 +563,6 @@
 
         function convertToEnglishDigits(num) {
             let englishNum = '';
-            // Ensure num is treated as a string, and replace Farsi decimal with dot
             num = String(num).replace(/٫/g, '.');
             for (let i = 0; i < num.length; i++) {
                 const char = num[i];
@@ -558,7 +580,6 @@
 
         function formatCurrency(num) {
             if (num === null || isNaN(num)) return '۰';
-            // Round the number to the nearest integer before formatting
             let numStr = Math.round(num).toString();
             let formatted = '';
             let counter = 0;
@@ -772,7 +793,7 @@
                     <div class="flex-group">
                         <div class="form-group">
                             <label for="weight${itemIdCounter}">وزن طلا (گرم):</label>
-                            <input type="text" id="weight${itemIdCounter}" class="gold-weight" inputmode="decimal" pattern="[-+]?[0-9]*[,.]?[0-9]*">
+                            <input type="text" id="weight${itemIdCounter}" class="gold-weight" inputmode="decimal" pattern="[-+]?[0-9]*[.,]?[0-9]*">
                         </div>
                         <div class="form-group">
                             <label for="productType${itemIdCounter}">نوع محصول:</label>
@@ -807,7 +828,7 @@
                     </div>
                     <div class="form-group">
                         <label for="buyWeight${itemIdCounter}">خرید طلا (گرم):</label>
-                        <input type="text" id="buyWeight${itemIdCounter}" class="gold-buy-weight" inputmode="decimal" pattern="[-+]?[0-9]*[,.]?[0-9]*">
+                        <input type="text" id="buyWeight${itemIdCounter}" class="gold-buy-weight" inputmode="decimal" pattern="[-+]?[0-9]*[.,]?[0-9]*">
                     </div>
                 </div>
             `;
@@ -851,6 +872,7 @@
             if (rawGoldPrice === 0) {
                 document.getElementById('resultSection').innerHTML = '';
                 suggestedDiscountContainer.style.display = 'none';
+                bigSuggestedDiscountContainer.style.display = 'none';
                 return;
             }
 
@@ -887,7 +909,6 @@
                 let weight = parseFloat(convertToEnglishDigits(weightInput.value.replace(/٫/g, '.'))) || 0;
                 let buyWeight = parseFloat(convertToEnglishDigits((buyWeightInput ? buyWeightInput.value : '0').replace(/٫/g, '.'))) || 0;
 
-                // Update input values with formatted Farsi numbers
                 weightInput.value = convertToFarsiDigits(String(weight));
                 if (buyWeightInput) {
                     buyWeightInput.value = convertToFarsiDigits(String(buyWeight));
@@ -941,14 +962,15 @@
 
             totalFinalPrice -= totalDeductedAmount;
 
-            // Suggested discount logic
-            const roundedTotalFinalPrice = Math.floor(totalFinalPrice / 1000) * 1000;
-            const potentialSuggestedDiscount = Math.round(totalFinalPrice - roundedTotalFinalPrice);
+            // --- Suggested discount logic (5 digits) ---
+            const lastFiveDigits = Math.round(totalFinalPrice) % 100000;
+            const potentialSuggestedDiscount = lastFiveDigits !== 0 ? lastFiveDigits : 0;
 
             if (potentialSuggestedDiscount > 0) {
                 currentSuggestedDiscount = potentialSuggestedDiscount;
                 suggestedDiscountAmountElement.textContent = formatCurrency(currentSuggestedDiscount);
-                suggestedDiscountContainer.style.display = 'flex'; // Show the container
+                suggestedDiscountContainer.style.display = 'flex';
+                suggestedDiscountContainer.classList.remove('bold'); // Ensure normal style
                 if (isSuggestedDiscountApplied) {
                     applyDiscountButton.textContent = 'حذف تخفیف';
                     applyDiscountButton.classList.add('remove');
@@ -958,21 +980,48 @@
                 }
             } else {
                 currentSuggestedDiscount = 0;
-                suggestedDiscountContainer.style.display = 'none'; // Hide if no discount
-                isSuggestedDiscountApplied = false; // Reset if no suggestion
+                suggestedDiscountContainer.style.display = 'none';
+                isSuggestedDiscountApplied = false;
                 applyDiscountButton.textContent = 'اعمال تخفیف';
                 applyDiscountButton.classList.remove('remove');
             }
+
+            // --- Big suggested discount logic (6 digits) ---
+            const lastSixDigits = Math.round(totalFinalPrice) % 1000000;
+            const potentialBigSuggestedDiscount = lastSixDigits !== 0 ? lastSixDigits : 0;
+
+            if (potentialBigSuggestedDiscount > 0) {
+                currentBigSuggestedDiscount = potentialBigSuggestedDiscount;
+                bigSuggestedDiscountAmountElement.textContent = formatCurrency(currentBigSuggestedDiscount);
+                bigSuggestedDiscountContainer.style.display = 'flex';
+                bigSuggestedDiscountContainer.classList.add('bold'); // Apply bold style for "tople"
+                if (isBigSuggestedDiscountApplied) {
+                    applyBigDiscountButton.textContent = 'حذف تخفیف';
+                    applyBigDiscountButton.classList.add('remove');
+                } else {
+                    applyBigDiscountButton.textContent = 'اعمال تخفیف';
+                    applyBigDiscountButton.classList.remove('remove');
+                }
+            } else {
+                currentBigSuggestedDiscount = 0;
+                bigSuggestedDiscountContainer.style.display = 'none';
+                isBigSuggestedDiscountApplied = false;
+                applyBigDiscountButton.textContent = 'اعمال تخفیف';
+                applyBigDiscountButton.classList.remove('remove');
+            }
+
 
             // Apply suggested discount if already applied or manually entered
             if (isSuggestedDiscountApplied) {
                 discountAmount = currentSuggestedDiscount;
                 discountInput.value = convertToFarsiDigits(currentSuggestedDiscount);
+            } else if (isBigSuggestedDiscountApplied) {
+                discountAmount = currentBigSuggestedDiscount;
+                discountInput.value = convertToFarsiDigits(currentBigSuggestedDiscount);
             }
 
-            totalFinalPrice -= discountAmount;
 
-            lastCalculatedTotalFinalPrice = totalFinalPrice; // Update for future checks
+            totalFinalPrice -= discountAmount;
 
             const resultSection = document.getElementById('resultSection');
             resultSection.innerHTML = itemResultsHtml;
@@ -1014,21 +1063,49 @@
 
         applyDiscountButton.addEventListener('click', () => {
             if (isSuggestedDiscountApplied) {
-                // If discount is applied, remove it
                 document.getElementById('discount').value = '';
                 isSuggestedDiscountApplied = false;
-                applyDiscountButton.textContent = 'اعمال تخفیف';
-                applyDiscountButton.classList.remove('remove');
+                // If big discount was applied, also deactivate its button
+                if (isBigSuggestedDiscountApplied) {
+                    isBigSuggestedDiscountApplied = false;
+                    applyBigDiscountButton.textContent = 'اعمال تخفیف';
+                    applyBigDiscountButton.classList.remove('remove');
+                }
             } else {
-                // If discount is not applied, apply it
                 document.getElementById('discount').value = convertToFarsiDigits(currentSuggestedDiscount);
                 isSuggestedDiscountApplied = true;
-                applyDiscountButton.textContent = 'حذف تخفیف';
-                applyDiscountButton.classList.add('remove');
+                // Deactivate big discount button if it was active
+                if (isBigSuggestedDiscountApplied) {
+                    isBigSuggestedDiscountApplied = false;
+                    applyBigDiscountButton.textContent = 'اعمال تخفیف';
+                    applyBigDiscountButton.classList.remove('remove');
+                }
             }
-            calculateFactor(); // Recalculate to reflect the change
+            calculateFactor();
         });
 
+        applyBigDiscountButton.addEventListener('click', () => {
+            if (isBigSuggestedDiscountApplied) {
+                document.getElementById('discount').value = '';
+                isBigSuggestedDiscountApplied = false;
+                // If small discount was applied, also deactivate its button
+                if (isSuggestedDiscountApplied) {
+                    isSuggestedDiscountApplied = false;
+                    applyDiscountButton.textContent = 'اعمال تخفیف';
+                    applyDiscountButton.classList.remove('remove');
+                }
+            } else {
+                document.getElementById('discount').value = convertToFarsiDigits(currentBigSuggestedDiscount);
+                isBigSuggestedDiscountApplied = true;
+                // Deactivate small discount button if it was active
+                if (isSuggestedDiscountApplied) {
+                    isSuggestedDiscountApplied = false;
+                    applyDiscountButton.textContent = 'اعمال تخفیف';
+                    applyDiscountButton.classList.remove('remove');
+                }
+            }
+            calculateFactor();
+        });
 
         function addInputEventListeners(element) {
             element.querySelectorAll('input, select').forEach(input => {
@@ -1055,7 +1132,7 @@
                         let rawValue = e.target.value;
                         let cleanValue = convertToEnglishDigits(rawValue.replace(/,/g, ''));
                         cleanValue = cleanValue.replace(/[^\d.]/g, '');
-                        if (cleanValue.endsWith('.')) { // Remove trailing decimal on blur
+                        if (cleanValue.endsWith('.')) {
                             cleanValue = cleanValue.slice(0, -1);
                         }
                         e.target.value = convertToFarsiDigits(cleanValue);
@@ -1063,8 +1140,15 @@
                     });
                 } else if (input.id === 'discount') {
                     input.addEventListener('input', (e) => {
-                        // Reset suggested discount flag if manual discount is entered
+                        // Reset suggested discount flags if manual discount is entered
                         isSuggestedDiscountApplied = false;
+                        isBigSuggestedDiscountApplied = false;
+                        // Reset button states
+                        applyDiscountButton.textContent = 'اعمال تخفیف';
+                        applyDiscountButton.classList.remove('remove');
+                        applyBigDiscountButton.textContent = 'اعمال تخفیف';
+                        applyBigDiscountButton.classList.remove('remove');
+
                         let value = convertToEnglishDigits(e.target.value.replace(/,/g, ''));
                         e.target.value = formatNumberWithCommas(value);
                         calculateFactor();
