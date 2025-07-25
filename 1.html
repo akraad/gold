@@ -81,6 +81,8 @@
             font-size: 1.8em;
             letter-spacing: 0.5px;
             background: linear-gradient(135deg, #2196F3 0%, #4CAF50 100%); /* Blue to Green Gradient */
+            cursor: pointer; /* Indicate clickable header */
+            user-select: none; /* Prevent text selection on click */
         }
 
         h2 {
@@ -395,7 +397,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>فاکتور طلافروشی</h1>
+        <h1 id="mainTitle">فاکتور طلافروشی</h1>
 
         <div class="section-title gold">محاسبه قیمت طلا</div>
         <div class="form-group">
@@ -636,6 +638,7 @@
 
 
         // Element References
+        const mainTitle = document.getElementById('mainTitle'); // Added for clickable title
         const goldPriceInput = document.getElementById('goldPrice');
         const goldPriceTextDisplay = document.getElementById('goldPriceText');
         const goldItemsContainer = document.getElementById('goldItemsContainer');
@@ -652,14 +655,13 @@
         const invoiceDetailsDiv = document.getElementById('invoiceDetails');
         const finalPriceSpan = document.getElementById('finalPrice');
 
-        // Customer Invoice Elements
-        // Removed direct inputs as they are now display-only
+        // Customer Invoice Elements (display-only now)
         const customerNameDisplay = document.getElementById('customerNameDisplay');
         const customerPhoneDisplay = document.getElementById('customerPhoneDisplay');
-        const customerPurchasedGoldCountDisplay = document.getElementById('customerPurchasedGoldCountDisplay'); // Changed to count
+        const customerPurchasedGoldCountDisplay = document.getElementById('customerPurchasedGoldCountDisplay');
         const customerGoldModelDisplay = document.getElementById('customerGoldModelDisplay');
         const customerWeightDisplay = document.getElementById('customerWeightDisplay');
-        const customerBaseGoldPriceDisplay = document.getElementById('customerBaseGoldPriceDisplay'); // Changed for clarity
+        const customerBaseGoldPriceDisplay = document.getElementById('customerBaseGoldPriceDisplay');
         const customerWageDisplay = document.getElementById('customerWageDisplay');
         const customerTaxDisplay = document.getElementById('customerTaxDisplay');
         const customerDiscountDisplay = document.getElementById('customerDiscountDisplay');
@@ -685,13 +687,12 @@
                 const cleanWageValue = parseFloat(toEnglishDigits(wageValue.replace(/,/g, ''))); // Ensure wageValue is clean
                 if (!isNaN(cleanWageValue)) {
                     if (wageType === 'percent') {
-                        if (cleanWageValue >= 0 && cleanWageValue <= 30) { // Wage can be 0%
+                        if (cleanWageValue >= 0 && cleanWageValue <= 30) {
                             totalWage = (basePrice * cleanWageValue) / 100;
                         }
                     } else if (wageType === 'toman') {
-                        // Max 7 digits check for toman wage
-                        if (String(Math.round(cleanWageValue)).length <= 7) { // Round for length check
-                            totalWage = cleanWageValue; // Wage is total amount, not per gram here
+                        if (String(Math.round(cleanWageValue)).length <= 7) {
+                            totalWage = cleanWageValue;
                         }
                     }
                 }
@@ -723,8 +724,7 @@
             // Ingot purchase
             const ingotWeight = parseFloat(toEnglishDigits(purchaseIngotWeightInput.value));
             if (!isNaN(ingotWeight) && ingotWeight > 0) {
-                // Corrected ingot calculation based on standard purity conversion
-                totalPurchasePrice += (ingotWeight * (18 / 24)) * cleanGoldPrice; // Assuming 995 for 24k and converting to 18k equivalent
+                totalPurchasePrice += (ingotWeight * (18 / 24)) * cleanGoldPrice;
             }
 
             // Parsian purchase
@@ -893,12 +893,11 @@
         };
 
         const updateCustomerInvoice = (goldItemCount, totalGoldBasePrice, totalWageSum, totalTaxSum, discountApplied, finalPrice) => {
-            // Placeholder for customer name and phone (assuming user inputs these somewhere else or they are hardcoded for now)
-            customerNameDisplay.textContent = "نام مشتری"; // You can replace this with an actual input field value
-            customerPhoneDisplay.textContent = toPersianDigits("09123456789"); // Replace with actual phone input if applicable
+            // These will be hardcoded for now, or linked to specific inputs if they exist elsewhere
+            customerNameDisplay.textContent = "نام مشتری";
+            customerPhoneDisplay.textContent = toPersianDigits("09123456789");
 
             customerPurchasedGoldCountDisplay.textContent = toPersianDigits(goldItemCount);
-            // Display details for the first gold item if available
             const firstGoldItem = document.querySelector('.gold-item[data-id="1"]');
             if (firstGoldItem) {
                 customerGoldModelDisplay.textContent = firstGoldItem.querySelector('#goldModel_1').value || 'نا مشخص';
@@ -956,7 +955,7 @@
                 // Special handling for comma formatting
                 if (e.target.classList.contains('persian-num-comma')) {
                     const parts = value.split('.');
-                    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ""); // Remove existing commas
+                    parts[0] = parts[0].replace(/,/g, ''); // Remove existing commas before re-formatting
                     value = parts.join('.');
                 }
 
@@ -979,7 +978,7 @@
                     document.querySelectorAll('.smart-discount-option').forEach(option => option.classList.remove('active'));
                 } else if (e.target.id === 'customerPhone') {
                     value = value.replace(/\./g, '').substring(0, 11);
-                } else if (e.target.id === 'customerPurchasedGold') { // This was for "عدد طلا خریداری شده"
+                } else if (e.target.id === 'customerPurchasedGold') {
                     value = value.replace(/\./g, '');
                 }
 
@@ -1100,23 +1099,23 @@
 
             // Generate discount options by rounding down to common significant figures
             // Option 1: Round down to nearest 1000
-            options.push(Math.floor(roundedTotalPrice / 1000) * 1000);
+            if (roundedTotalPrice >= 1000) options.push(Math.floor(roundedTotalPrice / 1000) * 1000);
 
             // Option 2: Round down to nearest 500,000
-            options.push(Math.floor(roundedTotalPrice / 500000) * 500000);
+            if (roundedTotalPrice >= 500000) options.push(Math.floor(roundedTotalPrice / 500000) * 500000);
 
             // Option 3: Round down to nearest 1,000,000
-            options.push(Math.floor(roundedTotalPrice / 1000000) * 1000000);
+            if (roundedTotalPrice >= 1000000) options.push(Math.floor(roundedTotalPrice / 1000000) * 1000000);
 
             // Option 4: A more aggressive round down to X.5M or X.0M, always less than or equal to current price
             if (roundedTotalPrice >= 1000000) {
                 let aggressiveRound = Math.floor(roundedTotalPrice / 1000000) * 1000000;
-                if ((roundedTotalPrice - aggressiveRound) > 500000) {
+                if ((roundedTotalPrice - aggressiveRound) >= 500000) { // Changed to >= to include .5M
                     aggressiveRound += 500000;
                 }
                 options.push(aggressiveRound);
             }
-
+            
             // Filter out duplicates, values greater than current total, and negative values
             // Sort in ascending order, then reverse to show higher discounts (lower final price) first
             const uniqueOptions = [...new Set(options.filter(val => val <= roundedTotalPrice && val >= 0))]
@@ -1169,7 +1168,7 @@
                 const calculation = calculateGoldItemPrice(currentGoldPrice, weight, wageType, wageValue, profitPercent);
 
                 if (calculation.price > 0) {
-                    currentTotalBeforeDiscount += calculation.price;
+                    currentTotalBeforeDiscount += calculation.basePrice + calculation.wageAmount + calculation.profitAmount;
                     if (isTaxEnabled) {
                         currentTotalBeforeDiscount += (calculation.wageAmount + calculation.profitAmount) * 0.10;
                     }
@@ -1181,13 +1180,81 @@
             generateSmartDiscountOptions(currentTotalBeforeDiscount);
         };
 
-        // This function updates only customer invoice display fields without re-calculating everything
-        const updateCustomerInvoiceDisplayOnly = () => {
-            // These will be hardcoded for now, or linked to specific inputs if they exist elsewhere
-            // For a real app, you'd likely have customer name/phone input fields.
-            // Assuming customerNameDisplay and customerPhoneDisplay are for static text now.
-            customerNameDisplay.textContent = "نام مشتری";
-            customerPhoneDisplay.textContent = toPersianDigits("09123456789");
+        // Function to populate random data
+        const populateRandomData = () => {
+            // Clear existing gold items except the first one
+            while (goldItemCount > 1) {
+                goldItemsContainer.lastElementChild.remove();
+                goldItemCount--;
+            }
+            // Clear existing coin items except the first one
+            while (coinItemCount > 1) {
+                coinPurchaseContainer.lastElementChild.remove();
+                coinItemCount--;
+            }
+
+            // Gold Price (7 digits)
+            const randomGoldPrice = Math.floor(Math.random() * 8000000) + 2500000; // Between 2,500,000 and 10,500,000
+            goldPriceInput.value = formatNumberWithCommas(randomGoldPrice);
+            goldPriceInput.dispatchEvent(new Event('input')); // Trigger input event to update text display and invoice
+
+            // Gold Item 1
+            const goldWeight = (Math.random() * 50 + 1).toFixed(2); // 1 to 51 grams, 2 decimal places
+            document.getElementById('goldWeight_1').value = toPersianDigits(goldWeight);
+            const goldModels = Array.from(document.getElementById('goldModel_1').options).map(opt => opt.value).filter(val => val !== '');
+            document.getElementById('goldModel_1').value = goldModels[Math.floor(Math.random() * goldModels.length)];
+
+            // Wage for gold item 1
+            const wageTypeRadios = document.querySelectorAll(`input[name="wageType_1"]`);
+            const randomWageType = Math.random() < 0.5 ? 'percent' : 'toman';
+            wageTypeRadios.forEach(radio => {
+                if (radio.value === randomWageType) radio.checked = true;
+            });
+
+            if (randomWageType === 'percent') {
+                const randomWagePercent = Math.floor(Math.random() * 26) + 5; // 5% to 30%
+                document.getElementById('wage_1').value = toPersianDigits(randomWagePercent);
+            } else {
+                const randomWageToman = Math.floor(Math.random() * 2000000) + 100000; // 100,000 to 2,100,000 Toman
+                document.getElementById('wage_1').value = toPersianDigits(formatNumberWithCommas(randomWageToman));
+            }
+            document.getElementById('wage_1').dispatchEvent(new Event('input')); // Trigger input for wage to update
+
+            // Profit Percentage (randomly select one)
+            const profitOptions = Array.from(profitPercentageSelect.options).map(opt => opt.value);
+            profitPercentageSelect.value = profitOptions[Math.floor(Math.random() * profitOptions.length)];
+            profitPercentageSelect.dispatchEvent(new Event('change')); // Trigger change event
+
+            // Tax Toggle (randomly checked or unchecked)
+            taxToggle.checked = Math.random() < 0.7; // 70% chance of being checked
+            taxToggle.dispatchEvent(new Event('change'));
+
+            // Purchase Section (random weights/prices, can be 0)
+            purchaseGoldWeightInput.value = Math.random() < 0.5 ? toPersianDigits((Math.random() * 10).toFixed(2)) : ''; // 0-10g
+            purchaseIngotWeightInput.value = Math.random() < 0.5 ? toPersianDigits((Math.random() * 5).toFixed(2)) : ''; // 0-5g
+            purchaseParsianWeightInput.value = Math.random() < 0.5 ? toPersianDigits((Math.random() * 20).toFixed(2)) : ''; // 0-20g
+
+            // Coin Purchase (random, can be 0)
+            const coinPriceInput1 = document.getElementById('purchaseCoinPrice_1');
+            const coinModelSelect1 = document.getElementById('purchaseCoinModel_1');
+            const coinModels = Array.from(coinModelSelect1.options).map(opt => opt.value).filter(val => val !== '');
+            if (Math.random() < 0.5) { // 50% chance to populate coin
+                 coinPriceInput1.value = toPersianDigits(formatNumberWithCommas(Math.floor(Math.random() * 50000000) + 1000000)); // 1M to 51M Toman
+                 coinModelSelect1.value = coinModels[Math.floor(Math.random() * coinModels.length)];
+            } else {
+                coinPriceInput1.value = '';
+                coinModelSelect1.value = '';
+            }
+
+
+            // Discount Amount (random, can be 0)
+            const randomDiscount = Math.random() < 0.6 ? Math.floor(Math.random() * 500000) : 0; // Up to 500,000 Toman, 60% chance
+            discountAmountInput.value = toPersianDigits(formatNumberWithCommas(randomDiscount));
+            discountAmountInput.dispatchEvent(new Event('input')); // Trigger to clear smart discount
+
+            // Update all to ensure everything is recalculated and displayed
+            updateInvoice();
+            updateSmartDiscountOptions();
         };
 
 
@@ -1195,8 +1262,12 @@
         document.addEventListener('DOMContentLoaded', () => {
             updateInvoice();
             updateSmartDiscountOptions();
-            updateCustomerInvoiceDisplayOnly(); // Initial update for customer info display
+            // Initial update for customer info display (can be removed if no default customer data)
+            // updateCustomerInvoiceDisplayOnly(); // Not needed if populated by random data on click
         });
+
+        // Event listener for main title click
+        mainTitle.addEventListener('click', populateRandomData);
     </script>
 </body>
 </html>
