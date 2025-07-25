@@ -7,197 +7,203 @@
     @font-face {
       font-family: 'Vazirmatn';
       src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');
-    }body {
-  margin: 0;
-  font-family: 'Vazirmatn', sans-serif;
-  background: linear-gradient(180deg, #f6f9fc, #e9f3fa);
-  color: #333;
-  padding: 0;
-}
-
-header {
-  background-color: #007acc;
-  color: white;
-  padding: 1rem;
-  text-align: center;
-  font-size: 1.4rem;
-  font-weight: bold;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.container {
-  max-width: 600px;
-  margin: 1.5rem auto;
-  padding: 1rem;
-  background-color: white;
-  border-radius: 16px;
-  box-shadow: 0 0 10px rgba(0,0,0,0.06);
-}
-
-h2.section-title {
-  font-size: 1.2rem;
-  margin: 1rem 0 0.5rem;
-  padding-bottom: 0.5rem;
-  border-bottom: 2px solid #007acc;
-  color: #007acc;
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-label {
-  display: block;
-  font-size: 0.9rem;
-  margin-bottom: 0.3rem;
-  color: #444;
-}
-
-input, select {
-  width: 100%;
-  padding: 0.6rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 8px;
-  box-sizing: border-box;
-}
-
-.button {
-  background-color: #00b894;
-  color: white;
-  border: none;
-  padding: 0.75rem 1.2rem;
-  font-size: 1rem;
-  border-radius: 10px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  display: block;
-  margin: 1rem auto;
-}
-
-.button:hover {
-  background-color: #019174;
-}
-
-.item-card {
-  background: #f9fcff;
-  padding: 1rem;
-  border: 1px dashed #ccc;
-  border-radius: 10px;
-  margin-bottom: 1rem;
-}
-
-.results {
-  background: #e6f9ed;
-  padding: 1rem;
-  border-radius: 12px;
-  margin-top: 1.5rem;
-  color: #2d624d;
-  font-weight: bold;
-}
-
-.footer {
-  text-align: center;
-  font-size: 0.8rem;
-  color: #aaa;
-  margin-top: 2rem;
-  padding: 1rem;
-}
-
-@media (max-width: 480px) {
-  .container {
-    border-radius: 0;
-    margin: 0;
-  }
-}
-
+    }
+    body {
+      margin: 0;
+      font-family: 'Vazirmatn', sans-serif;
+      background: linear-gradient(180deg, #f6f9fc, #e9f3fa);
+      color: #333;
+      padding: 0;
+    }
+    header {
+      background-color: #007acc;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+      font-size: 1.4rem;
+      font-weight: bold;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .container {
+      max-width: 700px;
+      margin: 1.5rem auto;
+      padding: 1rem;
+      background-color: white;
+      border-radius: 16px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.06);
+    }
+    h2.section-title {
+      font-size: 1.2rem;
+      margin: 1.5rem 0 0.5rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #007acc;
+      color: #007acc;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 0.3rem;
+      color: #444;
+    }
+    input, select {
+      width: 100%;
+      padding: 0.6rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-sizing: border-box;
+    }
+    .button {
+      background-color: #00b894;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.2rem;
+      font-size: 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      display: block;
+      margin: 1rem auto;
+    }
+    .button:hover {
+      background-color: #019174;
+    }
+    .results, .footer {
+      background: #f4f9f5;
+      padding: 1rem;
+      border-radius: 12px;
+      margin-top: 2rem;
+      color: #2d624d;
+      font-weight: bold;
+      text-align: center;
+    }
+    .footer {
+      color: #aaa;
+      font-size: 0.8rem;
+      background: none;
+      margin-top: 3rem;
+    }
+    .item-card, .buy-card {
+      background: #f9fcff;
+      padding: 1rem;
+      border: 1px dashed #ccc;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+    }
+    @media (max-width: 480px) {
+      .container {
+        border-radius: 0;
+        margin: 0;
+      }
+    }
   </style>
 </head>
 <body>
-  <header>فاکتور طلا</header>  <div class="container">
-    <h2 class="section-title">قیمت طلا</h2>
+<header>فاکتور طلا</header>
+<div class="container">
+  <h2 class="section-title">ورود قیمت طلا</h2>
+  <div class="form-group">
+    <label>قیمت طلا (تومان - ۷ رقم):</label>
+    <input id="goldPrice" maxlength="7" oninput="updatePriceDisplay()">
+    <div id="goldPriceWords"></div>
+  </div>  <h2 class="section-title">آیتم‌های فروش</h2>
+  <div id="itemsContainer"></div>
+  <button class="button" onclick="addItem()">افزودن آیتم جدید</button>  <h2 class="section-title">خرید از مشتری</h2>
+  <div class="buy-card">
     <div class="form-group">
-      <label for="goldPrice">قیمت هر گرم (تومان):</label>
-      <input type="text" id="goldPrice">
-    </div><h2 class="section-title">آیتم‌های فروش</h2>
-<div id="items">
-  <div class="item-card">
-    <div class="form-group">
-      <label>وزن طلا:</label>
+      <label>خرید طلا (وزن):</label>
       <input type="text">
     </div>
     <div class="form-group">
-      <label>نوع محصول:</label>
+      <label>خرید پارسیان (وزن):</label>
+      <input type="text">
+    </div>
+    <div class="form-group">
+      <label>خرید شمش (وزن):</label>
+      <input type="text">
+    </div>
+    <div class="form-group">
+      <label>مدل سکه:</label>
       <select>
-        <option>زنجیر</option>
-        <option>النگو</option>
-        <option>دستبند</option>
-        <option>سرویس</option>
+        <option>ربع ۸۶</option><option>نیم ۸۶</option><option>امامی ۸۶</option>
+        <option>ربع زیر ۸۶</option><option>نیم زیر ۸۶</option>
+        <option>امامی زیر ۸۶</option><option>یک گرمی بانکی</option>
       </select>
     </div>
     <div class="form-group">
-      <label>اجرت (٪):</label>
+      <label>قیمت سکه (تومان):</label>
       <input type="text">
     </div>
-  </div>
-</div>
-<button class="button">افزودن آیتم</button>
-
-<h2 class="section-title">خرید طلا از مشتری</h2>
-<div class="item-card">
+  </div>  <h2 class="section-title">تنظیمات فاکتور</h2>
   <div class="form-group">
-    <label>وزن طلا (گرم):</label>
-    <input type="text">
-  </div>
-</div>
-
-<h2 class="section-title">خرید سکه</h2>
-<div class="item-card">
-  <div class="form-group">
-    <label>مدل سکه:</label>
+    <label>درصد سود فروشنده:</label>
     <select>
-      <option>ربع</option>
-      <option>نیم</option>
-      <option>امامی</option>
+      <option>1%</option><option>2%</option><option>3%</option>
+      <option>4%</option><option>5%</option><option>6%</option>
+      <option selected>7%</option>
     </select>
   </div>
   <div class="form-group">
-    <label>قیمت سکه (تومان):</label>
+    <label>تخفیف دستی (تومان):</label>
     <input type="text">
   </div>
-</div>
-
-<h2 class="section-title">خرید شمش/پارسیان</h2>
-<div class="item-card">
   <div class="form-group">
-    <label>وزن (گرم):</label>
-    <input type="text">
+    <label>تخفیف هوشمند:</label>
+    <select>
+      <option>بدون رند سازی</option>
+      <option>رند به ۱۷۸۹۰۰۰۰</option>
+      <option>رند به ۱۷۸۵۰۰۰۰</option>
+      <option>رند به ۱۷۸۰۰۰۰۰</option>
+      <option>رند به ۱۷۵۰۰۰۰۰</option>
+    </select>
   </div>
+  <div class="form-group">
+    <label><input type="checkbox" checked> محاسبه مالیات ۱۰٪ روی سود و اجرت</label>
+  </div>  <div class="results">
+    <div>قیمت جاری: ۲۵٬۰۰۰٬۰۰۰ تومان</div>
+    <div>مالیات: ۱٬۵۰۰٬۰۰۰ تومان</div>
+    <div>تخفیف: ۵۰۰٬۰۰۰ تومان</div>
+    <div>قیمت نهایی: ۲۶٬۰۰۰٬۰۰۰ تومان</div>
+  </div>
+  <button class="button">صدور فاکتور</button>
 </div>
-
-<h2 class="section-title">تخفیف و مالیات</h2>
-<div class="form-group">
-  <label>درصد سود فروشنده:</label>
-  <select>
-    <option>5%</option>
-    <option selected>7%</option>
-    <option>10%</option>
-  </select>
-</div>
-<div class="form-group">
-  <label>تخفیف (تومان):</label>
-  <input type="text">
-</div>
-<div class="form-group">
-  <label><input type="checkbox" checked> محاسبه مالیات ۱۰٪</label>
-</div>
-
-<div class="results">
-  <div>جمع کل: ۲۵٬۰۰۰٬۰۰۰ تومان</div>
-</div>
-
-<button class="button">صدور فاکتور</button>
-
-  </div>  <div class="footer">طراحی شده توسط ChatGPT | نسخه نمایشی</div>
+<div class="footer">طراحی شده توسط ChatGPT - نسخه سفارشی برای طلا</div>
+<script>
+  const itemList = document.getElementById('itemsContainer');
+  function addItem() {
+    const div = document.createElement('div');
+    div.className = 'item-card';
+    div.innerHTML = `
+      <div class="form-group">
+        <label>مدل طلا:</label>
+        <select>
+          <option>سرویس</option><option>النگو</option><option>نیم‌ست</option><option>دستبند</option>
+          <option>زنجیر</option><option>گردنبند</option><option>گوشواره</option><option>مدال</option>
+          <option>پلاک</option><option>خلخال</option><option>آویز ساعت</option><option>رو لباسی</option><option>سفارشی</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>وزن (گرم):</label>
+        <input type="text">
+      </div>
+      <div class="form-group">
+        <label>اجرت:</label>
+        <input type="text" placeholder="مثلاً ۷٪ یا ۵۰۰۰۰">
+      </div>
+    `;
+    itemList.appendChild(div);
+  }
+  function updatePriceDisplay() {
+    let input = document.getElementById("goldPrice");
+    let raw = input.value.replace(/[^\d]/g, '').slice(0,7);
+    raw = raw.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    input.value = raw.replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+    document.getElementById("goldPriceWords").innerText = `معادل: ${raw} تومان`;
+  }
+  addItem();
+</script>
 </body>
 </html>
