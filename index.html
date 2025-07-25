@@ -285,12 +285,17 @@
             color: #27ae60;
         }
         .result-item.buy-gold-amount,
-        .result-item.buy-diff-gold-amount {
+        .result-item.buy-diff-gold-amount,
+        .result-item.total-bought-gold-value { /* Add this for combined bought gold total */
             color: #d35400;
             font-size: 1em;
         }
         .result-item.discount-amount {
             color: #e74c3c;
+            font-size: 1em;
+        }
+        .result-item.round-up-amount { /* New style for round-up amount */
+            color: #28a745; /* Green for additions */
             font-size: 1em;
         }
         .result-item.customer-payout {
@@ -308,7 +313,8 @@
             direction: ltr;
         }
         .result-item.buy-gold-amount span:last-child,
-        .result-item.buy-diff-gold-amount span:last-child {
+        .result-item.buy-diff-gold-amount span:last-child,
+        .result-item.total-bought-gold-value span:last-child {
             color: #e74c3c;
         }
         .result-item.final-total span:last-child {
@@ -316,6 +322,9 @@
         }
         .result-item.discount-amount span:last-child {
             color: #e74c3c;
+        }
+        .result-item.round-up-amount span:last-child { /* New style for round-up amount */
+            color: #28a745;
         }
 
 
@@ -341,7 +350,7 @@
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
-            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M205.66%2099.66L128%20177.34%2050.34%2099.66z%22%2F%3E%3C%2Fsvg%3E');
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M205.66%2099.66L128%20177.34%2050.34%2099.66z%22%2F%3E%3C%2Fsvg%3E');
             background-repeat: no-repeat;
             background-position: left 15px center;
             background-size: 12px;
@@ -349,58 +358,86 @@
             padding-right: 15px;
         }
 
-        .suggested-discounts-section {
-            background-color: #f0fff0;
-            border: 1px solid #e0eee0;
-            border-left: 5px solid #8fbc8f;
+        .suggested-options-section { /* Renamed from suggested-discounts-section */
+            background-color: #ecf0f1; /* Neutral background for general suggestions */
+            border: 1px solid #dcdcdc;
+            border-left: 5px solid #3498db;
             padding: 15px;
             margin-top: 10px;
             border-radius: 8px;
         }
+        .suggested-options-section h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            font-size: 1.1em;
+            text-align: center;
+            margin-bottom: 15px;
+        }
 
-        .suggested-discount-item {
+        .suggested-option-item { /* Renamed from suggested-discount-item */
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 8px 10px;
             border-bottom: 1px dashed #dcdcdc;
-            cursor: pointer; /* Make the whole item clickable */
-            transition: background-color 0.2s ease;
-            border-radius: 5px; /* Add slight border radius for hover effect */
+            cursor: pointer;
+            transition: background-color 0.2s ease, border 0.2s ease, box-shadow 0.2s ease;
+            border-radius: 5px;
+            background-color: #fff; /* White background for individual items */
+            margin-bottom: 5px; /* Spacing between items */
         }
-        .suggested-discount-item:last-child {
+        .suggested-option-item:last-child {
             border-bottom: none;
+            margin-bottom: 0;
         }
-        .suggested-discount-item:hover {
-            background-color: #e6ffe6;
+        .suggested-option-item:hover {
+            background-color: #f5f8fa;
         }
 
-        .suggested-discount-item.active {
-            background-color: #d4f7d4; /* Lighter green for active item */
-            border: 1px solid #4CAF50; /* Green border for active */
+        /* Styles for Discount suggestions (when final price is positive) */
+        .suggested-option-item.discount-option {
+            border-left: 5px solid #8fbc8f; /* Greenish border for discounts */
+        }
+        .suggested-option-item.discount-option.active {
+            background-color: #d4f7d4;
+            border: 1px solid #4CAF50;
             box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
         }
+        .suggested-option-item.discount-option .option-text .amount {
+            color: #2f5f2f;
+        }
 
+        /* Styles for Round-up suggestions (when final price is negative/payout) */
+        .suggested-option-item.round-up-option {
+            border-left: 5px solid #f1c40f; /* Yellowish/Orange border for round-up */
+        }
+        .suggested-option-item.round-up-option.active {
+            background-color: #fff8e1; /* Lighter yellow for active round-up */
+            border: 1px solid #fbc02d;
+            box-shadow: 0 0 5px rgba(251, 192, 45, 0.3);
+        }
+        .suggested-option-item.round-up-option .option-text .amount {
+            color: #d35400; /* Darker orange for round-up amounts */
+        }
 
-        .suggested-discount-text {
+        .option-text { /* Renamed from suggested-discount-text */
             font-size: 0.95em;
-            color: #38761d;
+            color: #333; /* More neutral color */
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
         }
-        .suggested-discount-text .amount {
+        .option-text .amount {
             font-weight: bold;
-            color: #2f5f2f;
         }
-        .suggested-discount-text .final-price {
+        .option-text .final-price {
             font-size: 0.85em;
             color: #666;
             margin-top: 2px;
             direction: rtl; /* For mixed LTR/RTL content */
         }
-        .suggested-discount-text .final-price span {
+        .option-text .final-price span {
             direction: ltr; /* Ensure numbers are LTR */
         }
 
@@ -433,12 +470,12 @@
                 flex-direction: column;
                 gap: 10px;
             }
-            .suggested-discount-item {
+            .suggested-option-item { /* Renamed from suggested-discount-item */
                 flex-direction: row; /* Keep row layout, but maybe wrap text */
                 align-items: center;
                 gap: 5px;
             }
-            .suggested-discount-text {
+            .option-text { /* Renamed from suggested-discount-text */
                 align-items: flex-start; /* Ensure text aligns left */
             }
             .checkbox-group {
@@ -542,7 +579,7 @@
             <input type="text" id="discount" class="discount-input">
         </div>
 
-        <div id="suggestedDiscountsSection" class="suggested-discounts-section" style="display: none;">
+        <div id="suggestedOptionsSection" class="suggested-options-section" style="display: none;">
             </div>
 
         <div class="result-section" id="resultSection">
@@ -552,13 +589,13 @@
     <script>
         const farsiDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
         const itemContainer = document.getElementById('itemContainer');
-        const suggestedDiscountsSection = document.getElementById('suggestedDiscountsSection');
+        const suggestedOptionsSection = document.getElementById('suggestedOptionsSection'); // Renamed
         const discountInput = document.getElementById('discount');
-        const invoiceContainer = document.getElementById('invoiceContainer'); // Get the main container
+        const invoiceContainer = document.getElementById('invoiceContainer');
 
         let itemIdCounter = 1;
-        let activeDiscountValue = 0; // Stores the value of the currently applied suggested discount
-        let activeDiscountType = null; // Stores the type ('round10k', 'round50k', 'round100k')
+        let activeSuggestionType = null; // Stores type: 'discount' or 'round-up'
+        let activeSuggestionValue = 0; // Stores the value of the currently applied suggestion
 
         function convertToFarsiDigits(num) {
             if (num === null || num === undefined || num === '') {
@@ -884,7 +921,7 @@
 
             if (rawGoldPrice === 0) {
                 document.getElementById('resultSection').innerHTML = '';
-                suggestedDiscountsSection.style.display = 'none';
+                suggestedOptionsSection.style.display = 'none';
                 return;
             }
 
@@ -982,14 +1019,16 @@
                     
                     // Buy the difference at rawGoldPrice - 2%
                     let diffWeight = netGoldWeightDiff;
-                    let priceWithDiscount = rawGoldPrice * (1 - 0.02); // 2% discount
-                    buyDiffGoldAmountWithDiscount = diffWeight * priceWithDiscount;
+                    let priceWithDiscountFactor = rawGoldPrice * (1 - 0.02); // 2% discount
+                    buyDiffGoldAmountWithDiscount = diffWeight * priceWithDiscountFactor;
                 } else { // Customer bought more gold or equal, or sold less
                     buyGoldAmountAtMuzanne = totalBoughtGoldWeight * rawGoldPrice; // All bought gold is at muzanne
+                    buyDiffGoldAmountWithDiscount = 0; // No "diff" amount if they didn't sell more than they bought
                 }
             } else {
                 // Old logic: all bought gold is at rawGoldPrice
                 buyGoldAmountAtMuzanne = totalBoughtGoldWeight * rawGoldPrice;
+                buyDiffGoldAmountWithDiscount = 0;
             }
 
             let totalBoughtGoldValue = buyGoldAmountAtMuzanne + buyDiffGoldAmountWithDiscount;
@@ -1000,105 +1039,161 @@
                 baseTotalFinalPriceBeforeDiscount += totalCalculatedTax;
             }
             
-            let totalFinalPriceBeforeDiscountAndPayoutCheck = baseTotalFinalPriceBeforeDiscount - totalBoughtGoldValue;
+            let currentCalculatedPrice = baseTotalFinalPriceBeforeDiscount - totalBoughtGoldValue;
 
+            // --- Suggestion logic (Discounts or Round-ups) ---
+            let suggestions = [];
+            let isCustomerOwes = currentCalculatedPrice > 0;
+            let isShopOwes = currentCalculatedPrice < 0;
+            const roundedAbsPriceForSuggestions = Math.round(Math.abs(currentCalculatedPrice));
 
-            // --- Suggested discount logic ---
-            let suggestedDiscounts = [];
-
-            // Calculate potential discounts only if totalFinalPriceBeforeDiscountAndPayoutCheck is positive
-            if (totalFinalPriceBeforeDiscountAndPayoutCheck > 0) {
-                const roundedPriceForSuggestions = Math.round(totalFinalPriceBeforeDiscountAndPayoutCheck);
-
+            if (isCustomerOwes) { // Customer owes money, suggest discounts
+                suggestedOptionsSection.querySelector('h3') ? suggestedOptionsSection.querySelector('h3').textContent = 'تخفیف‌های پیشنهادی:' : null;
                 // 1. Round to nearest 10,000 down
-                const remainder10k = roundedPriceForSuggestions % 10000;
+                const remainder10k = roundedAbsPriceForSuggestions % 10000;
                 if (remainder10k > 0) {
                     const discount = remainder10k;
-                    const newFinalPrice = roundedPriceForSuggestions - discount;
+                    const newFinalPrice = roundedAbsPriceForSuggestions - discount;
                     if (newFinalPrice >= 0) {
-                        suggestedDiscounts.push({
-                            type: 'round10k',
+                        suggestions.push({
+                            type: 'discount-10k',
                             text: 'رند به ۱۰ هزار تومان پایین‌تر:',
-                            discountAmount: discount,
-                            finalPrice: newFinalPrice
+                            amount: discount,
+                            finalPrice: newFinalPrice,
+                            category: 'discount'
                         });
                     }
                 }
 
                 // 2. Round to nearest 50,000 down
-                const remainder50k = roundedPriceForSuggestions % 50000;
+                const remainder50k = roundedAbsPriceForSuggestions % 50000;
                 if (remainder50k > 0) {
                     const discount = remainder50k;
-                    const newFinalPrice = roundedPriceForSuggestions - discount;
+                    const newFinalPrice = roundedAbsPriceForSuggestions - discount;
                     // Only add if it's a larger discount than the 10k one
-                    if (newFinalPrice >= 0 && discount > (suggestedDiscounts[0] ? suggestedDiscounts[0].discountAmount : 0)) {
-                        suggestedDiscounts.push({
-                            type: 'round50k',
+                    if (newFinalPrice >= 0 && discount > (suggestions[0] ? suggestions[0].amount : 0)) {
+                        suggestions.push({
+                            type: 'discount-50k',
                             text: 'رند به ۵۰ هزار تومان پایین‌تر:',
-                            discountAmount: discount,
-                            finalPrice: newFinalPrice
+                            amount: discount,
+                            finalPrice: newFinalPrice,
+                            category: 'discount'
                         });
                     }
                 }
 
                 // 3. Round to nearest 100,000 down
-                const remainder100k = roundedPriceForSuggestions % 100000;
+                const remainder100k = roundedAbsPriceForSuggestions % 100000;
                 if (remainder100k > 0) {
                     const discount = remainder100k;
-                    const newFinalPrice = roundedPriceForSuggestions - discount;
+                    const newFinalPrice = roundedAbsPriceForSuggestions - discount;
                     // Only add if it's a larger discount than the previous ones
-                    if (newFinalPrice >= 0 && discount > (suggestedDiscounts[suggestedDiscounts.length - 1] ? suggestedDiscounts[suggestedDiscounts.length - 1].discountAmount : 0)) {
-                        suggestedDiscounts.push({
-                            type: 'round100k',
+                    if (newFinalPrice >= 0 && discount > (suggestions[suggestions.length - 1] ? suggestions[suggestions.length - 1].amount : 0)) {
+                        suggestions.push({
+                            type: 'discount-100k',
                             text: 'رند به ۱۰۰ هزار تومان پایین‌تر:',
-                            discountAmount: discount,
-                            finalPrice: newFinalPrice
+                            amount: discount,
+                            finalPrice: newFinalPrice,
+                            category: 'discount'
                         });
                     }
                 }
-            }
-            
-            // Sort discounts by amount (smallest to largest)
-            suggestedDiscounts.sort((a, b) => a.discountAmount - b.discountAmount);
+                suggestions.sort((a, b) => a.amount - b.amount); // Sort discounts smallest to largest
 
-            let suggestionsHtml = '';
-            if (suggestedDiscounts.length > 0) {
-                suggestedDiscounts.forEach(sug => {
+            } else if (isShopOwes && buyDiffGoldWithDiscount) { // Shop owes money AND the "buyDiffGoldWithDiscount" checkbox is checked
+                suggestedOptionsSection.querySelector('h3') ? suggestedOptionsSection.querySelector('h3').textContent = 'گرد کردن مبلغ پرداختی به مشتری:' : null;
+
+                // Amount to be rounded up
+                const amountToRound = roundedAbsPriceForSuggestions;
+
+                // Round up to nearest 10,000
+                const nearest10k = Math.ceil(amountToRound / 10000) * 10000;
+                const roundUp10k = nearest10k - amountToRound;
+                if (roundUp10k >= 0) { // Should always be non-negative
+                    suggestions.push({
+                        type: 'round-up-10k',
+                        text: 'گرد کردن به ۱۰ هزار تومان بالاتر:',
+                        amount: roundUp10k,
+                        finalPrice: nearest10k, // This is the new payout amount
+                        category: 'round-up'
+                    });
+                }
+
+                // Round up to nearest 50,000
+                const nearest50k = Math.ceil(amountToRound / 50000) * 50000;
+                const roundUp50k = nearest50k - amountToRound;
+                if (roundUp50k >= 0 && roundUp50k > (suggestions[0] ? suggestions[0].amount : 0)) {
+                    suggestions.push({
+                        type: 'round-up-50k',
+                        text: 'گرد کردن به ۵۰ هزار تومان بالاتر:',
+                        amount: roundUp50k,
+                        finalPrice: nearest50k,
+                        category: 'round-up'
+                    });
+                }
+
+                // Round up to nearest 100,000
+                const nearest100k = Math.ceil(amountToRound / 100000) * 100000;
+                const roundUp100k = nearest100k - amountToRound;
+                if (roundUp100k >= 0 && roundUp100k > (suggestions[suggestions.length - 1] ? suggestions[suggestions.length - 1].amount : 0)) {
+                    suggestions.push({
+                        type: 'round-up-100k',
+                        text: 'گرد کردن به ۱۰۰ هزار تومان بالاتر:',
+                        amount: roundUp100k,
+                        finalPrice: nearest100k,
+                        category: 'round-up'
+                    });
+                }
+                suggestions.sort((a, b) => a.amount - b.amount); // Sort round-ups smallest to largest
+            }
+
+            let suggestionsHtml = suggestions.length > 0 ? `<h3>${suggestedOptionsSection.querySelector('h3').textContent}</h3>` : '';
+            if (suggestions.length > 0) {
+                suggestions.forEach(sug => {
                     suggestionsHtml += `
-                        <div class="suggested-discount-item ${activeDiscountType === sug.type ? 'active' : ''}" 
-                             onclick="applySuggestedDiscount(${sug.discountAmount}, '${sug.type}')">
-                            <div class="suggested-discount-text">
+                        <div class="suggested-option-item ${sug.category}-option ${activeSuggestionType === sug.type ? 'active' : ''}" 
+                             onclick="applySuggestion(${sug.amount}, '${sug.type}', '${sug.category}')">
+                            <div class="option-text">
                                 <span>${sug.text}</span>
-                                <span class="amount">${formatCurrency(sug.discountAmount)} تومان</span>
-                                <span class="final-price">(قیمت نهایی: <span dir="ltr">${formatCurrency(sug.finalPrice)}</span>)</span>
+                                <span class="amount">${formatCurrency(sug.amount)} تومان</span>
+                                <span class="final-price">
+                                    (${sug.category === 'discount' ? 'قیمت نهایی' : 'مبلغ پرداختی'}: 
+                                    <span dir="ltr">${formatCurrency(sug.finalPrice)}</span>)
+                                </span>
                             </div>
                         </div>
                     `;
                 });
-                suggestedDiscountsSection.innerHTML = suggestionsHtml;
-                suggestedDiscountsSection.style.display = 'block';
+                suggestedOptionsSection.innerHTML = suggestionsHtml;
+                suggestedOptionsSection.style.display = 'block';
             } else {
-                suggestedDiscountsSection.style.display = 'none';
+                suggestedOptionsSection.innerHTML = '';
+                suggestedOptionsSection.style.display = 'none';
             }
 
-            // Determine final discount amount to apply
-            let discountToApply = 0;
-            if (activeDiscountType !== null) { // A suggested discount is active
-                const activeSug = suggestedDiscounts.find(sug => sug.type === activeDiscountType);
+            // Determine final adjustment amount based on active suggestion
+            let adjustmentToApply = 0; // This will be discount (positive) or round-up (negative)
+            if (activeSuggestionType !== null) {
+                const activeSug = suggestions.find(sug => sug.type === activeSuggestionType);
                 if (activeSug) {
-                    discountToApply = activeSug.discountAmount;
-                    discountInput.value = formatNumberWithCommas(activeSug.discountAmount);
-                } else { // The previously active suggested discount is no longer valid (e.g., due to price change)
-                    activeDiscountType = null;
-                    activeDiscountValue = 0;
+                    adjustmentToApply = activeSug.amount;
+                    if (activeSug.category === 'round-up') {
+                        // For round-up, we are *adding* to the owed amount, so it effectively subtracts from finalPriceAfterDiscount
+                        currentCalculatedPrice -= adjustmentToApply; 
+                    } else { // discount
+                        currentCalculatedPrice -= adjustmentToApply;
+                    }
+                    discountInput.value = formatNumberWithCommas(adjustmentToApply);
+                } else { // The previously active suggested option is no longer valid
+                    activeSuggestionType = null;
+                    activeSuggestionValue = 0;
                     discountInput.value = '';
                 }
-            } else { // No suggested discount active, check manual input
-                discountToApply = currentManualDiscount;
-                discountInput.value = formatNumberWithCommas(currentManualDiscount);
+            } else { // No suggested option active, use manual discount input
+                currentCalculatedPrice -= currentManualDiscount; // Manual discount always reduces total
             }
             
-            let finalPriceAfterDiscount = totalFinalPriceBeforeDiscountAndPayoutCheck - discountToApply;
+            let finalPriceAfterAdjustment = currentCalculatedPrice;
 
             const resultSection = document.getElementById('resultSection');
             resultSection.innerHTML = itemResultsHtml;
@@ -1124,7 +1219,7 @@
                             <span>خرید مازاد طلا (کسر 2%):</span>
                             <span>${formatCurrency(buyDiffGoldAmountWithDiscount)}</span>
                         </div>
-                        <div class="result-item buy-gold-amount">
+                        <div class="result-item total-bought-gold-value">
                             <span>جمع کل خرید طلا:</span>
                             <span>${formatCurrency(totalBoughtGoldValue)}</span>
                         </div>
@@ -1139,42 +1234,65 @@
                 }
             }
 
-            if (discountToApply > 0) {
+            if (currentManualDiscount > 0 && activeSuggestionType === null) { // Only show manual discount if no suggestion is active
                 resultSection.innerHTML += `
                     <div class="result-item discount-amount">
                         <span>کسر بابت تخفیف:</span>
-                        <span>${formatCurrency(discountToApply)}</span>
+                        <span>${formatCurrency(currentManualDiscount)}</span>
                     </div>
                 `;
             }
 
-            if (finalPriceAfterDiscount < 0) {
+            // Display the applied suggestion amount if any
+            if (activeSuggestionType !== null) {
+                const activeSug = suggestions.find(sug => sug.type === activeSuggestionType);
+                if (activeSug) {
+                    if (activeSug.category === 'discount') {
+                        resultSection.innerHTML += `
+                            <div class="result-item discount-amount">
+                                <span>کسر بابت تخفیف:</span>
+                                <span>${formatCurrency(activeSug.amount)}</span>
+                            </div>
+                        `;
+                    } else if (activeSug.category === 'round-up') {
+                        resultSection.innerHTML += `
+                            <div class="result-item round-up-amount">
+                                <span>اضافه بابت گرد کردن:</span>
+                                <span>${formatCurrency(activeSug.amount)}</span>
+                            </div>
+                        `;
+                    }
+                }
+            }
+
+
+            if (finalPriceAfterAdjustment < 0) {
                 resultSection.innerHTML += `
                     <div class="result-item customer-payout">
-                        <span>مبلغ تقدیمی به مشتری:</span>
-                        <span>${formatCurrency(Math.abs(finalPriceAfterDiscount))}</span>
+                        <span>مبلغ نهایی پرداختی به مشتری:</span>
+                        <span>${formatCurrency(Math.abs(finalPriceAfterAdjustment))}</span>
                     </div>
                 `;
             } else {
                 resultSection.innerHTML += `
                     <div class="result-item final-total">
-                        <span>قیمت کل:</span>
-                        <span>${formatCurrency(finalPriceAfterDiscount)}</span>
+                        <span>قیمت نهایی:</span>
+                        <span>${formatCurrency(finalPriceAfterAdjustment)}</span>
                     </div>
                 `;
             }
         }
 
-        function applySuggestedDiscount(amount, type) {
-            // If this discount type is already active, deactivate it
-            if (activeDiscountType === type) {
-                activeDiscountType = null;
-                activeDiscountValue = 0;
+        function applySuggestion(amount, type, category) {
+            // If this suggestion type is already active, deactivate it
+            if (activeSuggestionType === type) {
+                activeSuggestionType = null;
+                activeSuggestionValue = 0;
                 discountInput.value = ''; // Clear manual discount
             } else {
-                activeDiscountType = type;
-                activeDiscountValue = amount;
-                discountInput.value = formatNumberWithCommas(amount);
+                activeSuggestionType = type;
+                activeSuggestionValue = amount;
+                discountInput.value = formatNumberWithCommas(amount); // Visually update the discount input
             }
             
             // Re-calculate to update display and active states
@@ -1223,10 +1341,10 @@
                     }
                 } else if (input.id === 'discount') {
                     input.addEventListener('input', (e) => {
-                        // Reset active suggested discount if manual discount is entered
-                        activeDiscountType = null;
-                        activeDiscountValue = 0;
-                        document.querySelectorAll('.suggested-discount-item').forEach(item => {
+                        // Reset active suggestion if manual discount is entered
+                        activeSuggestionType = null;
+                        activeSuggestionValue = 0;
+                        document.querySelectorAll('.suggested-option-item').forEach(item => {
                             item.classList.remove('active');
                         });
 
