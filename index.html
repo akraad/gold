@@ -291,11 +291,11 @@
             font-size: 1em;
         }
         /* NEW: Distinct color for "خرید طلا از مشتری" */
-        .result-item.buy-gold-from-customer span:first-child {
+        .result-item.buy-item span:first-child {
             color: #e74c3c; /* Red color for distinction */
             font-weight: bold;
         }
-        .result-item.buy-gold-from-customer span:last-child {
+        .result-item.buy-item span:last-child {
             color: #e74c3c; /* Red color for distinction */
         }
 
@@ -527,7 +527,7 @@
             font-weight: bold;
         }
         /* NEW: Invoice specific color for "خرید طلا از مشتری" */
-        .generated-invoice-display .buy-gold-from-customer-value {
+        .generated-invoice-display .buy-item-value {
             color: #e74c3c; /* Red for bought gold from customer */
             font-weight: bold;
         }
@@ -552,6 +552,143 @@
             background-color: #218838;
         }
 
+        /* NEW: Buy Section Styles */
+        .buy-section {
+            background-color: #f8f8f8;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 25px;
+        }
+
+        .buy-section-header {
+            font-size: 1.1em;
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 15px;
+            text-align: right;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .buy-option-group {
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px dashed #dcdcdc;
+            border-radius: 8px;
+            background-color: #fff;
+            position: relative;
+        }
+
+        .buy-option-group.hidden {
+            display: none;
+        }
+
+        .buy-option-group .remove-buy-item {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            background: none;
+            border: none;
+            color: #e74c3c;
+            font-size: 1.1em;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: background-color 0.2s;
+        }
+        .buy-option-group .remove-buy-item:hover {
+            background-color: #ffe0e0;
+        }
+
+        .buy-radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .buy-radio-group label {
+            display: flex;
+            align-items: center;
+            margin-bottom: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .buy-radio-group input[type="radio"] {
+            margin-left: 8px;
+            accent-color: #3498db;
+        }
+
+        .coin-select-wrapper {
+            margin-top: 10px;
+            display: none; /* Hidden by default */
+        }
+        .coin-select-wrapper.visible {
+            display: block;
+        }
+        
+        .coin-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            padding: 8px;
+            border-radius: 5px;
+        }
+        .coin-item .coin-remove-button {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            font-size: 1.1em;
+            cursor: pointer;
+        }
+        .add-coin-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 10px;
+            transition: background-color 0.3s ease;
+        }
+        .add-coin-button:hover {
+            background-color: #45a049;
+        }
+
+        .buy-option-input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 0.95em;
+            color: #333;
+        }
+
+        .add-buy-item-button {
+            background-color: #6c757d;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9em;
+            width: auto;
+            transition: background-color 0.3s ease;
+            display: block;
+            margin: 20px auto 0 auto;
+        }
+        .add-buy-item-button:hover {
+            background-color: #5a6268;
+        }
+
+
         /* Print specific styles */
         @media print {
             body {
@@ -570,9 +707,56 @@
                 padding: 0;
             }
             /* Hide all other parts except invoiceOutputWrapper during print */
-            #invoiceContainer > *:not(#invoiceOutputWrapper) {
+            #invoiceContainer > *:not(#invoiceOutputWrapper):not(#buySection) { /* Exclude buy section from hiding */
                 display: none;
             }
+            /* Re-enable display for item container and its elements to ensure sold items are also visible */
+            #itemContainer {
+                display: block !important;
+            }
+            #itemContainer .item-row {
+                display: block !important;
+                border: none !important; /* Remove borders */
+                padding: 0 !important;
+                margin-top: 0 !important;
+                background-color: transparent !important;
+            }
+            #itemContainer .item-row .remove-item,
+            #itemContainer .item-row .flex-group > div.form-group:last-child, /* Hide "خرید طلا از مشتری" input */
+            #itemContainer .item-row .form-group:has(.currency-toggle) /* Hide wage type radios and input if needed */
+             {
+                display: none !important;
+            }
+            #itemContainer .item-row .form-group {
+                margin-bottom: 5px !important;
+            }
+            #itemContainer label {
+                font-weight: bold !important;
+                margin-bottom: 3px !important;
+                display: inline-block !important;
+            }
+            #itemContainer input, #itemContainer select {
+                border: none !important;
+                padding: 0 !important;
+                width: auto !important;
+                display: inline-block !important;
+                background-color: transparent !important;
+                font-size: 1em !important;
+                color: #000 !important;
+            }
+            #itemContainer .input-inline-wrapper {
+                display: inline !important;
+            }
+            #itemContainer .input-inline-display {
+                display: none !important; /* Hide words on print */
+            }
+            .add-item-button,
+            .buy-section-header, /* Hide buy section header on print */
+            .buy-option-group .remove-buy-item, /* Hide remove buttons in buy section */
+            .add-buy-item-button {
+                display: none !important;
+            }
+
             .invoice-output-wrapper {
                 border: none;
                 margin-top: 0;
@@ -604,6 +788,37 @@
             .invoice-output-header .toggle-icon {
                 display: none;
             }
+
+            /* NEW: Print-specific adjustments for buy section */
+            .buy-section {
+                box-shadow: none;
+                max-width: none;
+                width: 100%;
+                border-radius: 0;
+                padding: 0;
+                border: none;
+                background-color: #fff;
+            }
+            .buy-option-group {
+                border: none;
+                padding: 0;
+                margin-bottom: 5px;
+                background-color: #fff;
+            }
+            .buy-option-group p {
+                margin: 2px 0;
+            }
+            .buy-radio-group,
+            .coin-select-wrapper,
+            .buy-option-input,
+            .add-coin-button {
+                display: none !important;
+            }
+            .buy-option-group strong {
+                font-weight: bold;
+                color: #e74c3c; /* Keep red for bought items */
+            }
+
         }
 
         @media (max-width: 600px) {
@@ -714,15 +929,19 @@
                         <span class="input-inline-display" id="wageInWords1"></span>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label for="buyWeight1">خرید طلا از مشتری (گرم):</label>
-                    <input type="text" id="buyWeight1" class="gold-buy-weight" inputmode="decimal">
-                </div>
             </div>
         </div>
 
         <button type="button" class="add-item-button" onclick="addItem()">افزودن آیتم جدید</button>
 
+        <div class="buy-section" id="buySection">
+            <h2 class="buy-section-header">بخش خرید از مشتری</h2>
+
+            <div id="buyItemContainer">
+                </div>
+            
+            <button type="button" class="add-buy-item-button" onclick="addBuyItem()">افزودن آیتم خرید جدید</button>
+        </div>
         <div class="form-group">
             <label for="profitRate">سود فروشنده:</label>
             <select id="profitRate">
@@ -788,18 +1007,21 @@
     <script>
         const farsiDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
         const itemContainer = document.getElementById('itemContainer');
+        const buyItemContainer = document.getElementById('buyItemContainer'); // NEW
         const suggestedDiscountsSection = document.getElementById('suggestedDiscountsSection');
         const discountInput = document.getElementById('discount');
-        const invoiceContainer = document.getElementById('invoiceContainer'); // Get the main container
+        const invoiceContainer = document.getElementById('invoiceContainer');
 
         let itemIdCounter = 1;
-        let activeDiscountValue = 0; // Stores the value of the currently applied suggested discount
-        let activeDiscountType = null; // Stores the type ('round10k', 'round50k', 'round100k')
+        let buyItemIdCounter = 0; // NEW: Counter for buy items
+        let activeDiscountValue = 0;
+        let activeDiscountType = null;
 
         // NEW GLOBAL VARIABLES to store calculated values for invoice display
         let finalCalculatedData = {
             goldPricePerGram: 0,
             itemDetails: [],
+            boughtItems: [], // NEW: To store details of all bought items
             totalBoughtGoldValue: 0,
             buyDiffGoldWithDiscount: false,
             buyGoldAmountAtMuzanne: 0,
@@ -809,6 +1031,16 @@
             finalTotalAmount: 0,
             isCustomerPayout: false,
             customerPayoutAmount: 0
+        };
+
+        const COIN_WEIGHTS = {
+            'ربع ۸۶': 2.033,
+            'نیم ۸۶': 4.066,
+            'امامی ۸۶': 8.133,
+            'ربع زیر ۸۶': 2.033, // Assume same weight for calculation, but value might differ based on market
+            'نیم زیر ۸۶': 4.066,
+            'امامی زیر ۸۶': 8.133,
+            'یک گرمی بانکی': 1.000
         };
 
         function convertToFarsiDigits(num) {
@@ -1118,10 +1350,6 @@
                             <span class="input-inline-display" id="wageInWords${itemIdCounter}"></span>
                         </div>
                     </div>
-                    <div class="form-group">
-                        <label for="buyWeight${itemIdCounter}">خرید طلا از مشتری (گرم):</label>
-                        <input type="text" id="buyWeight${itemIdCounter}" class="gold-buy-weight" inputmode="decimal">
-                    </div>
                 </div>
             `;
             itemContainer.firstElementChild.insertAdjacentHTML('afterend', newItemHtml);
@@ -1155,6 +1383,161 @@
                     removeButton.style.display = 'block';
                 }
             });
+        }
+
+        function addBuyItem() {
+            buyItemIdCounter++;
+            const newBuyItemHtml = `
+                <div class="buy-option-group" data-buy-item-id="${buyItemIdCounter}">
+                    <button type="button" class="remove-buy-item" onclick="removeBuyItem(this)">✖</button>
+                    <div class="buy-radio-group">
+                        <label>
+                            <input type="radio" name="buyType${buyItemIdCounter}" value="gold" checked onchange="toggleBuyInputs(this)"> خرید طلا
+                        </label>
+                        <label>
+                            <input type="radio" name="buyType${buyItemIdCounter}" value="coin" onchange="toggleBuyInputs(this)"> خرید سکه
+                        </label>
+                        <label>
+                            <input type="radio" name="buyType${buyItemIdCounter}" value="parsian" onchange="toggleBuyInputs(this)"> خرید سکه پارسیان
+                        </label>
+                        <label>
+                            <input type="radio" name="buyType${buyItemIdCounter}" value="ingot" onchange="toggleBuyInputs(this)"> خرید شمش
+                        </label>
+                    </div>
+
+                    <div class="form-group buy-gold-input-wrapper">
+                        <label for="buyGoldWeight${buyItemIdCounter}">وزن طلا (گرم):</label>
+                        <input type="text" id="buyGoldWeight${buyItemIdCounter}" class="buy-option-input gold-buy-weight" inputmode="decimal">
+                    </div>
+
+                    <div class="form-group coin-select-wrapper" style="display: none;">
+                        <label>مدل سکه:</label>
+                        <div id="coinSelects${buyItemIdCounter}">
+                            <div class="coin-item">
+                                <select class="buy-option-input coin-model-select" onchange="updateCoinPriceInput(this, ${buyItemIdCounter})">
+                                    <option value="">انتخاب مدل سکه</option>
+                                    <option value="ربع ۸۶">ربع ۸۶</option>
+                                    <option value="نیم ۸۶">نیم ۸۶</option>
+                                    <option value="امامی ۸۶">امامی ۸۶</option>
+                                    <option value="ربع زیر ۸۶">ربع زیر ۸۶</option>
+                                    <option value="نیم زیر ۸۶">نیم زیر ۸۶</option>
+                                    <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
+                                    <option value="یک گرمی بانکی">یک گرمی بانکی</option>
+                                </select>
+                                <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" style="flex-grow: 1;">
+                                <button type="button" class="coin-remove-button" onclick="removeCoinItem(this)">✖</button>
+                            </div>
+                        </div>
+                        <button type="button" class="add-coin-button" onclick="addCoinSelect(${buyItemIdCounter})">افزودن سکه دیگر</button>
+                    </div>
+
+                    <div class="form-group parsian-input-wrapper" style="display: none;">
+                        <label for="buyParsianWeight${buyItemIdCounter}">وزن سکه پارسیان (گرم):</label>
+                        <input type="text" id="buyParsianWeight${buyItemIdCounter}" class="buy-option-input parsian-buy-weight" inputmode="decimal">
+                    </div>
+
+                    <div class="form-group ingot-input-wrapper" style="display: none;">
+                        <label for="buyIngotWeight${buyItemIdCounter}">وزن شمش (گرم):</label>
+                        <input type="text" id="buyIngotWeight${buyItemIdCounter}" class="buy-option-input ingot-buy-weight" inputmode="decimal">
+                    </div>
+                </div>
+            `;
+            buyItemContainer.insertAdjacentHTML('beforeend', newBuyItemHtml);
+            addInputEventListeners(buyItemContainer.querySelector(`[data-buy-item-id="${buyItemIdCounter}"]`));
+            toggleBuyInputs(buyItemContainer.querySelector(`input[name="buyType${buyItemIdCounter}"][value="gold"]`)); // Initialize to gold
+            updateRemoveBuyButtonsVisibility();
+            calculateFactor();
+        }
+
+        function removeBuyItem(button) {
+            const buyItemRow = button.closest('.buy-option-group');
+            buyItemRow.remove();
+            updateRemoveBuyButtonsVisibility();
+            calculateFactor();
+        }
+
+        function updateRemoveBuyButtonsVisibility() {
+            const items = buyItemContainer.querySelectorAll('.buy-option-group');
+            // If there's only one buy item, hide its remove button
+            if (items.length === 1) {
+                items[0].querySelector('.remove-buy-item').style.display = 'none';
+            } else {
+                items.forEach(item => {
+                    item.querySelector('.remove-buy-item').style.display = 'block';
+                });
+            }
+        }
+
+        function toggleBuyInputs(radio) {
+            const buyItemGroup = radio.closest('.buy-option-group');
+            const goldInputWrapper = buyItemGroup.querySelector('.buy-gold-input-wrapper');
+            const coinSelectWrapper = buyItemGroup.querySelector('.coin-select-wrapper');
+            const parsianInputWrapper = buyItemGroup.querySelector('.parsian-input-wrapper');
+            const ingotInputWrapper = buyItemGroup.querySelector('.ingot-input-wrapper');
+
+            // Hide all first
+            goldInputWrapper.style.display = 'none';
+            coinSelectWrapper.style.display = 'none';
+            parsianInputWrapper.style.display = 'none';
+            ingotInputWrapper.style.display = 'none';
+
+            // Show relevant based on selection
+            if (radio.value === 'gold') {
+                goldInputWrapper.style.display = 'block';
+            } else if (radio.value === 'coin') {
+                coinSelectWrapper.style.display = 'block';
+                coinSelectWrapper.classList.add('visible'); // Add visible class for coin section
+            } else if (radio.value === 'parsian') {
+                parsianInputWrapper.style.display = 'block';
+            } else if (radio.value === 'ingot') {
+                ingotInputWrapper.style.display = 'block';
+            }
+            calculateFactor();
+        }
+
+        function addCoinSelect(buyItemId) {
+            const coinSelectsDiv = document.getElementById(`coinSelects${buyItemId}`);
+            const newCoinItemHtml = `
+                <div class="coin-item">
+                    <select class="buy-option-input coin-model-select" onchange="updateCoinPriceInput(this, ${buyItemId})">
+                        <option value="">انتخاب مدل سکه</option>
+                        <option value="ربع ۸۶">ربع ۸۶</option>
+                        <option value="نیم ۸۶">نیم ۸۶</option>
+                        <option value="امامی ۸۶">امامی ۸۶</option>
+                        <option value="ربع زیر ۸۶">ربع زیر ۸۶</option>
+                        <option value="نیم زیر ۸۶">نیم زیر ۸۶</option>
+                        <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
+                        <option value="یک گرمی بانکی">یک گرمی بانکی</option>
+                    </select>
+                    <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" style="flex-grow: 1;">
+                    <button type="button" class="coin-remove-button" onclick="removeCoinItem(this)">✖</button>
+                </div>
+            `;
+            coinSelectsDiv.insertAdjacentHTML('beforeend', newCoinItemHtml);
+            // Add event listeners for the new coin price input
+            const newCoinPriceInput = coinSelectsDiv.lastElementChild.querySelector('.coin-price-input');
+            newCoinPriceInput.addEventListener('input', (e) => {
+                e.target.value = formatNumberWithCommas(convertToEnglishDigits(e.target.value));
+            });
+            newCoinPriceInput.addEventListener('blur', (e) => {
+                e.target.value = formatNumberWithCommas(convertToEnglishDigits(e.target.value));
+            });
+            calculateFactor();
+        }
+
+        function removeCoinItem(button) {
+            const coinItem = button.closest('.coin-item');
+            coinItem.remove();
+            calculateFactor();
+        }
+
+        function updateCoinPriceInput(selectElement, buyItemId) {
+            const coinItem = selectElement.closest('.coin-item');
+            const priceInput = coinItem.querySelector('.coin-price-input');
+            
+            // Clear the input when coin model changes, as price is manual
+            priceInput.value = '';
+            calculateFactor();
         }
 
         function applySuggestedDiscount(amount, type) {
@@ -1205,12 +1588,7 @@
 
             let totalOverallPriceWithoutTax = 0;
             let totalCalculatedTax = 0;
-            let totalBoughtGoldWeight = 0;
-            let totalSoldGoldWeight = 0;
-
-            let buyGoldAmountAtMuzanne = 0;
-            let buyDiffGoldAmountWithDiscount = 0;
-
+            
             let itemResultsHtml = '';
             let currentItemDetails = []; // To store for invoice display
 
@@ -1220,13 +1598,8 @@
                 const productTypeSelect = row.querySelector('.product-type-select');
                 const wageInput = row.querySelector('.gold-wage');
                 const wageType = row.querySelector(`input[name="wageType${row.dataset.itemId}"]:checked`).value;
-                const buyWeightInput = row.querySelector('.gold-buy-weight');
-
+                
                 let weight = parseFloat(convertToEnglishDigits(weightInput.value)) || 0;
-                let buyWeight = parseFloat(convertToEnglishDigits((buyWeightInput ? buyWeightInput.value : '0'))) || 0;
-
-                totalSoldGoldWeight += weight;
-                totalBoughtGoldWeight += buyWeight;
 
                 const productType = productTypeSelect ? productTypeSelect.value : '';
 
@@ -1279,30 +1652,109 @@
                 });
             });
 
-            let netGoldWeightDiff = totalBoughtGoldWeight - totalSoldGoldWeight;
+            // NEW: Calculate bought items
+            let totalBoughtValue = 0;
+            let totalBoughtGoldWeightForDiff = 0; // Only for gold (not coin/parsian/ingot)
+            let soldGoldWeight = 0;
+            document.querySelectorAll('.item-row').forEach(row => {
+                soldGoldWeight += parseFloat(convertToEnglishDigits(row.querySelector('.gold-weight').value)) || 0;
+            });
+            
+            let boughtItemsDetails = [];
+
+            const buyItemRows = document.querySelectorAll('.buy-option-group');
+            buyItemRows.forEach(row => {
+                const buyItemId = row.dataset.buyItemId;
+                const buyType = row.querySelector(`input[name="buyType${buyItemId}"]:checked`).value;
+                let itemPrice = 0;
+                let itemDescription = '';
+
+                if (buyType === 'gold') {
+                    const weightInput = row.querySelector('.buy-gold-weight');
+                    let weight = parseFloat(convertToEnglishDigits(weightInput.value)) || 0;
+                    itemPrice = weight * rawGoldPrice;
+                    totalBoughtGoldWeightForDiff += weight; // Only pure gold contributes to diff
+                    itemDescription = `خرید طلای آب شده: ${convertToFarsiDigits(weight.toFixed(3))} گرم`;
+                } else if (buyType === 'coin') {
+                    const coinItems = row.querySelectorAll('.coin-item');
+                    coinItems.forEach(coinItem => {
+                        const modelSelect = coinItem.querySelector('.coin-model-select');
+                        const priceInput = coinItem.querySelector('.coin-price-input');
+                        const model = modelSelect.value;
+                        const price = parseFloat(convertToEnglishDigits(priceInput.value.replace(/,/g, ''))) || 0;
+                        if (model && price > 0) {
+                            itemPrice += price;
+                            itemDescription += `${model}: ${formatCurrency(price)} تومان <br>`;
+                        }
+                    });
+                    itemDescription = `خرید سکه: <br>` + itemDescription;
+                } else if (buyType === 'parsian') {
+                    const weightInput = row.querySelector('.parsian-buy-weight');
+                    let weight = parseFloat(convertToEnglishDigits(weightInput.value)) || 0;
+                    itemPrice = weight * rawGoldPrice; // Parsian price is directly based on gold price
+                    itemDescription = `خرید سکه پارسیان: ${convertToFarsiDigits(weight.toFixed(3))} گرم`;
+                } else if (buyType === 'ingot') {
+                    const weightInput = row.querySelector('.ingot-buy-weight');
+                    let weight = parseFloat(convertToEnglishDigits(weightInput.value)) || 0;
+                    itemPrice = (weight * 995 / 750) * rawGoldPrice; // Formula for ingot
+                    itemDescription = `خرید شمش: ${convertToFarsiDigits(weight.toFixed(3))} گرم`;
+                }
+                
+                if (itemPrice > 0) {
+                    totalBoughtValue += itemPrice;
+                    boughtItemsDetails.push({
+                        type: buyType,
+                        description: itemDescription,
+                        value: itemPrice
+                    });
+                }
+            });
+
+            finalCalculatedData.boughtItems = boughtItemsDetails;
+
+
+            let netGoldWeightDiff = totalBoughtGoldWeightForDiff - soldGoldWeight; // Only pure gold vs. sold gold
+
+            let buyGoldAmountAtMuzanne = 0;
+            let buyDiffGoldAmountWithDiscount = 0;
 
             if (buyDiffGoldWithDiscount) {
-                if (netGoldWeightDiff > 0) {
-                    buyGoldAmountAtMuzanne = totalSoldGoldWeight * rawGoldPrice;
+                if (netGoldWeightDiff > 0) { // Customer bought more gold than sold
+                    buyGoldAmountAtMuzanne = soldGoldWeight * rawGoldPrice;
                     let diffWeight = netGoldWeightDiff;
                     let priceWithDiscount = rawGoldPrice * (1 - 0.02);
                     buyDiffGoldAmountWithDiscount = diffWeight * priceWithDiscount;
-                } else {
-                    buyGoldAmountAtMuzanne = totalBoughtGoldWeight * rawGoldPrice;
+                } else { // Customer sold more gold than bought, or equal
+                    buyGoldAmountAtMuzanne = totalBoughtGoldWeightForDiff * rawGoldPrice;
                 }
             } else {
-                buyGoldAmountAtMuzanne = totalBoughtGoldWeight * rawGoldPrice;
+                buyGoldAmountAtMuzanne = totalBoughtGoldWeightForDiff * rawGoldPrice;
             }
 
-            let totalBoughtGoldValue = buyGoldAmountAtMuzanne + buyDiffGoldAmountWithDiscount;
-
+            // Total bought value now includes all types: gold, coins, parsian, ingot
+            let totalEffectiveBoughtValue = totalBoughtValue;
+            if (buyDiffGoldWithDiscount && netGoldWeightDiff > 0) {
+                // If buy diff is active and customer has *net* more gold, adjust the gold part of totalBoughtValue
+                // This means the initial 'totalBoughtValue' calculated for pure gold above needs to be replaced
+                // by the specific calculation for diff. Other bought items (coins, parsian, ingot) remain as is.
+                let nonGoldBuyValue = 0;
+                boughtItemsDetails.forEach(item => {
+                    if (item.type !== 'gold') {
+                        nonGoldBuyValue += item.value;
+                    }
+                });
+                totalEffectiveBoughtValue = buyGoldAmountAtMuzanne + buyDiffGoldAmountWithDiscount + nonGoldBuyValue;
+            } else {
+                // If no diff calculation, or if customer sold more gold than bought, then use the simple sum of all bought items
+                totalEffectiveBoughtValue = totalBoughtValue;
+            }
 
             let baseTotalFinalPriceBeforeDiscount = totalOverallPriceWithoutTax;
             if (includeTax) {
                 baseTotalFinalPriceBeforeDiscount += totalCalculatedTax;
             }
             
-            let totalFinalPriceBeforeDiscountAndPayoutCheck = baseTotalFinalPriceBeforeDiscount - totalBoughtGoldValue;
+            let totalFinalPriceBeforeDiscountAndPayoutCheck = baseTotalFinalPriceBeforeDiscount - totalEffectiveBoughtValue;
 
             let suggestedDiscounts = [];
 
@@ -1404,31 +1856,37 @@
                 `;
             }
 
-            if (totalBoughtGoldValue > 0) {
-                if (buyDiffGoldWithDiscount && netGoldWeightDiff > 0) {
+            // Display bought items individually
+            if (boughtItemsDetails.length > 0) {
+                resultSection.innerHTML += `<div class="result-item buy-item"><span></span><span></span></div>`; // Spacer/Header
+                boughtItemsDetails.forEach(item => {
                     resultSection.innerHTML += `
-                        <div class="result-item buy-gold-from-customer">
-                            <span>خرید طلا از مشتری (مظنه):</span>
-                            <span>${formatCurrency(buyGoldAmountAtMuzanne)}</span>
-                        </div>
-                        <div class="result-item buy-diff-gold-from-customer">
-                            <span>خرید مازاد طلا از مشتری (کسر 2%):</span>
-                            <span>${formatCurrency(buyDiffGoldAmountWithDiscount)}</span>
-                        </div>
-                        <div class="result-item buy-gold-from-customer">
-                            <span>جمع کل خرید طلا از مشتری:</span>
-                            <span>${formatCurrency(totalBoughtGoldValue)}</span>
+                        <div class="result-item buy-item">
+                            <span>${item.description.split('<br>')[0].replace(':', '')}:</span>
+                            <span>${formatCurrency(item.value)}</span>
                         </div>
                     `;
-                } else if (totalBoughtGoldValue > 0) {
-                    resultSection.innerHTML += `
-                        <div class="result-item buy-gold-from-customer">
-                            <span>خرید طلا از مشتری:</span>
-                            <span>${formatCurrency(totalBoughtGoldValue)}</span>
-                        </div>
-                    `;
-                }
+                    // If it was a coin item, add sub-lines for individual coins
+                    if (item.type === 'coin' && item.description.includes('<br>')) {
+                        const coinSubItems = item.description.split('<br>').slice(1).filter(Boolean);
+                        coinSubItems.forEach(subItem => {
+                            resultSection.innerHTML += `
+                                <div class="result-item buy-item" style="font-size: 0.9em; padding-right: 20px;">
+                                    <span>- ${subItem.split(':')[0]}:</span>
+                                    <span>${subItem.split(':')[1]}</span>
+                                </div>
+                            `;
+                        });
+                    }
+                });
+                resultSection.innerHTML += `
+                    <div class="result-item buy-item">
+                        <span>جمع کل خرید از مشتری:</span>
+                        <span>${formatCurrency(totalEffectiveBoughtValue)}</span>
+                    </div>
+                `;
             }
+
 
             if (discountToApply > 0) {
                 resultSection.innerHTML += `
@@ -1442,10 +1900,9 @@
             // Store final results in the global object
             finalCalculatedData.goldPricePerGram = rawGoldPrice;
             finalCalculatedData.itemDetails = currentItemDetails;
-            finalCalculatedData.totalBoughtGoldValue = totalBoughtGoldValue;
+            finalCalculatedData.totalBoughtGoldValue = totalEffectiveBoughtValue; // This now holds the final calculated value
             finalCalculatedData.buyDiffGoldWithDiscount = buyDiffGoldWithDiscount;
-            finalCalculatedData.buyGoldAmountAtMuzanne = buyGoldAmountAtMuzanne;
-            finalCalculatedData.buyDiffGoldAmountWithDiscount = buyDiffGoldAmountWithDiscount;
+            // Removed buyGoldAmountAtMuzanne and buyDiffGoldAmountWithDiscount as they are now internal to totalEffectiveBoughtValue
             finalCalculatedData.totalCalculatedTax = totalCalculatedTax;
             finalCalculatedData.discountAmount = discountToApply;
             finalCalculatedData.finalTotalAmount = Math.abs(finalPriceAfterDiscount);
@@ -1507,15 +1964,11 @@
             invoiceHtml += `<p>قیمت روز طلا ۱۸ عیار: <strong>${formatCurrency(finalCalculatedData.goldPricePerGram)} تومان</strong></p>`;
             
             // --- مشخصات طلا ---
-            invoiceHtml += `<div class="invoice-section-divider">مشخصات طلا:</div>`;
-
-            if (finalCalculatedData.itemDetails.length === 0 || finalCalculatedData.itemDetails.every(item => item.weight === 0)) {
-                invoiceHtml += `<p>هیچ آیتم طلایی ثبت نشده است.</p>`;
-            } else {
+            if (finalCalculatedData.itemDetails.length > 0 && finalCalculatedData.itemDetails.some(item => item.weight > 0)) {
+                invoiceHtml += `<div class="invoice-section-divider">مشخصات طلای فروش:</div>`;
                 finalCalculatedData.itemDetails.forEach(item => {
                     if (item.weight > 0) { // Only show items that actually have weight
                         invoiceHtml += `<div class="invoice-item-group">`;
-                        // CHANGED: "اسم طلا" to "نوع طلا"
                         invoiceHtml += `<p>نوع طلا: <strong>${item.name}</strong></p>`; 
                         invoiceHtml += `<p>وزن: ${convertToFarsiDigits(item.weight.toFixed(3))} گرم</p>`;
                         
@@ -1539,27 +1992,24 @@
                 });
             }
 
-            // --- خرید طلا مشتری ---
-            if (finalCalculatedData.totalBoughtGoldValue > 0) {
-                invoiceHtml += `<div class="invoice-section-divider"></div>`; // Divider
-                // CHANGED: "خرید طلا" to "خرید طلا از مشتری" and added class for styling
-                invoiceHtml += `<p class="buy-gold-from-customer-value"><strong>خرید طلا از مشتری:</strong></p>`;
-                let totalBoughtWeight = 0;
-                document.querySelectorAll('.gold-buy-weight').forEach(input => {
-                    totalBoughtWeight += parseFloat(convertToEnglishDigits(input.value)) || 0;
+            // --- خرید از مشتری ---
+            if (finalCalculatedData.boughtItems.length > 0 && finalCalculatedData.boughtItems.some(item => item.value > 0)) {
+                invoiceHtml += `<div class="invoice-section-divider">مشخصات خرید از مشتری:</div>`;
+                finalCalculatedData.boughtItems.forEach(item => {
+                    if (item.value > 0) {
+                        invoiceHtml += `<div class="invoice-item-group">`;
+                        invoiceHtml += `<p class="buy-item-value">${item.description}</p>`;
+                        // Only add price line if it's not already part of the description (like for coins)
+                        if (!item.description.includes('تومان')) {
+                             invoiceHtml += `<p class="buy-item-value">قیمت: ${formatCurrency(item.value)} تومان</p>`;
+                        }
+                       
+                        invoiceHtml += `</div>`;
+                    }
                 });
-                invoiceHtml += `<p>وزن: ${convertToFarsiDigits(totalBoughtWeight.toFixed(3))} گرم</p>`;
-                
-                // Determine which price to show for bought gold
-                let boughtGoldPriceToShow = 0;
-                if (finalCalculatedData.buyDiffGoldWithDiscount && finalCalculatedData.buyDiffGoldAmountWithDiscount > 0) {
-                    boughtGoldPriceToShow = finalCalculatedData.buyGoldAmountAtMuzanne + finalCalculatedData.buyDiffGoldAmountWithDiscount;
-                } else {
-                    boughtGoldPriceToShow = finalCalculatedData.totalBoughtGoldValue;
-                }
-                // Added class for styling
-                invoiceHtml += `<p class="buy-gold-from-customer-value">قیمت: ${formatCurrency(boughtGoldPriceToShow)} تومان</p>`;
+                invoiceHtml += `<p class="buy-item-value"><strong>جمع کل خرید از مشتری: ${formatCurrency(finalCalculatedData.totalBoughtGoldValue)} تومان</strong></p>`;
             }
+
 
             // --- تخفیف ---
             if (finalCalculatedData.discountAmount > 0) {
@@ -1591,7 +2041,7 @@
                 } else if (input.classList.contains('gold-wage')) {
                     input.addEventListener('input', () => updateWageInWordsDisplay(input));
                     input.addEventListener('blur', () => updateWageInWordsDisplay(input));
-                } else if (input.classList.contains('gold-buy-weight') || input.classList.contains('gold-weight')) {
+                } else if (input.classList.contains('gold-buy-weight') || input.classList.contains('gold-weight') || input.classList.contains('parsian-buy-weight') || input.classList.contains('ingot-buy-weight')) {
                     input.addEventListener('input', (e) => {
                         let rawValue = e.target.value;
                         let cleanValue = convertToEnglishDigits(rawValue);
@@ -1619,6 +2069,15 @@
                      if (parseFloat(convertToEnglishDigits(input.value)) === 0 && input.value.trim() === '') {
                         input.value = '';
                     }
+                } else if (input.classList.contains('coin-price-input')) {
+                     input.addEventListener('input', (e) => {
+                        e.target.value = formatNumberWithCommas(convertToEnglishDigits(e.target.value));
+                        calculateFactor();
+                    });
+                    input.addEventListener('blur', (e) => {
+                        e.target.value = formatNumberWithCommas(convertToEnglishDigits(e.target.value));
+                        calculateFactor();
+                    });
                 } else if (input.id === 'discount') {
                     input.addEventListener('input', (e) => {
                         activeDiscountType = null;
@@ -1652,6 +2111,7 @@
         // Initial setup
         document.addEventListener('DOMContentLoaded', () => {
             updateRemoveButtonsVisibility();
+            addBuyItem(); // Add one default "Buy Gold" item
             addInputEventListeners(document);
             updateGoldPriceDisplay(); // This calls calculateFactor too
             const firstWageInput = document.getElementById('wage1');
