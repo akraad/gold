@@ -113,7 +113,6 @@
             outline: none;
         }
 
-        /* --- MODIFIED CSS FOR INPUT-INLINE-DISPLAY --- */
         .input-inline-wrapper {
             position: relative;
             width: 100%;
@@ -140,8 +139,6 @@
         .gold-wage {
             padding-left: 70px; /* Make space for the words on the left */
         }
-        /* --- END OF MODIFIED CSS --- */
-
 
         .add-item-button {
             background-color: #3498db;
@@ -586,7 +583,7 @@
             .invoice-output-content .form-group,
             .generate-invoice-button,
             .print-invoice-button,
-            .suggested-discounts-section { /* Hide suggested discounts on print */
+            .suggested-discounts-section { /* IMPORTANT: Hide suggested discounts on print */
                 display: none;
             }
             .invoice-output-content.expanded {
@@ -1259,6 +1256,7 @@
                     totalCalculatedTax += itemTax;
                 }
 
+                // CHANGED: "اسم طلا" to "نوع طلا"
                 let itemLabel = 'قیمت';
                 if (productType) {
                     itemLabel += ` (${productType})`;
