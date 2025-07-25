@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>فاکتور طلاجات موعود</title>
+<title>فاکتور فروش طلا</title>
 <style>
   @font-face {
     font-family: 'Vazir';
@@ -11,144 +11,229 @@
   }
   body {
     font-family: 'Vazir', sans-serif;
-    margin: 0; padding: 1rem;
-    background: #f5f5f5;
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 12px 16px;
     color: #333;
+    min-height: 100vh;
+    box-sizing: border-box;
   }
-  h2, h3 {
-    color: #4a4a4a;
-    border-right: 5px solid #9c27b0;
-    padding-right: 0.5rem;
+  h2 {
+    border-right: 6px solid #2196f3;
+    padding-right: 10px;
+    margin-bottom: 16px;
+    color: #2196f3;
+    font-weight: 700;
+    font-size: 1.7rem;
   }
-  .section {
-    background: #fff;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    border-radius: 1rem;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  h3 {
+    border-right: 6px solid #4caf50;
+    padding-right: 10px;
+    margin-top: 24px;
+    margin-bottom: 12px;
+    color: #4caf50;
+    font-weight: 600;
+    font-size: 1.3rem;
   }
   label {
-    display: block;
-    margin: 0.5rem 0 0.2rem;
-    font-size: 0.95rem;
-  }
-  input, select {
-    width: 100%;
-    padding: 0.5rem;
-    font-family: 'Vazir';
+    font-weight: 600;
     font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 0.5rem;
+    display: block;
+    margin-bottom: 6px;
+    position: relative;
   }
-  .highlight-blue { color: #2196f3; font-weight: bold; }
-  .highlight-green { color: #4caf50; font-weight: bold; }
-  .highlight-red { color: #f44336; font-weight: bold; }
-  .highlight-purple { color: #9c27b0; font-weight: bold; }
-  .smart-discount button {
-    margin: 0.2rem;
-    padding: 0.3rem 0.7rem;
-    background: #e8f5e9;
-    border: 1px solid #4caf50;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    font-size: 0.9rem;
+  label::before {
+    content: "";
+    display: inline-block;
+    width: 6px;
+    height: 22px;
+    background-color: #2196f3;
+    position: absolute;
+    left: 100%;
+    margin-left: 8px;
+    border-radius: 3px;
+    top: 0;
   }
-  .smart-discount button.active {
-    background: #4caf50;
+  input[type=text],
+  input[type=tel],
+  select {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 1.05rem;
+    border: 1.5px solid #bbb;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-family: 'Vazir', sans-serif;
+    transition: border-color 0.2s ease;
+    color: #111;
+  }
+  input[type=text]:focus,
+  input[type=tel]:focus,
+  select:focus {
+    border-color: #2196f3;
+    outline: none;
+  }
+  .ajrat-input {
+    direction: ltr;
+    text-align: left;
+  }
+  button {
+    background-color: #2196f3;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 8px;
     color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.25s ease;
+    font-family: 'Vazir', sans-serif;
   }
-  .summary {
-    font-size: 1.1rem;
-    margin-top: 1rem;
-    border-top: 1px dashed #999;
-    padding-top: 1rem;
+  button:hover {
+    background-color: #1976d2;
   }
-  .summary .row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 0.4rem;
+  .remove-btn {
+    background-color: #f44336;
+    padding: 7px 14px;
+    margin-top: 24px;
   }
-  .bold-blue {
-    color: #2196f3;
-    font-weight: bold;
-    font-size: 1.2rem;
+  .remove-btn:hover {
+    background-color: #d32f2f;
+  }
+  .gold-item {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    padding: 14px 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
   }
   .flex-row {
     display: flex;
-    gap: 1rem;
+    gap: 16px;
     flex-wrap: wrap;
   }
-  .flex-row > * {
-    flex: 1 1 200px;
+  .flex-row > div {
+    flex: 1 1 150px;
   }
-  .input-small {
-    width: 100px;
+  .highlight-blue {
+    color: #2196f3;
+    font-weight: 700;
   }
-  .colored-bar {
-    width: 5px;
-    background-color: #2196f3;
-    margin-left: 0.5rem;
-    border-radius: 0 3px 3px 0;
+  .highlight-green {
+    color: #4caf50;
+    font-weight: 700;
   }
-  .label-with-bar {
+  .highlight-red {
+    color: #f44336;
+    font-weight: 700;
+  }
+  .smart-discount {
+    margin-top: 6px;
+  }
+  .smart-discount button {
+    background-color: #e8f5e9;
+    color: #4caf50;
+    border: 1.5px solid #4caf50;
+    border-radius: 6px;
+    padding: 6px 12px;
+    margin-right: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-family: 'Vazir', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  .smart-discount button.active {
+    background-color: #4caf50;
+    color: white;
+  }
+  input[data-type="farsi-num"] {
+    direction: ltr;
+    text-align: left;
+  }
+  #manualDiscount {
+    width: 100%;
+    font-weight: 700;
+    color: #f44336;
+  }
+  #invoiceSummary {
+    background-color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  }
+  #invoiceSummary .row {
     display: flex;
-    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 1rem;
   }
-  .label-with-bar > label {
-    flex: 1;
+  #invoiceSummary .row.bold-blue {
+    color: #2196f3;
+    font-weight: 900;
+    font-size: 1.3rem;
   }
-  /* Responsive font size for price text */
-  .price-text {
-    font-weight: bold;
-    font-size: 1.2rem;
+  select[multiple] {
+    height: 110px;
+    font-family: 'Vazir', sans-serif;
   }
-  .price-text.small-font {
-    font-size: 0.8rem !important;
+  @media (max-width: 600px) {
+    .flex-row {
+      flex-direction: column;
+    }
+    label::before {
+      display: none;
+    }
   }
 </style>
 </head>
 <body>
-<h2>فاکتور طلاجات موعود</h2>
 
-<div class="section">
-  <h3><span class="colored-bar"></span> مشخصات مشتری</h3>
-  <label class="label-with-bar"><label>نام خریدار:</label><div class="colored-bar" style="background:#9c27b0"></div></label>
-  <input type="text" id="buyerName" placeholder="فقط حروف وارد کنید" oninput="validateName(this)" autocomplete="off" />
-  <label class="label-with-bar"><label>شماره تماس (اختیاری):</label><div class="colored-bar" style="background:#2196f3"></div></label>
-  <input type="tel" id="buyerPhone" placeholder="حداکثر 11 رقم" maxlength="11" oninput="validatePhone(this)" autocomplete="off" />
-</div>
+<h2>فاکتور فروش طلا</h2>
 
-<div class="section">
-  <h3><span class="colored-bar"></span> قیمت طلا (تومان)</h3>
-  <label class="label-with-bar"><label>قیمت طلا (۷ رقم):</label><div class="colored-bar" style="background:#2196f3"></div></label>
-  <input type="text" id="goldPrice" maxlength="9" oninput="onGoldPriceInput(this)" autocomplete="off" />
-  <div id="goldPriceWords" class="highlight-purple" style="margin-top:0.5rem;"></div>
-</div>
+<!-- مشخصات خریدار -->
+<section>
+  <h3>مشخصات خریدار</h3>
+  <label for="buyerName">نام خریدار (فقط حروف)</label>
+  <input type="text" id="buyerName" autocomplete="off" placeholder="مثلاً علی رضایی" oninput="validateName(this)" />
+  
+  <label for="buyerPhone" style="margin-top:12px;">شماره تماس (اختیاری - حداکثر ۱۱ رقم)</label>
+  <input type="tel" id="buyerPhone" autocomplete="off" placeholder="۰۹۱۲۳۴۵۶۷۸۹" maxlength="11" oninput="validatePhone(this)" />
+</section>
 
-<div class="section">
-  <h3><span class="colored-bar"></span> افزودن آیتم طلا</h3>
+<!-- قیمت طلا -->
+<section>
+  <h3>قیمت طلا (تومان)</h3>
+  <label for="goldPrice">قیمت طلا (۷ رقم، فقط عدد)</label>
+  <input type="text" id="goldPrice" maxlength="9" autocomplete="off" placeholder="مثلاً ۱۲۳٬۴۵۶٬۷۸۹" oninput="formatGoldPrice(this)" />
+  <div id="goldPriceWords" style="color:#9c27b0; margin-top:6px; font-weight: 600;"></div>
+</section>
+<!-- افزودن آیتم های طلا -->
+<section>
+  <h3>آیتم‌های طلا</h3>
   <div id="goldItemsContainer"></div>
-  <button type="button" onclick="addGoldItem()" style="margin-top:10px;padding:0.5rem 1rem; border-radius:0.5rem; border:none; background:#2196f3; color:#fff; cursor:pointer;">➕ افزودن آیتم طلا</button>
-</div>
+  <button type="button" onclick="addGoldItem()">➕ افزودن آیتم طلا</button>
+</section>
 
-<div class="section">
-  <h3><span class="colored-bar"></span> خرید از مشتری</h3>
-  <div class="flex-row">
+<!-- خرید طلا از مشتری -->
+<section>
+  <h3>خرید طلا از مشتری</h3>
+  <div class="flex-row" style="margin-bottom:12px;">
     <div>
-      <label>خرید طلا (وزن):</label>
-      <input type="text" id="buyGoldWeight" oninput="formatPersianNumber(this)" placeholder="مثلاً 12.5" autocomplete="off" />
+      <label for="buyGoldWeight">خرید طلا (وزن)</label>
+      <input type="text" id="buyGoldWeight" placeholder="مثلاً 12.5" autocomplete="off" data-type="farsi-num" oninput="formatPersianNumber(this)" />
     </div>
     <div>
-      <label>خرید شمش (وزن):</label>
-      <input type="text" id="buyShamshWeight" oninput="formatPersianNumber(this)" placeholder="مثلاً 10" autocomplete="off" />
+      <label for="buyShamshWeight">خرید شمش (وزن)</label>
+      <input type="text" id="buyShamshWeight" placeholder="مثلاً 10" autocomplete="off" data-type="farsi-num" oninput="formatPersianNumber(this)" />
     </div>
     <div>
-      <label>خرید پارسیان (وزن):</label>
-      <input type="text" id="buyParsianWeight" oninput="formatPersianNumber(this)" placeholder="مثلاً 8" autocomplete="off" />
+      <label for="buyParsianWeight">خرید پارسیان (وزن)</label>
+      <input type="text" id="buyParsianWeight" placeholder="مثلاً 8" autocomplete="off" data-type="farsi-num" oninput="formatPersianNumber(this)" />
     </div>
   </div>
-  <label style="margin-top:10px;">خرید سکه (انتخاب مدل):</label>
-  <select id="buyCoinSelect" multiple size="5" style="width: 100%; max-height:120px; font-family: 'Vazir'">
+  
+  <label for="buyCoinSelect">خرید سکه (انتخاب مدل یا چند مدل)</label>
+  <select id="buyCoinSelect" multiple>
     <option value="ربع ۸۶">ربع ۸۶</option>
     <option value="نیم ۸۶">نیم ۸۶</option>
     <option value="امامی ۸۶">امامی ۸۶</option>
@@ -157,370 +242,356 @@
     <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
     <option value="یک گرمی بانکی">یک گرمی بانکی</option>
   </select>
-  <label style="margin-top:10px;">مبلغ سکه‌ها (تومان):</label>
-  <input type="text" id="buyCoinPrice" maxlength="9" oninput="onCoinPriceInput(this)" autocomplete="off" placeholder="مثلاً 5000000" />
-</div>
 
-<div class="section">
-  <h3><span class="colored-bar"></span> تنظیمات مالی</h3>
+  <label for="buyCoinPrice" style="margin-top:12px;">مبلغ سکه‌ها (تومان)</label>
+  <input type="text" id="buyCoinPrice" maxlength="9" autocomplete="off" placeholder="مثلاً ۵۰۰۰۰۰۰" oninput="formatCoinPrice(this)" />
+</section>
+
+<!-- تنظیمات مالی -->
+<section>
+  <h3>تنظیمات مالی</h3>
   <label for="sellerProfit">سود فروشنده (%): <span id="profitValue">۷٪</span></label>
   <input type="range" id="sellerProfit" min="1" max="7" value="7" oninput="onProfitInput()" />
-  <label><input type="checkbox" id="taxToggle" checked /> اعمال مالیات ۱۰٪</label>
-</div>
+  <div style="margin-top:12px;">
+    <label><input type="checkbox" id="taxToggle" checked onchange="calculateFinal()" /> اعمال مالیات ۱۰٪</label>
+  </div>
+</section>
 
-<div class="section">
-  <h3><span class="colored-bar"></span> تخفیف</h3>
-  <label>تخفیف دستی (تومان):</label>
-  <input type="text" id="manualDiscount" maxlength="9" oninput="onDiscountInput(this)" autocomplete="off" placeholder="مثلاً 100000" />
-  <div class="smart-discount" style="margin-top:10px;">
-    <p class="highlight-green">تخفیف هوشمند:</p>
+<!-- تخفیف -->
+<section>
+  <h3>تخفیف</h3>
+  <label for="manualDiscount">تخفیف دستی (تومان)</label>
+  <input type="text" id="manualDiscount" maxlength="9" autocomplete="off" placeholder="مثلاً ۱۰۰۰۰۰" oninput="formatManualDiscount(this)" />
+  
+  <div class="smart-discount">
+    <p style="color:#4caf50; font-weight:700; margin-bottom:6px;">تخفیف هوشمند:</p>
     <button type="button" onclick="toggleSmartDiscount(0)">۱۷۸۹۰۰۰۰</button>
     <button type="button" onclick="toggleSmartDiscount(1)">۱۷۸۵۰۰۰۰</button>
     <button type="button" onclick="toggleSmartDiscount(2)">۱۷۸۰۰۰۰۰</button>
     <button type="button" onclick="toggleSmartDiscount(3)">۱۷۵۰۰۰۰۰</button>
   </div>
-</div>
-
-<div class="section summary">
-  <h3><span class="colored-bar"></span> فاکتور نهایی</h3>
+</section>
+<section>
+  <h3>فاکتور نهایی</h3>
   <div id="invoiceSummary">
-    <div class="row"><span>مدل طلا:</span><span id="finalModel">-</span></div>
+    <div class="row"><span>نام طلا:</span><span id="finalModel">-</span></div>
     <div class="row"><span>اجرت:</span><span id="finalAjrat">-</span></div>
     <div class="row"><span>مالیات:</span><span id="finalTax">-</span></div>
-    <div class="row highlight-red"><span>تخفیف:</span><span id="finalDiscount">-</span></div>
+    <div class="row" style="color:#f44336; font-weight:700;"><span>تخفیف:</span><span id="finalDiscount">-</span></div>
     <div class="row bold-blue"><span>قیمت نهایی:</span><span id="finalPrice">-</span></div>
   </div>
-</div>
+</section>
 
 <script>
-// تبدیل اعداد انگلیسی به فارسی
-function toFarsiDigits(str) {
-  const map = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
-  return str.replace(/\d/g, x => map[x]);
-}
-
-// حذف اعداد از نام
-function validateName(input) {
-  input.value = input.value.replace(/[0-9]/g, '').replace(/[^آ-ی\s]/g,'');
-}
-
-// فقط اعداد بپذیر و حداکثر 11 رقم
-function validatePhone(input) {
-  input.value = input.value.replace(/[^0-9]/g, '').slice(0,11);
-}
-
-// فرمت ورودی قیمت طلا: فقط عدد و اعشار و جداسازی هزارگان
-function onGoldPriceInput(input) {
-  let val = input.value.replace(/[^0-9]/g, '').slice(0,7);
-  if(val.length > 3){
-    val = val.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }
-  input.value = val;
-  document.getElementById("goldPriceWords").innerText = numberToWords(parseInt(val.replace(/,/g,''))) + " تومان";
-  calculateFinal();
-}
-
-// فرمت ورودی مبلغ سکه
-function onCoinPriceInput(input) {
-  let val = input.value.replace(/[^0-9]/g, '').slice(0,7);
-  if(val.length > 3){
-    val = val.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }
-  input.value = val;
-  calculateFinal();
-}
-
-// فرمت تخفیف دستی
-function onDiscountInput(input) {
-  let val = input.value.replace(/[^0-9]/g, '').slice(0,9);
-  if(val.length > 3){
-    val = val.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  }
-  input.value = val;
-  calculateFinal();
-}
-
-// فرمت عدد فارسی با نقطه اعشار مجاز
-function formatPersianNumber(input) {
-  let val = input.value.replace(/[^\d.]/g, '');
-  // اجازه فقط یک نقطه
-  const parts = val.split('.');
-  if(parts.length > 2) val = parts[0] + '.' + parts[1];
-  input.value = val;
-  calculateFinal();
-}
-
-// اضافه کردن آیتم طلا
-function addGoldItem() {
-  const container = document.getElementById("goldItemsContainer");
-  const div = document.createElement("div");
-  div.style.border = "1px solid #ccc";
-  div.style.padding = "10px";
-  div.style.marginBottom = "10px";
-  div.style.borderRadius = "10px";
-  div.innerHTML = `
-    <div class="flex-row">
-      <div>
-        <label>مدل طلا:</label>
-        <select class="gold-model">
-          <option>سرویس</option><option>النگو</option><option>نیم‌ست</option><option>دستبند</option>
-          <option>زنجیر</option><option>گردنبند</option><option>گوشواره</option><option>مدال</option>
-          <option>پلاک</option><option>خلخال</option><option>آویز ساعت</option><option>رو لباسی</option><option>سفارشی</option>
-        </select>
-      </div>
-      <div>
-        <label>وزن طلا:</label>
-        <input type="text" class="gold-weight" oninput="formatPersianNumber(this)" placeholder="مثلاً 12.5" autocomplete="off" />
-      </div>
-      <div>
-        <label>اجرت (٪ یا تومان):</label>
-        <input type="text"
-        <input type="text" class="ajrat" placeholder="مثلاً 5% یا 50000" oninput="formatAjratInput(this)" autocomplete="off" />
-      </div>
-      <div>
-        <button type="button" onclick="removeGoldItem(this)" style="margin-top:24px;background:#f44336;color:#fff;border:none;border-radius:5px;cursor:pointer;">حذف</button>
-      </div>
-    </div>
-  `;
-  container.appendChild(div);
-  calculateFinal();
-}
-
-function removeGoldItem(btn) {
-  btn.closest("div").remove();
-  calculateFinal();
-}
-
-function formatAjratInput(input) {
-  let val = input.value.trim();
-  if(val.endsWith('%')) {
-    val = val.replace(/[^0-9]/g, '').slice(0,2) + '%';
-    if(parseInt(val) > 30) val = '30%';
-  } else {
-    val = val.replace(/[^0-9]/g, '').slice(0,7);
-  }
-  input.value = val;
-  calculateFinal();
-}
-
-// تابع محاسبه نهایی
-function calculateFinal() {
-  const goldPriceInput = document.getElementById("goldPrice").value.replace(/,/g, '');
-  const goldPrice = parseInt(goldPriceInput) || 0;
-  if(goldPrice <= 0) {
-    setFinalSummary("-", "-", "-", "-", "-");
-    return;
+  // تبدیل اعداد انگلیسی به فارسی
+  function toFarsiDigits(str) {
+    const map = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+    return String(str).replace(/\d/g, x => map[x]);
   }
 
-  // آیتم های طلا
-  const items = document.querySelectorAll("#goldItemsContainer > div");
-  let models = [];
-  let ajrats = [];
-  let totalPrice = 0;
-  let totalAjrat = 0;
-  let totalTax = 0;
+  // حذف اعداد و کاراکتر غیرحروف از نام
+  function validateName(input) {
+    input.value = input.value.replace(/[^آ-ی\s]/g, '');
+  }
 
-  // سود فروشنده
-  const profitPercent = parseInt(document.getElementById("sellerProfit").value) || 7;
-  // مالیات فعال؟
-  const taxEnabled = document.getElementById("taxToggle").checked;
-  // تخفیف دستی
-  const manualDiscountInput = document.getElementById("manualDiscount").value.replace(/,/g, '');
-  let manualDiscount = parseInt(manualDiscountInput) || 0;
+  // فقط اعداد و حداکثر ۱۱ رقم برای شماره تماس
+  function validatePhone(input) {
+    input.value = input.value.replace(/[^0-9]/g, '').slice(0,11);
+  }
 
-  // پردازش هر آیتم طلا
-  items.forEach(div => {
-    const model = div.querySelector(".gold-model").value || "طلا";
-    let weight = parseFloat(div.querySelector(".gold-weight").value.replace(/,/g, '')) || 0;
-    let ajratStr = div.querySelector(".ajrat").value.trim();
-    let ajratValue = 0;
-    let ajratType = "none"; // درصد یا مبلغ
-
-    if(ajratStr.endsWith('%')) {
-      ajratType = "percent";
-      ajratValue = parseInt(ajratStr.replace('%','')) || 0;
-      if(ajratValue > 30) ajratValue = 30;
-    } else if(ajratStr.length > 0) {
-      ajratType = "amount";
-      ajratValue = parseInt(ajratStr) || 0;
-      if(ajratValue > 9999999) ajratValue = 9999999;
+  // فرمت ورودی قیمت طلا (۷ رقم، با جداکننده هزارگان)
+  function formatGoldPrice(input) {
+    let val = input.value.replace(/[^0-9]/g, '').slice(0,7);
+    val = val.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    input.value = val;
+    // نمایش به حروف
+    const num = parseInt(val.replace(/,/g, ''));
+    if(!isNaN(num)) {
+      document.getElementById('goldPriceWords').innerText = numberToWords(num) + ' تومان';
+    } else {
+      document.getElementById('goldPriceWords').innerText = '';
     }
-
-    models.push(model);
-
-    // قیمت طلا برای وزن
-    const goldPriceForItem = goldPrice * weight;
-
-    // محاسبه اجرت
-    let ajratAmount = 0;
-    if(ajratType === "percent") ajratAmount = goldPriceForItem * ajratValue / 100;
-    else if(ajratType === "amount") ajratAmount = ajratValue;
-
-    totalAjrat += ajratAmount;
-
-    // سود فروشنده
-    const profitAmount = (goldPriceForItem + ajratAmount) * profitPercent / 100;
-
-    // مالیات ۱۰٪ روی سود + اجرت
-    let taxAmount = 0;
-    if(taxEnabled) taxAmount = (ajratAmount + profitAmount) * 0.1;
-
-    // جمع کل قیمت آیتم
-    const itemTotal = goldPriceForItem + ajratAmount + profitAmount + taxAmount;
-    totalPrice += itemTotal;
-    totalTax += taxAmount;
-
-    ajrats.push(ajratType === "percent" ? ajratValue + "%" : ajratType === "amount" ? toFarsiDigits(ajratAmount.toFixed(0)) + " تومان" : "-");
-  });
-
-  // بخش خرید طلا از مشتری
-  // خرید طلا وزن
-  const buyGoldWeight = parseFloat(document.getElementById("buyGoldWeight").value.replace(/,/g, '')) || 0;
-  totalPrice += buyGoldWeight * goldPrice;
-
-  // خرید شمش وزن
-  const buyShamshWeight = parseFloat(document.getElementById("buyShamshWeight").value.replace(/,/g, '')) || 0;
-  totalPrice += buyShamshWeight * 995 / 750 * goldPrice;
-
-  // خرید پارسیان وزن
-  const buyParsianWeight = parseFloat(document.getElementById("buyParsianWeight").value.replace(/,/g, '')) || 0;
-  totalPrice += buyParsianWeight * goldPrice;
-
-  // خرید سکه (قیمت دستی)
-  const buyCoinPriceStr = document.getElementById("buyCoinPrice").value.replace(/,/g, '');
-  const buyCoinPrice = parseInt(buyCoinPriceStr) || 0;
-  totalPrice += buyCoinPrice;
-
-  // تخفیف هوشمند
-  const smartButtons = document.querySelectorAll(".smart-discount button");
-  let smartDiscount = 0;
-  smartButtons.forEach((btn, idx) => {
-    if(btn.classList.contains("active")) {
-      const val = parseInt(btn.textContent.replace(/,/g, '')) || 0;
-      smartDiscount = totalPrice - val;
-    }
-  });
-
-  // مجموع تخفیف
-  let totalDiscount = manualDiscount + smartDiscount;
-  if(totalDiscount > totalPrice) totalDiscount = totalPrice;
-
-  // قیمت نهایی
-  let finalPrice = totalPrice - totalDiscount;
-  if(finalPrice < 0) finalPrice = 0;
-
-  setFinalSummary(
-    models.join(" + ") || "-",
-    ajrats.join(" + ") || "-",
-    taxEnabled ? toFarsiDigits(totalTax.toFixed(0)) + " تومان" : "-",
-    totalDiscount > 0 ? toFarsiDigits(totalDiscount) + " تومان" : "-",
-    toFarsiDigits(finalPrice.toFixed(0)) + " تومان"
-  );
-}
-
-function setFinalSummary(model, ajrat, tax, discount, price) {
-  document.getElementById("finalModel").innerText = model;
-  document.getElementById("finalAjrat").innerText = ajrat;
-  document.getElementById("finalTax").innerText = tax;
-  document.getElementById("finalDiscount").innerText = discount;
-  document.getElementById("finalPrice").innerText = price;
-}
-
-// تابع تبدیل عدد به حروف فارسی (ساده)
-function numberToWords(num) {
-  if(!num || num <= 0) return "";
-  const ones = ["", "یک", "دو", "سه", "چهار", "پنج", "شش", "هفت", "هشت", "نه"];
-  const tens = ["", "ده", "بیست", "سی", "چهل", "پنجاه", "شصت", "هفتاد", "هشتاد", "نود"];
-  const teens = ["ده", "یازده", "دوازده", "سیزده", "چهارده", "پانزده", "شانزده", "هفده", "هجده", "نوزده"];
-  const hundreds = ["", "صد", "دویست", "سیصد", "چهارصد", "پانصد", "ششصد", "هفتصد", "هشتصد", "نهصد"];
-  const thousands = ["", "هزار", "میلیون", "میلیارد"];
-
-  function chunkToWords(chunk) {
-    let str = "";
-    const h = Math.floor(chunk / 100);
-    const t = Math.floor((chunk % 100) / 10);
-    const o = chunk % 10;
-
-    if(h > 0) str += hundreds[h] + " و ";
-    if(t > 1) str += tens[t] + (o > 0 ? " و " + ones[o] : "");
-    else if(t === 1) str += teens[o];
-    else if(o > 0) str += ones[o];
-    return str;
-  }
-
-  let parts = [];
-  let i = 0;
-  while(num > 0) {
-    let chunk = num % 1000;
-    if(chunk) parts.unshift(chunkToWords(chunk) + " " + thousands[i]);
-    num = Math.floor(num / 1000);
-    i++;
-  }
-  return parts.join(" و ").replace(/ و $/, "");
-}
-
-// تابع برای فعال/غیرفعال کردن تخفیف هوشمند
-function toggleSmartDiscount(idx) {
-  const buttons = document.querySelectorAll(".smart-discount button");
-  if(buttons[idx].classList.contains("active")) {
-    buttons[idx].classList.remove("active");
-  } else {
-    buttons.forEach(b => b.classList.remove("active"));
-    buttons[idx].classList.add("active");
-  }
-  calculateFinal();
-}
-
-// آپدیت سود فروشنده
-function onProfitInput() {
-  const val = document.getElementById("sellerProfit").value;
-  document.getElementById("profitValue").innerText = val + "٪";
-  calculateFinal();
-}
-
-// رویداد کلیک و ورودی برای وزن و اجرت‌ها
-document.addEventListener('input', function(e) {
-  if(e.target.classList.contains('gold-weight') || e.target.classList.contains('ajrat')) {
     calculateFinal();
   }
-});
 
-// رویداد برای تغییرات در بخش خرید از مشتری
-['buyGoldWeight','buyShamshWeight','buyParsianWeight','buyCoinPrice','buyCoinSelect','taxToggle','manualDiscount'].forEach(id => {
-  document.getElementById(id).addEventListener('input', calculateFinal);
-});
-document.getElementById('taxToggle').addEventListener('change', calculateFinal);
-
-// تابع برای تبدیل اعداد فارسی به انگلیسی در ورودی وزن و اجرت
-function convertToEnglishNumber(str) {
-  const persianNumbers = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
-  const englishNumbers = ['0','1','2','3','4','5','6','7','8','9'];
-  let newStr = '';
-  for(let i=0; i<str.length; i++){
-    const ch = str[i];
-    const index = persianNumbers.indexOf(ch);
-    newStr += index >= 0 ? englishNumbers[index] : ch;
+  // فرمت مبلغ سکه‌ها (۷ رقم)
+  function formatCoinPrice(input) {
+    let val = input.value.replace(/[^0-9]/g, '').slice(0,7);
+    val = val.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    input.value = val;
+    calculateFinal();
   }
-  return newStr;
-}
 
-// تبدیل عدد فارسی به انگلیسی برای وزن‌ها و اجرت‌ها
-document.addEventListener('input', function(e) {
-  if(e.target.classList.contains('gold-weight') || e.target.classList.contains('ajrat') ||
-     e.target.id === 'buyGoldWeight' || e.target.id === 'buyShamshWeight' || e.target.id === 'buyParsianWeight') {
-    e.target.value = convertToEnglishNumber(e.target.value);
+  // فرمت تخفیف دستی (۹ رقم)
+  function formatManualDiscount(input) {
+    let val = input.value.replace(/[^0-9]/g, '').slice(0,9);
+    val = val.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    input.value = val;
+    calculateFinal();
   }
-});
 
-// شروع اولیه
-function init() {
-  addGoldItem();
-  calculateFinal();
-}
+  // فرمت اعداد فارسی و اجازه نقطه در وزن‌ها
+  function formatPersianNumber(input) {
+    let val = input.value;
+    val = val.replace(/[^0-9.]/g, '');
+    // فقط یک نقطه مجاز
+    let parts = val.split('.');
+    if(parts.length > 2) val = parts[0] + '.' + parts[1];
+    input.value = val;
+    calculateFinal();
+  }
 
-window.onload = init;
+  // تبدیل عدد به حروف فارسی (نسخه ساده برای تا میلیارد)
+  function numberToWords(num) {
+    if (num === 0) return 'صفر';
+    const ones = ['','یک','دو','سه','چهار','پنج','شش','هفت','هشت','نه'];
+    const teens = ['ده','یازده','دوازده','سیزده','چهارده','پانزده','شانزده','هفده','هجده','نوزده'];
+    const tens = ['','','بیست','سی','چهل','پنجاه','شصت','هفتاد','هشتاد','نود'];
+    const hundreds = ['','یکصد','دویست','سیصد','چهارصد','پانصد','ششصد','هفتصد','هشتصد','نهصد'];
+    const thousands = ['','هزار','میلیون','میلیارد'];
+    
+    function chunkToWords(n) {
+      let str = '';
+      if(n >= 100) {
+        str += hundreds[Math.floor(n/100)] + ' ';
+        n %= 100;
+      }
+      if(n >= 10 && n < 20) {
+        str += teens[n-10] + ' ';
+      } else if(n >= 20) {
+        str += tens[Math.floor(n/10)] + ' ';
+        if(n%10 > 0) str += ones[n%10] + ' ';
+      } else if(n > 0) {
+        str += ones[n] + ' ';
+      }
+      return str.trim();
+    }
 
+    let parts = [];
+    let i = 0;
+    while(num > 0) {
+      let chunk = num % 1000;
+      if(chunk > 0) {
+        parts.unshift(chunkToWords(chunk) + (thousands[i] ? ' ' + thousands[i] : ''));
+      }
+      num = Math.floor(num/1000);
+      i++;
+    }
+    return parts.join(' و ').trim();
+  }
+  // تابع اضافه کردن آیتم طلا
+  function addGoldItem() {
+    const container = document.getElementById('goldItemsContainer');
+    const div = document.createElement('div');
+    div.classList.add('gold-item');
+    div.innerHTML = `
+      <div class="flex-row">
+        <div>
+          <label>مدل طلا</label>
+          <select class="gold-model">
+            <option>سرویس</option>
+            <option>النگو</option>
+            <option>نیم‌ست</option>
+            <option>دستبند</option>
+            <option>زنجیر</option>
+            <option>گردنبند</option>
+            <option>گوشواره</option>
+            <option>مدال</option>
+            <option>پلاک</option>
+            <option>خلخال</option>
+            <option>آویز ساعت</option>
+            <option>رو لباسی</option>
+            <option>سفارشی</option>
+          </select>
+        </div>
+        <div>
+          <label>وزن طلا</label>
+          <input type="text" class="gold-weight" autocomplete="off" placeholder="مثلاً 12.5" data-type="farsi-num" oninput="formatPersianNumber(this)" />
+        </div>
+        <div>
+          <label>اجرت (٪ یا تومان)</label>
+          <input type="text" class="ajrat-input" autocomplete="off" placeholder="مثلاً 5% یا 50000" oninput="formatAjrat(this)" />
+        </div>
+        <div style="flex: 0 0 90px;">
+          <button type="button" class="remove-btn" onclick="removeGoldItem(this)">حذف</button>
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+    calculateFinal();
+  }
+
+  // حذف آیتم طلا
+  function removeGoldItem(btn) {
+    btn.closest('.gold-item').remove();
+    calculateFinal();
+  }
+
+  // فرمت ورودی اجرت: عدد یا عدد + %
+  function formatAjrat(input) {
+    let val = input.value.toUpperCase();
+    // حذف همه به جز اعداد و درصد
+    val = val.replace(/[^0-9%]/g, '');
+
+    // درصد فقط تا 30
+    if(val.includes('%')) {
+      let num = parseInt(val);
+      if(isNaN(num)) num = 0;
+      if(num > 30) num = 30;
+      val = num + '%';
+    } else {
+      // عدد تومان حداکثر 7 رقم
+      val = val.slice(0,7);
+    }
+    input.value = val;
+    calculateFinal();
+  }
+  // متغیر تخفیف هوشمند فعال (اندیس)
+  let smartDiscountActive = -1;
+  const smartDiscountValues = [17890000, 17850000, 17800000, 17500000];
+
+  function toggleSmartDiscount(idx) {
+    const buttons = document.querySelectorAll('.smart-discount button');
+    if(smartDiscountActive === idx) {
+      // غیرفعال کردن
+      smartDiscountActive = -1;
+      document.getElementById('manualDiscount').value = '';
+      buttons[idx].classList.remove('active');
+    } else {
+      smartDiscountActive = idx;
+      document.getElementById('manualDiscount').value = '';
+      buttons.forEach((b,i) => {
+        if(i === idx) b.classList.add('active');
+        else b.classList.remove('active');
+      });
+    }
+    calculateFinal();
+  }
+
+  // تغییر مقدار سود فروشنده و نمایش
+  function onProfitInput() {
+    const val = document.getElementById('sellerProfit').value;
+    document.getElementById('profitValue').innerText = val + '٪';
+    calculateFinal();
+  }
+  function calculateFinal() {
+    // قیمت طلا (عدد)
+    let goldPriceStr = document.getElementById('goldPrice').value.replace(/,/g,'');
+    let goldPrice = parseInt(goldPriceStr);
+    if(isNaN(goldPrice)) goldPrice = 0;
+
+    // سود فروشنده
+    let profitPercent = parseInt(document.getElementById('sellerProfit').value);
+    if(isNaN(profitPercent)) profitPercent = 7;
+
+    // مالیات فعال؟
+    let taxEnabled = document.getElementById('taxToggle').checked;
+
+    // جمع اجرت کل و قیمت کل آیتم‌ها
+    let totalAjrat = 0;
+    let totalPriceWithProfit = 0;
+
+    // محاسبه برای هر آیتم طلا
+    let items = document.querySelectorAll('.gold-item');
+    let models = [];
+    for(let item of items) {
+      let model = item.querySelector('.gold-model').value || 'طلا';
+      let weightStr = item.querySelector('.gold-weight').value.replace(/,/g, '');
+      let weight = parseFloat(weightStr);
+      if(isNaN(weight)) weight = 0;
+      let ajratStr = item.querySelector('.ajrat-input').value;
+      let ajratPercent = 0;
+      let ajratAmount = 0;
+      if(ajratStr.endsWith('%')) {
+        ajratPercent = parseInt(ajratStr);
+        if(isNaN(ajratPercent) || ajratPercent < 1) ajratPercent = 0;
+        if(ajratPercent > 30) ajratPercent = 30;
+        ajratAmount = goldPrice * (ajratPercent/100) * weight;
+      } else {
+        ajratAmount = parseInt(ajratStr.replace(/,/g, ''));
+        if(isNaN(ajratAmount) || ajratAmount < 0) ajratAmount = 0;
+      }
+      let priceWithoutProfit = goldPrice * weight + ajratAmount;
+      let profitAmount = priceWithoutProfit * (profitPercent/100);
+      let priceWithProfit = priceWithoutProfit + profitAmount;
+
+      totalAjrat += ajratAmount;
+      totalPriceWithProfit += priceWithProfit;
+      models.push(model);
+    }
+
+    // خرید طلا از مشتری
+    // خرید طلا وزن
+    let buyGoldWeight = parseFloat(document.getElementById('buyGoldWeight').value.replace(/,/g, ''));
+    if(isNaN(buyGoldWeight)) buyGoldWeight = 0;
+    let buyGoldPrice = goldPrice * buyGoldWeight;
+
+    // خرید شمش وزن (وزن * 995/750 * قیمت طلا)
+    let buyShamshWeight = parseFloat(document.getElementById('buyShamshWeight').value.replace(/,/g, ''));
+    if(isNaN(buyShamshWeight)) buyShamshWeight = 0;
+    let buyShamshPrice = buyShamshWeight * 995/750 * goldPrice;
+
+    // خرید پارسیان وزن (ضرب قیمت طلا)
+    let buyParsianWeight = parseFloat(document.getElementById('buyParsianWeight').value.replace(/,/g, ''));
+    if(isNaN(buyParsianWeight)) buyParsianWeight = 0;
+    let buyParsianPrice = buyParsianWeight * goldPrice;
+
+    // خرید سکه: مبلغ دستی وارد شده
+    let buyCoinPriceStr = document.getElementById('buyCoinPrice').value.replace(/,/g,'');
+    let buyCoinPrice = parseInt(buyCoinPriceStr);
+    if(isNaN(buyCoinPrice)) buyCoinPrice = 0;
+
+    // مالیات ۱۰ درصد روی (اجرت + سود)
+    let taxAmount = 0;
+    if(taxEnabled) {
+      taxAmount = (totalAjrat + (totalPriceWithProfit - totalAjrat - (goldPrice * getTotalWeight()))) * 0.1;
+    }
+
+    // تخفیف دستی یا تخفیف هوشمند
+    let manualDiscount = 0;
+    if(smartDiscountActive >= 0) {
+      manualDiscount = smartDiscountValues[smartDiscountActive];
+    } else {
+      let manualDiscountStr = document.getElementById('manualDiscount').value.replace(/,/g, '');
+      manualDiscount = parseInt(manualDiscountStr);
+      if(isNaN(manualDiscount)) manualDiscount = 0;
+    }
+
+    // قیمت نهایی کل
+    let finalPrice = totalPriceWithProfit + taxAmount - manualDiscount;
+
+    // نمایش در فاکتور
+    document.getElementById('finalModel').innerText = models.length >
+      models.length > 0 ? models.join(' ، ') : 'طلا';
+    document.getElementById('finalAjrat').innerText = totalAjrat > 0 ? toFarsiDigits(Math.round(totalAjrat)) + ' تومان' : '-';
+    document.getElementById('finalTax').innerText = taxEnabled && taxAmount > 0 ? toFarsiDigits(Math.round(taxAmount)) + ' تومان' : '-';
+    document.getElementById('finalDiscount').innerText = manualDiscount > 0 ? '-' + toFarsiDigits(Math.round(manualDiscount)) + ' تومان' : '-';
+    document.getElementById('finalPrice').innerText = toFarsiDigits(Math.round(finalPrice > 0 ? finalPrice : 0)) + ' تومان';
+  }
+
+  // جمع کل وزن آیتم های طلا (برای محاسبات)
+  function getTotalWeight() {
+    let total = 0;
+    let items = document.querySelectorAll('.gold-item');
+    for(let item of items) {
+      let weightStr = item.querySelector('.gold-weight').value.replace(/,/g, '');
+      let weight = parseFloat(weightStr);
+      if(!isNaN(weight)) total += weight;
+    }
+    return total;
+  }
+
+  // رویدادهای اولیه
+  document.addEventListener('DOMContentLoaded', () => {
+    addGoldItem(); // حداقل یک آیتم طلا ایجاد کن
+    onProfitInput();
+  });
+
+  // محاسبه نهایی هر چند ثانیه یا تغییرات سریع
+  ['goldPrice', 'buyerName', 'buyerPhone', 'buyGoldWeight', 'buyShamshWeight', 'buyParsianWeight', 'buyCoinPrice', 'manualDiscount', 'taxToggle', 'sellerProfit', 'buyCoinSelect'].forEach(id => {
+    const el = document.getElementById(id);
+    if(el) el.addEventListener('input', calculateFinal);
+  });
 </script>
-
 </body>
 </html>
