@@ -573,32 +573,33 @@
             background-color: #218838;
         }
 
-        /* NEW: Buy Section Styles */
+        /* NEW: Styles for buy sections - no outer container, just header and content */
         .buy-section-container {
-            margin-top: 25px;
-            border: 1px solid #e0e0e0;
-            border-radius: 8px;
-            overflow: hidden; /* For collapsible content */
-            background-color: #f8f8f8;
+            margin-top: 25px; /* Add margin to separate from previous sections */
+            /* Removed border, border-radius, overflow, background-color */
         }
 
         .buy-section-header {
             font-size: 1.1em;
             font-weight: bold;
             color: #34495e;
-            padding: 15px;
-            background-color: #e9ecef;
+            padding: 15px 20px; /* Increased padding */
+            background-color: #f0f0f0; /* Light grey background */
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid #dcdcdc;
-            transition: background-color 0.3s ease;
-            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif; /* Added font */
+            border-top: 1px solid #e0e0e0; /* Top border for separation */
+            border-bottom: 1px solid #e0e0e0; /* Bottom border for separation */
+            border-right: 5px solid #a0d9b4; /* Green border on right for visual emphasis */
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
+            margin-bottom: 15px; /* Space between header and content */
         }
 
         .buy-section-header:hover {
-            background-color: #dee2e6;
+            background-color: #e5e5e5; /* Slightly darker grey on hover */
+            border-right-color: #8cc69e; /* Darker green on hover */
         }
 
         .buy-section-header .toggle-icon {
@@ -614,22 +615,23 @@
             max-height: 0;
             transition: max-height 0.5s ease-out, padding 0.5s ease-out;
             overflow: hidden;
-            padding: 0 15px;
+            padding: 0 0px; /* Removed horizontal padding as items have their own */
             box-sizing: border-box;
         }
         .buy-section-content.expanded {
             max-height: 1000px; /* Adjust as needed */
-            padding: 15px 15px;
+            padding: 0 0px 15px 0px; /* Add bottom padding when expanded */
         }
-
-        /* NEW: Styles for buy gold/parsian/ingot options - more compact */
+        
+        /* Styles for buy gold/parsian/ingot options - more compact and visually appealing */
         .buy-option-group {
-            margin-bottom: 10px; /* Smaller margin */
-            padding: 10px; /* Smaller padding */
-            border: 1px dashed #e0e0e0; /* Lighter dashed border */
-            border-radius: 6px; /* Slightly smaller radius */
-            background-color: #fff;
+            margin-bottom: 12px; /* Slightly larger margin for better separation */
+            padding: 10px 10px 10px 15px; /* Added padding-left for right border effect */
+            border-right: 3px solid #d4f7d4; /* Light green right border */
+            background-color: #fefefe;
             position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05); /* Very subtle shadow */
+            border-radius: 4px; /* Slight rounding for items */
         }
         .buy-option-group:last-child {
             margin-bottom: 0;
@@ -637,12 +639,12 @@
 
         .buy-option-group .remove-buy-item {
             position: absolute;
-            top: 3px; /* Adjust position */
-            left: 3px; /* Adjust position */
+            top: 5px; /* Adjust position */
+            left: 5px; /* Adjust position */
             background: none;
             border: none;
             color: #e74c3c;
-            font-size: 1em; /* Smaller icon */
+            font-size: 1.1em; /* Slightly larger icon */
             cursor: pointer;
             padding: 3px; /* Smaller padding for button */
             border-radius: 50%;
@@ -654,12 +656,13 @@
 
         /* NEW: Coin section specific styles - flatter structure */
         .coin-item-group { /* Replaces buy-option-group for coins, to be direct child of container */
-            margin-bottom: 10px; /* Consistent margin */
-            padding: 10px;
-            border: 1px dashed #e0e0e0;
-            border-radius: 6px;
-            background-color: #fff;
+            margin-bottom: 12px; /* Consistent margin */
+            padding: 10px 10px 10px 15px; /* Consistent padding */
+            border-right: 3px solid #d4f7d4; /* Consistent border */
+            background-color: #fefefe;
             position: relative;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-radius: 4px;
         }
         .coin-item-group:last-child {
             margin-bottom: 0;
@@ -667,12 +670,12 @@
 
         .coin-item-group .remove-buy-item { /* Reuse remove-buy-item for outer coin group */
             position: absolute;
-            top: 3px;
-            left: 3px;
+            top: 5px;
+            left: 5px;
             background: none;
             border: none;
             color: #e74c3c;
-            font-size: 1em;
+            font-size: 1.1em;
             cursor: pointer;
             padding: 3px;
             border-radius: 50%;
@@ -687,10 +690,8 @@
             align-items: center;
             gap: 8px; /* Slightly smaller gap */
             margin-bottom: 8px; /* Smaller margin for rows */
-            /* background-color: #f9f9f9; */ /* Removed background */
-            /* border: 1px solid #eee; */ /* Removed border */
-            padding: 0; /* Removed padding */
-            border-radius: 3px; /* Smaller border radius */
+            padding: 0;
+            border-radius: 3px;
         }
         .coin-sub-item:last-of-type {
             margin-bottom: 0;
@@ -699,12 +700,48 @@
             background: none;
             border: none;
             color: #e74c3c;
-            font-size: 1em; /* Smaller icon */
+            font-size: 1.1em; /* Slightly larger icon */
             cursor: pointer;
             padding: 3px;
+            transition: background-color 0.2s;
+            border-radius: 50%;
         }
+        .coin-sub-item .coin-remove-button:hover {
+            background-color: #ffe0e0;
+        }
+
+        /* NEW: Icon buttons for adding items */
+        .add-item-icon-button {
+            background-color: #6c757d; /* Grey */
+            color: white;
+            width: 30px; /* Smaller square button */
+            height: 30px;
+            border-radius: 50%; /* Circular */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5em; /* Large plus sign */
+            line-height: 1; /* Center plus sign vertically */
+            padding: 0;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            float: left; /* Aligned to the left */
+            margin-left: 10px; /* Space from the right edge of container */
+            margin-top: -5px; /* Adjust vertically to align with labels/inputs */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .add-item-icon-button:hover {
+            background-color: #5a6268;
+            transform: scale(1.05); /* Slight scale effect on hover */
+        }
+        .add-item-icon-button::before {
+            content: '+';
+        }
+
+        /* Specific style for add coin button within its group (still centered) */
         .add-coin-button {
-            background-color: #4CAF50;
+            background-color: #4CAF50; /* Green */
             color: white;
             padding: 6px 10px; /* Smaller padding */
             border: none;
@@ -720,22 +757,12 @@
         .add-coin-button:hover {
             background-color: #45a049;
         }
-        /* New: Button for adding buy items - smaller */
-        .add-buy-item-button {
-            background-color: #6c757d;
-            color: white;
-            padding: 8px 12px; /* Smaller padding */
-            border: none;
-            border-radius: 6px; /* Slightly smaller radius */
-            cursor: pointer;
-            font-size: 0.85em; /* Smaller font size */
-            width: auto;
-            transition: background-color 0.3s ease;
-            display: block;
-            margin: 15px auto 0 auto; /* Adjust margin */
-        }
-        .add-buy-item-button:hover {
-            background-color: #5a6268;
+        
+        /* Clearfix for floated elements */
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
         }
 
 
@@ -866,7 +893,7 @@
                 margin: 2px 0;
             }
             .buy-option-group .remove-buy-item,
-            .add-buy-item-button,
+            .add-item-icon-button, /* Hide the new icon buttons */
             .coin-item-group .remove-buy-item,
             .add-coin-button,
             .coin-sub-item .coin-remove-button,
@@ -902,7 +929,15 @@
                 padding: 8px 13px;
                 font-size: 0.95em;
             }
-            .add-buy-item-button, .add-coin-button { /* Adjust size for new buttons */
+            /* Adjusted for new icon buttons on smaller screens */
+            .add-item-icon-button {
+                width: 28px;
+                height: 28px;
+                font-size: 1.4em;
+                margin-left: 8px;
+                margin-top: -3px;
+            }
+            .add-coin-button { /* Still separate for its specific location */
                 padding: 6px 10px;
                 font-size: 0.8em;
             }
@@ -941,6 +976,11 @@
             }
             .generated-invoice-display p {
                 font-size: 0.85em; /* Even smaller for invoice on mobile */
+            }
+            /* Buy section header adjustments for smaller screens */
+            .buy-section-header {
+                font-size: 1em;
+                padding: 12px 15px;
             }
         }
     </style>
@@ -1002,8 +1042,10 @@
         <button type="button" class="add-item-button" onclick="addItem()">افزودن آیتم جدید</button>
 
         <div class="buy-section-container" id="buyGoldSection">
-            <h2 class="buy-section-header" onclick="toggleBuySection('buyGoldSection')">
-                خرید طلا (از مشتری) <span class="toggle-icon">▼</span>
+            <h2 class="buy-section-header clearfix" onclick="toggleBuySection('buyGoldSection')">
+                خرید طلا (از مشتری) 
+                <button type="button" class="add-item-icon-button" onclick="event.stopPropagation(); addBuyGoldItem()"></button>
+                <span class="toggle-icon">▼</span>
             </h2>
             <div class="buy-section-content">
                 <div id="buyGoldItemContainer">
@@ -1015,13 +1057,14 @@
                         </div>
                     </div>
                 </div>
-                <button type="button" class="add-buy-item-button" onclick="addBuyGoldItem()">افزودن طلای جدید</button>
             </div>
         </div>
 
         <div class="buy-section-container" id="buyCoinSection">
-            <h2 class="buy-section-header" onclick="toggleBuySection('buyCoinSection')">
-                خرید سکه (از مشتری) <span class="toggle-icon">▼</span>
+            <h2 class="buy-section-header clearfix" onclick="toggleBuySection('buyCoinSection')">
+                خرید سکه (از مشتری) 
+                <button type="button" class="add-item-icon-button" onclick="event.stopPropagation(); addBuyCoinItem()"></button>
+                <span class="toggle-icon">▼</span>
             </h2>
             <div class="buy-section-content">
                 <div id="buyCoinItemContainer">
@@ -1050,17 +1093,21 @@
         </div>
 
         <div class="buy-section-container" id="buyParsianIngotSection">
-            <h2 class="buy-section-header" onclick="toggleBuySection('buyParsianIngotSection')">
-                خرید پارسیان و شمش (از مشتری) <span class="toggle-icon">▼</span>
+            <h2 class="buy-section-header clearfix" onclick="toggleBuySection('buyParsianIngotSection')">
+                خرید پارسیان و شمش (از مشتری)
+                <button type="button" class="add-item-icon-button" onclick="event.stopPropagation(); addBuyParsianIngotItem()"></button>
+                <span class="toggle-icon">▼</span>
             </h2>
             <div class="buy-section-content">
                 <div class="buy-option-group" data-buy-item-id="parsian1">
+                    <button type="button" class="remove-buy-item" onclick="removeBuyItem(this)">✖</button>
                     <div class="form-group parsian-input-wrapper">
                         <label for="buyParsianWeight1">وزن سکه پارسیان (گرم):</label>
                         <input type="text" id="buyParsianWeight1" class="buy-option-input parsian-buy-weight" inputmode="decimal">
                     </div>
                 </div>
                 <div class="buy-option-group" data-buy-item-id="ingot1">
+                    <button type="button" class="remove-buy-item" onclick="removeBuyItem(this)">✖</button>
                     <div class="form-group ingot-input-wrapper">
                         <label for="buyIngotWeight1">وزن شمش (گرم):</label>
                         <input type="text" id="buyIngotWeight1" class="buy-option-input ingot-buy-weight" inputmode="decimal">
@@ -1143,6 +1190,9 @@
         let itemIdCounter = 1;
         let buyGoldItemIdCounter = 1; // Counter for "خرید طلا" items
         let buyCoinGroupCounter = 1; // Counter for "خرید سکه" groups (each group can have multiple coins)
+        let buyParsianItemIdCounter = 1; // Counter for Parsian items
+        let buyIngotItemIdCounter = 1; // Counter for Ingot items
+
         let activeDiscountValue = 0;
         let activeDiscountType = null;
 
@@ -1551,11 +1601,30 @@
             calculateFactor();
         }
 
+        function addBuyParsianIngotItem() {
+            // This function adds a new "buy-option-group" for either Parsian or Ingot.
+            // For simplicity, we are assuming one Parsian and one Ingot input field for now,
+            // but if more dynamic adding is desired for these, this function would be expanded.
+            // Currently, the "add item icon button" for this section doesn't add a new group,
+            // but opens the section. If you want to add multiple Parsian/Ingot entries,
+            // we'd need to create new IDs and elements similarly to `addBuyGoldItem`.
+            // For now, this button on the header just expands the section.
+            console.log("Adding Parsian/Ingot item logic. Currently, only one input field per type is shown.");
+        }
+
+
         function removeBuyItem(button) {
             const buyItemRow = button.closest('.buy-option-group') || button.closest('.coin-item-group'); // Check both classes
             const parentContainer = buyItemRow.closest('.buy-section-content').querySelector('div[id$="ItemContainer"]');
             
-            if (parentContainer && parentContainer.querySelectorAll('.buy-option-group, .coin-item-group').length === 1) { // Check both
+            if (!parentContainer) { // This handles Parsian/Ingot sections which don't have an ItemContainer but are directly in content
+                if (buyItemRow.classList.contains('buy-option-group')) { // Covers parsian/ingot
+                    buyItemRow.querySelectorAll('input, select').forEach(input => input.value = '');
+                    // For Parsian/Ingot, we always have 2 default groups, so don't remove the last one, just clear.
+                    // If you want dynamic adding/removing for these, the logic below would need to be changed
+                    // to track counters for each, similar to gold/coin.
+                }
+            } else if (parentContainer.querySelectorAll('.buy-option-group, .coin-item-group').length === 1) { // Check both
                 // If it's the last item in its container, just clear inputs instead of removing
                 buyItemRow.querySelectorAll('input, select').forEach(input => input.value = '');
                 // For coin items, also ensure the inner coin-sub-items are reset to one
@@ -1571,7 +1640,10 @@
             } else {
                 buyItemRow.remove();
             }
-            updateRemoveBuyButtonsVisibility(parentContainer.id);
+            // Update visibility for all containers as their logic might be different for removing/clearing
+            updateRemoveBuyButtonsVisibility('buyGoldItemContainer');
+            updateRemoveBuyButtonsVisibility('buyCoinItemContainer');
+            updateRemoveBuyButtonsVisibility('buyParsianIngotSection'); // For Parsian/Ingot directly
             calculateFactor();
         }
 
@@ -1579,13 +1651,22 @@
             const container = document.getElementById(containerId);
             if (!container) return; 
 
-            const items = container.querySelectorAll('.buy-option-group, .coin-item-group'); // Check both
-            if (items.length === 1) {
-                items[0].querySelector('.remove-buy-item').style.display = 'none';
-            } else {
-                items.forEach(item => {
-                    item.querySelector('.remove-buy-item').style.display = 'block';
+            // Special handling for Parsian/Ingot, which don't have an "ItemContainer" suffix
+            if (containerId === 'buyParsianIngotSection') {
+                const parsianIngotGroups = container.querySelectorAll('.buy-option-group');
+                // Always show remove for Parsian/Ingot if there's at least one, as they are fixed
+                parsianIngotGroups.forEach(group => {
+                    group.querySelector('.remove-buy-item').style.display = 'block'; // Always show for these fixed items
                 });
+            } else { // For gold and coin item containers
+                const items = container.querySelectorAll('.buy-option-group, .coin-item-group'); // Check both
+                if (items.length === 1) {
+                    items[0].querySelector('.remove-buy-item').style.display = 'none';
+                } else {
+                    items.forEach(item => {
+                        item.querySelector('.remove-buy-item').style.display = 'block';
+                    });
+                }
             }
         }
 
@@ -2235,6 +2316,7 @@
             updateRemoveButtonsVisibility();
             updateRemoveBuyButtonsVisibility('buyGoldItemContainer'); 
             updateRemoveBuyButtonsVisibility('buyCoinItemContainer'); 
+            updateRemoveBuyButtonsVisibility('buyParsianIngotSection'); // Ensure initial visibility for parsian/ingot too
 
             addInputEventListeners(document); 
             updateGoldPriceDisplay(); 
