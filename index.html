@@ -359,29 +359,46 @@
             font-size: 0.95em;
             color: #38761d;
             flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
         }
-        .suggested-discount-text strong {
+        .suggested-discount-text .amount {
+            font-weight: bold;
             color: #2f5f2f;
         }
-
-        .apply-discount-button {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            text-align: center;
-            text-decoration: none;
-            display: inline-block;
-            font-size: 0.8em;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            white-space: nowrap;
-            margin-right: 10px;
+        .suggested-discount-text .final-price {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 2px;
+            direction: rtl; /* For mixed LTR/RTL content */
+        }
+        .suggested-discount-text .final-price span {
+            direction: ltr; /* Ensure numbers are LTR */
         }
 
-        .apply-discount-button.remove {
-            background-color: #e74c3c;
+        .apply-discount-icon {
+            font-size: 1.5em;
+            color: #ccc;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            transition: color 0.2s, background-color 0.2s;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px; /* Make it a square for better click area */
+            height: 30px;
+        }
+
+        .apply-discount-icon:hover {
+            background-color: #e6ffe6;
+        }
+
+        .apply-discount-icon.active {
+            color: #28a745; /* Green for active */
+            background-color: #e6ffe6;
         }
 
         @media (max-width: 600px) {
@@ -414,12 +431,14 @@
                 gap: 10px;
             }
             .suggested-discount-item {
-                flex-direction: column;
-                align-items: flex-start;
+                flex-direction: row; /* Keep row layout, but maybe wrap text */
+                align-items: center;
                 gap: 5px;
             }
-            .apply-discount-button {
-                width: 100%;
+            .suggested-discount-text {
+                align-items: flex-start; /* Ensure text aligns left */
+            }
+            .apply-discount-icon {
                 margin-right: 0;
             }
         }
@@ -523,7 +542,8 @@
         const discountInput = document.getElementById('discount');
 
         let itemIdCounter = 1;
-        let activeDiscountType = null; // 'round' or 'big' or null
+        let activeDiscountValue = 0; // Stores the value of the currently applied suggested discount
+        let activeDiscountType = null; // Stores the type ('round10k', 'round50k', 'round100k')
 
         function convertToFarsiDigits(num) {
             if (num === null || num === undefined || num === '') {
@@ -857,7 +877,8 @@
             const profitRate = parseFloat(profitRateElement.value) / 100;
             const includeTax = document.getElementById('includeTax').checked;
             
-            let discountAmount = parseFloat(convertToEnglishDigits(discountInput.value.replace(/,/g, ''))) || 0;
+            // Get current discount from input, if any. This is for manual entry.
+            let currentManualDiscount = parseFloat(convertToEnglishDigits(discountInput.value.replace(/,/g, ''))) || 0;
 
             profitRateElement.innerHTML = '';
             for (let i = 1; i <= 7; i++) {
@@ -888,9 +909,9 @@
                 let buyWeight = parseFloat(convertToEnglishDigits((buyWeightInput ? buyWeightInput.value : '0'))) || 0;
 
                 // Only format for display if value exists and is not 0
-                weightInput.value = weight === 0 ? '' : convertToFarsiDigits(String(weight));
+                weightInput.value = (weight === 0 && weightInput.value.trim() === '') ? '' : convertToFarsiDigits(String(weight));
                 if (buyWeightInput) {
-                    buyWeightInput.value = buyWeight === 0 ? '' : convertToFarsiDigits(String(buyWeight));
+                    buyWeightInput.value = (buyWeight === 0 && buyWeightInput.value.trim() === '') ? '' : convertToFarsiDigits(String(buyWeight));
                 }
 
                 const productType = productTypeSelect ? productTypeSelect.value : '';
@@ -934,150 +955,105 @@
                 `;
             });
 
-            let totalFinalPrice = totalOverallPriceWithoutTax;
+            let baseTotalFinalPrice = totalOverallPriceWithoutTax;
             if (includeTax) {
-                totalFinalPrice += totalCalculatedTax;
+                baseTotalFinalPrice += totalCalculatedTax;
+            }
+            baseTotalFinalPrice -= totalDeductedAmount;
+
+            let finalPriceAfterDiscount = baseTotalFinalPrice;
+            
+            // --- Suggested discount logic ---
+            const roundedPrice = Math.round(baseTotalFinalPrice);
+            let suggestedDiscounts = [];
+
+            // 1. Round to nearest 10,000 down
+            const remainder10k = roundedPrice % 10000;
+            if (remainder10k > 0) {
+                const discount = remainder10k;
+                const newFinalPrice = roundedPrice - discount;
+                if (newFinalPrice >= 0) { // Ensure price doesn't go negative
+                    suggestedDiscounts.push({
+                        type: 'round10k',
+                        text: 'رند به ۱۰ هزار تومان پایین‌تر:',
+                        discountAmount: discount,
+                        finalPrice: newFinalPrice
+                    });
+                }
             }
 
-            totalFinalPrice -= totalDeductedAmount;
+            // 2. Round to nearest 50,000 down
+            const remainder50k = roundedPrice % 50000;
+            if (remainder50k > 0) {
+                const discount = remainder50k;
+                const newFinalPrice = roundedPrice - discount;
+                 if (newFinalPrice >= 0 && discount > (suggestedDiscounts[0] ? suggestedDiscounts[0].discountAmount : 0)) {
+                    suggestedDiscounts.push({
+                        type: 'round50k',
+                        text: 'رند به ۵۰ هزار تومان پایین‌تر:',
+                        discountAmount: discount,
+                        finalPrice: newFinalPrice
+                    });
+                }
+            }
 
-            // --- Suggested discount logic (round to nearest 100,000 or 50,000 if not too far) ---
-            const roundedPrice = Math.round(totalFinalPrice);
-            
-            let potentialSuggestedDiscountRound = 0; // The smaller discount (50k/100k rounding)
+            // 3. Round to nearest 100,000 down
             const remainder100k = roundedPrice % 100000;
-            if (remainder100k !== 0) {
-                if (remainder100k >= 50000) { // Round up to nearest 100k but effectively give discount to nearest 50k
-                    potentialSuggestedDiscountRound = remainder100k - 50000;
-                    if (potentialSuggestedDiscountRound < 0) potentialSuggestedDiscountRound = remainder100k; // if remainder is 90k, should offer 90k
-                } else {
-                    potentialSuggestedDiscountRound = remainder100k;
+            if (remainder100k > 0) {
+                const discount = remainder100k;
+                const newFinalPrice = roundedPrice - discount;
+                if (newFinalPrice >= 0 && discount > (suggestedDiscounts[suggestedDiscounts.length - 1] ? suggestedDiscounts[suggestedDiscounts.length - 1].discountAmount : 0)) {
+                    suggestedDiscounts.push({
+                        type: 'round100k',
+                        text: 'رند به ۱۰۰ هزار تومان پایین‌تر:',
+                        discountAmount: discount,
+                        finalPrice: newFinalPrice
+                    });
                 }
-            }
-
-
-            let potentialBigSuggestedDiscount = 0; // The larger discount (rounding to 500k/100k points)
-            const floorMillions = Math.floor(roundedPrice / 1000000);
-            const remainderAfterMillions = roundedPrice % 1000000;
-
-            let targetRoundedPriceForBigDiscount = 0;
-            if (remainderAfterMillions >= 500000) {
-                targetRoundedPriceForBigDiscount = floorMillions * 1000000 + 500000;
-            } else if (remainderAfterMillions > 0) { // If there's any remainder, round down to the nearest 100k interval within the million
-                targetRoundedPriceForBigDiscount = floorMillions * 1000000 + Math.floor(remainderAfterMillions / 100000) * 100000;
-            } else { // Exactly on a million mark
-                targetRoundedPriceForBigDiscount = floorMillions * 1000000;
             }
             
-            potentialBigSuggestedDiscount = roundedPrice - targetRoundedPriceForBigDiscount;
-            if (potentialBigSuggestedDiscount < 0) { // Ensure discount is positive
-                potentialBigSuggestedDiscount = 0;
-            }
+            // Sort discounts by amount (smallest to largest)
+            suggestedDiscounts.sort((a, b) => a.discountAmount - b.discountAmount);
 
-            // Render suggested discounts
             let suggestionsHtml = '';
-
-            // Rule: If big discount is 0, don't show it.
-            // If big discount covers the 'round' discount, only show big discount.
-            if (potentialBigSuggestedDiscount > 0) {
-                 // Check if the 'big' discount effectively covers the 'round' discount's intent
-                if (potentialBigSuggestedDiscount >= potentialSuggestedDiscountRound && potentialSuggestedDiscountRound > 0) {
-                    // Only show big discount if it's more significant or covers the small one
+            if (suggestedDiscounts.length > 0) {
+                suggestedDiscounts.forEach(sug => {
                     suggestionsHtml += `
                         <div class="suggested-discount-item">
                             <div class="suggested-discount-text">
-                                <span>پیشنهاد تخفیف (رند به پایین): </span>
-                                <strong>${formatCurrency(potentialBigSuggestedDiscount)}</strong> <span>تومان</span>
+                                <span>${sug.text}</span>
+                                <span class="amount">${formatCurrency(sug.discountAmount)} تومان</span>
+                                <span class="final-price">(قیمت نهایی: <span dir="ltr">${formatCurrency(sug.finalPrice)}</span>)</span>
                             </div>
-                            <button type="button" class="apply-discount-button" onclick="applySuggestedDiscount(${potentialBigSuggestedDiscount}, 'big', this)">
-                                ${activeDiscountType === 'big' ? 'حذف' : 'اعمال'}
-                            </button>
+                            <span class="apply-discount-icon ${activeDiscountType === sug.type ? 'active' : ''}" 
+                                  onclick="applySuggestedDiscount(${sug.discountAmount}, '${sug.type}', this)">✓</span>
                         </div>
                     `;
-                } else if (potentialSuggestedDiscountRound > 0) { // Both can be displayed if not overlapping this way
-                    suggestionsHtml += `
-                        <div class="suggested-discount-item">
-                            <div class="suggested-discount-text">
-                                <span>پیشنهاد تخفیف (رند به پایین): </span>
-                                <strong>${formatCurrency(potentialSuggestedDiscountRound)}</strong> <span>تومان</span>
-                            </div>
-                            <button type="button" class="apply-discount-button" onclick="applySuggestedDiscount(${potentialSuggestedDiscountRound}, 'round', this)">
-                                ${activeDiscountType === 'round' ? 'حذف' : 'اعمال'}
-                            </button>
-                        </div>
-                    `;
-                    suggestionsHtml += `
-                        <div class="suggested-discount-item">
-                            <div class="suggested-discount-text">
-                                <span>پیشنهاد تخفیف (رند به پایین): </span>
-                                <strong>${formatCurrency(potentialBigSuggestedDiscount)}</strong> <span>تومان</span>
-                            </div>
-                            <button type="button" class="apply-discount-button" onclick="applySuggestedDiscount(${potentialBigSuggestedDiscount}, 'big', this)">
-                                ${activeDiscountType === 'big' ? 'حذف' : 'اعمال'}
-                            </button>
-                        </div>
-                    `;
-                } else { // Only big discount is applicable
-                     suggestionsHtml += `
-                        <div class="suggested-discount-item">
-                            <div class="suggested-discount-text">
-                                <span>پیشنهاد تخفیف (رند به پایین): </span>
-                                <strong>${formatCurrency(potentialBigSuggestedDiscount)}</strong> <span>تومان</span>
-                            </div>
-                            <button type="button" class="apply-discount-button" onclick="applySuggestedDiscount(${potentialBigSuggestedDiscount}, 'big', this)">
-                                ${activeDiscountType === 'big' ? 'حذف' : 'اعمال'}
-                            </button>
-                        </div>
-                    `;
-                }
-            } else if (potentialSuggestedDiscountRound > 0) { // Only small discount is applicable
-                suggestionsHtml += `
-                    <div class="suggested-discount-item">
-                        <div class="suggested-discount-text">
-                            <span>پیشنهاد تخفیف (رند به پایین): </span>
-                            <strong>${formatCurrency(potentialSuggestedDiscountRound)}</strong> <span>تومان</span>
-                        </div>
-                        <button type="button" class="apply-discount-button" onclick="applySuggestedDiscount(${potentialSuggestedDiscountRound}, 'round', this)">
-                            ${activeDiscountType === 'round' ? 'حذف' : 'اعمال'}
-                        </button>
-                    </div>
-                `;
-            }
-
-            if (suggestionsHtml) {
+                });
                 suggestedDiscountsSection.innerHTML = suggestionsHtml;
                 suggestedDiscountsSection.style.display = 'block';
             } else {
                 suggestedDiscountsSection.style.display = 'none';
             }
 
-            // Apply active discount to input field
-            if (activeDiscountType === 'round' && potentialSuggestedDiscountRound > 0) {
-                discountAmount = potentialSuggestedDiscountRound;
-            } else if (activeDiscountType === 'big' && potentialBigSuggestedDiscount > 0) {
-                discountAmount = potentialBigSuggestedDiscount;
-            } else {
-                // If the manually entered discount is active, keep it.
-                // Otherwise, ensure the discount input reflects 0 if no suggested discount is applied.
-                if (activeDiscountType === null) {
-                    discountInput.value = formatNumberWithCommas(discountInput.value);
-                    discountAmount = parseFloat(convertToEnglishDigits(discountInput.value.replace(/,/g, ''))) || 0;
-                } else {
-                    discountAmount = 0; // If an active discount type is set but its value is 0, clear discount
+            // Determine final discount amount to apply
+            let discountToApply = 0;
+            if (activeDiscountType !== null) { // A suggested discount is active
+                const activeSug = suggestedDiscounts.find(sug => sug.type === activeDiscountType);
+                if (activeSug) {
+                    discountToApply = activeSug.discountAmount;
+                    discountInput.value = formatNumberWithCommas(activeSug.discountAmount);
+                } else { // The previously active suggested discount is no longer valid (e.g., due to price change)
+                    activeDiscountType = null;
+                    activeDiscountValue = 0;
                     discountInput.value = '';
                 }
+            } else { // No suggested discount active, check manual input
+                discountToApply = currentManualDiscount;
+                discountInput.value = formatNumberWithCommas(currentManualDiscount);
             }
             
-            // This is crucial: make sure the discount input always displays the active discount if one is set.
-            if (activeDiscountType === 'round' && potentialSuggestedDiscountRound > 0) {
-                discountInput.value = formatNumberWithCommas(potentialSuggestedDiscountRound);
-            } else if (activeDiscountType === 'big' && potentialBigSuggestedDiscount > 0) {
-                discountInput.value = formatNumberWithCommas(potentialBigSuggestedDiscount);
-            } else if (activeDiscountType !== null) { // If a discount type was active but now its value is 0
-                discountInput.value = '';
-            }
-
-            totalFinalPrice -= discountAmount;
+            finalPriceAfterDiscount -= discountToApply;
 
             const resultSection = document.getElementById('resultSection');
             resultSection.innerHTML = itemResultsHtml;
@@ -1100,11 +1076,11 @@
                 `;
             }
 
-            if (discountAmount > 0) {
+            if (discountToApply > 0) {
                 resultSection.innerHTML += `
                     <div class="result-item discount-amount">
                         <span>کسر بابت تخفیف:</span>
-                        <span>${formatCurrency(discountAmount)}</span>
+                        <span>${formatCurrency(discountToApply)}</span>
                     </div>
                 `;
             }
@@ -1112,44 +1088,33 @@
             resultSection.innerHTML += `
                 <div class="result-item final-total">
                     <span>قیمت کل:</span>
-                    <span>${formatCurrency(totalFinalPrice)}</span>
+                    <span>${formatCurrency(finalPriceAfterDiscount)}</span>
                 </div>
             `;
         }
 
-        function applySuggestedDiscount(amount, type, buttonElement) {
+        function applySuggestedDiscount(amount, type, iconElement) {
             // If this discount type is already active, deactivate it
             if (activeDiscountType === type) {
                 activeDiscountType = null;
+                activeDiscountValue = 0;
                 discountInput.value = ''; // Clear manual discount
             } else {
-                // If another discount type was active, deactivate it first
-                if (activeDiscountType !== null) {
-                    const prevActiveButton = document.querySelector(`.apply-discount-button[data-discount-type="${activeDiscountType}"]`);
-                    if (prevActiveButton) {
-                        prevActiveButton.textContent = 'اعمال';
-                        prevActiveButton.classList.remove('remove');
-                    }
-                }
+                // Deactivate all other icons
+                document.querySelectorAll('.apply-discount-icon').forEach(icon => {
+                    icon.classList.remove('active');
+                });
+
                 activeDiscountType = type;
+                activeDiscountValue = amount;
                 discountInput.value = formatNumberWithCommas(amount);
             }
-
-            // Update all buttons' states
-            document.querySelectorAll('.apply-discount-button').forEach(btn => {
-                const btnType = btn.dataset.discountType;
-                if (btnType === activeDiscountType) {
-                    btn.textContent = 'حذف';
-                    btn.classList.add('remove');
-                } else {
-                    btn.textContent = 'اعمال';
-                    btn.classList.remove('remove');
-                }
-            });
+            
+            // Toggle active class on clicked icon
+            iconElement.classList.toggle('active', activeDiscountType === type);
 
             calculateFactor();
         }
-
 
         function addInputEventListeners(element) {
             element.querySelectorAll('input, select').forEach(input => {
@@ -1179,20 +1144,20 @@
                         if (cleanValue.endsWith('.')) {
                             cleanValue = cleanValue.slice(0, -1);
                         }
-                        e.target.value = cleanValue === '' ? '' : convertToFarsiDigits(cleanValue); // Only format if not empty
+                        e.target.value = (cleanValue === '' || parseFloat(cleanValue) === 0) ? '' : convertToFarsiDigits(cleanValue);
                         calculateFactor();
                     });
                      // Set initial display to empty if value is 0 or empty
-                     if (parseFloat(convertToEnglishDigits(input.value)) === 0) {
+                     if (parseFloat(convertToEnglishDigits(input.value)) === 0 && input.value.trim() === '') {
                         input.value = '';
                     }
                 } else if (input.id === 'discount') {
                     input.addEventListener('input', (e) => {
                         // Reset active suggested discount if manual discount is entered
                         activeDiscountType = null;
-                        document.querySelectorAll('.apply-discount-button').forEach(btn => {
-                            btn.textContent = 'اعمال';
-                            btn.classList.remove('remove');
+                        activeDiscountValue = 0;
+                        document.querySelectorAll('.apply-discount-icon').forEach(icon => {
+                            icon.classList.remove('active');
                         });
 
                         let value = convertToEnglishDigits(e.target.value.replace(/,/g, ''));
