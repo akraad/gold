@@ -1469,6 +1469,9 @@
         }
 
         function generateInvoiceDisplay() {
+            // Ensure calculations are up-to-date before generating invoice
+            calculateFactor(); 
+
             const customerName = document.getElementById('customerName').value.trim();
             const customerPhone = document.getElementById('customerPhone').value.trim();
             const generatedInvoiceDisplay = document.getElementById('generatedInvoiceDisplay');
@@ -1505,6 +1508,7 @@
                             let wageDisplay = '';
                             if (item.wageType === 'percent') {
                                 const originalWeightPrice = finalCalculatedData.goldPricePerGram * item.weight;
+                                // Recalculate original percentage for display accuracy
                                 const originalWagePercent = (item.wage / originalWeightPrice) * 100;
                                 wageDisplay = `${convertToFarsiDigits(originalWagePercent.toFixed(2))}%`;
                             } else {
@@ -1541,7 +1545,7 @@
             }
 
             // --- تخفیف ---
-            if (finalCalculData.discountAmount > 0) {
+            if (finalCalculatedData.discountAmount > 0) {
                 invoiceHtml += `<div class="invoice-section-divider"></div>`; // Divider
                 invoiceHtml += `<p class="discount-value">تخفیف: ${formatCurrency(finalCalculatedData.discountAmount)} تومان</p>`;
             }
