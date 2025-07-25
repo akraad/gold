@@ -335,67 +335,53 @@
             padding-right: 15px;
         }
 
-        .suggested-discount-container {
-            /* Keep background and border for normal suggested discount */
+        .suggested-discounts-section {
             background-color: #f0fff0;
             border: 1px solid #e0eee0;
             border-left: 5px solid #8fbc8f;
-            padding: 10px 15px;
+            padding: 15px;
             margin-top: 10px;
             border-radius: 8px;
+        }
+
+        .suggested-discount-item {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            min-height: 48px; /* Standardize height */
-            box-sizing: border-box;
+            padding: 8px 0;
+            border-bottom: 1px dashed #dcdcdc;
+        }
+        .suggested-discount-item:last-child {
+            border-bottom: none;
         }
 
         .suggested-discount-text {
-            font-size: 0.9em;
+            font-size: 0.95em;
             color: #38761d;
-            flex-grow: 1; /* Allow text to grow and fill space */
+            flex-grow: 1;
         }
-        
-        /* Specific style for "bigger" discount */
-        .suggested-discount-container.bold {
-            border-left-color: #8A2BE2; /* BlueViolet for "bigger" discount */
-            background-color: #E6E6FA; /* Lavender for background */
-            font-weight: bold;
-        }
-        .suggested-discount-container.bold .suggested-discount-text {
-            color: #4B0082; /* Indigo text */
+        .suggested-discount-text strong {
+            color: #2f5f2f;
         }
 
         .apply-discount-button {
             background-color: #4CAF50;
             color: white;
             border: none;
-            padding: 8px 12px;
+            padding: 5px 10px;
             text-align: center;
             text-decoration: none;
             display: inline-block;
-            font-size: 0.85em;
+            font-size: 0.8em;
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
-            white-space: nowrap; /* Prevent button text from wrapping */
-            margin-right: 10px; /* Space between text and button */
+            white-space: nowrap;
+            margin-right: 10px;
         }
 
         .apply-discount-button.remove {
             background-color: #e74c3c;
-        }
-
-        /* Specific button color for the "bigger" discount */
-        .suggested-discount-container.bold .apply-discount-button {
-            background-color: #8A2BE2; /* BlueViolet to match border */
-        }
-        .suggested-discount-container.bold .apply-discount-button.remove {
-            background-color: #e74c3c; /* Still red for remove */
-        }
-
-        .apply-discount-button:hover {
-            opacity: 0.9;
         }
 
         @media (max-width: 600px) {
@@ -427,14 +413,14 @@
                 flex-direction: column;
                 gap: 10px;
             }
-            .suggested-discount-container {
+            .suggested-discount-item {
                 flex-direction: column;
                 align-items: flex-start;
                 gap: 5px;
             }
             .apply-discount-button {
                 width: 100%;
-                margin-right: 0; /* Remove margin for full width button */
+                margin-right: 0;
             }
         }
     </style>
@@ -523,25 +509,8 @@
             <input type="text" id="discount" class="discount-input">
         </div>
 
-        <div id="suggestedDiscountContainer" style="display: none;">
-            <div class="suggested-discount-container">
-                <div class="suggested-discount-text">
-                    <span>پیشنهاد تخفیف برای رند شدن قیمت به پایین: </span>
-                    <span id="suggestedDiscountAmount"></span> <span>تومان</span>
-                </div>
-                <button id="applyDiscountButton" class="apply-discount-button">اعمال تخفیف</button>
+        <div id="suggestedDiscountsSection" class="suggested-discounts-section" style="display: none;">
             </div>
-        </div>
-
-        <div id="bigSuggestedDiscountContainer" style="display: none;">
-            <div class="suggested-discount-container bold">
-                <div class="suggested-discount-text">
-                    <span>تخفیف بیشتر! رند شدن به پایین: </span>
-                    <span id="bigSuggestedDiscountAmount"></span> <span>تومان</span>
-                </div>
-                <button id="applyBigDiscountButton" class="apply-discount-button">اعمال تخفیف</button>
-            </div>
-        </div>
 
         <div class="result-section" id="resultSection">
         </div>
@@ -550,21 +519,14 @@
     <script>
         const farsiDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
         const itemContainer = document.getElementById('itemContainer');
-        const suggestedDiscountContainer = document.getElementById('suggestedDiscountContainer');
-        const suggestedDiscountAmountElement = document.getElementById('suggestedDiscountAmount');
-        const applyDiscountButton = document.getElementById('applyDiscountButton');
-        const bigSuggestedDiscountContainer = document.getElementById('bigSuggestedDiscountContainer');
-        const bigSuggestedDiscountAmountElement = document.getElementById('bigSuggestedDiscountAmount');
-        const applyBigDiscountButton = document.getElementById('applyBigDiscountButton');
+        const suggestedDiscountsSection = document.getElementById('suggestedDiscountsSection');
+        const discountInput = document.getElementById('discount');
 
         let itemIdCounter = 1;
-        let isSuggestedDiscountApplied = false;
-        let isBigSuggestedDiscountApplied = false;
-        let currentSuggestedDiscount = 0;
-        let currentBigSuggestedDiscount = 0;
+        let activeDiscountType = null; // 'round' or 'big' or null
 
         function convertToFarsiDigits(num) {
-            if (num === null || num === undefined) {
+            if (num === null || num === undefined || num === '') {
                 return '';
             }
             let numStr = String(num);
@@ -887,15 +849,14 @@
 
             if (rawGoldPrice === 0) {
                 document.getElementById('resultSection').innerHTML = '';
-                suggestedDiscountContainer.style.display = 'none';
-                bigSuggestedDiscountContainer.style.display = 'none';
+                suggestedDiscountsSection.style.display = 'none';
                 return;
             }
 
             const profitRateElement = document.getElementById('profitRate');
             const profitRate = parseFloat(profitRateElement.value) / 100;
             const includeTax = document.getElementById('includeTax').checked;
-            const discountInput = document.getElementById('discount');
+            
             let discountAmount = parseFloat(convertToEnglishDigits(discountInput.value.replace(/,/g, ''))) || 0;
 
             profitRateElement.innerHTML = '';
@@ -982,92 +943,139 @@
 
             // --- Suggested discount logic (round to nearest 100,000 or 50,000 if not too far) ---
             const roundedPrice = Math.round(totalFinalPrice);
+            
+            let potentialSuggestedDiscountRound = 0; // The smaller discount (50k/100k rounding)
             const remainder100k = roundedPrice % 100000;
-            const remainder50k = roundedPrice % 50000;
-
-            let potentialSuggestedDiscount5Digit = 0;
             if (remainder100k !== 0) {
-                potentialSuggestedDiscount5Digit = remainder100k;
-            }
-
-            if (potentialSuggestedDiscount5Digit > 0) {
-                currentSuggestedDiscount = potentialSuggestedDiscount5Digit;
-                suggestedDiscountAmountElement.textContent = formatCurrency(currentSuggestedDiscount);
-                suggestedDiscountContainer.style.display = 'flex';
-                suggestedDiscountContainer.classList.remove('bold'); // Ensure normal style
-                if (isSuggestedDiscountApplied) {
-                    applyDiscountButton.textContent = 'حذف تخفیف';
-                    applyDiscountButton.classList.add('remove');
+                if (remainder100k >= 50000) { // Round up to nearest 100k but effectively give discount to nearest 50k
+                    potentialSuggestedDiscountRound = remainder100k - 50000;
+                    if (potentialSuggestedDiscountRound < 0) potentialSuggestedDiscountRound = remainder100k; // if remainder is 90k, should offer 90k
                 } else {
-                    applyDiscountButton.textContent = 'اعمال تخفیف';
-                    applyDiscountButton.classList.remove('remove');
+                    potentialSuggestedDiscountRound = remainder100k;
                 }
-            } else {
-                currentSuggestedDiscount = 0;
-                suggestedDiscountContainer.style.display = 'none';
-                isSuggestedDiscountApplied = false;
-                applyDiscountButton.textContent = 'اعمال تخفیف';
-                applyDiscountButton.classList.remove('remove');
             }
 
-            // --- Big suggested discount logic (round down to nearest 500,000 or 100,000 mark based on example) ---
-            const priceForBigDiscount = Math.round(totalFinalPrice);
-            let targetRoundedPrice = 0;
-            
-            // Example: 1,475,400 -> 1,450,000 (rounds down to the nearest 500k interval, or 1M interval)
-            // If priceForBigDiscount is 1,475,400:
-            // floor(1475400 / 500000) = 2
-            // targetRoundedPrice = 2 * 500000 = 1,000,000
-            // if (remainder (1,475,400 % 1,000,000) == 475,400) which is < 500,000, then it should round to nearest 100,000 interval downwards.
-            // If the price is 1,675,400, it should round to 1,650,000
-            
-            const floorMillions = Math.floor(priceForBigDiscount / 1000000);
-            const remainderAfterMillions = priceForBigDiscount % 1000000;
 
+            let potentialBigSuggestedDiscount = 0; // The larger discount (rounding to 500k/100k points)
+            const floorMillions = Math.floor(roundedPrice / 1000000);
+            const remainderAfterMillions = roundedPrice % 1000000;
+
+            let targetRoundedPriceForBigDiscount = 0;
             if (remainderAfterMillions >= 500000) {
-                targetRoundedPrice = floorMillions * 1000000 + 500000;
-            } else if (remainderAfterMillions >= 100000) {
-                // If the remainder is less than 500k but more than 100k, round down to the nearest 100k
-                targetRoundedPrice = floorMillions * 1000000 + Math.floor(remainderAfterMillions / 100000) * 100000;
-            } else {
-                targetRoundedPrice = floorMillions * 1000000;
+                targetRoundedPriceForBigDiscount = floorMillions * 1000000 + 500000;
+            } else if (remainderAfterMillions > 0) { // If there's any remainder, round down to the nearest 100k interval within the million
+                targetRoundedPriceForBigDiscount = floorMillions * 1000000 + Math.floor(remainderAfterMillions / 100000) * 100000;
+            } else { // Exactly on a million mark
+                targetRoundedPriceForBigDiscount = floorMillions * 1000000;
             }
             
-            const potentialBigSuggestedDiscount = priceForBigDiscount - targetRoundedPrice;
+            potentialBigSuggestedDiscount = roundedPrice - targetRoundedPriceForBigDiscount;
+            if (potentialBigSuggestedDiscount < 0) { // Ensure discount is positive
+                potentialBigSuggestedDiscount = 0;
+            }
 
+            // Render suggested discounts
+            let suggestionsHtml = '';
+
+            // Rule: If big discount is 0, don't show it.
+            // If big discount covers the 'round' discount, only show big discount.
             if (potentialBigSuggestedDiscount > 0) {
-                currentBigSuggestedDiscount = potentialBigSuggestedDiscount;
-                bigSuggestedDiscountAmountElement.textContent = formatCurrency(currentBigSuggestedDiscount);
-                bigSuggestedDiscountContainer.style.display = 'flex';
-                bigSuggestedDiscountContainer.classList.add('bold'); // Apply bold style for "tople"
-                if (isBigSuggestedDiscountApplied) {
-                    applyBigDiscountButton.textContent = 'حذف تخفیف';
-                    applyBigDiscountButton.classList.add('remove');
-                } else {
-                    applyBigDiscountButton.textContent = 'اعمال تخفیف';
-                    applyBigDiscountButton.classList.remove('remove');
+                 // Check if the 'big' discount effectively covers the 'round' discount's intent
+                if (potentialBigSuggestedDiscount >= potentialSuggestedDiscountRound && potentialSuggestedDiscountRound > 0) {
+                    // Only show big discount if it's more significant or covers the small one
+                    suggestionsHtml += `
+                        <div class="suggested-discount-item">
+                            <div class="suggested-discount-text">
+                                <span>پیشنهاد تخفیف (رند به پایین): </span>
+                                <strong>${formatCurrency(potentialBigSuggestedDiscount)}</strong> <span>تومان</span>
+                            </div>
+                            <button type="button" class="apply-discount-button" onclick="applySuggestedDiscount(${potentialBigSuggestedDiscount}, 'big', this)">
+                                ${activeDiscountType === 'big' ? 'حذف' : 'اعمال'}
+                            </button>
+                        </div>
+                    `;
+                } else if (potentialSuggestedDiscountRound > 0) { // Both can be displayed if not overlapping this way
+                    suggestionsHtml += `
+                        <div class="suggested-discount-item">
+                            <div class="suggested-discount-text">
+                                <span>پیشنهاد تخفیف (رند به پایین): </span>
+                                <strong>${formatCurrency(potentialSuggestedDiscountRound)}</strong> <span>تومان</span>
+                            </div>
+                            <button type="button" class="apply-discount-button" onclick="applySuggestedDiscount(${potentialSuggestedDiscountRound}, 'round', this)">
+                                ${activeDiscountType === 'round' ? 'حذف' : 'اعمال'}
+                            </button>
+                        </div>
+                    `;
+                    suggestionsHtml += `
+                        <div class="suggested-discount-item">
+                            <div class="suggested-discount-text">
+                                <span>پیشنهاد تخفیف (رند به پایین): </span>
+                                <strong>${formatCurrency(potentialBigSuggestedDiscount)}</strong> <span>تومان</span>
+                            </div>
+                            <button type="button" class="apply-discount-button" onclick="applySuggestedDiscount(${potentialBigSuggestedDiscount}, 'big', this)">
+                                ${activeDiscountType === 'big' ? 'حذف' : 'اعمال'}
+                            </button>
+                        </div>
+                    `;
+                } else { // Only big discount is applicable
+                     suggestionsHtml += `
+                        <div class="suggested-discount-item">
+                            <div class="suggested-discount-text">
+                                <span>پیشنهاد تخفیف (رند به پایین): </span>
+                                <strong>${formatCurrency(potentialBigSuggestedDiscount)}</strong> <span>تومان</span>
+                            </div>
+                            <button type="button" class="apply-discount-button" onclick="applySuggestedDiscount(${potentialBigSuggestedDiscount}, 'big', this)">
+                                ${activeDiscountType === 'big' ? 'حذف' : 'اعمال'}
+                            </button>
+                        </div>
+                    `;
                 }
-            } else {
-                currentBigSuggestedDiscount = 0;
-                bigSuggestedDiscountContainer.style.display = 'none';
-                isBigSuggestedDiscountApplied = false;
-                applyBigDiscountButton.textContent = 'اعمال تخفیف';
-                applyBigDiscountButton.classList.remove('remove');
+            } else if (potentialSuggestedDiscountRound > 0) { // Only small discount is applicable
+                suggestionsHtml += `
+                    <div class="suggested-discount-item">
+                        <div class="suggested-discount-text">
+                            <span>پیشنهاد تخفیف (رند به پایین): </span>
+                            <strong>${formatCurrency(potentialSuggestedDiscountRound)}</strong> <span>تومان</span>
+                        </div>
+                        <button type="button" class="apply-discount-button" onclick="applySuggestedDiscount(${potentialSuggestedDiscountRound}, 'round', this)">
+                            ${activeDiscountType === 'round' ? 'حذف' : 'اعمال'}
+                        </button>
+                    </div>
+                `;
             }
 
-
-            // Apply suggested discount if already applied or manually entered
-            if (isSuggestedDiscountApplied) {
-                discountAmount = currentSuggestedDiscount;
-                discountInput.value = formatNumberWithCommas(currentSuggestedDiscount);
-            } else if (isBigSuggestedDiscountApplied) {
-                discountAmount = currentBigSuggestedDiscount;
-                discountInput.value = formatNumberWithCommas(currentBigSuggestedDiscount);
+            if (suggestionsHtml) {
+                suggestedDiscountsSection.innerHTML = suggestionsHtml;
+                suggestedDiscountsSection.style.display = 'block';
             } else {
-                 // If no suggested discount is applied, ensure the manual discount input is formatted
-                 discountInput.value = formatNumberWithCommas(discountInput.value);
+                suggestedDiscountsSection.style.display = 'none';
             }
 
+            // Apply active discount to input field
+            if (activeDiscountType === 'round' && potentialSuggestedDiscountRound > 0) {
+                discountAmount = potentialSuggestedDiscountRound;
+            } else if (activeDiscountType === 'big' && potentialBigSuggestedDiscount > 0) {
+                discountAmount = potentialBigSuggestedDiscount;
+            } else {
+                // If the manually entered discount is active, keep it.
+                // Otherwise, ensure the discount input reflects 0 if no suggested discount is applied.
+                if (activeDiscountType === null) {
+                    discountInput.value = formatNumberWithCommas(discountInput.value);
+                    discountAmount = parseFloat(convertToEnglishDigits(discountInput.value.replace(/,/g, ''))) || 0;
+                } else {
+                    discountAmount = 0; // If an active discount type is set but its value is 0, clear discount
+                    discountInput.value = '';
+                }
+            }
+            
+            // This is crucial: make sure the discount input always displays the active discount if one is set.
+            if (activeDiscountType === 'round' && potentialSuggestedDiscountRound > 0) {
+                discountInput.value = formatNumberWithCommas(potentialSuggestedDiscountRound);
+            } else if (activeDiscountType === 'big' && potentialBigSuggestedDiscount > 0) {
+                discountInput.value = formatNumberWithCommas(potentialBigSuggestedDiscount);
+            } else if (activeDiscountType !== null) { // If a discount type was active but now its value is 0
+                discountInput.value = '';
+            }
 
             totalFinalPrice -= discountAmount;
 
@@ -1109,51 +1117,39 @@
             `;
         }
 
-        applyDiscountButton.addEventListener('click', () => {
-            if (isSuggestedDiscountApplied) {
-                document.getElementById('discount').value = '';
-                isSuggestedDiscountApplied = false;
-                // If big discount was applied, also deactivate its button
-                if (isBigSuggestedDiscountApplied) {
-                    isBigSuggestedDiscountApplied = false;
-                    applyBigDiscountButton.textContent = 'اعمال تخفیف';
-                    applyBigDiscountButton.classList.remove('remove');
-                }
+        function applySuggestedDiscount(amount, type, buttonElement) {
+            // If this discount type is already active, deactivate it
+            if (activeDiscountType === type) {
+                activeDiscountType = null;
+                discountInput.value = ''; // Clear manual discount
             } else {
-                document.getElementById('discount').value = formatNumberWithCommas(currentSuggestedDiscount);
-                isSuggestedDiscountApplied = true;
-                // Deactivate big discount button if it was active
-                if (isBigSuggestedDiscountApplied) {
-                    isBigSuggestedDiscountApplied = false;
-                    applyBigDiscountButton.textContent = 'اعمال تخفیف';
-                    applyBigDiscountButton.classList.remove('remove');
+                // If another discount type was active, deactivate it first
+                if (activeDiscountType !== null) {
+                    const prevActiveButton = document.querySelector(`.apply-discount-button[data-discount-type="${activeDiscountType}"]`);
+                    if (prevActiveButton) {
+                        prevActiveButton.textContent = 'اعمال';
+                        prevActiveButton.classList.remove('remove');
+                    }
                 }
+                activeDiscountType = type;
+                discountInput.value = formatNumberWithCommas(amount);
             }
-            calculateFactor();
-        });
 
-        applyBigDiscountButton.addEventListener('click', () => {
-            if (isBigSuggestedDiscountApplied) {
-                document.getElementById('discount').value = '';
-                isBigSuggestedDiscountApplied = false;
-                // If small discount was applied, also deactivate its button
-                if (isSuggestedDiscountApplied) {
-                    isSuggestedDiscountApplied = false;
-                    applyDiscountButton.textContent = 'اعمال تخفیف';
-                    applyDiscountButton.classList.remove('remove');
+            // Update all buttons' states
+            document.querySelectorAll('.apply-discount-button').forEach(btn => {
+                const btnType = btn.dataset.discountType;
+                if (btnType === activeDiscountType) {
+                    btn.textContent = 'حذف';
+                    btn.classList.add('remove');
+                } else {
+                    btn.textContent = 'اعمال';
+                    btn.classList.remove('remove');
                 }
-            } else {
-                document.getElementById('discount').value = formatNumberWithCommas(currentBigSuggestedDiscount);
-                isBigSuggestedDiscountApplied = true;
-                // Deactivate small discount button if it was active
-                if (isSuggestedDiscountApplied) {
-                    isSuggestedDiscountApplied = false;
-                    applyDiscountButton.textContent = 'اعمال تخفیف';
-                    applyDiscountButton.classList.remove('remove');
-                }
-            }
+            });
+
             calculateFactor();
-        });
+        }
+
 
         function addInputEventListeners(element) {
             element.querySelectorAll('input, select').forEach(input => {
@@ -1165,7 +1161,7 @@
                 } else if (input.classList.contains('gold-buy-weight') || input.classList.contains('gold-weight')) {
                     input.addEventListener('input', (e) => {
                         let rawValue = e.target.value;
-                        let cleanValue = convertToEnglishDigits(rawValue); // Remove commas for calculation
+                        let cleanValue = convertToEnglishDigits(rawValue);
                         
                         // Allow only numbers and a single decimal point
                         cleanValue = cleanValue.replace(/[^\d.]/g, '');
@@ -1192,14 +1188,12 @@
                     }
                 } else if (input.id === 'discount') {
                     input.addEventListener('input', (e) => {
-                        // Reset suggested discount flags if manual discount is entered
-                        isSuggestedDiscountApplied = false;
-                        isBigSuggestedDiscountApplied = false;
-                        // Reset button states
-                        applyDiscountButton.textContent = 'اعمال تخفیف';
-                        applyDiscountButton.classList.remove('remove');
-                        applyBigDiscountButton.textContent = 'اعمال تخفیف';
-                        applyBigDiscountButton.classList.remove('remove');
+                        // Reset active suggested discount if manual discount is entered
+                        activeDiscountType = null;
+                        document.querySelectorAll('.apply-discount-button').forEach(btn => {
+                            btn.textContent = 'اعمال';
+                            btn.classList.remove('remove');
+                        });
 
                         let value = convertToEnglishDigits(e.target.value.replace(/,/g, ''));
                         e.target.value = formatNumberWithCommas(value);
