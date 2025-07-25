@@ -562,7 +562,7 @@
 
         let itemIdCounter = 1;
         let activeDiscountValue = 0; // Stores the value of the currently applied suggested discount
-        let activeDiscountType = null; // Stores the type ('round10k', 'round50k', 'round100k')
+        let activeDiscountType = null; // Stores the type ('round10k', 'round50k', 'round100k', 'round1m')
 
         function convertToFarsiDigits(num) {
             if (num === null || num === undefined || num === '') {
@@ -1098,6 +1098,23 @@
                         });
                     }
                 }
+
+                // --- NEW: Round to nearest 1,000,000 down (Million) ---
+                const remainder1m = roundedPriceForSuggestions % 1000000;
+                if (remainder1m > 0) {
+                    const discount = remainder1m;
+                    const newFinalPrice = roundedPriceForSuggestions - discount;
+                    // Only add if it's a larger discount than previous ones
+                    if (newFinalPrice >= 0 && discount > (suggestedDiscounts[suggestedDiscounts.length - 1] ? suggestedDiscounts[suggestedDiscounts.length - 1].discountAmount : 0)) {
+                        suggestedDiscounts.push({
+                            type: 'round1m',
+                            text: 'رند به ۱ میلیون تومان پایین‌تر:',
+                            discountAmount: discount,
+                            finalPrice: newFinalPrice
+                        });
+                    }
+                }
+                // --- END NEW ---
             }
             
             // Sort discounts by amount (smallest to largest)
