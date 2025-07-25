@@ -408,6 +408,178 @@
             direction: ltr; /* Ensure numbers are LTR */
         }
 
+        /* --- NEW CSS FOR INVOICE OUTPUT --- */
+        .invoice-output-wrapper {
+            background-color: #ecf0f1;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 30px;
+            border-left: 5px solid #2ecc71; /* A nice green for output section */
+            overflow: hidden; /* Hide overflow when closed */
+        }
+
+        .invoice-output-header {
+            text-align: right;
+            color: #2c3e50;
+            font-size: 1.4em;
+            margin: 0 0 10px 0;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 5px;
+            border-bottom: 1px dashed #ccc;
+            transition: all 0.3s ease;
+        }
+
+        .invoice-output-header:hover {
+            color: #27ae60;
+        }
+
+        .invoice-output-header .toggle-icon {
+            transition: transform 0.3s ease;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        .invoice-output-header.expanded .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        .invoice-output-content {
+            max-height: 0;
+            transition: max-height 0.5s ease-out, padding 0.5s ease-out;
+            padding: 0 10px;
+            box-sizing: border-box;
+        }
+
+        .invoice-output-content.expanded {
+            max-height: 1000px; /* Needs to be large enough to contain content */
+            padding: 15px 10px; /* Restore padding when expanded */
+        }
+
+        .invoice-output-content .form-group {
+            margin-bottom: 15px;
+        }
+
+        .generated-invoice-display {
+            border: 1px dashed #a0d9b4; /* Light green border */
+            background-color: #f9fff9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
+            color: #333;
+            line-height: 1.8;
+        }
+
+        .generated-invoice-display p {
+            margin: 5px 0;
+        }
+
+        .generated-invoice-display strong {
+            color: #2f844f; /* Darker green for emphasis */
+        }
+
+        .generated-invoice-display .invoice-item-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 3px 0;
+            border-bottom: 1px dotted #e0e0e0;
+        }
+        .generated-invoice-display .invoice-item-row:last-of-type {
+            border-bottom: none;
+        }
+
+        .generated-invoice-display .invoice-section-divider {
+            border-top: 1px solid #c0c0c0;
+            margin: 15px 0;
+            padding-top: 10px;
+            font-weight: bold;
+            color: #555;
+        }
+
+        .generated-invoice-display .total-price-line {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #27ae60;
+            margin-top: 15px;
+            border-top: 2px solid #2ecc71;
+            padding-top: 10px;
+        }
+
+        .generate-invoice-button,
+        .print-invoice-button {
+            background-color: #28a745; /* Green for generate/print */
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            width: auto;
+            transition: background-color 0.3s ease;
+            display: block;
+            margin: 15px auto 0 auto;
+        }
+
+        .generate-invoice-button:hover,
+        .print-invoice-button:hover {
+            background-color: #218838;
+        }
+
+        /* Print specific styles */
+        @media print {
+            body {
+                background-color: #fff;
+                margin: 0;
+                padding: 0;
+                display: block;
+                min-height: auto;
+                font-size: 12pt; /* Adjust for print readability */
+            }
+            .container {
+                box-shadow: none;
+                max-width: none;
+                width: 100%;
+                border-radius: 0;
+                padding: 0;
+            }
+            #invoiceContainer > *:not(#invoiceOutputWrapper) {
+                display: none; /* Hide all other parts when printing */
+            }
+            .invoice-output-wrapper {
+                border: none;
+                margin-top: 0;
+                padding: 0;
+                background-color: #fff;
+            }
+            .invoice-output-header,
+            .invoice-output-content .form-group,
+            .generate-invoice-button,
+            .print-invoice-button {
+                display: none; /* Hide input fields and buttons in print */
+            }
+            .invoice-output-content.expanded {
+                max-height: fit-content; /* Ensure all content is visible */
+                padding: 0;
+            }
+            .generated-invoice-display {
+                border: none;
+                padding: 0;
+                background-color: #fff;
+                margin-top: 0;
+            }
+            /* Hide scrollbars during print, if any */
+            ::-webkit-scrollbar {
+                width: 0 !important;
+                height: 0 !important;
+            }
+            .invoice-output-header .toggle-icon {
+                display: none;
+            }
+        }
+
         @media (max-width: 600px) {
             .container {
                 padding: 18px;
@@ -451,6 +623,16 @@
             }
             .checkbox-group > div {
                 width: 100%; /* Make each checkbox item take full width */
+            }
+            /* Invoice output adjustments for small screens */
+            .invoice-output-header {
+                font-size: 1.2em;
+            }
+            .generated-invoice-display {
+                padding: 10px;
+            }
+            .generated-invoice-display p {
+                font-size: 0.95em;
             }
         }
     </style>
@@ -551,6 +733,30 @@
 
         <div class="result-section" id="resultSection">
         </div>
+
+        <div class="invoice-output-wrapper" id="invoiceOutputWrapper">
+            <h2 class="invoice-output-header" onclick="toggleInvoiceOutput()">
+                ارائه فاکتور فروش <span class="toggle-icon">▼</span>
+            </h2>
+            <div class="invoice-output-content" id="invoiceOutputContent">
+                <div class="form-group">
+                    <label for="customerName">نام خریدار:</label>
+                    <input type="text" id="customerName" class="customer-input">
+                </div>
+                <div class="form-group">
+                    <label for="customerPhone">شماره تماس (اختیاری):</label>
+                    <input type="tel" id="customerPhone" class="customer-input">
+                </div>
+                <button type="button" class="generate-invoice-button" onclick="generateInvoiceDisplay()">
+                    نمایش فاکتور
+                </button>
+                <div class="generated-invoice-display" id="generatedInvoiceDisplay">
+                    </div>
+                <button type="button" class="print-invoice-button" id="printInvoiceButton" onclick="printInvoice()" style="display: none; margin-top: 15px;">
+                    چاپ فاکتور
+                </button>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -563,6 +769,21 @@
         let itemIdCounter = 1;
         let activeDiscountValue = 0; // Stores the value of the currently applied suggested discount
         let activeDiscountType = null; // Stores the type ('round10k', 'round50k', 'round100k')
+
+        // NEW GLOBAL VARIABLES to store calculated values for invoice display
+        let finalCalculatedData = {
+            goldPricePerGram: 0,
+            itemDetails: [],
+            totalBoughtGoldValue: 0,
+            buyDiffGoldWithDiscount: false,
+            buyGoldAmountAtMuzanne: 0,
+            buyDiffGoldAmountWithDiscount: 0,
+            totalCalculatedTax: 0,
+            discountAmount: 0,
+            finalTotalAmount: 0,
+            isCustomerPayout: false,
+            customerPayoutAmount: 0
+        };
 
         function convertToFarsiDigits(num) {
             if (num === null || num === undefined || num === '') {
@@ -619,15 +840,21 @@
                 const decimalPart = parts[1];
                 let words = convertNumberToWords(parseInt(integerPart, 10));
                 if (decimalPart) {
+                    // Convert Farsi digits in decimal part to English before converting to words
                     const decimalDigits = decimalPart.split('').map(digit => {
                         const farsiIndex = farsiDigits.indexOf(digit);
                         return farsiIndex !== -1 ? farsiIndex.toString() : digit;
                     }).join('');
+
                     if (decimalDigits.length > 0) {
-                        words += ' ممیز ' + convertNumberToWords(parseInt(decimalDigits, 10));
+                        words += ' ممیز ';
+                        // Handle each digit separately for decimal part
+                        for(let i = 0; i < decimalDigits.length; i++) {
+                            words += convertNumberToWords(parseInt(decimalDigits[i], 10)) + ' ';
+                        }
                     }
                 }
-                return words;
+                return words.trim();
             }
 
             num = parseInt(num, 10);
@@ -685,33 +912,19 @@
             return result.filter(Boolean).join(' و ');
         }
 
-        // --- NEW FUNCTION TO ADJUST FONT SIZE ---
         function adjustFontSizeForWords(spanElement, text) {
             const textLength = text.length;
             let newFontSize = 0.9; // Default font size in em
 
-            // Adjust thresholds based on your preference and testing
             if (textLength > 35) {
-                newFontSize = 0.6; // Very small
+                newFontSize = 0.6;
             } else if (textLength > 28) {
-                newFontSize = 0.7; // Smaller
+                newFontSize = 0.7;
             } else if (textLength > 20) {
-                newFontSize = 0.8; // Slightly smaller
+                newFontSize = 0.8;
             }
-            // If text is very short (e.g., less than 5 characters like "صفر تومان"), you might want to increase font size a bit
-            // if (textLength <= 5 && textLength > 0) {
-            //    newFontSize = 1.0;
-            // }
-
             spanElement.style.fontSize = `${newFontSize}em`;
-            // You might want to hide it completely if it's still too long or unreadable
-            // if (newFontSize < 0.7 && textLength > 40) {
-            //    spanElement.style.display = 'none';
-            // } else {
-            //    spanElement.style.display = 'block'; // Or inline-block if needed
-            // }
         }
-        // --- END NEW FUNCTION ---
 
         function updateGoldPriceDisplay() {
             const goldPriceInput = document.getElementById('goldPrice');
@@ -728,10 +941,10 @@
             if (!isNaN(numericValue) && numericValue > 0) {
                 const words = convertNumberToWords(numericValue) + ' تومان';
                 goldPriceInWordsSpan.textContent = words;
-                adjustFontSizeForWords(goldPriceInWordsSpan, words); // Call the new function
+                adjustFontSizeForWords(goldPriceInWordsSpan, words);
             } else {
                 goldPriceInWordsSpan.textContent = '';
-                goldPriceInWordsSpan.style.fontSize = '0.9em'; // Reset font size when empty/zero
+                goldPriceInWordsSpan.style.fontSize = '0.9em';
             }
             calculateFactor();
         }
@@ -758,12 +971,10 @@
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'decimal');
                 wageInput.setAttribute('maxlength', '5');
-                // wageInWordsDisplay.style.display = 'inline-block'; // Reverted
             } else {
                 wageInput.setAttribute('type', 'text');
                 wageInput.setAttribute('inputmode', 'numeric');
                 wageInput.setAttribute('maxlength', '9');
-                // wageInWordsDisplay.style.display = 'inline-block'; // Reverted
             }
             updateWageInWordsDisplay(wageInput);
             calculateFactor();
@@ -787,10 +998,10 @@
                 if (!isNaN(numericValue) && numericValue > 0) {
                     const words = convertNumberToWords(numericValue) + ' تومان';
                     wageInWordsDisplay.textContent = words;
-                    adjustFontSizeForWords(wageInWordsDisplay, words); // Call the new function
+                    adjustFontSizeForWords(wageInWordsDisplay, words);
                 } else {
                     wageInWordsDisplay.textContent = '';
-                    wageInWordsDisplay.style.fontSize = '0.9em'; // Reset font size
+                    wageInWordsDisplay.style.fontSize = '0.9em';
                 }
             } else { // percent type
                 let value = convertToEnglishDigits(inputElement.value);
@@ -816,12 +1027,12 @@
                 if (isNaN(percentValue) || percentValue < 0 || percentValue > 99.99) {
                     inputElement.value = '';
                     wageInWordsDisplay.textContent = '';
-                    wageInWordsDisplay.style.fontSize = '0.9em'; // Reset font size
+                    wageInWordsDisplay.style.fontSize = '0.9em';
                 } else {
                     const words = convertNumberToWords(value) + ' درصد';
                     inputElement.value = convertToFarsiDigits(value.toString());
                     wageInWordsDisplay.textContent = words;
-                    adjustFontSizeForWords(wageInWordsDisplay, words); // Call the new function
+                    adjustFontSizeForWords(wageInWordsDisplay, words);
                 }
             }
             calculateFactor();
@@ -927,18 +1138,18 @@
             if (rawGoldPrice === 0) {
                 document.getElementById('resultSection').innerHTML = '';
                 suggestedDiscountsSection.style.display = 'none';
+                document.getElementById('generatedInvoiceDisplay').innerHTML = ''; // Clear generated invoice
+                document.getElementById('printInvoiceButton').style.display = 'none'; // Hide print button
                 return;
             }
 
             const profitRateElement = document.getElementById('profitRate');
             const profitRate = parseFloat(profitRateElement.value) / 100;
             const includeTax = document.getElementById('includeTax').checked;
-            const buyDiffGoldWithDiscount = document.getElementById('buyDiffGoldWithDiscount').checked; // New checkbox status
+            const buyDiffGoldWithDiscount = document.getElementById('buyDiffGoldWithDiscount').checked;
             
-            // Get current discount from input, if any. This is for manual entry.
             let currentManualDiscount = parseFloat(convertToEnglishDigits(discountInput.value.replace(/,/g, ''))) || 0;
 
-            // Update profit rate options (ensure 7% is default selected)
             profitRateElement.innerHTML = '';
             for (let i = 1; i <= 7; i++) {
                 const option = document.createElement('option');
@@ -952,13 +1163,14 @@
 
             let totalOverallPriceWithoutTax = 0;
             let totalCalculatedTax = 0;
-            let totalBoughtGoldWeight = 0; // Total weight of gold customer sells to us
-            let totalSoldGoldWeight = 0; // Total weight of gold we sell to customer
+            let totalBoughtGoldWeight = 0;
+            let totalSoldGoldWeight = 0;
 
-            let buyGoldAmountAtMuzanne = 0; // Amount for gold bought at rawGoldPrice
-            let buyDiffGoldAmountWithDiscount = 0; // Amount for difference gold bought with 2% discount
+            let buyGoldAmountAtMuzanne = 0;
+            let buyDiffGoldAmountWithDiscount = 0;
 
             let itemResultsHtml = '';
+            let currentItemDetails = []; // To store for invoice display
 
             const itemRows = document.querySelectorAll('.item-row');
             itemRows.forEach((row) => {
@@ -968,9 +1180,8 @@
                 const wageType = row.querySelector(`input[name="wageType${row.dataset.itemId}"]:checked`).value;
                 const buyWeightInput = row.querySelector('.gold-buy-weight');
 
-                // Get numeric values, allowing decimals
-                let weight = parseFloat(convertToEnglishDigits(weightInput.value)) || 0; // Gold we sell to customer
-                let buyWeight = parseFloat(convertToEnglishDigits((buyWeightInput ? buyWeightInput.value : '0'))) || 0; // Gold customer sells to us
+                let weight = parseFloat(convertToEnglishDigits(weightInput.value)) || 0;
+                let buyWeight = parseFloat(convertToEnglishDigits((buyWeightInput ? buyWeightInput.value : '0'))) || 0;
 
                 totalSoldGoldWeight += weight;
                 totalBoughtGoldWeight += buyWeight;
@@ -997,8 +1208,10 @@
                 totalOverallPriceWithoutTax += itemPrice;
 
                 itemTaxableAmount = wageAmount + profitAmount;
+                let itemTax = 0;
                 if (includeTax) {
-                    totalCalculatedTax += itemTaxableAmount * 0.10;
+                    itemTax = itemTaxableAmount * 0.10;
+                    totalCalculatedTax += itemTax;
                 }
 
                 let itemLabel = 'قیمت';
@@ -1012,25 +1225,29 @@
                         <span>${formatCurrency(itemPrice)}</span>
                     </div>
                 `;
+
+                currentItemDetails.push({
+                    name: productType || 'طلا', // Default to 'طلا' if no specific type
+                    weight: weight,
+                    wage: wageAmount,
+                    wageType: wageType,
+                    tax: itemTax,
+                    itemTotal: itemPrice // Total for this specific item including its profit/wage/tax
+                });
             });
 
-            // Calculate bought gold amounts based on the new logic
             let netGoldWeightDiff = totalBoughtGoldWeight - totalSoldGoldWeight;
 
             if (buyDiffGoldWithDiscount) {
-                if (netGoldWeightDiff > 0) { // Customer sold more gold than they bought from us
-                    // Buy up to totalSoldGoldWeight at rawGoldPrice
+                if (netGoldWeightDiff > 0) {
                     buyGoldAmountAtMuzanne = totalSoldGoldWeight * rawGoldPrice;
-                    
-                    // Buy the difference at rawGoldPrice - 2%
                     let diffWeight = netGoldWeightDiff;
-                    let priceWithDiscount = rawGoldPrice * (1 - 0.02); // 2% discount
+                    let priceWithDiscount = rawGoldPrice * (1 - 0.02);
                     buyDiffGoldAmountWithDiscount = diffWeight * priceWithDiscount;
-                } else { // Customer bought more gold or equal, or sold less
-                    buyGoldAmountAtMuzanne = totalBoughtGoldWeight * rawGoldPrice; // All bought gold is at muzanne
+                } else {
+                    buyGoldAmountAtMuzanne = totalBoughtGoldWeight * rawGoldPrice;
                 }
             } else {
-                // Old logic: all bought gold is at rawGoldPrice
                 buyGoldAmountAtMuzanne = totalBoughtGoldWeight * rawGoldPrice;
             }
 
@@ -1044,15 +1261,11 @@
             
             let totalFinalPriceBeforeDiscountAndPayoutCheck = baseTotalFinalPriceBeforeDiscount - totalBoughtGoldValue;
 
-
-            // --- Suggested discount logic ---
             let suggestedDiscounts = [];
 
-            // Calculate potential discounts only if totalFinalPriceBeforeDiscountAndPayoutCheck is positive
             if (totalFinalPriceBeforeDiscountAndPayoutCheck > 0) {
                 const roundedPriceForSuggestions = Math.round(totalFinalPriceBeforeDiscountAndPayoutCheck);
 
-                // 1. Round to nearest 10,000 down
                 const remainder10k = roundedPriceForSuggestions % 10000;
                 if (remainder10k > 0) {
                     const discount = remainder10k;
@@ -1067,12 +1280,10 @@
                     }
                 }
 
-                // 2. Round to nearest 50,000 down
                 const remainder50k = roundedPriceForSuggestions % 50000;
                 if (remainder50k > 0) {
                     const discount = remainder50k;
                     const newFinalPrice = roundedPriceForSuggestions - discount;
-                    // Only add if it's a larger discount than the 10k one
                     if (newFinalPrice >= 0 && discount > (suggestedDiscounts[0] ? suggestedDiscounts[0].discountAmount : 0)) {
                         suggestedDiscounts.push({
                             type: 'round50k',
@@ -1083,12 +1294,10 @@
                     }
                 }
 
-                // 3. Round to nearest 100,000 down
                 const remainder100k = roundedPriceForSuggestions % 100000;
                 if (remainder100k > 0) {
                     const discount = remainder100k;
                     const newFinalPrice = roundedPriceForSuggestions - discount;
-                    // Only add if it's a larger discount than the previous ones
                     if (newFinalPrice >= 0 && discount > (suggestedDiscounts[suggestedDiscounts.length - 1] ? suggestedDiscounts[suggestedDiscounts.length - 1].discountAmount : 0)) {
                         suggestedDiscounts.push({
                             type: 'round100k',
@@ -1100,7 +1309,6 @@
                 }
             }
             
-            // Sort discounts by amount (smallest to largest)
             suggestedDiscounts.sort((a, b) => a.discountAmount - b.discountAmount);
 
             let suggestionsHtml = '';
@@ -1123,19 +1331,18 @@
                 suggestedDiscountsSection.style.display = 'none';
             }
 
-            // Determine final discount amount to apply
             let discountToApply = 0;
-            if (activeDiscountType !== null) { // A suggested discount is active
+            if (activeDiscountType !== null) {
                 const activeSug = suggestedDiscounts.find(sug => sug.type === activeDiscountType);
                 if (activeSug) {
                     discountToApply = activeSug.discountAmount;
                     discountInput.value = formatNumberWithCommas(activeSug.discountAmount);
-                } else { // The previously active suggested discount is no longer valid (e.g., due to price change)
+                } else {
                     activeDiscountType = null;
                     activeDiscountValue = 0;
                     discountInput.value = '';
                 }
-            } else { // No suggested discount active, check manual input
+            } else {
                 discountToApply = currentManualDiscount;
                 discountInput.value = formatNumberWithCommas(currentManualDiscount);
             }
@@ -1154,7 +1361,6 @@
                 `;
             }
 
-            // Display "خرید طلا" details
             if (totalBoughtGoldValue > 0) {
                 if (buyDiffGoldWithDiscount && netGoldWeightDiff > 0) {
                     resultSection.innerHTML += `
@@ -1190,6 +1396,24 @@
                 `;
             }
 
+            // Store final results in the global object
+            finalCalculatedData.goldPricePerGram = rawGoldPrice;
+            finalCalculatedData.itemDetails = currentItemDetails;
+            finalCalculatedData.totalBoughtGoldValue = totalBoughtGoldValue;
+            finalCalculatedData.buyDiffGoldWithDiscount = buyDiffGoldWithDiscount;
+            finalCalculatedData.buyGoldAmountAtMuzanne = buyGoldAmountAtMuzanne;
+            finalCalculatedData.buyDiffGoldAmountWithDiscount = buyDiffGoldAmountWithDiscount;
+            finalCalculatedData.totalCalculatedTax = totalCalculatedTax;
+            finalCalculatedData.discountAmount = discountToApply;
+            finalCalculatedData.finalTotalAmount = Math.abs(finalPriceAfterDiscount);
+            finalCalculatedData.isCustomerPayout = (finalPriceAfterDiscount < 0);
+            if (finalCalculatedData.isCustomerPayout) {
+                finalCalculatedData.customerPayoutAmount = Math.abs(finalPriceAfterDiscount);
+            } else {
+                finalCalculatedData.customerPayoutAmount = 0;
+            }
+
+
             if (finalPriceAfterDiscount < 0) {
                 resultSection.innerHTML += `
                     <div class="result-item customer-payout">
@@ -1207,20 +1431,99 @@
             }
         }
 
-        function applySuggestedDiscount(amount, type) {
-            // If this discount type is already active, deactivate it
-            if (activeDiscountType === type) {
-                activeDiscountType = null;
-                activeDiscountValue = 0;
-                discountInput.value = ''; // Clear manual discount
-            } else {
-                activeDiscountType = type;
-                activeDiscountValue = amount;
-                discountInput.value = formatNumberWithCommas(amount);
+        // --- NEW FUNCTIONS FOR INVOICE OUTPUT ---
+        function toggleInvoiceOutput() {
+            const content = document.getElementById('invoiceOutputContent');
+            const header = document.querySelector('.invoice-output-header');
+            content.classList.toggle('expanded');
+            header.classList.toggle('expanded');
+        }
+
+        function generateInvoiceDisplay() {
+            const customerName = document.getElementById('customerName').value.trim();
+            const customerPhone = document.getElementById('customerPhone').value.trim();
+            const generatedInvoiceDisplay = document.getElementById('generatedInvoiceDisplay');
+            const printButton = document.getElementById('printInvoiceButton');
+
+            if (!customerName) {
+                alert('لطفاً نام خریدار را وارد کنید.');
+                generatedInvoiceDisplay.innerHTML = '';
+                printButton.style.display = 'none';
+                return;
             }
-            
-            // Re-calculate to update display and active states
-            calculateFactor();
+
+            let invoiceHtml = `
+                <p>خریدار آقای/خانم: <strong>${customerName}</strong></p>
+            `;
+            if (customerPhone) {
+                invoiceHtml += `<p>شماره تماس: <strong>${convertToFarsiDigits(customerPhone)}</strong></p>`;
+            }
+            invoiceHtml += `<p>قیمت روز طلا ۱۸ عیار: <strong>${formatCurrency(finalCalculatedData.goldPricePerGram)} تومان</strong></p>`;
+            invoiceHtml += `<div class="invoice-section-divider">جزئیات طلاهای فروخته شده:</div>`;
+
+            if (finalCalculatedData.itemDetails.length === 0 || finalCalculatedData.itemDetails.every(item => item.weight === 0)) {
+                invoiceHtml += `<p>هیچ آیتم طلایی ثبت نشده است.</p>`;
+            } else {
+                finalCalculatedData.itemDetails.forEach(item => {
+                    if (item.weight > 0) { // Only show items that actually have weight
+                        invoiceHtml += `<div class="invoice-item-row">`;
+                        invoiceHtml += `<span><strong>${item.name}</strong> - وزن: ${convertToFarsiDigits(item.weight.toFixed(3))} گرم</span>`;
+                        let itemDetailsPart = '';
+                        if (item.wage > 0) {
+                            itemDetailsPart += ` - اجرت: `;
+                            if (item.wageType === 'percent') {
+                                // Recalculate percent to display in invoice based on initial price * weight
+                                const originalWeightPrice = finalCalculatedData.goldPricePerGram * item.weight;
+                                const originalWagePercent = (item.wage / originalWeightPrice) * 100;
+                                itemDetailsPart += `${convertToFarsiDigits(originalWagePercent.toFixed(2))}%`;
+                            } else {
+                                itemDetailsPart += `${formatCurrency(item.wage)} تومان`;
+                            }
+                        }
+                        if (item.tax > 0) {
+                            itemDetailsPart += ` - ارزش افزوده: ${formatCurrency(item.tax)} تومان`;
+                        }
+                        invoiceHtml += `<span>${itemDetailsPart}</span>`;
+                        invoiceHtml += `</div>`;
+                    }
+                });
+            }
+
+            if (finalCalculatedData.totalBoughtGoldValue > 0) {
+                invoiceHtml += `<div class="invoice-section-divider">جزئیات خرید طلا از مشتری:</div>`;
+                let totalBoughtWeight = 0;
+                document.querySelectorAll('.gold-buy-weight').forEach(input => {
+                    totalBoughtWeight += parseFloat(convertToEnglishDigits(input.value)) || 0;
+                });
+
+                if (finalCalculatedData.buyDiffGoldWithDiscount && finalCalculatedData.buyDiffGoldAmountWithDiscount > 0) {
+                    invoiceHtml += `<p>وزن کل طلای خریداری شده: ${convertToFarsiDigits(totalBoughtWeight.toFixed(3))} گرم</p>`;
+                    invoiceHtml += `<p>مبلغ خرید طلا (مظنه): <strong>${formatCurrency(finalCalculatedData.buyGoldAmountAtMuzanne)} تومان</strong></p>`;
+                    invoiceHtml += `<p>مبلغ خرید مازاد طلا (کسر 2%): <strong>${formatCurrency(finalCalculatedData.buyDiffGoldAmountWithDiscount)} تومان</strong></p>`;
+                } else {
+                    invoiceHtml += `<p>وزن کل طلای خریداری شده: ${convertToFarsiDigits(totalBoughtWeight.toFixed(3))} گرم</p>`;
+                    invoiceHtml += `<p>مبلغ خرید طلا: <strong>${formatCurrency(finalCalculatedData.totalBoughtGoldValue)} تومان</strong></p>`;
+                }
+            }
+
+            if (finalCalculatedData.discountAmount > 0) {
+                invoiceHtml += `<p>کسر بابت تخفیف: <strong>${formatCurrency(finalCalculatedData.discountAmount)} تومان</strong></p>`;
+            }
+
+            invoiceHtml += `<div class="invoice-section-divider total-price-line">`;
+            if (finalCalculatedData.isCustomerPayout) {
+                invoiceHtml += `مبلغ تقدیمی به مشتری: <strong>${formatCurrency(finalCalculatedData.customerPayoutAmount)} تومان</strong>`;
+            } else {
+                invoiceHtml += `قیمت کل: <strong>${formatCurrency(finalCalculatedData.finalTotalAmount)} تومان</strong>`;
+            }
+            invoiceHtml += `</div>`;
+
+            generatedInvoiceDisplay.innerHTML = invoiceHtml;
+            printButton.style.display = 'block'; // Show print button
+        }
+
+        function printInvoice() {
+            window.print();
         }
 
         function addInputEventListeners(element) {
@@ -1235,16 +1538,13 @@
                         let rawValue = e.target.value;
                         let cleanValue = convertToEnglishDigits(rawValue);
                         
-                        // Allow only numbers and a single decimal point
-                        cleanValue = cleanValue.replace(/[^\d.]/g, ''); // Remove all non-digit, non-dot characters
+                        cleanValue = cleanValue.replace(/[^\d.]/g, '');
                         
-                        // Ensure only one dot
                         const parts = cleanValue.split('.');
                         if (parts.length > 2) {
                             cleanValue = parts[0] + '.' + parts.slice(1).join('');
                         }
                         
-                        // Update the input value with the cleaned English digits
                         e.target.value = cleanValue; 
                         calculateFactor();
                     });
@@ -1255,17 +1555,14 @@
                         if (cleanValue.endsWith('.')) {
                             cleanValue = cleanValue.slice(0, -1);
                         }
-                        // Format for display with Farsi digits and ensure empty if 0 or blank
                         e.target.value = (cleanValue === '' || parseFloat(cleanValue) === 0) ? '' : convertToFarsiDigits(cleanValue);
                         calculateFactor();
                     });
-                     // Set initial display to empty if value is 0 or empty
                      if (parseFloat(convertToEnglishDigits(input.value)) === 0 && input.value.trim() === '') {
                         input.value = '';
                     }
                 } else if (input.id === 'discount') {
                     input.addEventListener('input', (e) => {
-                        // Reset active suggested discount if manual discount is entered
                         activeDiscountType = null;
                         activeDiscountValue = 0;
                         document.querySelectorAll('.suggested-discount-item').forEach(item => {
@@ -1281,6 +1578,11 @@
                         e.target.value = formatNumberWithCommas(value);
                         calculateFactor();
                     });
+                } else if (input.classList.contains('customer-input')) {
+                    input.addEventListener('input', () => {
+                        // Don't call calculateFactor here to avoid constant recalculations for name/phone
+                        // This input affects only the display of the generated invoice, not the calculation itself
+                    });
                 }
                 else {
                     input.addEventListener('input', calculateFactor);
@@ -1293,11 +1595,11 @@
         document.addEventListener('DOMContentLoaded', () => {
             updateRemoveButtonsVisibility();
             addInputEventListeners(document);
-            updateGoldPriceDisplay();
+            updateGoldPriceDisplay(); // This calls calculateFactor too
             const firstWageInput = document.getElementById('wage1');
             const firstWageTypeRadio = document.querySelector('input[name="wageType1"][value="percent"]');
-            toggleWageInput(firstWageTypeRadio);
-            calculateFactor();
+            toggleWageInput(firstWageTypeRadio); // Ensure initial wage input is correctly setup
+            // calculateFactor() is already called by updateGoldPriceDisplay for initial load
         });
     </script>
 </body>
