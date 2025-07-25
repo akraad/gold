@@ -139,7 +139,7 @@
             padding-left: 70px;
         }
 
-        .add-item-button, .save-image-button {
+        .add-item-button {
             background-color: #3498db;
             color: white;
             padding: 12px 20px;
@@ -152,16 +152,9 @@
             display: block;
             margin: 25px auto 0 auto;
         }
-        .save-image-button {
-            background-color: #28a745; /* Green for save */
-            margin-top: 30px;
-        }
 
         .add-item-button:hover {
             background-color: #2186c4;
-        }
-        .save-image-button:hover {
-            background-color: #21883d;
         }
 
         .item-row {
@@ -441,7 +434,6 @@
             }
         }
     </style>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <div class="container" id="invoiceContainer">
@@ -532,8 +524,6 @@
 
         <div class="result-section" id="resultSection">
         </div>
-
-        <button type="button" class="save-image-button" onclick="saveAsImage()">ذخیره فاکتور به صورت عکس</button>
     </div>
 
     <script>
@@ -1189,135 +1179,6 @@
                 }
             });
         }
-
-        // Function to save the invoice as an image
-        function saveAsImage() {
-            // Temporarily hide elements not meant for the invoice image (like remove buttons, add item button, save button itself)
-            const elementsToHide = document.querySelectorAll('.remove-item, .add-item-button, .save-image-button, .form-group input, .form-group select, .currency-toggle, .checkbox-group, .suggested-discounts-section');
-            elementsToHide.forEach(el => el.style.display = 'none');
-            
-            // Make sure the input values are visible as text instead of input fields
-            const inputDisplays = document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"])');
-            inputDisplays.forEach(input => {
-                // For gold price and wage inputs, ensure the span displays the correct value
-                if (input.id === 'goldPrice' && document.getElementById('goldPriceInWords').textContent) {
-                    input.style.display = 'none'; // Hide the input itself
-                } else if (input.classList.contains('gold-wage') && input.closest('.input-inline-wrapper').querySelector('.input-inline-display').textContent) {
-                    input.style.display = 'none'; // Hide the input itself
-                } else {
-                    // For other inputs like weight, buy weight, discount
-                    // Create a span to display the formatted value
-                    const displaySpan = document.createElement('span');
-                    displaySpan.textContent = input.value;
-                    displaySpan.style.display = 'block';
-                    displaySpan.style.padding = '12px 15px';
-                    displaySpan.style.border = '1px solid #ddd';
-                    displaySpan.style.borderRadius = '8px';
-                    displaySpan.style.backgroundColor = '#fdfdfd';
-                    displaySpan.style.color = '#333';
-                    displaySpan.style.textAlign = 'right';
-                    displaySpan.classList.add('temp-display-span'); // Add a class to remove later
-
-                    input.parentNode.insertBefore(displaySpan, input.nextSibling); // Insert after input
-                    input.style.display = 'none'; // Hide the original input
-                }
-            });
-
-            // For select elements, display their selected value as text
-            const selectElements = document.querySelectorAll('select.product-type-select, select#profitRate');
-            selectElements.forEach(select => {
-                const displaySpan = document.createElement('span');
-                displaySpan.textContent = select.options[select.selectedIndex].textContent;
-                displaySpan.style.display = 'block';
-                displaySpan.style.padding = '12px 15px';
-                displaySpan.style.border = '1px solid #ddd';
-                displaySpan.style.borderRadius = '8px';
-                displaySpan.style.backgroundColor = '#fdfdfd';
-                displaySpan.style.color = '#333';
-                displaySpan.style.textAlign = 'right';
-                displaySpan.classList.add('temp-display-span'); // Add a class to remove later
-
-                select.parentNode.insertBefore(displaySpan, select.nextSibling); // Insert after select
-                select.style.display = 'none'; // Hide the original select
-            });
-            
-            // Ensure input-inline-display spans are visible where needed
-            document.querySelectorAll('.input-inline-display').forEach(span => {
-                span.style.display = 'block';
-                span.style.position = 'static'; // Remove absolute positioning for print view
-                span.style.transform = 'none';
-                span.style.padding = '12px 15px';
-                span.style.border = '1px solid #ddd';
-                span.style.borderRadius = '8px';
-                span.style.backgroundColor = '#fdfdfd';
-                span.style.color = '#333';
-                span.style.width = '100%';
-                span.style.boxSizing = 'border-box';
-            });
-
-
-            // Use html2canvas to capture the screenshot
-            html2canvas(invoiceContainer, {
-                scale: 2, // Increase resolution for better quality
-                useCORS: true, // If you're loading fonts/images from CDNs, enable CORS
-                backgroundColor: '#ffffff' // Ensure background is white
-            }).then(canvas => {
-                // Restore hidden elements and original input displays
-                elementsToHide.forEach(el => el.style.display = ''); // Restore original display
-                document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"])').forEach(input => {
-                    input.style.display = ''; // Restore original display
-                });
-                document.querySelectorAll('select').forEach(select => {
-                    select.style.display = ''; // Restore original display
-                });
-                document.querySelectorAll('.input-inline-display').forEach(span => {
-                    span.style.display = ''; // Restore original display
-                    span.style.position = '';
-                    span.style.transform = '';
-                    span.style.padding = '';
-                    span.style.border = '';
-                    span.style.borderRadius = '';
-                    span.style.backgroundColor = '';
-                    span.style.color = '';
-                    span.style.width = '';
-                    span.style.boxSizing = '';
-                });
-                // Remove temporary display spans
-                document.querySelectorAll('.temp-display-span').forEach(span => span.remove());
-
-
-                const link = document.createElement('a');
-                link.download = 'invoice.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            }).catch(error => {
-                console.error("Error generating image:", error);
-                alert("خطا در تولید تصویر فاکتور.");
-                // Ensure elements are restored even if there's an error
-                elementsToHide.forEach(el => el.style.display = '');
-                document.querySelectorAll('input:not([type="radio"]):not([type="checkbox"])').forEach(input => {
-                    input.style.display = '';
-                });
-                document.querySelectorAll('select').forEach(select => {
-                    select.style.display = '';
-                });
-                document.querySelectorAll('.input-inline-display').forEach(span => {
-                    span.style.display = '';
-                    span.style.position = '';
-                    span.style.transform = '';
-                    span.style.padding = '';
-                    span.style.border = '';
-                    span.style.borderRadius = '';
-                    span.style.backgroundColor = '';
-                    span.style.color = '';
-                    span.style.width = '';
-                    span.style.boxSizing = '';
-                });
-                document.querySelectorAll('.temp-display-span').forEach(span => span.remove());
-
-            });
-        }
-
 
         // Initial setup
         document.addEventListener('DOMContentLoaded', () => {
