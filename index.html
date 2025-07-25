@@ -346,24 +346,24 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            /* Make it similar height/padding to other form groups */
-            min-height: 48px; /* Based on input padding (12+12+1+1) plus line-height */
-            box-sizing: border-box; /* Include padding in height calculation */
+            min-height: 48px; /* Standardize height */
+            box-sizing: border-box;
         }
 
         .suggested-discount-text {
             font-size: 0.9em;
             color: #38761d;
+            flex-grow: 1; /* Allow text to grow and fill space */
         }
         
-        /* Specific style for "tople" discount */
+        /* Specific style for "bigger" discount */
         .suggested-discount-container.bold {
-            border-left-color: #ff8c00; /* Dark Orange for "tople" discount */
-            background-color: #fffacd; /* Lemon Chiffon for background */
+            border-left-color: #8A2BE2; /* BlueViolet for "bigger" discount */
+            background-color: #E6E6FA; /* Lavender for background */
             font-weight: bold;
         }
         .suggested-discount-container.bold .suggested-discount-text {
-            color: #cc5500; /* Darker orange text */
+            color: #4B0082; /* Indigo text */
         }
 
         .apply-discount-button {
@@ -378,10 +378,20 @@
             border-radius: 5px;
             cursor: pointer;
             transition: background-color 0.3s;
+            white-space: nowrap; /* Prevent button text from wrapping */
+            margin-right: 10px; /* Space between text and button */
         }
 
         .apply-discount-button.remove {
             background-color: #e74c3c;
+        }
+
+        /* Specific button color for the "bigger" discount */
+        .suggested-discount-container.bold .apply-discount-button {
+            background-color: #8A2BE2; /* BlueViolet to match border */
+        }
+        .suggested-discount-container.bold .apply-discount-button.remove {
+            background-color: #e74c3c; /* Still red for remove */
         }
 
         .apply-discount-button:hover {
@@ -424,6 +434,7 @@
             }
             .apply-discount-button {
                 width: 100%;
+                margin-right: 0; /* Remove margin for full width button */
             }
         }
     </style>
@@ -515,7 +526,7 @@
         <div id="suggestedDiscountContainer" style="display: none;">
             <div class="suggested-discount-container">
                 <div class="suggested-discount-text">
-                    <span>پیشنهاد تخفیف برای رند شدن قیمت به پایین (۵ رقم): </span>
+                    <span>پیشنهاد تخفیف برای رند شدن قیمت به پایین: </span>
                     <span id="suggestedDiscountAmount"></span> <span>تومان</span>
                 </div>
                 <button id="applyDiscountButton" class="apply-discount-button">اعمال تخفیف</button>
@@ -525,7 +536,7 @@
         <div id="bigSuggestedDiscountContainer" style="display: none;">
             <div class="suggested-discount-container bold">
                 <div class="suggested-discount-text">
-                    <span>تخفیف تپل! رند شدن به پایین (۶ رقم): </span>
+                    <span>تخفیف بیشتر! رند شدن به پایین: </span>
                     <span id="bigSuggestedDiscountAmount"></span> <span>تومان</span>
                 </div>
                 <button id="applyBigDiscountButton" class="apply-discount-button">اعمال تخفیف</button>
@@ -969,13 +980,18 @@
 
             totalFinalPrice -= totalDeductedAmount;
 
-            // --- Suggested discount logic (5 digits) ---
-            const currentRoundedPrice5 = Math.round(totalFinalPrice);
-            const remainder5 = currentRoundedPrice5 % 100000;
-            const potentialSuggestedDiscount = (remainder5 !== 0) ? remainder5 : 0; // If 0, no discount
+            // --- Suggested discount logic (round to nearest 100,000 or 50,000 if not too far) ---
+            const roundedPrice = Math.round(totalFinalPrice);
+            const remainder100k = roundedPrice % 100000;
+            const remainder50k = roundedPrice % 50000;
 
-            if (potentialSuggestedDiscount > 0) {
-                currentSuggestedDiscount = potentialSuggestedDiscount;
+            let potentialSuggestedDiscount5Digit = 0;
+            if (remainder100k !== 0) {
+                potentialSuggestedDiscount5Digit = remainder100k;
+            }
+
+            if (potentialSuggestedDiscount5Digit > 0) {
+                currentSuggestedDiscount = potentialSuggestedDiscount5Digit;
                 suggestedDiscountAmountElement.textContent = formatCurrency(currentSuggestedDiscount);
                 suggestedDiscountContainer.style.display = 'flex';
                 suggestedDiscountContainer.classList.remove('bold'); // Ensure normal style
@@ -994,10 +1010,18 @@
                 applyDiscountButton.classList.remove('remove');
             }
 
-            // --- Big suggested discount logic (6 digits) ---
-            const currentRoundedPrice6 = Math.round(totalFinalPrice);
-            const remainder6 = currentRoundedPrice6 % 1000000;
-            const potentialBigSuggestedDiscount = (remainder6 !== 0) ? remainder6 : 0; // If 0, no discount
+            // --- Big suggested discount logic (round down to nearest 500,000 or 100,000 mark based on example) ---
+            const priceForBigDiscount = Math.round(totalFinalPrice);
+            let targetRoundedPrice = 0;
+            const remainderMillion = priceForBigDiscount % 1000000;
+
+            if (remainderMillion >= 500000) {
+                targetRoundedPrice = Math.floor(priceForBigDiscount / 1000000) * 1000000 + 500000;
+            } else {
+                targetRoundedPrice = Math.floor(priceForBigDiscount / 1000000) * 1000000;
+            }
+            
+            const potentialBigSuggestedDiscount = priceForBigDiscount - targetRoundedPrice;
 
             if (potentialBigSuggestedDiscount > 0) {
                 currentBigSuggestedDiscount = potentialBigSuggestedDiscount;
