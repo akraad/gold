@@ -11,87 +11,126 @@
             font-weight: normal;
             font-style: normal;
         }
+        @font-face {
+            font-family: 'IRANSans';
+            src: url('https://cdn.jsdelivr.net/gh/rastikerdar/IRANSans@v2.0/fonts/IRANSansWeb(FaNum).woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
+        @font-face {
+            font-family: 'Sahel';
+            src: url('https://cdn.jsdelivr.net/gh/rastikerdar/sahel-font@v1.0.0-alpha17/dist/Sahel-Regular.woff') format('woff');
+            font-weight: normal;
+            font-style: normal;
+        }
 
         body {
-            font-family: 'Vazirmatn', sans-serif;
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
             background-color: #f0f2f5;
             display: flex;
             justify-content: center;
             align-items: flex-start;
             min-height: 100vh;
             margin: 0;
-            padding: 10px; /* Reduced padding for full width on mobile */
+            padding: 20px 10px;
             box-sizing: border-box;
             color: #333;
         }
 
         .container {
             background-color: #ffffff;
-            padding: 20px; /* Reduced padding */
+            padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07); /* Lighter shadow */
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
             width: 100%;
-            max-width: 600px; /* Increased max-width for better use of space */
+            max-width: 500px;
             box-sizing: border-box;
         }
 
         h1 {
             text-align: center;
             color: #2c3e50;
-            margin-bottom: 25px; /* Reduced margin */
-            font-size: 1.7em; /* Slightly smaller */
+            margin-bottom: 30px;
+            font-size: 1.8em;
             position: relative;
         }
 
         h1::after {
             content: '';
-            width: 50px; /* Smaller underline */
+            width: 60px;
             height: 3px;
             background-color: #3498db;
             position: absolute;
-            bottom: -8px; /* Adjusted position */
+            bottom: -10px;
             left: 50%;
             transform: translateX(-50%);
             border-radius: 2px;
         }
 
         .form-group {
-            margin-bottom: 15px; /* Reduced margin */
+            margin-bottom: 20px;
             position: relative;
         }
 
         label {
             display: block;
-            margin-bottom: 6px; /* Reduced margin */
+            margin-bottom: 8px;
             font-weight: bold;
             color: #555;
-            font-size: 0.9em; /* Slightly smaller font */
+            font-size: 0.95em;
         }
 
-        input:not([type="radio"]):not([type="checkbox"]),
-        select {
+        input:not([type="radio"]):not([type="checkbox"]):not(.buy-option-input),
+        select:not(.buy-option-input) {
             width: 100%;
-            padding: 10px 12px; /* Reduced padding */
+            padding: 12px 15px;
             border: 1px solid #ddd;
             border-radius: 8px;
             box-sizing: border-box;
-            font-size: 1em; /* Kept 1em for readability */
+            font-size: 1em;
             color: #333;
             transition: border-color 0.3s, box-shadow 0.3s;
             background-color: #fdfdfd;
-            font-family: 'Vazirmatn', sans-serif; /* Ensure Vazirmatn for all inputs */
-            text-align: right;
-            -moz-appearance: textfield; /* Remove number input arrows for Firefox */
-        }
-        /* Hide arrows for Webkit browsers (Chrome, Safari, Edge) */
-        input::-webkit-outer-spin-button,
-        input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
+            position: relative;
+            z-index: 1;
         }
         
-        input:focus,
-        select:focus {
+        input#goldPrice,
+        .gold-wage,
+        select#profitRate,
+        select.product-type-select,
+        .gold-weight,
+        input#discount {
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
+            text-align: right;
+        }
+        /* UPDATED: Specific styles for smaller input in buy sections */
+        .buy-option-input {
+            width: 100%;
+            padding: 8px 10px; /* Smaller padding */
+            border: 1px solid #ddd;
+            border-radius: 6px; /* Slightly smaller radius */
+            box-sizing: border-box;
+            font-size: 1em; /* Kept 1em here to match goldPrice input, will handle font size in specific sections if needed */
+            color: #333;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background-color: #fdfdfd;
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
+            text-align: right;
+        }
+
+        /* NEW: Smaller font for coin model and price inputs */
+        .coin-model-select,
+        .coin-price-input {
+            font-size: 0.9em; /* Smaller font for coin inputs */
+            padding: 7px 9px; /* Slightly smaller padding */
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif; /* Explicitly set font */
+        }
+
+
+        input:not([type="radio"]):not([type="checkbox"]):focus,
+        select:focus,
+        .buy-option-input:focus {
             border-color: #3498db;
             box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
             outline: none;
@@ -104,50 +143,50 @@
 
         .input-inline-display {
             position: absolute;
-            left: 10px; /* Adjusted position */
+            left: 15px; /* Position it from the left */
             top: 50%;
             transform: translateY(-50%);
-            font-size: 0.85em; /* Smaller font */
+            font-size: 0.9em; /* Default font size */
             color: #888;
-            pointer-events: none;
+            pointer-events: none; /* Allows clicks to pass through to the input */
             direction: rtl;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: calc(100% - 60px); /* Adjusted max width */
+            white-space: nowrap; /* Keep it on a single line by default */
+            overflow: hidden; /* Hide overflowing text */
+            text-overflow: ellipsis; /* Add ellipsis for hidden text */
+            max-width: calc(100% - 70px); /* Max width to avoid overlapping with actual input number */
             z-index: 2;
-            transition: font-size 0.2s ease-out;
+            transition: font-size 0.2s ease-out; /* Smooth transition for font size change */
         }
 
         input#goldPrice,
         .gold-wage {
-            padding-left: 60px; /* Adjusted space for words */
+            padding-left: 70px; /* Make space for the words on the left */
         }
 
         .add-item-button {
-            background-color: #28a745; /* Green for add item */
+            background-color: #3498db;
             color: white;
-            padding: 10px 18px; /* Reduced padding */
+            padding: 12px 20px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.95em; /* Slightly smaller font */
+            font-size: 1em;
             width: auto;
             transition: background-color 0.3s ease;
             display: block;
-            margin: 20px auto 0 auto; /* Adjusted margin */
+            margin: 25px auto 0 auto;
         }
 
         .add-item-button:hover {
-            background-color: #218838;
+            background-color: #2186c4;
         }
 
         .item-row {
-            border: 1px solid #e0e0e0; /* Solid, lighter border */
+            border: 1px dashed #c0c0c0;
             padding: 15px;
             border-radius: 10px;
-            margin-top: 15px; /* Reduced margin */
-            background-color: #fff;
+            margin-top: 20px;
+            background-color: #fbfbfb;
             position: relative;
             animation: fadeIn 0.5s ease-out;
         }
@@ -164,7 +203,7 @@
             background: none;
             border: none;
             color: #e74c3c;
-            font-size: 1.1em; /* Slightly smaller icon */
+            font-size: 1.3em;
             cursor: pointer;
             padding: 5px;
             border-radius: 50%;
@@ -176,53 +215,48 @@
         }
 
         .item-row .form-group {
-            margin-bottom: 10px; /* Reduced margin */
+            margin-bottom: 15px;
         }
 
         .flex-group {
             display: flex;
-            gap: 10px; /* Reduced gap */
-            flex-wrap: wrap; /* Allow wrapping on smaller screens */
+            gap: 15px;
         }
 
         .flex-group > div {
             flex: 1;
-            min-width: 150px; /* Ensure inputs don't become too small */
         }
 
         .currency-toggle {
             display: flex;
             align-items: center;
-            gap: 8px; /* Reduced gap */
-            margin-bottom: 10px; /* Reduced margin */
+            gap: 10px;
+            margin-bottom: 15px;
         }
 
         .currency-toggle label {
             margin-bottom: 0;
-            font-weight: normal;
         }
 
-        .currency-toggle input[type="radio"] {
-            width: 16px;
-            height: 16px;
+        .currency-toggle input:not([type="radio"]) {
+            width: auto;
             margin-left: 5px;
-            accent-color: #3498db;
         }
 
         .checkbox-group {
             display: flex;
-            flex-wrap: wrap;
-            gap: 10px 20px; /* Reduced gap */
+            flex-wrap: wrap; /* Allow wrapping for smaller screens */
+            gap: 15px 25px; /* Adjust gap for better spacing */
             align-items: center;
-            margin-bottom: 20px; /* Reduced margin */
+            margin-bottom: 25px;
             justify-content: space-between;
-            padding: 6px 0; /* Reduced padding */
+            padding: 8px 0;
             border-top: 1px solid #eee;
             border-bottom: 1px solid #eee;
         }
 
         .checkbox-group > div {
-            display: flex;
+            display: flex; /* Make each checkbox item a flex container */
             align-items: center;
         }
 
@@ -233,76 +267,128 @@
             display: flex;
             align-items: center;
             cursor: pointer;
-            font-size: 0.9em;
         }
 
-        .checkbox-group input[type="checkbox"] {
-            width: 16px;
-            height: 16px;
-            margin-left: 8px;
+        .checkbox-group input[type="checkbox"] { /* Target checkbox specifically */
+            width: 18px;
+            height: 18px;
+            margin-left: 10px;
             accent-color: #3498db;
         }
 
         .result-section {
             background-color: #ecf0f1;
-            padding: 15px; /* Reduced padding */
+            padding: 20px;
             border-radius: 10px;
-            margin-top: 25px; /* Reduced margin */
+            margin-top: 30px;
             border-left: 5px solid #3498db;
-            font-family: 'Vazirmatn', sans-serif;
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
         }
 
         .result-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 7px 0; /* Reduced padding */
+            padding: 8px 0;
             border-bottom: 1px dashed #dcdcdc;
-            font-size: 1em; /* Adjusted font size */
+            font-size: 1.1em;
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
         }
 
         .result-item:last-child {
             border-bottom: none;
             font-weight: bold;
             color: #2c3e50;
-            font-size: 1.1em; /* Adjusted font size */
-            margin-top: 10px;
+            font-size: 1.2em;
+            margin-top: 15px;
         }
-        .result-item.total-tax { color: #e67e22; }
-        .result-item.final-total { color: #27ae60; }
+        .result-item.total-tax {
+            color: #e67e22;
+        }
+        .result-item.final-total {
+            color: #27ae60;
+        }
         .result-item.buy-gold-amount,
-        .result-item.buy-diff-gold-amount { color: #d35400; font-size: 0.95em; }
-        .result-item.buy-item span:first-child { color: #e74c3c; font-weight: bold; }
-        .result-item.buy-item span:last-child { color: #e74c3c; }
-        .result-item.discount-amount { color: #e74c3c; font-size: 0.95em; }
-        .result-item.customer-payout { color: #e74c3c; font-weight: bold; }
+        .result-item.buy-diff-gold-amount {
+            color: #d35400;
+            font-size: 1em;
+        }
+        /* Distinct color for "خرید طلا از مشتری" */
+        .result-item.buy-item span:first-child {
+            color: #e74c3c; /* Red color for distinction */
+            font-weight: bold;
+        }
+        .result-item.buy-item span:last-child {
+            color: #e74c3c; /* Red color for distinction */
+        }
 
-        .result-item span:first-child { color: #555; }
-        .result-item span:last-child { color: #007bff; direction: ltr; }
+
+        .result-item.discount-amount {
+            color: #e74c3c;
+            font-size: 1em;
+        }
+        .result-item.customer-payout {
+            color: #e74c3c; /* Red for payout */
+            font-weight: bold;
+        }
+
+
+        .result-item span:first-child {
+            color: #555;
+        }
+
+        .result-item span:last-child {
+            color: #007bff;
+            direction: ltr;
+        }
         .result-item.buy-gold-amount span:last-child,
-        .result-item.buy-diff-gold-amount span:last-child { color: #e74c3c; }
-        .result-item.final-total span:last-child { color: #27ae60; }
-        .result-item.discount-amount span:last-child { color: #e74c3c; }
+        .result-item.buy-diff-gold-amount span:last-child {
+            color: #e74c3c;
+        }
+        .result-item.final-total span:last-child {
+            color: #27ae60;
+        }
+        .result-item.discount-amount span:last-child {
+            color: #e74c3c;
+        }
 
-        select#profitRate,
-        select.product-type-select,
-        .coin-model-select {
+
+        select#profitRate {
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
             background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M205.66%2099.66L128%20177.34%2050.34%2099.66z%22%2F%3E%3C%2Fsvg%3E');
             background-repeat: no-repeat;
-            background-position: left 10px center; /* Adjusted position */
-            background-size: 10px; /* Smaller arrow */
-            padding-left: 30px; /* Adjusted padding */
+            background-position: left 15px center;
+            background-size: 12px;
+            padding-left: 40px;
+            padding-right: 15px;
         }
-        
+        select.product-type-select {
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 1em;
+            color: #333;
+            background-color: #fdfdfd;
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M205.66%2099.66L128%20177.34%2050.34%2099.66z%22%2F%3E%3C%2Fsvg%3E');
+            background-repeat: no-repeat;
+            background-position: left 15px center;
+            background-size: 12px;
+            padding-left: 40px;
+            padding-right: 15px;
+        }
+
         .suggested-discounts-section {
             background-color: #f0fff0;
             border: 1px solid #e0eee0;
             border-left: 5px solid #8fbc8f;
-            padding: 10px; /* Reduced padding */
-            margin-top: 8px; /* Reduced margin */
+            padding: 15px;
+            margin-top: 10px;
             border-radius: 8px;
         }
 
@@ -310,51 +396,62 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 6px 8px; /* Reduced padding */
+            padding: 8px 10px;
             border-bottom: 1px dashed #dcdcdc;
-            cursor: pointer;
+            cursor: pointer; /* Make the whole item clickable */
             transition: background-color 0.2s ease;
-            border-radius: 5px;
+            border-radius: 5px; /* Add slight border radius for hover effect */
         }
-        .suggested-discount-item:last-child { border-bottom: none; }
-        .suggested-discount-item:hover { background-color: #e6ffe6; }
+        .suggested-discount-item:last-child {
+            border-bottom: none;
+        }
+        .suggested-discount-item:hover {
+            background-color: #e6ffe6;
+        }
+
         .suggested-discount-item.active {
-            background-color: #d4f7d4;
-            border: 1px solid #4CAF50;
+            background-color: #d4f7d4; /* Lighter green for active item */
+            border: 1px solid #4CAF50; /* Green border for active */
             box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
         }
 
+
         .suggested-discount-text {
-            font-size: 0.9em; /* Smaller font */
+            font-size: 0.95em;
             color: #38761d;
             flex-grow: 1;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
         }
-        .suggested-discount-text .amount { font-weight: bold; color: #2f5f2f; }
+        .suggested-discount-text .amount {
+            font-weight: bold;
+            color: #2f5f2f;
+        }
         .suggested-discount-text .final-price {
-            font-size: 0.8em; /* Smaller font */
+            font-size: 0.85em;
             color: #666;
             margin-top: 2px;
-            direction: rtl;
+            direction: rtl; /* For mixed LTR/RTL content */
         }
-        .suggested-discount-text .final-price span { direction: ltr; }
+        .suggested-discount-text .final-price span {
+            direction: ltr; /* Ensure numbers are LTR */
+        }
 
-        /* Invoice Output Section */
+        /* --- NEW CSS FOR INVOICE OUTPUT --- */
         .invoice-output-wrapper {
             background-color: #ecf0f1;
             padding: 15px;
             border-radius: 10px;
-            margin-top: 25px;
-            border-left: 5px solid #2ecc71;
-            overflow: hidden;
+            margin-top: 30px;
+            border-left: 5px solid #2ecc71; /* A nice green for output section */
+            overflow: hidden; /* Hide overflow when closed */
         }
 
         .invoice-output-header {
             text-align: right;
             color: #2c3e50;
-            font-size: 1.3em; /* Slightly smaller */
+            font-size: 1.4em;
             margin: 0 0 10px 0;
             cursor: pointer;
             display: flex;
@@ -363,260 +460,322 @@
             padding-bottom: 5px;
             border-bottom: 1px dashed #ccc;
             transition: all 0.3s ease;
-            font-family: 'Vazirmatn', sans-serif;
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif; /* Added font */
         }
 
-        .invoice-output-header:hover { color: #27ae60; }
-        .invoice-output-header .toggle-icon { transition: transform 0.3s ease; font-size: 0.7em; margin-left: 8px; }
-        .invoice-output-header.expanded .toggle-icon { transform: rotate(180deg); }
+        .invoice-output-header:hover {
+            color: #27ae60;
+        }
+
+        .invoice-output-header .toggle-icon {
+            transition: transform 0.3s ease;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        .invoice-output-header.expanded .toggle-icon {
+            transform: rotate(180deg);
+        }
 
         .invoice-output-content {
             max-height: 0;
             transition: max-height 0.5s ease-out, padding 0.5s ease-out;
-            padding: 0 8px; /* Reduced padding */
+            padding: 0 10px;
             box-sizing: border-box;
         }
+
         .invoice-output-content.expanded {
-            max-height: 1200px; /* Adjusted for potential content */
-            padding: 10px 8px; /* Restore padding when expanded */
+            max-height: 1000px; /* Needs to be large enough to contain content */
+            padding: 15px 10px; /* Restore padding when expanded */
+        }
+
+        .invoice-output-content .form-group {
+            margin-bottom: 15px;
         }
 
         .generated-invoice-display {
-            border: 1px dashed #a0d9b4;
+            border: 1px dashed #a0d9b4; /* Light green border */
             background-color: #f9fff9;
-            padding: 12px; /* Reduced padding */
+            padding: 15px;
             border-radius: 8px;
-            margin-top: 15px; /* Reduced margin */
-            font-family: 'Vazirmatn', sans-serif;
+            margin-top: 20px;
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
             color: #333;
-            line-height: 1.6; /* Adjusted line height */
-            direction: rtl;
+            line-height: 1.8;
+            direction: rtl; /* Ensure whole invoice is RTL */
         }
 
         .generated-invoice-display p {
-            margin: 4px 0; /* Reduced margin */
-            font-size: 0.85em; /* Smaller font for invoice items */
-            line-height: 1.3;
+            margin: 5px 0;
+            font-size: 0.9em; /* Smaller font for invoice items */
+            line-height: 1.4; /* Adjusted line height */
         }
 
-        .generated-invoice-display strong { color: #2f844f; }
+        .generated-invoice-display strong {
+            color: #2f844f; /* Darker green for emphasis */
+        }
+        
+        /* New invoice item styling */
         .generated-invoice-display .invoice-item-group {
             border-bottom: 1px dotted #e0e0e0;
-            padding-bottom: 4px; /* Reduced padding */
-            margin-bottom: 4px; /* Reduced margin */
+            padding-bottom: 5px;
+            margin-bottom: 5px;
         }
-        .generated-invoice-display .invoice-item-group:last-of-type { border-bottom: none; }
+        .generated-invoice-display .invoice-item-group:last-of-type {
+            border-bottom: none;
+        }
+
         .generated-invoice-display .invoice-section-divider {
             border-top: 1px solid #c0c0c0;
-            margin: 10px 0; /* Reduced margin */
-            padding-top: 8px; /* Reduced padding */
+            margin: 15px 0;
+            padding-top: 10px;
             font-weight: bold;
             color: #555;
-            font-size: 0.95em;
         }
 
         .generated-invoice-display .total-price-line {
-            font-size: 1.05em; /* Adjusted font size */
+            font-size: 1.1em; /* Slightly smaller for total line in invoice */
             font-weight: bold;
             color: #27ae60;
-            margin-top: 12px; /* Reduced margin */
+            margin-top: 15px;
             border-top: 2px solid #2ecc71;
-            padding-top: 8px; /* Reduced padding */
+            padding-top: 10px;
         }
-        .generated-invoice-display .discount-value { color: #e74c3c; font-weight: bold; }
-        .generated-invoice-display .total-final-value { color: #007bff; font-weight: bold; }
-        .generated-invoice-display .buy-item-value { color: #e74c3c; font-weight: bold; }
-        .generated-invoice-display .buy-item-value span { direction: ltr; font-size: 0.85em; }
+        /* Specific colors for invoice */
+        .generated-invoice-display .discount-value {
+            color: #e74c3c; /* Red for discount */
+            font-weight: bold;
+        }
+        .generated-invoice-display .total-final-value {
+            color: #007bff; /* Blue for total price */
+            font-weight: bold;
+        }
+        /* Invoice specific color for "خرید طلا از مشتری" */
+        .generated-invoice-display .buy-item-value {
+            color: #e74c3c; /* Red for bought gold from customer */
+            font-weight: bold;
+        }
+        .generated-invoice-display .buy-item-value span { /* Ensure numbers within these spans are LTR */
+            direction: ltr;
+            font-size: 0.9em; /* Smaller font for numbers in invoice buy items */
+        }
+
 
         .generate-invoice-button,
-        .print-invoice-button,
-        .download-pdf-button {
-            background-color: #007bff; /* Blue for actions */
+        .print-invoice-button {
+            background-color: #28a745; /* Green for generate/print */
             color: white;
-            padding: 10px 18px; /* Reduced padding */
+            padding: 12px 20px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            font-size: 0.95em;
+            font-size: 1em;
             width: auto;
             transition: background-color 0.3s ease;
             display: block;
-            margin: 10px auto 0 auto; /* Adjusted margin */
-        }
-        .generate-invoice-button:hover,
-        .print-invoice-button:hover,
-        .download-pdf-button:hover {
-            background-color: #0056b3;
+            margin: 15px auto 0 auto;
         }
 
-        /* Buy Sections */
+        .generate-invoice-button:hover,
+        .print-invoice-button:hover {
+            background-color: #218838;
+        }
+
+        /* UPDATED: Styles for buy sections - no outer container, just header and content */
         .buy-section-container {
-            margin-top: 20px; /* Reduced margin */
+            margin-top: 25px; /* Add margin to separate from previous sections */
         }
 
         .buy-section-header {
-            font-size: 1em; /* Reduced font size */
+            font-size: 1.1em;
             font-weight: bold;
-            color: #34495e;
-            padding: 8px 12px; /* Reduced padding */
-            background-color: #e9f0f7;
-            cursor: pointer;
+            color: #333; /* Simplified color */
+            padding: 10px 15px 15px 15px; /* Reduced padding, adjusted bottom */
+            background-color: transparent; /* Removed background */
+            cursor: default; /* Changed to default cursor */
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-top: 1px solid #d8e4f0;
-            border-bottom: 1px solid #d8e4f0;
-            border-right: 5px solid #92b0d0;
-            transition: background-color 0.3s ease, border-color 0.3s ease;
-            font-family: 'Vazirmatn', sans-serif;
-            margin-bottom: 8px; /* Reduced margin */
+            border-top: none; /* Removed border */
+            border-bottom: none; /* Removed border */
+            border-right: none; /* Removed border */
+            transition: none; /* Removed transition */
+            font-family: 'Vazirmatn', 'IRANSans', 'Sahel', sans-serif;
+            margin-bottom: 0; /* Reduced space between header and content */
         }
 
-        .buy-section-header:hover { background-color: #e0e7ed; border-right-color: #7a9cc2; }
-        .buy-section-header .toggle-icon { transition: transform 0.3s ease; font-size: 0.7em; }
-        .buy-section-header.expanded .toggle-icon { transform: rotate(180deg); }
+        .buy-section-header:hover {
+            background-color: transparent; /* No hover effect */
+            border-right-color: none; /* No hover effect */
+        }
+
+        .buy-section-header .toggle-icon {
+            display: none; /* Hidden toggle icon */
+        }
+
+        .buy-section-header.expanded .toggle-icon {
+            transform: none; /* No transformation */
+        }
 
         .buy-section-content {
             max-height: 0;
             transition: max-height 0.5s ease-out, padding 0.5s ease-out;
             overflow: hidden;
-            padding: 0;
+            padding: 0; /* No padding here, let inner elements manage */
             box-sizing: border-box;
         }
         .buy-section-content.expanded {
-            max-height: 1200px; /* Adjusted for potential content */
-            padding-bottom: 8px; /* Reduced padding */
+            max-height: 1000px; /* Adjust as needed */
+            padding-bottom: 10px; /* Add minimal bottom padding when expanded */
         }
         
-        .buy-option-input {
-            width: 100%;
-            padding: 8px 10px; /* Consistent with other inputs now */
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 0.95em; /* Slightly smaller for these inputs */
-            color: #333;
-            transition: border-color 0.3s, box-shadow 0.3s;
-            background-color: #fdfdfd;
-            font-family: 'Vazirmatn', sans-serif;
-            text-align: right;
-        }
-
+        /* UPDATED: Styles for buy gold/parsian/ingot options - more compact and visually appealing */
         .buy-option-group {
-            margin-bottom: 6px; /* Reduced margin */
+            margin-bottom: 8px; /* Reduced margin for tighter spacing */
             padding: 8px 10px 8px 15px; /* Reduced padding */
-            border-right: 3px solid #cfe6fa;
-            background-color: #fcfdfe;
+            border-right: none; /* Removed border */
+            background-color: transparent; /* Removed background */
             position: relative;
+            /* Removed box-shadow for flatter look */
             border-radius: 4px;
         }
-        .buy-option-group:last-child { margin-bottom: 0; }
-        .buy-option-group.single-item .remove-buy-item { display: none !important; }
+        .buy-option-group:last-child {
+            margin-bottom: 0;
+        }
+
+        /* NEW: Hide remove button for single buy-option-group (Gold, Parsian, Ingot) */
+        .buy-option-group.single-item .remove-buy-item {
+            display: none !important;
+        }
+
         .buy-option-group .remove-buy-item {
             position: absolute;
-            top: 5px;
-            left: 5px;
+            top: 5px; /* Adjust position */
+            left: 5px; /* Adjust position */
             background: none;
             border: none;
             color: #e74c3c;
-            font-size: 1em; /* Adjusted icon size */
+            font-size: 1.1em; /* Slightly larger icon */
             cursor: pointer;
-            padding: 3px;
+            padding: 3px; /* Smaller padding for button */
             border-radius: 50%;
             transition: background-color 0.2s;
         }
-        .buy-option-group .remove-buy-item:hover { background-color: #ffe0e0; }
+        .buy-option-group .remove-buy-item:hover {
+            background-color: #ffe0e0;
+        }
 
-        /* Coin section specific styles */
-        .coin-item-group {
-            margin-bottom: 6px; /* Consistent margin */
+        /* UPDATED: Coin section specific styles - flatter structure */
+        .coin-item-group { /* Replaces buy-option-group for coins, to be direct child of container */
+            margin-bottom: 8px; /* Consistent margin */
             padding: 8px 10px 8px 15px; /* Consistent padding */
-            border-right: 3px solid #cfe6fa;
-            background-color: #fcfdfe;
+            border-right: none; /* Removed border */
+            background-color: transparent; /* Removed background */
             position: relative;
+            /* Removed box-shadow */
             border-radius: 4px;
         }
-        .coin-item-group:last-child { margin-bottom: 0; }
-        .coin-item-group .remove-buy-item {
+        .coin-item-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .coin-item-group .remove-buy-item { /* Reuse remove-buy-item for outer coin group */
             position: absolute;
             top: 5px;
             left: 5px;
             background: none;
             border: none;
             color: #e74c3c;
-            font-size: 1em;
+            font-size: 1.1em;
             cursor: pointer;
             padding: 3px;
             border-radius: 50%;
             transition: background-color 0.2s;
         }
-        .coin-item-group .remove-buy-item:hover { background-color: #ffe0e0; }
+        .coin-item-group .remove-buy-item:hover {
+            background-color: #ffe0e0;
+        }
 
-        .coin-sub-item {
+        .coin-sub-item { /* Each individual coin select/input row */
             display: flex;
             align-items: center;
-            gap: 6px; /* Reduced gap */
-            margin-bottom: 6px; /* Reduced margin */
+            gap: 8px; /* Slightly smaller gap */
+            margin-bottom: 8px; /* Smaller margin for rows */
             padding: 0;
             border-radius: 3px;
         }
-        .coin-sub-item:last-of-type { margin-bottom: 0; }
+        .coin-sub-item:last-of-type {
+            margin-bottom: 0;
+        }
         .coin-sub-item .coin-remove-button {
             background: none;
             border: none;
             color: #e74c3c;
-            font-size: 1em;
+            font-size: 1.1em; /* Slightly larger icon */
             cursor: pointer;
             padding: 3px;
             transition: background-color 0.2s;
             border-radius: 50%;
         }
-        .coin-sub-item .coin-remove-button:hover { background-color: #ffe0e0; }
+        .coin-sub-item .coin-remove-button:hover {
+            background-color: #ffe0e0;
+        }
 
+        /* UPDATED: Icon buttons for adding items */
         .add-item-icon-button {
-            background-color: #3498db;
+            background-color: #3498db; /* Blue for add buttons */
             color: white;
-            width: 26px; /* Slightly smaller */
-            height: 26px;
-            border-radius: 50%;
+            width: 28px; /* Slightly smaller square button */
+            height: 28px;
+            border-radius: 50%; /* Circular */
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.2em; /* Smaller plus sign */
-            line-height: 1;
+            font-size: 1.4em; /* Large plus sign */
+            line-height: 1; /* Center plus sign vertically */
             padding: 0;
             border: none;
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.2s ease;
-            float: left;
-            margin-left: 8px; /* Adjusted margin */
-            margin-top: -2px; /* Adjusted vertical alignment */
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Lighter shadow */
+            float: left; /* Aligned to the left */
+            margin-left: 10px; /* Space from the right edge of container */
+            margin-top: -3px; /* Adjust vertically to align with labels/inputs */
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1); /* Subtle shadow */
         }
-        .add-item-icon-button:hover { background-color: #2186c4; transform: scale(1.05); }
-        .add-item-icon-button::before { content: '+'; }
+        .add-item-icon-button:hover {
+            background-color: #2186c4; /* Darker blue */
+            transform: scale(1.05); /* Slight scale effect on hover */
+        }
+        .add-item-icon-button::before {
+            content: '+';
+        }
 
+        /* Specific style for add coin button within its group (still centered, textual) */
         .add-coin-button {
-            background-color: #4CAF50;
+            background-color: #4CAF50; /* Green */
             color: white;
-            padding: 5px 8px; /* Reduced padding */
+            padding: 6px 10px; /* Smaller padding */
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: 0.8em; /* Smaller font size */
-            margin-top: 8px; /* Reduced margin */
+            font-size: 0.85em; /* Smaller font size */
+            margin-top: 10px;
             transition: background-color 0.3s ease;
-            display: block;
+            display: block; /* To center it */
             margin-left: auto;
             margin-right: auto;
         }
-        .add-coin-button:hover { background-color: #45a049; }
+        .add-coin-button:hover {
+            background-color: #45a049;
+        }
         
+        /* Clearfix for floated elements */
         .clearfix::after {
             content: "";
             clear: both;
             display: table;
         }
+
 
         /* Print specific styles */
         @media print {
@@ -626,7 +785,7 @@
                 padding: 0;
                 display: block;
                 min-height: auto;
-                font-size: 10pt; /* Adjusted for print readability */
+                font-size: 12pt; /* Adjust for print readability */
             }
             .container {
                 box-shadow: none;
@@ -636,57 +795,40 @@
                 padding: 0;
             }
             /* Hide all other parts except invoiceOutputWrapper during print */
-            #invoiceContainer > *:not(#invoiceOutputWrapper),
+            #invoiceContainer > *:not(#invoiceOutputWrapper):not(#itemContainer), /* Keep itemContainer for sold items */
             .add-item-button,
             .checkbox-group,
             .form-group:has(#profitRate),
             .form-group:has(#discount),
             .suggested-discounts-section,
-            .result-section,
-            .buy-section-container .buy-section-header, /* Hide the collapsible header */
-            .buy-option-group .remove-buy-item,
-            .add-item-icon-button, 
-            .coin-item-group .remove-buy-item,
-            .add-coin-button,
-            .coin-sub-item .coin-remove-button,
-            .buy-option-input,
-            .print-invoice-button, /* Hide print button on print */
-            .download-pdf-button /* Hide download button on print */
-            {
+            .result-section { /* Hide result section on print */
                 display: none !important;
             }
-            /* Ensure items that were sold (itemContainer) and bought (buy sections) are visible for print */
-            #itemContainer,
-            .buy-section-container,
-            .buy-section-content {
+            /* Re-enable display for item container and its elements to ensure sold items are also visible */
+            #itemContainer {
                 display: block !important;
                 margin-top: 0 !important;
-                box-shadow: none !important;
-                border: none !important;
-                padding: 0 !important;
-                background-color: transparent !important;
             }
             #itemContainer .item-row {
                 display: block !important;
-                border: none !important;
+                border: none !important; /* Remove borders */
                 padding: 0 !important;
                 margin-top: 0 !important;
                 background-color: transparent !important;
             }
             #itemContainer .item-row .remove-item,
-            #itemContainer .item-row .flex-group > div.form-group:last-child,
-            #itemContainer .item-row .form-group:has(.currency-toggle)
-            {
+            #itemContainer .item-row .flex-group > div.form-group:last-child, /* Hide "خرید طلا از مشتری" input */
+            #itemContainer .item-row .form-group:has(.currency-toggle) /* Hide wage type radios and input if needed */
+             {
                 display: none !important;
             }
             #itemContainer .item-row .form-group {
-                margin-bottom: 3px !important; /* Smaller margin for print */
+                margin-bottom: 5px !important;
             }
             #itemContainer label {
                 font-weight: bold !important;
-                margin-bottom: 2px !important;
+                margin-bottom: 3px !important;
                 display: inline-block !important;
-                font-size: 0.9em !important;
             }
             #itemContainer input, #itemContainer select {
                 border: none !important;
@@ -694,14 +836,14 @@
                 width: auto !important;
                 display: inline-block !important;
                 background-color: transparent !important;
-                font-size: 0.9em !important;
+                font-size: 1em !important;
                 color: #000 !important;
             }
             #itemContainer .input-inline-wrapper {
                 display: inline !important;
             }
             #itemContainer .input-inline-display {
-                display: none !important;
+                display: none !important; /* Hide words on print */
             }
             
             .invoice-output-wrapper {
@@ -712,11 +854,12 @@
             }
             .invoice-output-header,
             .invoice-output-content .form-group,
-            .generate-invoice-button {
+            .generate-invoice-button,
+            .print-invoice-button {
                 display: none !important;
             }
             .invoice-output-content.expanded {
-                max-height: fit-content;
+                max-height: fit-content; /* Ensure all content is visible */
                 padding: 0;
             }
             .generated-invoice-display {
@@ -725,6 +868,7 @@
                 background-color: #fff;
                 margin-top: 0;
             }
+            /* Hide scrollbars during print, if any */
             ::-webkit-scrollbar {
                 width: 0 !important;
                 height: 0 !important;
@@ -732,101 +876,133 @@
             .invoice-output-header .toggle-icon {
                 display: none;
             }
-            .buy-option-group, .coin-item-group {
+            /* NEW: Print-specific adjustments for buy section */
+            .buy-section-container {
+                display: block !important; /* Re-enable buy section containers for printing */
+                box-shadow: none;
+                max-width: none;
+                width: 100%;
+                border-radius: 0;
+                padding: 0;
+                border: none;
+                background-color: #fff;
+            }
+            .buy-section-container .buy-section-header {
+                display: none !important; /* Hide the collapsible header */
+            }
+            .buy-section-content {
+                max-height: fit-content !important; /* Ensure content is visible */
+                padding: 0 !important;
+            }
+            .buy-option-group, .coin-item-group { /* General for all buy groups */
                 border: none;
                 padding: 0;
-                margin-bottom: 3px; /* Smaller margin for print */
+                margin-bottom: 5px;
                 background-color: #fff;
             }
             .buy-option-group p, .coin-item-group p {
-                margin: 1px 0; /* Smaller margin for print */
-                font-size: 0.9em;
+                margin: 2px 0;
+            }
+            /* Hide all input elements and their associated remove buttons from print */
+            .buy-option-group .remove-buy-item,
+            .add-item-icon-button, 
+            .coin-item-group .remove-buy-item,
+            .add-coin-button,
+            .coin-sub-item .coin-remove-button,
+            .buy-option-input {
+                display: none !important;
             }
             .buy-option-group strong, .coin-item-group strong {
                 font-weight: bold;
-                color: #e74c3c;
+                color: #e74c3c; /* Keep red for bought items */
             }
         }
 
-        /* Mobile-specific adjustments */
         @media (max-width: 600px) {
             .container {
-                padding: 15px;
+                padding: 18px;
             }
             h1 {
-                font-size: 1.5em;
-                margin-bottom: 20px;
+                font-size: 1.6em;
             }
             .form-group label {
-                font-size: 0.85em;
-            }
-            input:not([type="radio"]):not([type="checkbox"]),
-            select {
-                padding: 8px 10px;
                 font-size: 0.9em;
             }
-            .add-item-button,
-            .generate-invoice-button,
-            .print-invoice-button,
-            .download-pdf-button {
-                padding: 8px 15px;
-                font-size: 0.9em;
-            }
-            .add-item-icon-button {
-                width: 24px;
-                height: 24px;
-                font-size: 1.1em;
-                margin-left: 6px;
-            }
-            .add-coin-button {
-                padding: 4px 6px;
-                font-size: 0.7em;
-            }
-            .result-item {
+            input:not([type="radio"]):not([type="checkbox"]):not(.buy-option-input),
+            select:not(.buy-option-input) {
+                padding: 10px 12px;
                 font-size: 0.95em;
             }
+            .buy-option-input { /* Also adjust for smaller screens */
+                padding: 6px 8px;
+                font-size: 0.85em; /* Make it smaller by default for buy section inputs */
+            }
+            /* Further reduction for coin inputs on small screens */
+            .coin-model-select,
+            .coin-price-input {
+                font-size: 0.8em; 
+                padding: 5px 7px;
+            }
+
+            .add-item-button {
+                padding: 8px 13px;
+                font-size: 0.95em;
+            }
+            /* Adjusted for new icon buttons on smaller screens */
+            .add-item-icon-button {
+                width: 25px;
+                height: 25px;
+                font-size: 1.2em;
+                margin-left: 8px;
+                margin-top: -3px;
+            }
+            .add-coin-button { /* Still separate for its specific location */
+                padding: 5px 8px;
+                font-size: 0.75em;
+            }
+
+            .result-item {
+                font-size: 1em;
+            }
             .result-item:last-child {
-                font-size: 1.05em;
+                font-size: 1.1em;
             }
             .flex-group {
                 flex-direction: column;
-                gap: 8px;
+                gap: 10px;
             }
             .suggested-discount-item {
-                flex-direction: row;
+                flex-direction: row; /* Keep row layout, but maybe wrap text */
                 align-items: center;
                 gap: 5px;
             }
             .suggested-discount-text {
-                align-items: flex-start;
+                align-items: flex-start; /* Ensure text aligns left */
             }
             .checkbox-group {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
+                flex-direction: column; /* Stack checkboxes vertically on small screens */
+                align-items: flex-start; /* Align them to the start */
             }
             .checkbox-group > div {
-                width: 100%;
+                width: 100%; /* Make each checkbox item take full width */
             }
+            /* Invoice output adjustments for small screens */
             .invoice-output-header {
-                font-size: 1.1em;
+                font-size: 1.2em;
+            }
+            .generated-invoice-display {
+                padding: 10px;
             }
             .generated-invoice-display p {
-                font-size: 0.8em;
+                font-size: 0.85em; /* Even smaller for invoice on mobile */
             }
+            /* Buy section header adjustments for smaller screens */
             .buy-section-header {
-                font-size: 0.95em;
-                padding: 8px 10px;
-            }
-            .buy-option-input,
-            .coin-model-select,
-            .coin-price-input {
-                font-size: 0.9em;
-                padding: 7px 9px;
+                font-size: 1em;
+                padding: 10px 12px;
             }
         }
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
 </head>
 <body>
     <div class="container" id="invoiceContainer">
@@ -835,7 +1011,7 @@
         <div class="form-group">
             <label for="goldPrice">قیمت هر گرم طلا (تومان):</label>
             <div class="input-inline-wrapper">
-                <input type="text" id="goldPrice" maxlength="9" required inputmode="numeric">
+                <input type="text" id="goldPrice" maxlength="9" required>
                 <span class="input-inline-display" id="goldPriceInWords"></span>
             </div>
         </div>
@@ -875,7 +1051,7 @@
                         </label>
                     </div>
                     <div class="input-inline-wrapper">
-                        <input type="text" id="wage1" class="gold-wage" inputmode="decimal">
+                        <input type="text" id="wage1" class="gold-wage">
                         <span class="input-inline-display" id="wageInWords1"></span>
                     </div>
                 </div>
@@ -885,10 +1061,7 @@
         <button type="button" class="add-item-button" onclick="addItem()">افزودن آیتم جدید</button>
 
         <div class="buy-section-container" id="buyGoldSection">
-            <h2 class="buy-section-header clearfix" onclick="toggleBuySection('buyGoldSection')">
-                خرید طلا (از مشتری) 
-                <span class="toggle-icon">▼</span>
-            </h2>
+            <h2 class="buy-section-header clearfix" onclick="toggleBuySection('buyGoldSection')"> خرید طلا (از مشتری) <span class="toggle-icon">▼</span> </h2>
             <div class="buy-section-content">
                 <div id="buyGoldItemContainer">
                     <div class="buy-option-group single-item" data-buy-item-id="gold1">
@@ -903,11 +1076,7 @@
         </div>
 
         <div class="buy-section-container" id="buyCoinSection">
-            <h2 class="buy-section-header clearfix" onclick="toggleBuySection('buyCoinSection')">
-                خرید سکه (از مشتری) 
-                <button type="button" class="add-item-icon-button" onclick="event.stopPropagation(); addBuyCoinItem()"></button>
-                <span class="toggle-icon">▼</span>
-            </h2>
+            <h2 class="buy-section-header clearfix" onclick="toggleBuySection('buyCoinSection')"> خرید سکه (از مشتری) <button type="button" class="add-item-icon-button" onclick="event.stopPropagation(); addBuyCoinItem()"></button> <span class="toggle-icon">▼</span> </h2>
             <div class="buy-section-content">
                 <div id="buyCoinItemContainer">
                     <div class="coin-item-group" data-buy-item-id="coin1">
@@ -924,7 +1093,7 @@
                                     <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
                                     <option value="یک گرمی بانکی">یک گرمی بانکی</option>
                                 </select>
-                                <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" inputmode="numeric" style="flex-grow: 1;">
+                                <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" style="flex-grow: 1;">
                                 <button type="button" class="coin-remove-button" onclick="removeCoinSubItem(this)">✖</button>
                             </div>
                         </div>
@@ -935,10 +1104,7 @@
         </div>
 
         <div class="buy-section-container" id="buyParsianIngotSection">
-            <h2 class="buy-section-header clearfix" onclick="toggleBuySection('buyParsianIngotSection')">
-                خرید پارسیان و شمش (از مشتری) 
-                <span class="toggle-icon">▼</span>
-            </h2>
+            <h2 class="buy-section-header clearfix" onclick="toggleBuySection('buyParsianIngotSection')"> خرید پارسیان و شمش (از مشتری) <span class="toggle-icon">▼</span> </h2>
             <div class="buy-section-content">
                 <div class="buy-option-group single-item" data-buy-item-id="parsian1">
                     <button type="button" class="remove-buy-item" onclick="removeBuyItem(this)">✖</button>
@@ -985,20 +1151,17 @@
 
         <div class="form-group">
             <label for="discount">تخفیف (تومان):</label>
-            <input type="text" id="discount" class="discount-input" inputmode="numeric">
+            <input type="text" id="discount" class="discount-input">
         </div>
-        
+
         <div id="suggestedDiscountsSection" class="suggested-discounts-section" style="display: none;">
-            </div>
+        </div>
 
         <div class="result-section" id="resultSection">
-            </div>
+        </div>
 
         <div class="invoice-output-wrapper" id="invoiceOutputWrapper">
-            <h2 class="invoice-output-header" onclick="toggleInvoiceOutput()"> 
-                ارائه فاکتور فروش 
-                <span class="toggle-icon">▼</span>
-            </h2>
+            <h2 class="invoice-output-header" onclick="toggleInvoiceOutput()"> ارائه فاکتور فروش <span class="toggle-icon">▼</span> </h2>
             <div class="invoice-output-content" id="invoiceOutputContent">
                 <div class="form-group">
                     <label for="customerName">نام خریدار:</label>
@@ -1006,13 +1169,12 @@
                 </div>
                 <div class="form-group">
                     <label for="customerPhone">شماره تماس (اختیاری):</label>
-                    <input type="tel" id="customerPhone" class="customer-input" inputmode="tel">
+                    <input type="tel" id="customerPhone" class="customer-input">
                 </div>
                 <button type="button" class="generate-invoice-button" onclick="generateInvoiceDisplay()"> نمایش فاکتور </button>
                 <div class="generated-invoice-display" id="generatedInvoiceDisplay">
-                    </div>
+                </div>
                 <button type="button" class="print-invoice-button" id="printInvoiceButton" onclick="printInvoice()" style="display: none; margin-top: 15px;"> چاپ فاکتور </button>
-                <button type="button" class="download-pdf-button" id="downloadPdfButton" onclick="downloadInvoicePdf()" style="display: none; margin-top: 10px;"> دانلود فاکتور PDF </button>
             </div>
         </div>
     </div>
@@ -1027,11 +1189,15 @@
         const invoiceContainer = document.getElementById('invoiceContainer');
 
         let itemIdCounter = 1;
-        let buyCoinGroupCounter = 1;
+        // let buyGoldItemIdCounter = 1; // Counter not needed for single gold buy item
+        let buyCoinGroupCounter = 1; // Counter for "خرید سکه" groups (each group can have multiple coins)
+        // let buyParsianItemIdCounter = 1; // Counter not needed for single parsian item
+        // let buyIngotItemIdCounter = 1; // Counter not needed for single ingot item
 
         let activeDiscountValue = 0;
         let activeDiscountType = null;
 
+        // GLOBAL VARIABLES to store calculated values for invoice display
         let finalCalculatedData = {
             goldPricePerGram: 0,
             itemDetails: [], // Sold items
@@ -1054,624 +1220,582 @@
             'ربع زیر ۸۶': 2.033,
             'نیم زیر ۸۶': 4.066,
             'امامی زیر ۸۶': 8.133,
-            'یک گرمی بانکی': 1.000
+            'یک گرمی بانکی': 1
         };
 
-        function convertToFarsiDigits(num) {
-            if (num === null || num === undefined || num === '') {
-                return '';
-            }
-            let numStr = String(num);
-            numStr = numStr.replace(/\./g, '٫');
-            return numStr.split('').map(digit => {
-                if (digit === '٫') return '٫';
-                if (digit >= '0' && digit <= '9') {
-                    return farsiDigits[parseInt(digit)];
+        function convertToEnglishDigits(str) {
+            if (!str) return '';
+            let englishString = '';
+            for (let i = 0; i < str.length; i++) {
+                const char = str[i];
+                const digitIndex = farsiDigits.indexOf(char);
+                if (digitIndex !== -1) {
+                    englishString += digitIndex;
+                } else {
+                    englishString += char;
                 }
-                return digit;
-            }).join('');
+            }
+            return englishString;
         }
 
-        function convertToEnglishDigits(numStr) {
-            if (numStr === null || numStr === undefined || numStr === '') {
-                return '';
-            }
-            let englishNum = '';
+        function convertToFarsiDigits(num) {
+            if (num === null || num === undefined || isNaN(num)) return '';
+            const numStr = num.toString();
+            let farsiString = '';
             for (let i = 0; i < numStr.length; i++) {
                 const char = numStr[i];
-                const farsiIndex = farsiDigits.indexOf(char);
-                if (farsiIndex !== -1) {
-                    englishNum += farsiIndex;
-                } else if (char === '٫') {
-                    englishNum += '.';
+                if (char >= '0' && char <= '9') {
+                    farsiString += farsiDigits[parseInt(char)];
                 } else {
-                    englishNum += char;
+                    farsiString += char;
                 }
             }
-            return englishNum;
+            return farsiString;
         }
 
-        function toPersianWords(number) {
-            if (number === '' || isNaN(number) || number === 0) return '';
+        function formatNumber(num) {
+            if (num === null || num === undefined || isNaN(num)) return '';
+            return parseFloat(num).toLocaleString('fa-IR');
+        }
+
+        function convertNumberToWords(num) {
             const units = ['', 'هزار', 'میلیون', 'میلیارد', 'تریلیون'];
             const teens = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
             const tens = ['', '', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
             const hundreds = ['', 'صد', 'دویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
             const ones = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
 
-            function convertThreeDigits(num) {
-                let result = [];
-                let h = Math.floor(num / 100);
-                let t = Math.floor((num % 100) / 10);
-                let o = num % 10;
+            if (num === 0) return 'صفر';
+            if (num < 0) return 'منفی ' + convertNumberToWords(Math.abs(num));
 
-                if (h > 0) {
-                    result.push(hundreds[h]);
-                }
-                if (t >= 2) {
-                    result.push(tens[t]);
-                    if (o > 0) {
-                        result.push(ones[o]);
+            let words = '';
+            let numStr = String(Math.floor(num));
+            let numLength = numStr.length;
+
+            for (let i = 0; i < numLength; i++) {
+                numStr = '0' + numStr; // Pad with leading zeros to make length multiple of 3
+            }
+
+            const groups = [];
+            for (let i = numStr.length; i > 0; i -= 3) {
+                groups.push(numStr.substring(Math.max(0, i - 3), i));
+            }
+
+            groups.reverse(); // Process from largest group to smallest
+
+            for (let i = 0; i < groups.length; i++) {
+                let group = parseInt(groups[i], 10);
+                let groupWords = [];
+
+                if (group === 0) {
+                    // Do nothing for zero groups
+                } else {
+                    let h = Math.floor(group / 100);
+                    let t = Math.floor((group % 100) / 10);
+                    let o = group % 10;
+
+                    if (h > 0) {
+                        groupWords.push(hundreds[h]);
                     }
-                } else if (t === 1) {
-                    result.push(teens[o]);
-                } else if (o > 0) {
-                    result.push(ones[o]);
+
+                    if (t === 1 && o > 0) {
+                        groupWords.push(teens[o]);
+                    } else {
+                        if (t > 0) {
+                            groupWords.push(tens[t]);
+                        }
+                        if (o > 0 && t !== 1) {
+                            groupWords.push(ones[o]);
+                        }
+                    }
+                    if (groupWords.length > 0 && i < units.length) {
+                        groupWords.push(units[groups.length - 1 - i]);
+                    }
                 }
-                return result.join(' و ');
-            }
-
-            let numStr = String(Math.floor(number));
-            if (numStr === '0') return 'صفر';
-
-            let parts = [];
-            let i = 0;
-            while (numStr.length > 0) {
-                let threeDigits = parseInt(numStr.slice(-3));
-                numStr = numStr.slice(0, -3);
-
-                let converted = convertThreeDigits(threeDigits);
-                if (converted) {
-                    parts.unshift(converted + (units[i] ? ' ' + units[i] : ''));
+                words += groupWords.join(' و ');
+                if (i < groups.length - 1 && parseInt(groups[i + 1], 10) > 0 && group > 0) {
+                    words += ' و ';
                 }
-                i++;
             }
-            return parts.join(' و ') + ' تومان';
+            return words.replace(/ و صفر/g, '').replace(/صفر و /g, '').trim();
         }
 
-        function updateGoldPriceWords() {
-            const goldPriceInput = document.getElementById('goldPrice');
-            const goldPriceInWordsSpan = document.getElementById('goldPriceInWords');
-            const price = parseFloat(convertToEnglishDigits(goldPriceInput.value));
-            goldPriceInWordsSpan.textContent = toPersianWords(price);
-        }
-
-        function updateWageWords(inputId, spanId) {
-            const wageInput = document.getElementById(inputId);
-            const wageInWordsSpan = document.getElementById(spanId);
-            const wage = parseFloat(convertToEnglishDigits(wageInput.value));
-            const wageType = document.querySelector(`input[name="wageType${inputId.replace('wage', '')}"]:checked`).value;
-
-            if (wageType === 'amount') {
-                wageInWordsSpan.textContent = toPersianWords(wage);
+        document.getElementById('goldPrice').addEventListener('input', function() {
+            const value = convertToEnglishDigits(this.value);
+            const goldPriceWords = document.getElementById('goldPriceInWords');
+            if (value && !isNaN(parseFloat(value))) {
+                goldPriceWords.textContent = convertNumberToWords(parseFloat(value)) + ' تومان';
             } else {
-                wageInWordsSpan.textContent = `${convertToFarsiDigits(wage || '')} درصد`;
+                goldPriceWords.textContent = '';
             }
-        }
+            calculateFactor();
+        });
 
         function toggleWageInput(radio) {
-            const itemId = radio.name.replace('wageType', '');
-            const wageInput = document.getElementById(`wage${itemId}`);
-            const wageInWordsSpan = document.getElementById(`wageInWords${itemId}`);
-            updateWageWords(`wage${itemId}`, `wageInWords${itemId}`);
+            const wageInput = radio.closest('.form-group').querySelector('.gold-wage');
+            const wageInWordsSpan = radio.closest('.form-group').querySelector('.input-inline-display');
+            if (radio.value === 'percent') {
+                wageInput.placeholder = 'درصد اجرت';
+                wageInWordsSpan.textContent = ''; // Clear words when changing type
+            } else {
+                wageInput.placeholder = 'مبلغ اجرت';
+                wageInWordsSpan.textContent = ''; // Clear words when changing type
+            }
             calculateFactor();
         }
-
-        document.getElementById('goldPrice').addEventListener('input', () => {
-            updateGoldPriceWords();
-            calculateFactor();
-        });
-        document.getElementById('profitRate').addEventListener('change', calculateFactor);
-        document.getElementById('includeTax').addEventListener('change', calculateFactor);
-        document.getElementById('buyDiffGoldWithDiscount').addEventListener('change', calculateFactor);
-        discountInput.addEventListener('input', () => {
-            activeDiscountValue = parseFloat(convertToEnglishDigits(discountInput.value)) || 0;
-            activeDiscountType = null; // Deactivate suggested discount if manual input
-            hideSuggestedDiscounts();
-            calculateFactor();
-        });
 
         function addItem() {
             itemIdCounter++;
-            const newItemRow = document.createElement('div');
-            newItemRow.className = 'item-row';
-            newItemRow.setAttribute('data-item-id', itemIdCounter);
-            newItemRow.innerHTML = `
-                <button type="button" class="remove-item" onclick="removeItem(this)">✖</button>
-                <div class="flex-group">
-                    <div class="form-group">
-                        <label for="weight${itemIdCounter}">وزن طلا (گرم):</label>
-                        <input type="text" id="weight${itemIdCounter}" class="gold-weight" inputmode="decimal">
+            const newItemHtml = `
+                <div class="item-row" data-item-id="${itemIdCounter}">
+                    <button type="button" class="remove-item" onclick="removeItem(this)">✖</button>
+                    <div class="flex-group">
+                        <div class="form-group">
+                            <label for="weight${itemIdCounter}">وزن طلا (گرم):</label>
+                            <input type="text" id="weight${itemIdCounter}" class="gold-weight" inputmode="decimal" oninput="calculateFactor()">
+                        </div>
+                        <div class="form-group">
+                            <label for="productType${itemIdCounter}">نوع محصول:</label>
+                            <select id="productType${itemIdCounter}" class="product-type-select" onchange="calculateFactor()">
+                                <option value="">انتخاب کنید</option>
+                                <option value="زنجیر">زنجیر</option>
+                                <option value="دستبند">دستبند</option>
+                                <option value="النگو">النگو</option>
+                                <option value="سرویس">سرویس</option>
+                                <option value="نیم‌ست">نیم‌ست</option>
+                                <option value="گوشواره">گوشواره</option>
+                                <option value="مدال">مدال</option>
+                                <option value="گردنبند">گردنبند</option>
+                                <option value="خلخال">خلخال</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label for="productType${itemIdCounter}">نوع محصول:</label>
-                        <select id="productType${itemIdCounter}" class="product-type-select">
-                            <option value="">انتخاب کنید</option>
-                            <option value="زنجیر">زنجیر</option>
-                            <option value="دستبند">دستبند</option>
-                            <option value="النگو">النگو</option>
-                            <option value="سرویس">سرویس</option>
-                            <option value="نیم‌ست">نیم‌ست</option>
-                            <option value="گوشواره">گوشواره</option>
-                            <option value="مدال">مدال</option>
-                            <option value="گردنبند">گردنبند</option>
-                            <option value="خلخال">خلخال</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label for="wage${itemIdCounter}">اجرت:</label>
-                    <div class="currency-toggle">
-                        <label>
-                            <input type="radio" name="wageType${itemIdCounter}" value="percent" checked onchange="toggleWageInput(this)"> درصد
-                        </label>
-                        <label>
-                            <input type="radio" name="wageType${itemIdCounter}" value="amount" onchange="toggleWageInput(this)"> تومان
-                        </label>
-                    </div>
-                    <div class="input-inline-wrapper">
-                        <input type="text" id="wage${itemIdCounter}" class="gold-wage" inputmode="decimal">
-                        <span class="input-inline-display" id="wageInWords${itemIdCounter}"></span>
+                        <label for="wage${itemIdCounter}">اجرت:</label>
+                        <div class="currency-toggle">
+                            <label>
+                                <input type="radio" name="wageType${itemIdCounter}" value="percent" checked onchange="toggleWageInput(this); calculateFactor()"> درصد
+                            </label>
+                            <label>
+                                <input type="radio" name="wageType${itemIdCounter}" value="amount" onchange="toggleWageInput(this); calculateFactor()"> تومان
+                            </label>
+                        </div>
+                        <div class="input-inline-wrapper">
+                            <input type="text" id="wage${itemIdCounter}" class="gold-wage" oninput="updateWageInWords(this, 'wageInWords${itemIdCounter}'); calculateFactor()">
+                            <span class="input-inline-display" id="wageInWords${itemIdCounter}"></span>
+                        </div>
                     </div>
                 </div>
             `;
-            itemContainer.appendChild(newItemRow);
-
-            // Add event listeners for new inputs
-            newItemRow.querySelector(`#weight${itemIdCounter}`).addEventListener('input', calculateFactor);
-            newItemRow.querySelector(`#productType${itemIdCounter}`).addEventListener('change', calculateFactor);
-            const newWageInput = newItemRow.querySelector(`#wage${itemIdCounter}`);
-            newWageInput.addEventListener('input', () => updateWageWords(`wage${itemIdCounter}`, `wageInWords${itemIdCounter}`));
-            newWageInput.addEventListener('input', calculateFactor);
-
-            updateWageWords(`wage${itemIdCounter}`, `wageInWords${itemIdCounter}`); // Initial update for new item
+            itemContainer.insertAdjacentHTML('beforeend', newItemHtml);
             calculateFactor();
         }
 
         function removeItem(button) {
-            const itemRow = button.closest('.item-row');
-            itemRow.remove();
+            button.closest('.item-row').remove();
             calculateFactor();
         }
 
-        function addBuyCoinItem() {
-            buyCoinGroupCounter++;
-            const newCoinGroup = document.createElement('div');
-            newCoinGroup.className = 'coin-item-group';
-            newCoinGroup.setAttribute('data-buy-item-id', `coin${buyCoinGroupCounter}`);
-            newCoinGroup.innerHTML = `
-                <button type="button" class="remove-buy-item" onclick="removeBuyItem(this)">✖</button>
-                <div id="coinSelectsCoin${buyCoinGroupCounter}">
-                    <div class="coin-sub-item">
-                        <select class="buy-option-input coin-model-select" onchange="updateCoinPriceInput(this, 'coin${buyCoinGroupCounter}')">
-                            <option value="">انتخاب مدل سکه</option>
-                            <option value="ربع ۸۶">ربع ۸۶</option>
-                            <option value="نیم ۸۶">نیم ۸۶</option>
-                            <option value="امامی ۸۶">امامی ۸۶</option>
-                            <option value="ربع زیر ۸۶">ربع زیر ۸۶</option>
-                            <option value="نیم زیر ۸۶">نیم زیر ۸۶</option>
-                            <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
-                            <option value="یک گرمی بانکی">یک گرمی بانکی</option>
-                        </select>
-                        <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" inputmode="numeric" style="flex-grow: 1;">
-                        <button type="button" class="coin-remove-button" onclick="removeCoinSubItem(this)">✖</button>
-                    </div>
-                </div>
-                <button type="button" class="add-coin-button" onclick="addCoinSelect('coin${buyCoinGroupCounter}')">افزودن سکه جدید</button>
-            `;
-            buyCoinItemContainer.appendChild(newCoinGroup);
-            calculateFactor();
-        }
+        function updateWageInWords(input, spanId) {
+            const value = convertToEnglishDigits(input.value);
+            const wageInWordsSpan = document.getElementById(spanId);
+            const wageType = input.closest('.form-group').querySelector('input[name^="wageType"]:checked').value;
 
-        function removeBuyItem(button) {
-            const itemGroup = button.closest('.buy-option-group') || button.closest('.coin-item-group');
-            itemGroup.remove();
-            calculateFactor();
-        }
-
-        function addCoinSelect(buyItemId) {
-            const coinSelectsContainer = document.getElementById(`coinSelects${buyItemId}`);
-            const newCoinSubItem = document.createElement('div');
-            newCoinSubItem.className = 'coin-sub-item';
-            newCoinSubItem.innerHTML = `
-                <select class="buy-option-input coin-model-select" onchange="updateCoinPriceInput(this, '${buyItemId}')">
-                    <option value="">انتخاب مدل سکه</option>
-                    <option value="ربع ۸۶">ربع ۸۶</option>
-                    <option value="نیم ۸۶">نیم ۸۶</option>
-                    <option value="امامی ۸۶">امامی ۸۶</option>
-                    <option value="ربع زیر ۸۶">ربع زیر ۸۶</option>
-                    <option value="نیم زیر ۸۶">نیم زیر ۸۶</option>
-                    <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
-                    <option value="یک گرمی بانکی">یک گرمی بانکی</option>
-                </select>
-                <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" inputmode="numeric" style="flex-grow: 1;">
-                <button type="button" class="coin-remove-button" onclick="removeCoinSubItem(this)">✖</button>
-            `;
-            coinSelectsContainer.appendChild(newCoinSubItem);
-            calculateFactor();
-        }
-
-        function removeCoinSubItem(button) {
-            const coinSubItem = button.closest('.coin-sub-item');
-            coinSubItem.remove();
-            calculateFactor();
-        }
-
-        function updateCoinPriceInput(selectElement, buyItemId) {
-            const coinPriceInput = selectElement.nextElementSibling;
-            const selectedCoin = selectElement.value;
-            const goldPrice = parseFloat(convertToEnglishDigits(document.getElementById('goldPrice').value));
-
-            if (selectedCoin && goldPrice > 0 && COIN_WEIGHTS[selectedCoin]) {
-                const calculatedPrice = goldPrice * COIN_WEIGHTS[selectedCoin];
-                coinPriceInput.value = convertToFarsiDigits(Math.round(calculatedPrice).toLocaleString('en-US'));
+            if (value && !isNaN(parseFloat(value))) {
+                if (wageType === 'percent') {
+                    wageInWordsSpan.textContent = convertNumberToWords(parseFloat(value)) + ' درصد';
+                } else {
+                    wageInWordsSpan.textContent = convertNumberToWords(parseFloat(value)) + ' تومان';
+                }
             } else {
-                coinPriceInput.value = '';
+                wageInWordsSpan.textContent = '';
             }
-            calculateFactor();
         }
-
-        // Add event listeners for initial elements that are part of "buy" sections
-        document.getElementById('buyGoldWeight1').addEventListener('input', calculateFactor);
-        document.getElementById('buyParsianWeight1').addEventListener('input', calculateFactor);
-        document.getElementById('buyIngotWeight1').addEventListener('input', calculateFactor);
-        
-        // Ensure coin price inputs trigger calculation when manually edited
-        buyCoinItemContainer.addEventListener('input', (event) => {
-            if (event.target.classList.contains('coin-price-input')) {
-                calculateFactor();
-            }
-        });
-        buyCoinItemContainer.addEventListener('change', (event) => {
-            if (event.target.classList.contains('coin-model-select')) {
-                calculateFactor();
-            }
-        });
 
         function calculateFactor() {
-            const goldPrice = parseFloat(convertToEnglishDigits(document.getElementById('goldPrice').value)) || 0;
-            const profitRate = parseFloat(document.getElementById('profitRate').value) || 0;
-            const includeTax = document.getElementById('includeTax').checked;
-            const buyDiffGoldWithDiscount = document.getElementById('buyDiffGoldWithDiscount').checked;
-
-            let totalGoldValue = 0; // Total value of gold items sold by us
-            let totalWage = 0;
+            const goldPriceInput = document.getElementById('goldPrice');
+            const goldPrice = parseFloat(convertToEnglishDigits(goldPriceInput.value));
+            
             let totalGoldWeight = 0;
-            let totalPureGoldWeight = 0;
+            let totalGoldWage = 0;
+            let totalPriceBeforeDiscount = 0;
+            let totalBuyGoldFromCustomer = 0;
+            let totalBuyCoinFromCustomer = 0;
+            let totalBuyParsianFromCustomer = 0;
+            let totalBuyIngotFromCustomer = 0;
 
-            finalCalculatedData.itemDetails = [];
+            finalCalculatedData.itemDetails = []; // Clear previous items
+
             document.querySelectorAll('.item-row').forEach(itemRow => {
                 const weightInput = itemRow.querySelector('.gold-weight');
                 const wageInput = itemRow.querySelector('.gold-wage');
-                const productTypeSelect = itemRow.querySelector('.product-type-select');
                 const wageType = itemRow.querySelector('input[name^="wageType"]:checked').value;
 
                 const weight = parseFloat(convertToEnglishDigits(weightInput.value)) || 0;
-                let wage = parseFloat(convertToEnglishDigits(wageInput.value)) || 0;
-                const productType = productTypeSelect.value;
+                const wageValue = parseFloat(convertToEnglishDigits(wageInput.value)) || 0;
 
-                if (weight > 0) {
-                    let itemWageAmount = 0;
-                    if (wageType === 'percent') {
-                        itemWageAmount = (goldPrice * weight) * (wage / 100);
-                    } else { // amount
-                        itemWageAmount = wage * weight; // Wage is per gram or total? Assuming total from current impl
-                    }
+                totalGoldWeight += weight;
 
-                    const itemValue = (goldPrice * weight) + itemWageAmount;
-                    totalGoldValue += itemValue;
-                    totalWage += itemWageAmount;
-                    totalGoldWeight += weight;
-                    totalPureGoldWeight += weight * (24 / 24); // Assuming 24 karat for pure gold reference if not specified
+                let effectiveWage = 0;
+                if (wageType === 'percent') {
+                    effectiveWage = (goldPrice * weight) * (wageValue / 100);
+                } else { // amount
+                    effectiveWage = wageValue * weight;
+                }
+                totalGoldWage += effectiveWage;
 
-                    finalCalculatedData.itemDetails.push({
-                        type: productType || "طلا",
-                        weight: weight,
-                        wage: wage,
-                        wageType: wageType,
-                        value: itemValue
+                const itemPrice = (goldPrice * weight) + effectiveWage;
+                totalPriceBeforeDiscount += itemPrice;
+
+                finalCalculatedData.itemDetails.push({
+                    weight: weight,
+                    wage: wageValue,
+                    wageType: wageType,
+                    effectiveWage: effectiveWage,
+                    itemPrice: itemPrice
+                });
+            });
+
+            // Calculate for buy gold from customer
+            finalCalculatedData.boughtItems = []; // Clear previous bought items
+            document.querySelectorAll('#buyGoldItemContainer .buy-option-group').forEach(buyGoldItem => {
+                const buyGoldWeightInput = buyGoldItem.querySelector('.gold-buy-weight');
+                const buyGoldWeight = parseFloat(convertToEnglishDigits(buyGoldWeightInput.value)) || 0;
+                totalBuyGoldFromCustomer += buyGoldWeight;
+                if (buyGoldWeight > 0) {
+                    finalCalculatedData.boughtItems.push({
+                        type: 'gold',
+                        weight: buyGoldWeight,
+                        value: buyGoldWeight * goldPrice // Value at current gold price
                     });
                 }
             });
 
-            let totalProfit = totalGoldValue * (profitRate / 100);
-            let totalAmountBeforeTax = totalGoldValue + totalProfit;
-            let totalCalculatedTax = 0;
-            if (includeTax) {
-                totalCalculatedTax = totalAmountBeforeTax * 0.10; // 10% tax
-            }
-
-            let totalBoughtValue = 0;
-            finalCalculatedData.boughtItems = [];
-
-            // Calculate bought gold from customer
-            document.querySelectorAll('#buyGoldItemContainer .buy-option-group').forEach(group => {
-                const weightInput = group.querySelector('.gold-buy-weight');
-                const weight = parseFloat(convertToEnglishDigits(weightInput.value)) || 0;
-                if (weight > 0) {
-                    const value = weight * goldPrice; // Gold bought at current gold price
-                    totalBoughtValue += value;
-                    finalCalculatedData.boughtItems.push({ type: 'طلا', weight: weight, value: value });
-                }
-            });
-
-            // Calculate bought coins from customer
-            document.querySelectorAll('#buyCoinItemContainer .coin-item-group').forEach(group => {
-                group.querySelectorAll('.coin-sub-item').forEach(subItem => {
-                    const priceInput = subItem.querySelector('.coin-price-input');
-                    const selectedCoinModel = subItem.querySelector('.coin-model-select').value;
-                    const price = parseFloat(convertToEnglishDigits(priceInput.value)) || 0;
-                    if (price > 0) {
-                        totalBoughtValue += price;
-                        finalCalculatedData.boughtItems.push({ type: selectedCoinModel || 'سکه', value: price });
+            // Calculate for buy coin from customer
+            document.querySelectorAll('#buyCoinItemContainer .coin-item-group').forEach(coinGroup => {
+                coinGroup.querySelectorAll('.coin-sub-item').forEach(coinSubItem => {
+                    const coinModelSelect = coinSubItem.querySelector('.coin-model-select');
+                    const coinPriceInput = coinSubItem.querySelector('.coin-price-input');
+                    
+                    const coinModel = coinModelSelect.value;
+                    const coinPrice = parseFloat(convertToEnglishDigits(coinPriceInput.value)) || 0;
+                    
+                    if (coinModel && coinPrice > 0) {
+                        totalBuyCoinFromCustomer += coinPrice;
+                        finalCalculatedData.boughtItems.push({
+                            type: 'coin',
+                            model: coinModel,
+                            price: coinPrice
+                        });
                     }
                 });
             });
 
-            // Calculate bought parsian from customer
-            document.querySelectorAll('#buyParsianIngotSection .parsian-buy-weight').forEach(input => {
-                const weight = parseFloat(convertToEnglishDigits(input.value)) || 0;
-                if (weight > 0) {
-                    const value = weight * goldPrice; // Assuming parsian bought at current gold price
-                    totalBoughtValue += value;
-                    finalCalculatedData.boughtItems.push({ type: 'سکه پارسیان', weight: weight, value: value });
+            // Calculate for buy parsian from customer
+            document.querySelectorAll('#buyParsianIngotSection .buy-option-group.parsian-input-wrapper').forEach(parsianItem => {
+                const parsianWeightInput = parsianItem.querySelector('.parsian-buy-weight');
+                const parsianWeight = parseFloat(convertToEnglishDigits(parsianWeightInput.value)) || 0;
+                if (parsianWeight > 0) {
+                    totalBuyParsianFromCustomer += parsianWeight * goldPrice; // Assume parsian value is based on gold price
+                    finalCalculatedData.boughtItems.push({
+                        type: 'parsian',
+                        weight: parsianWeight,
+                        value: parsianWeight * goldPrice
+                    });
                 }
             });
 
-            // Calculate bought ingot from customer
-            document.querySelectorAll('#buyParsianIngotSection .ingot-buy-weight').forEach(input => {
-                const weight = parseFloat(convertToEnglishDigits(input.value)) || 0;
-                if (weight > 0) {
-                    const value = weight * goldPrice; // Assuming ingot bought at current gold price
-                    totalBoughtValue += value;
-                    finalCalculatedData.boughtItems.push({ type: 'شمش', weight: weight, value: value });
+            // Calculate for buy ingot from customer
+            document.querySelectorAll('#buyParsianIngotSection .buy-option-group.ingot-input-wrapper').forEach(ingotItem => {
+                const ingotWeightInput = ingotItem.querySelector('.ingot-buy-weight');
+                const ingotWeight = parseFloat(convertToEnglishDigits(ingotWeightInput.value)) || 0;
+                if (ingotWeight > 0) {
+                    totalBuyIngotFromCustomer += ingotWeight * goldPrice; // Assume ingot value is based on gold price
+                    finalCalculatedData.boughtItems.push({
+                        type: 'ingot',
+                        weight: ingotWeight,
+                        value: ingotWeight * goldPrice
+                    });
                 }
             });
 
-            let finalTotalAmount = totalAmountBeforeTax + totalCalculatedTax - totalBoughtValue;
-            
-            // Handle "خرید ما به تفاوت طلا مشتری به مظنه (کسر 2%)"
+            finalCalculatedData.totalBoughtValue = totalBuyGoldFromCustomer * goldPrice + totalBuyCoinFromCustomer + totalBuyParsianFromCustomer + totalBuyIngotFromCustomer;
+
+            const profitRate = parseFloat(document.getElementById('profitRate').value);
+            const includeTax = document.getElementById('includeTax').checked;
+            const buyDiffGoldWithDiscount = document.getElementById('buyDiffGoldWithDiscount').checked;
+            const discount = parseFloat(convertToEnglishDigits(document.getElementById('discount').value)) || 0;
+
+            const totalProfit = totalPriceBeforeDiscount * (profitRate / 100);
+            let totalTax = 0;
+            if (includeTax) {
+                totalTax = (totalPriceBeforeDiscount + totalProfit) * 0.10; // 10% tax
+            }
+
             let buyDiffGoldAmount = 0;
-            let buyDiffGoldAmountWithDiscount = 0;
-            if (buyDiffGoldWithDiscount) {
-                // Assuming 'buyDiffGoldAmount' refers to the total weight of bought gold from customer
-                // And we apply a 2% deduction from its value at 'muzanne' (current gold price)
-                const totalWeightBoughtGold = finalCalculatedData.boughtItems
-                                                .filter(item => item.type === 'طلا')
-                                                .reduce((sum, item) => sum + item.weight, 0);
-
-                if (totalWeightBoughtGold > 0) {
-                    buyDiffGoldAmount = totalWeightBoughtGold * goldPrice;
-                    buyDiffGoldAmountWithDiscount = buyDiffGoldAmount * 0.02; // 2% deduction
-                    finalTotalAmount -= buyDiffGoldAmountWithDiscount; // Subtract this from final total
-                }
+            if (buyDiffGoldWithDiscount && totalGoldWeight > 0 && totalBuyGoldFromCustomer > 0) {
+                 const diffWeight = totalGoldWeight - totalBuyGoldFromCustomer;
+                 if (diffWeight < 0) { // If customer sells more gold than buys
+                    buyDiffGoldAmount = Math.abs(diffWeight) * goldPrice * 0.02; // 2% discount
+                 }
             }
-            finalCalculatedData.buyGoldAmountAtMuzanne = buyDiffGoldAmount;
             finalCalculatedData.buyDiffGoldWithDiscount = buyDiffGoldWithDiscount;
-            finalCalculatedData.buyDiffGoldAmountWithDiscount = buyDiffGoldAmountWithDiscount;
+            finalCalculatedData.buyGoldAmountAtMuzanne = totalBuyGoldFromCustomer * goldPrice;
+            finalCalculatedData.buyDiffGoldAmountWithDiscount = buyDiffGoldAmount;
 
 
-            let discountAmount = activeDiscountValue;
-            if (discountInput.value.trim() !== '') { // Manual discount takes precedence
-                discountAmount = parseFloat(convertToEnglishDigits(discountInput.value)) || 0;
+            const finalPrice = totalPriceBeforeDiscount + totalProfit + totalTax - discount;
+            let customerPayout = 0;
+            let isCustomerPayout = false;
+
+            if (finalPrice < finalCalculatedData.totalBoughtValue + buyDiffGoldAmount) {
+                customerPayout = (finalCalculatedData.totalBoughtValue + buyDiffGoldAmount) - finalPrice;
+                isCustomerPayout = true;
             }
-            finalTotalAmount -= discountAmount;
-            finalCalculatedData.discountAmount = discountAmount;
-            
+
             finalCalculatedData.goldPricePerGram = goldPrice;
-            finalCalculatedData.totalCalculatedTax = totalCalculatedTax;
-            finalCalculatedData.finalTotalAmount = finalTotalAmount;
-            finalCalculatedData.totalBoughtValue = totalBoughtValue; // Store total bought value
-
-            // Determine if customer needs to pay or receive money
-            finalCalculatedData.isCustomerPayout = finalTotalAmount < 0;
-            finalCalculatedData.customerPayoutAmount = Math.abs(finalTotalAmount);
+            finalCalculatedData.totalCalculatedTax = totalTax;
+            finalCalculatedData.discountAmount = discount;
+            finalCalculatedData.finalTotalAmount = finalPrice;
+            finalCalculatedData.isCustomerPayout = isCustomerPayout;
+            finalCalculatedData.customerPayoutAmount = customerPayout;
 
 
-            // Display results
-            const resultSection = document.getElementById('resultSection');
-            resultSection.innerHTML = `
-                <div class="result-item"><span>قیمت هر گرم طلا:</span><span>${convertToFarsiDigits(goldPrice.toLocaleString())} تومان</span></div>
-                <div class="result-item"><span>مجموع ارزش طلای فروخته شده:</span><span>${convertToFarsiDigits(totalGoldValue.toLocaleString())} تومان</span></div>
-                <div class="result-item"><span>مجموع اجرت:</span><span>${convertToFarsiDigits(totalWage.toLocaleString())} تومان</span></div>
-                <div class="result-item"><span>سود فروشنده (${convertToFarsiDigits(profitRate)}%):</span><span>${convertToFarsiDigits(totalProfit.toLocaleString())} تومان</span></div>
-                ${includeTax ? `<div class="result-item total-tax"><span>مالیات (۱۰%):</span><span>${convertToFarsiDigits(totalCalculatedTax.toLocaleString())} تومان</span></div>` : ''}
-                ${finalCalculatedData.boughtItems.length > 0 ? `<div class="result-item buy-item"><span>مجموع ارزش طلای خریداری شده:</span><span>${convertToFarsiDigits(totalBoughtValue.toLocaleString())} تومان</span></div>` : ''}
-                ${buyDiffGoldWithDiscount && buyDiffGoldAmount > 0 ? `<div class="result-item buy-diff-gold-amount"><span>کسر ۲% بابت ما به تفاوت مظنه:</span><span>${convertToFarsiDigits(buyDiffGoldAmountWithDiscount.toLocaleString())} تومان</span></div>` : ''}
-                ${discountAmount > 0 ? `<div class="result-item discount-amount"><span>تخفیف:</span><span>${convertToFarsiDigits(discountAmount.toLocaleString())} تومان</span></div>` : ''}
-                <div class="result-item final-total">
-                    <span>${finalCalculatedData.isCustomerPayout ? 'مبلغ قابل پرداخت به مشتری:' : 'مبلغ کل فاکتور:'}</span>
-                    <span>${convertToFarsiDigits(finalCalculatedData.customerPayoutAmount.toLocaleString())} تومان</span>
-                </div>
-            `;
-            
-            // Show/hide suggested discounts if a manual discount isn't active
-            if (!activeDiscountType && discountInput.value.trim() === '') {
-                displaySuggestedDiscounts(totalAmountBeforeTax + totalCalculatedTax);
-            } else {
-                hideSuggestedDiscounts();
-            }
+            updateResultsDisplay(goldPrice, totalGoldWeight, totalGoldWage, totalProfit, totalTax, discount, finalPrice, totalBuyGoldFromCustomer, buyDiffGoldAmount, customerPayout, isCustomerPayout);
+            updateSuggestedDiscounts(totalPriceBeforeDiscount + totalProfit + totalTax);
         }
 
-        function displaySuggestedDiscounts(baseAmount) {
-            suggestedDiscountsSection.innerHTML = '';
-            const suggestedAmounts = [100000, 200000, 500000, 1000000]; // Example amounts
+        function updateResultsDisplay(goldPrice, totalGoldWeight, totalGoldWage, totalProfit, totalTax, discount, finalPrice, totalBuyGoldFromCustomer, buyDiffGoldAmount, customerPayout, isCustomerPayout) {
+            const resultSection = document.getElementById('resultSection');
+            resultSection.innerHTML = `
+                <div class="result-item">
+                    <span>قیمت هر گرم طلا:</span>
+                    <span>${formatNumber(goldPrice)} تومان</span>
+                </div>
+                <div class="result-item">
+                    <span>وزن کل طلای خریداری شده:</span>
+                    <span>${formatNumber(totalGoldWeight)} گرم</span>
+                </div>
+                <div class="result-item">
+                    <span>اجرت کل:</span>
+                    <span>${formatNumber(totalGoldWage)} تومان</span>
+                </div>
+                <div class="result-item">
+                    <span>سود فروشنده:</span>
+                    <span>${formatNumber(totalProfit)} تومان</span>
+                </div>
+                <div class="result-item total-tax">
+                    <span>مالیات (10%):</span>
+                    <span>${formatNumber(totalTax)} تومان</span>
+                </div>
+                ${totalBuyGoldFromCustomer > 0 ? `
+                <div class="result-item buy-gold-amount">
+                    <span>وزن طلای خریداری شده از مشتری:</span>
+                    <span>${formatNumber(totalBuyGoldFromCustomer)} گرم</span>
+                </div>
+                ` : ''}
+                ${buyDiffGoldAmount > 0 ? `
+                <div class="result-item buy-diff-gold-amount">
+                    <span>کسر بابت مابه‌التفاوت:</span>
+                    <span>${formatNumber(buyDiffGoldAmount)} تومان</span>
+                </div>
+                ` : ''}
+                <div class="result-item discount-amount">
+                    <span>میزان تخفیف:</span>
+                    <span>${formatNumber(discount)} تومان</span>
+                </div>
+                <div class="result-item final-total">
+                    <span>${isCustomerPayout ? 'مبلغ قابل پرداخت به مشتری:' : 'مبلغ فاکتور نهایی:'}</span>
+                    <span class="final-total-amount">${formatNumber(isCustomerPayout ? customerPayout : finalPrice)} تومان</span>
+                </div>
+            `;
+        }
 
-            const header = document.createElement('p');
-            header.style.marginBottom = '10px';
-            header.style.fontWeight = 'bold';
-            header.style.color = '#38761d';
-            header.textContent = 'تخفیفات پیشنهادی:';
-            suggestedDiscountsSection.appendChild(header);
+        function updateSuggestedDiscounts(currentTotal) {
+            suggestedDiscountsSection.innerHTML = ''; // Clear previous suggestions
+            suggestedDiscountsSection.style.display = 'none'; // Hide by default
 
+            const discountInputVal = parseFloat(convertToEnglishDigits(discountInput.value)) || 0;
+            
+            // If there's an active manual discount, we don't show suggestions unless it's zero
+            if (activeDiscountType === 'manual' && discountInputVal > 0) {
+                return; 
+            }
+
+            const suggestedAmounts = [10000, 20000, 50000, 100000, 200000, 500000]; // Example amounts
+
+            let hasSuggestions = false;
             suggestedAmounts.forEach(amount => {
-                const finalPriceAfterDiscount = baseAmount - amount;
-                if (finalPriceAfterDiscount >= 0) { // Only suggest if final price is non-negative
+                if (amount <= currentTotal) {
+                    hasSuggestions = true;
+                    const finalPriceAfterDiscount = currentTotal - amount;
                     const discountItem = document.createElement('div');
-                    discountItem.className = 'suggested-discount-item';
-                    if (activeDiscountType === `suggested-${amount}`) {
+                    discountItem.classList.add('suggested-discount-item');
+                    if (amount === activeDiscountValue && activeDiscountType === 'suggested') {
                         discountItem.classList.add('active');
                     }
+                    discountItem.setAttribute('data-discount-value', amount);
+                    discountItem.setAttribute('data-discount-type', 'suggested');
+                    discountItem.onclick = function() { applySuggestedDiscount(this); };
                     discountItem.innerHTML = `
                         <div class="suggested-discount-text">
-                            <span class="amount">${convertToFarsiDigits(amount.toLocaleString())} تومان تخفیف</span>
-                            <span class="final-price">مبلغ نهایی: <span>${convertToFarsiDigits(Math.round(finalPriceAfterDiscount).toLocaleString())}</span> تومان</span>
+                            <span class="amount">تخفیف ${formatNumber(amount)} تومان</span>
+                            <span class="final-price">قیمت نهایی: <span>${formatNumber(finalPriceAfterDiscount)}</span> تومان</span>
                         </div>
                     `;
-                    discountItem.onclick = () => applySuggestedDiscount(amount);
                     suggestedDiscountsSection.appendChild(discountItem);
                 }
             });
-            suggestedDiscountsSection.style.display = 'block';
+
+            if (hasSuggestions) {
+                suggestedDiscountsSection.style.display = 'block';
+            }
         }
 
-        function applySuggestedDiscount(amount) {
-            activeDiscountValue = amount;
-            activeDiscountType = `suggested-${amount}`;
-            discountInput.value = convertToFarsiDigits(amount.toLocaleString()); // Update manual input field
-            calculateFactor(); // Recalculate with applied discount
-            // Re-render suggestions to show active state
-            displaySuggestedDiscounts(finalCalculatedData.finalTotalAmount + amount + finalCalculatedData.totalBoughtValue - finalCalculatedData.totalCalculatedTax); // Pass base amount without current discount
+        function applySuggestedDiscount(element) {
+            const value = parseFloat(element.getAttribute('data-discount-value'));
+            const type = element.getAttribute('data-discount-type');
+
+            if (element.classList.contains('active')) {
+                // Deactivate
+                element.classList.remove('active');
+                discountInput.value = '';
+                activeDiscountValue = 0;
+                activeDiscountType = null;
+            } else {
+                // Activate
+                document.querySelectorAll('.suggested-discount-item').forEach(item => item.classList.remove('active'));
+                element.classList.add('active');
+                discountInput.value = convertToFarsiDigits(value);
+                activeDiscountValue = value;
+                activeDiscountType = type;
+            }
+            calculateFactor(); // Recalculate after applying/removing discount
         }
 
-        function hideSuggestedDiscounts() {
-            suggestedDiscountsSection.style.display = 'none';
-            suggestedDiscountsSection.innerHTML = '';
-        }
+        // Event listener for manual discount input to deselect suggested ones
+        discountInput.addEventListener('input', function() {
+            const value = parseFloat(convertToEnglishDigits(this.value)) || 0;
+            if (value > 0) {
+                document.querySelectorAll('.suggested-discount-item').forEach(item => item.classList.remove('active'));
+                activeDiscountType = 'manual';
+                activeDiscountValue = value;
+            } else {
+                activeDiscountType = null;
+                activeDiscountValue = 0;
+                // Re-show suggestions if manual discount is cleared
+                calculateFactor(); 
+            }
+            calculateFactor();
+        });
 
-        function toggleBuySection(sectionId) {
-            const section = document.getElementById(sectionId);
-            const content = section.querySelector('.buy-section-content');
-            const header = section.querySelector('.buy-section-header');
-            content.classList.toggle('expanded');
-            header.classList.toggle('expanded');
-        }
+
+        // --- Invoice Output Section ---
+        const invoiceOutputWrapper = document.getElementById('invoiceOutputWrapper');
+        const invoiceOutputContent = document.getElementById('invoiceOutputContent');
+        const invoiceOutputHeader = invoiceOutputWrapper.querySelector('.invoice-output-header');
+        const generatedInvoiceDisplay = document.getElementById('generatedInvoiceDisplay');
+        const printInvoiceButton = document.getElementById('printInvoiceButton');
 
         function toggleInvoiceOutput() {
-            const invoiceOutputContent = document.getElementById('invoiceOutputContent');
-            const invoiceOutputHeader = document.getElementById('invoiceOutputWrapper').querySelector('.invoice-output-header');
             invoiceOutputContent.classList.toggle('expanded');
             invoiceOutputHeader.classList.toggle('expanded');
         }
 
         function generateInvoiceDisplay() {
-            const generatedInvoiceDisplay = document.getElementById('generatedInvoiceDisplay');
             const customerName = document.getElementById('customerName').value.trim();
             const customerPhone = document.getElementById('customerPhone').value.trim();
-            const today = new Date();
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            const formattedDate = today.toLocaleDateString('fa-IR', options);
 
             let invoiceHtml = `
-                <p><strong>تاریخ:</strong> ${formattedDate}</p>
+                <p><strong>تاریخ:</strong> ${new Date().toLocaleDateString('fa-IR')}</p>
                 ${customerName ? `<p><strong>نام خریدار:</strong> ${customerName}</p>` : ''}
-                ${customerPhone ? `<p><strong>شماره تماس:</strong> ${convertToFarsiDigits(customerPhone)}</p>` : ''}
-                <div class="invoice-section-divider">جزئیات فروش طلا:</div>
+                ${customerPhone ? `<p><strong>شماره تماس:</strong> ${customerPhone}</p>` : ''}
+                <hr class="invoice-section-divider">
+                <p><strong>قیمت هر گرم طلا:</strong> ${formatNumber(finalCalculatedData.goldPricePerGram)} تومان</p>
+                <hr class="invoice-section-divider">
             `;
 
-            if (finalCalculatedData.itemDetails.length === 0) {
-                invoiceHtml += `<p>هیچ آیتم طلایی به فروش نرسیده است.</p>`;
-            } else {
-                finalCalculatedData.itemDetails.forEach(item => {
+            if (finalCalculatedData.itemDetails.length > 0) {
+                invoiceHtml += `<p><strong>اقلام فروخته شده:</strong></p>`;
+                finalCalculatedData.itemDetails.forEach((item, index) => {
                     invoiceHtml += `
                         <div class="invoice-item-group">
-                            <p><strong>${item.type}:</strong> ${convertToFarsiDigits(item.weight.toLocaleString())} گرم</p>
-                            <p><strong>اجرت:</strong> ${item.wageType === 'percent' ? convertToFarsiDigits(item.wage) + '%' : convertToFarsiDigits(item.wage.toLocaleString()) + ' تومان'}</p>
-                            <p><strong>مبلغ:</strong> <span>${convertToFarsiDigits(Math.round(item.value).toLocaleString())}</span> تومان</p>
+                            <p><strong>طلا ${index + 1}:</strong></p>
+                            <p>وزن: ${formatNumber(item.weight)} گرم</p>
+                            <p>اجرت: ${item.wageType === 'percent' ? `${formatNumber(item.wage)}%` : `${formatNumber(item.wage)} تومان به ازای هر گرم`}</p>
+                            <p>قیمت آیتم: <span>${formatNumber(item.itemPrice)}</span> تومان</p>
                         </div>
                     `;
                 });
+                invoiceHtml += `<hr class="invoice-section-divider">`;
             }
 
-            invoiceHtml += `
-                <div class="invoice-section-divider">خلاصه حساب:</div>
-                <p><strong>قیمت هر گرم طلا:</strong> <span>${convertToFarsiDigits(finalCalculatedData.goldPricePerGram.toLocaleString())}</span> تومان</p>
-            `;
-
             if (finalCalculatedData.boughtItems.length > 0) {
-                invoiceHtml += `<p><strong>طلا و سکه خریداری شده از مشتری:</strong></p>`;
-                finalCalculatedData.boughtItems.forEach(item => {
-                    let itemDisplay = `<span>${convertToFarsiDigits(item.value.toLocaleString())}</span> تومان`;
-                    if (item.type === 'طلا' || item.type === 'سکه پارسیان' || item.type === 'شمش') {
-                        itemDisplay = `${convertToFarsiDigits(item.weight.toLocaleString())} گرم به مبلغ <span>${convertToFarsiDigits(item.value.toLocaleString())}</span> تومان`;
-                    }
-                    invoiceHtml += `<p class="buy-item-value"> - ${item.type}: ${itemDisplay}</p>`;
+                invoiceHtml += `<p><strong>اقلام خریداری شده از مشتری:</strong></p>`;
+                finalCalculatedData.boughtItems.forEach((item, index) => {
+                    invoiceHtml += `
+                        <div class="invoice-item-group">
+                            <p><strong>${item.type === 'gold' ? 'طلای دست دوم' : item.type === 'coin' ? 'سکه' : item.type === 'parsian' ? 'پارسیان' : 'شمش'} ${index + 1}:</strong></p>
+                            ${item.type === 'gold' ? `<p>وزن: ${formatNumber(item.weight)} گرم</p>` : ''}
+                            ${item.type === 'coin' ? `<p>مدل: ${item.model}</p>` : ''}
+                            ${item.type === 'parsian' ? `<p>وزن: ${formatNumber(item.weight)} گرم</p>` : ''}
+                            ${item.type === 'ingot' ? `<p>وزن: ${formatNumber(item.weight)} گرم</p>` : ''}
+                            <p>ارزش: <span class="buy-item-value">${formatNumber(item.value)}</span> تومان</p>
+                        </div>
+                    `;
                 });
+                invoiceHtml += `<hr class="invoice-section-divider">`;
             }
 
             if (finalCalculatedData.buyDiffGoldWithDiscount && finalCalculatedData.buyDiffGoldAmountWithDiscount > 0) {
-                invoiceHtml += `<p><strong>کسر ۲% بابت ما به تفاوت مظنه:</strong> <span class="discount-value">${convertToFarsiDigits(finalCalculatedData.buyDiffGoldAmountWithDiscount.toLocaleString())}</span> تومان</p>`;
+                invoiceHtml += `
+                    <p><strong>کسر بابت مابه‌التفاوت طلای مشتری:</strong> <span class="discount-value">${formatNumber(finalCalculatedData.buyDiffGoldAmountWithDiscount)}</span> تومان</p>
+                    <hr class="invoice-section-divider">
+                `;
             }
 
+            if (finalCalculatedData.totalCalculatedTax > 0) {
+                invoiceHtml += `<p><strong>مالیات (10%):</strong> ${formatNumber(finalCalculatedData.totalCalculatedTax)} تومان</p>`;
+            }
             if (finalCalculatedData.discountAmount > 0) {
-                invoiceHtml += `<p><strong>تخفیف:</strong> <span class="discount-value">${convertToFarsiDigits(finalCalculatedData.discountAmount.toLocaleString())}</span> تومان</p>`;
+                invoiceHtml += `<p><strong>تخفیف:</strong> <span class="discount-value">${formatNumber(finalCalculatedData.discountAmount)}</span> تومان</p>`;
             }
 
             invoiceHtml += `
-                ${finalCalculatedData.totalCalculatedTax > 0 ? `<p><strong>مالیات (۱۰%):</strong> <span>${convertToFarsiDigits(finalCalculatedData.totalCalculatedTax.toLocaleString())}</span> تومان</p>` : ''}
                 <p class="total-price-line">
-                    <strong>${finalCalculatedData.isCustomerPayout ? 'مبلغ قابل پرداخت به مشتری:' : 'مبلغ کل فاکتور:'}</strong> 
-                    <span class="total-final-value">${convertToFarsiDigits(finalCalculatedData.customerPayoutAmount.toLocaleString())}</span> تومان
+                    ${finalCalculatedData.isCustomerPayout ? '<strong>مبلغ قابل پرداخت به مشتری:</strong>' : '<strong>مبلغ فاکتور نهایی:</strong>'}
+                    <span class="total-final-value">${formatNumber(finalCalculatedData.isCustomerPayout ? finalCalculatedData.customerPayoutAmount : finalCalculatedData.finalTotalAmount)}</span> تومان
                 </p>
             `;
 
             generatedInvoiceDisplay.innerHTML = invoiceHtml;
-            document.getElementById('printInvoiceButton').style.display = 'block';
-            document.getElementById('downloadPdfButton').style.display = 'block';
+            printInvoiceButton.style.display = 'block'; // Show print button
         }
 
         function printInvoice() {
             window.print();
         }
 
-        function downloadInvoicePdf() {
-            const element = document.getElementById('generatedInvoiceDisplay');
-            const today = new Date();
-            const year = today.getFullYear();
-            const month = (today.getMonth() + 1).toString().padStart(2, '0');
-            const day = today.getDate().toString().padStart(2, '0');
-            const fileName = `فاکتور_${year}${month}${day}.pdf`;
+        // Initial calculation on load
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateFactor();
 
-            // Adjust scale for better quality if needed, and margins
-            html2pdf(element, {
-                margin: 10,
-                filename: fileName,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, logging: true, dpi: 192, letterRendering: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            });
-        }
+            // Handle initial empty values in inputs to clear '0' and prevent auto-fill issues
+            const goldPriceInput = document.getElementById('goldPrice');
+            const parsianWeightInput = document.getElementById('buyParsianWeight1');
+            const ingotWeightInput = document.getElementById('buyIngotWeight1');
 
-        // Initial calculations and word updates on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            updateGoldPriceWords();
-            document.querySelectorAll('.item-row').forEach(itemRow => {
-                const itemId = itemRow.getAttribute('data-item-id');
-                updateWageWords(`wage${itemId}`, `wageInWords${itemId}`);
-            });
-            // Ensure initial buy section inputs also trigger calculation
-            document.querySelectorAll('.buy-option-input').forEach(input => {
-                input.addEventListener('input', calculateFactor);
-            });
-            document.querySelectorAll('.coin-model-select').forEach(select => {
-                select.addEventListener('change', (event) => {
-                    const buyItemId = select.closest('.coin-item-group').getAttribute('data-buy-item-id');
-                    updateCoinPriceInput(select, buyItemId);
-                });
-            });
+            if (goldPriceInput && parseFloat(convertToEnglishDigits(goldPriceInput.value)) === 0 && goldPriceInput.value.trim() === '') {
+                goldPriceInput.value = '';
+            }
+            if (parsianWeightInput && parseFloat(convertToEnglishDigits(parsianWeightInput.value)) === 0 && parsianWeightInput.value.trim() === '') {
+                parsianWeightInput.value = '';
+            }
+            if (ingotWeightInput && parseFloat(convertToEnglishDigits(ingotWeightInput.value)) === 0 && ingotWeightInput.value.trim() === '') {
+                ingotWeightInput.value = '';
+            }
 
-
-            // Initial state: collapse all buy sections and invoice section by default
+            // Collapse all buy sections and invoice section by default
             document.getElementById('buyGoldSection').querySelector('.buy-section-content').classList.remove('expanded');
             document.getElementById('buyGoldSection').querySelector('.buy-section-header').classList.remove('expanded');
             document.getElementById('buyCoinSection').querySelector('.buy-section-content').classList.remove('expanded');
@@ -1681,8 +1805,86 @@
             document.getElementById('invoiceOutputContent').classList.remove('expanded');
             document.getElementById('invoiceOutputWrapper').querySelector('.invoice-output-header').classList.remove('expanded');
 
-            calculateFactor();
+            calculateFactor(); 
         });
+
+
+        // --- New functions for buy coin section ---
+        function addBuyCoinItem() {
+            buyCoinGroupCounter++;
+            const newCoinGroupHtml = `
+                <div class="coin-item-group" data-buy-item-id="coin${buyCoinGroupCounter}">
+                    <button type="button" class="remove-buy-item" onclick="removeBuyItem(this)">✖</button>
+                    <div id="coinSelectsCoin${buyCoinGroupCounter}">
+                        <div class="coin-sub-item">
+                            <select class="buy-option-input coin-model-select" onchange="updateCoinPriceInput(this, 'coin${buyCoinGroupCounter}')">
+                                <option value="">انتخاب مدل سکه</option>
+                                <option value="ربع ۸۶">ربع ۸۶</option>
+                                <option value="نیم ۸۶">نیم ۸۶</option>
+                                <option value="امامی ۸۶">امامی ۸۶</option>
+                                <option value="ربع زیر ۸۶">ربع زیر ۸۶</option>
+                                <option value="نیم زیر ۸۶">نیم زیر ۸۶</option>
+                                <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
+                                <option value="یک گرمی بانکی">یک گرمی بانکی</option>
+                            </select>
+                            <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" style="flex-grow: 1;">
+                            <button type="button" class="coin-remove-button" onclick="removeCoinSubItem(this)">✖</button>
+                        </div>
+                    </div>
+                    <button type="button" class="add-coin-button" onclick="addCoinSelect('coin${buyCoinGroupCounter}')">افزودن سکه جدید</button>
+                </div>
+            `;
+            buyCoinItemContainer.insertAdjacentHTML('beforeend', newCoinGroupHtml);
+            calculateFactor();
+        }
+
+        function addCoinSelect(coinGroupId) {
+            const coinSelectsContainer = document.getElementById(`coinSelects${coinGroupId}`);
+            const newCoinSubItemHtml = `
+                <div class="coin-sub-item">
+                    <select class="buy-option-input coin-model-select" onchange="updateCoinPriceInput(this, '${coinGroupId}')">
+                        <option value="">انتخاب مدل سکه</option>
+                        <option value="ربع ۸۶">ربع ۸۶</option>
+                        <option value="نیم ۸۶">نیم ۸۶</option>
+                        <option value="امامی ۸۶">امامی ۸۶</option>
+                        <option value="ربع زیر ۸۶">ربع زیر ۸۶</option>
+                        <option value="نیم زیر ۸۶">نیم زیر ۸۶</option>
+                        <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
+                        <option value="یک گرمی بانکی">یک گرمی بانکی</option>
+                    </select>
+                    <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" style="flex-grow: 1;">
+                    <button type="button" class="coin-remove-button" onclick="removeCoinSubItem(this)">✖</button>
+                </div>
+            `;
+            coinSelectsContainer.insertAdjacentHTML('beforeend', newCoinSubItemHtml);
+        }
+
+        function removeCoinSubItem(button) {
+            button.closest('.coin-sub-item').remove();
+            calculateFactor();
+        }
+
+        function updateCoinPriceInput(selectElement, coinGroupId) {
+            const selectedModel = selectElement.value;
+            const coinPriceInput = selectElement.nextElementSibling; // The input right after the select
+            if (COIN_WEIGHTS[selectedModel]) {
+                // You might want to pre-fill a calculated price based on gold price and coin weight
+                // For now, let's keep it as an empty placeholder for manual entry
+                coinPriceInput.placeholder = 'قیمت سکه';
+            } else {
+                coinPriceInput.placeholder = 'قیمت سکه';
+            }
+            calculateFactor();
+        }
+
+        function toggleBuySection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const content = section.querySelector('.buy-section-content');
+            const header = section.querySelector('.buy-section-header');
+            // content.classList.toggle('expanded');
+            // header.classList.toggle('expanded');
+            // No actual toggle functionality as per simplification request
+        }
     </script>
 </body>
 </html>
