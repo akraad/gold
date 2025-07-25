@@ -221,12 +221,19 @@
 
         .checkbox-group {
             display: flex;
+            flex-wrap: wrap; /* Allow wrapping for smaller screens */
+            gap: 15px 25px; /* Adjust gap for better spacing */
             align-items: center;
             margin-bottom: 25px;
             justify-content: space-between;
             padding: 8px 0;
             border-top: 1px solid #eee;
             border-bottom: 1px solid #eee;
+        }
+
+        .checkbox-group > div {
+            display: flex; /* Make each checkbox item a flex container */
+            align-items: center;
         }
 
         .checkbox-group label {
@@ -238,7 +245,7 @@
             cursor: pointer;
         }
 
-        .checkbox-group input:not([type="radio"]) {
+        .checkbox-group input[type="checkbox"] { /* Target checkbox specifically */
             width: 18px;
             height: 18px;
             margin-left: 10px;
@@ -277,7 +284,8 @@
         .result-item.final-total {
             color: #27ae60;
         }
-        .result-item.buy-gold-amount {
+        .result-item.buy-gold-amount,
+        .result-item.buy-diff-gold-amount {
             color: #d35400;
             font-size: 1em;
         }
@@ -299,7 +307,8 @@
             color: #007bff;
             direction: ltr;
         }
-        .result-item.buy-gold-amount span:last-child {
+        .result-item.buy-gold-amount span:last-child,
+        .result-item.buy-diff-gold-amount span:last-child {
             color: #e74c3c;
         }
         .result-item.final-total span:last-child {
@@ -332,7 +341,7 @@
             appearance: none;
             -webkit-appearance: none;
             -moz-appearance: none;
-            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M205.66%2099.66L128%20177.34%2050.34%2099.66z%22%2F%3E%3C%2Fsvg%3E');
+            background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2F2000%2Fsvg%22%20viewBox%3D%220%200%20256%20256%22%3E%3Cpath%20fill%3D%22%23666%22%20d%3D%22M205.66%2099.66L128%20177.34%2050.34%2099.66z%22%2F%3E%3C%2Fsvg%3E');
             background-repeat: no-repeat;
             background-position: left 15px center;
             background-size: 12px;
@@ -432,6 +441,13 @@
             .suggested-discount-text {
                 align-items: flex-start; /* Ensure text aligns left */
             }
+            .checkbox-group {
+                flex-direction: column; /* Stack checkboxes vertically on small screens */
+                align-items: flex-start; /* Align them to the start */
+            }
+            .checkbox-group > div {
+                width: 100%; /* Make each checkbox item take full width */
+            }
         }
     </style>
 </head>
@@ -509,9 +525,16 @@
         </div>
 
         <div class="checkbox-group">
-            <label for="includeTax">
-                <input type="checkbox" id="includeTax" checked> محاسبه مالیات (10%)
-            </label>
+            <div>
+                <label for="includeTax">
+                    <input type="checkbox" id="includeTax" checked> محاسبه مالیات (10%)
+                </label>
+            </div>
+            <div>
+                <label for="buyDiffGoldWithDiscount">
+                    <input type="checkbox" id="buyDiffGoldWithDiscount"> خرید ما به تفاوت طلا مشتری به مظنه (کسر 2%)
+                </label>
+            </div>
         </div>
 
         <div class="form-group">
@@ -868,10 +891,12 @@
             const profitRateElement = document.getElementById('profitRate');
             const profitRate = parseFloat(profitRateElement.value) / 100;
             const includeTax = document.getElementById('includeTax').checked;
+            const buyDiffGoldWithDiscount = document.getElementById('buyDiffGoldWithDiscount').checked; // New checkbox status
             
             // Get current discount from input, if any. This is for manual entry.
             let currentManualDiscount = parseFloat(convertToEnglishDigits(discountInput.value.replace(/,/g, ''))) || 0;
 
+            // Update profit rate options (ensure 7% is default selected)
             profitRateElement.innerHTML = '';
             for (let i = 1; i <= 7; i++) {
                 const option = document.createElement('option');
@@ -885,7 +910,12 @@
 
             let totalOverallPriceWithoutTax = 0;
             let totalCalculatedTax = 0;
-            let totalBuyGoldAmount = 0; // This will store the total amount for bought gold
+            let totalBoughtGoldWeight = 0; // Total weight of gold customer sells to us
+            let totalSoldGoldWeight = 0; // Total weight of gold we sell to customer
+
+            let buyGoldAmountAtMuzanne = 0; // Amount for gold bought at rawGoldPrice
+            let buyDiffGoldAmountWithDiscount = 0; // Amount for difference gold bought with 2% discount
+
             let itemResultsHtml = '';
 
             const itemRows = document.querySelectorAll('.item-row');
@@ -897,8 +927,11 @@
                 const buyWeightInput = row.querySelector('.gold-buy-weight');
 
                 // Get numeric values, allowing decimals
-                let weight = parseFloat(convertToEnglishDigits(weightInput.value)) || 0;
-                let buyWeight = parseFloat(convertToEnglishDigits((buyWeightInput ? buyWeightInput.value : '0'))) || 0;
+                let weight = parseFloat(convertToEnglishDigits(weightInput.value)) || 0; // Gold we sell to customer
+                let buyWeight = parseFloat(convertToEnglishDigits((buyWeightInput ? buyWeightInput.value : '0'))) || 0; // Gold customer sells to us
+
+                totalSoldGoldWeight += weight;
+                totalBoughtGoldWeight += buyWeight;
 
                 const productType = productTypeSelect ? productTypeSelect.value : '';
 
@@ -908,8 +941,6 @@
                 let itemTaxableAmount = 0;
 
                 const baseItemPrice = rawGoldPrice * weight;
-                const buyAmountForItem = rawGoldPrice * buyWeight; // Amount for gold customer is selling to us
-                totalBuyGoldAmount += buyAmountForItem;
 
                 if (wageType === 'percent') {
                     const wagePercent = parseFloat(convertToEnglishDigits(wageInput.value)) / 100 || 0;
@@ -941,12 +972,35 @@
                 `;
             });
 
+            // Calculate bought gold amounts based on the new logic
+            let netGoldWeightDiff = totalBoughtGoldWeight - totalSoldGoldWeight;
+
+            if (buyDiffGoldWithDiscount) {
+                if (netGoldWeightDiff > 0) { // Customer sold more gold than they bought from us
+                    // Buy up to totalSoldGoldWeight at rawGoldPrice
+                    buyGoldAmountAtMuzanne = totalSoldGoldWeight * rawGoldPrice;
+                    
+                    // Buy the difference at rawGoldPrice - 2%
+                    let diffWeight = netGoldWeightDiff;
+                    let priceWithDiscount = rawGoldPrice * (1 - 0.02); // 2% discount
+                    buyDiffGoldAmountWithDiscount = diffWeight * priceWithDiscount;
+                } else { // Customer bought more gold or equal, or sold less
+                    buyGoldAmountAtMuzanne = totalBoughtGoldWeight * rawGoldPrice; // All bought gold is at muzanne
+                }
+            } else {
+                // Old logic: all bought gold is at rawGoldPrice
+                buyGoldAmountAtMuzanne = totalBoughtGoldWeight * rawGoldPrice;
+            }
+
+            let totalBoughtGoldValue = buyGoldAmountAtMuzanne + buyDiffGoldAmountWithDiscount;
+
+
             let baseTotalFinalPriceBeforeDiscount = totalOverallPriceWithoutTax;
             if (includeTax) {
                 baseTotalFinalPriceBeforeDiscount += totalCalculatedTax;
             }
             
-            let totalFinalPriceBeforeDiscountAndPayoutCheck = baseTotalFinalPriceBeforeDiscount - totalBuyGoldAmount;
+            let totalFinalPriceBeforeDiscountAndPayoutCheck = baseTotalFinalPriceBeforeDiscount - totalBoughtGoldValue;
 
 
             // --- Suggested discount logic ---
@@ -1058,14 +1112,31 @@
                 `;
             }
 
-            // Display "خرید طلا" only if totalBuyGoldAmount is positive
-            if (totalBuyGoldAmount > 0) {
-                resultSection.innerHTML += `
-                    <div class="result-item buy-gold-amount">
-                        <span>خرید طلا:</span>
-                        <span>${formatCurrency(totalBuyGoldAmount)}</span>
-                    </div>
-                `;
+            // Display "خرید طلا" details
+            if (totalBoughtGoldValue > 0) {
+                if (buyDiffGoldWithDiscount && netGoldWeightDiff > 0) {
+                    resultSection.innerHTML += `
+                        <div class="result-item buy-gold-amount">
+                            <span>خرید طلا (مظنه):</span>
+                            <span>${formatCurrency(buyGoldAmountAtMuzanne)}</span>
+                        </div>
+                        <div class="result-item buy-diff-gold-amount">
+                            <span>خرید مازاد طلا (کسر 2%):</span>
+                            <span>${formatCurrency(buyDiffGoldAmountWithDiscount)}</span>
+                        </div>
+                        <div class="result-item buy-gold-amount">
+                            <span>جمع کل خرید طلا:</span>
+                            <span>${formatCurrency(totalBoughtGoldValue)}</span>
+                        </div>
+                    `;
+                } else if (totalBoughtGoldValue > 0) {
+                    resultSection.innerHTML += `
+                        <div class="result-item buy-gold-amount">
+                            <span>خرید طلا:</span>
+                            <span>${formatCurrency(totalBoughtGoldValue)}</span>
+                        </div>
+                    `;
+                }
             }
 
             if (discountToApply > 0) {
@@ -1079,10 +1150,6 @@
 
             if (finalPriceAfterDiscount < 0) {
                 resultSection.innerHTML += `
-                    <div class="result-item customer-payout">
-                        <span>قیمت کل:</span>
-                        <span>تقدیم مشتری شد</span>
-                    </div>
                     <div class="result-item customer-payout">
                         <span>مبلغ تقدیمی به مشتری:</span>
                         <span>${formatCurrency(Math.abs(finalPriceAfterDiscount))}</span>
