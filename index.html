@@ -293,6 +293,16 @@
             color: #d35400;
             font-size: 1em;
         }
+        /* NEW: Distinct color for "خرید طلا از مشتری" */
+        .result-item.buy-gold-from-customer span:first-child {
+            color: #e74c3c; /* Red color for distinction */
+            font-weight: bold;
+        }
+        .result-item.buy-gold-from-customer span:last-child {
+            color: #e74c3c; /* Red color for distinction */
+        }
+
+
         .result-item.discount-amount {
             color: #e74c3c;
             font-size: 1em;
@@ -519,7 +529,11 @@
             color: #007bff; /* Blue for total price */
             font-weight: bold;
         }
-
+        /* NEW: Invoice specific color for "خرید طلا از مشتری" */
+        .generated-invoice-display .buy-gold-from-customer-value {
+            color: #e74c3c; /* Red for bought gold from customer */
+            font-weight: bold;
+        }
 
         .generate-invoice-button,
         .print-invoice-button {
@@ -558,8 +572,9 @@
                 border-radius: 0;
                 padding: 0;
             }
+            /* Hide all other parts except invoiceOutputWrapper during print */
             #invoiceContainer > *:not(#invoiceOutputWrapper) {
-                display: none; /* Hide all other parts when printing */
+                display: none;
             }
             .invoice-output-wrapper {
                 border: none;
@@ -570,8 +585,9 @@
             .invoice-output-header,
             .invoice-output-content .form-group,
             .generate-invoice-button,
-            .print-invoice-button {
-                display: none; /* Hide input fields and buttons in print */
+            .print-invoice-button,
+            .suggested-discounts-section { /* Hide suggested discounts on print */
+                display: none;
             }
             .invoice-output-content.expanded {
                 max-height: fit-content; /* Ensure all content is visible */
@@ -702,7 +718,7 @@
                     </div>
                 </div>
                 <div class="form-group">
-                    <label for="buyWeight1">خرید طلا (گرم):</label>
+                    <label for="buyWeight1">خرید طلا از مشتری (گرم):</label>
                     <input type="text" id="buyWeight1" class="gold-buy-weight" inputmode="decimal">
                 </div>
             </div>
@@ -1106,7 +1122,7 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="buyWeight${itemIdCounter}">خرید طلا (گرم):</label>
+                        <label for="buyWeight${itemIdCounter}">خرید طلا از مشتری (گرم):</label>
                         <input type="text" id="buyWeight${itemIdCounter}" class="gold-buy-weight" inputmode="decimal">
                     </div>
                 </div>
@@ -1393,23 +1409,23 @@
             if (totalBoughtGoldValue > 0) {
                 if (buyDiffGoldWithDiscount && netGoldWeightDiff > 0) {
                     resultSection.innerHTML += `
-                        <div class="result-item buy-gold-amount">
-                            <span>خرید طلا (مظنه):</span>
+                        <div class="result-item buy-gold-from-customer">
+                            <span>خرید طلا از مشتری (مظنه):</span>
                             <span>${formatCurrency(buyGoldAmountAtMuzanne)}</span>
                         </div>
-                        <div class="result-item buy-diff-gold-amount">
-                            <span>خرید مازاد طلا (کسر 2%):</span>
+                        <div class="result-item buy-diff-gold-from-customer">
+                            <span>خرید مازاد طلا از مشتری (کسر 2%):</span>
                             <span>${formatCurrency(buyDiffGoldAmountWithDiscount)}</span>
                         </div>
-                        <div class="result-item buy-gold-amount">
-                            <span>جمع کل خرید طلا:</span>
+                        <div class="result-item buy-gold-from-customer">
+                            <span>جمع کل خرید طلا از مشتری:</span>
                             <span>${formatCurrency(totalBoughtGoldValue)}</span>
                         </div>
                     `;
                 } else if (totalBoughtGoldValue > 0) {
                     resultSection.innerHTML += `
-                        <div class="result-item buy-gold-amount">
-                            <span>خرید طلا:</span>
+                        <div class="result-item buy-gold-from-customer">
+                            <span>خرید طلا از مشتری:</span>
                             <span>${formatCurrency(totalBoughtGoldValue)}</span>
                         </div>
                     `;
@@ -1501,7 +1517,8 @@
                 finalCalculatedData.itemDetails.forEach(item => {
                     if (item.weight > 0) { // Only show items that actually have weight
                         invoiceHtml += `<div class="invoice-item-group">`;
-                        invoiceHtml += `<p>اسم طلا: <strong>${item.name}</strong></p>`;
+                        // CHANGED: "اسم طلا" to "نوع طلا"
+                        invoiceHtml += `<p>نوع طلا: <strong>${item.name}</strong></p>`; 
                         invoiceHtml += `<p>وزن: ${convertToFarsiDigits(item.weight.toFixed(3))} گرم</p>`;
                         
                         if (item.wage > 0) {
@@ -1527,7 +1544,8 @@
             // --- خرید طلا مشتری ---
             if (finalCalculatedData.totalBoughtGoldValue > 0) {
                 invoiceHtml += `<div class="invoice-section-divider"></div>`; // Divider
-                invoiceHtml += `<p><strong>خرید طلا:</strong></p>`;
+                // CHANGED: "خرید طلا" to "خرید طلا از مشتری" and added class for styling
+                invoiceHtml += `<p class="buy-gold-from-customer-value"><strong>خرید طلا از مشتری:</strong></p>`;
                 let totalBoughtWeight = 0;
                 document.querySelectorAll('.gold-buy-weight').forEach(input => {
                     totalBoughtWeight += parseFloat(convertToEnglishDigits(input.value)) || 0;
@@ -1541,7 +1559,8 @@
                 } else {
                     boughtGoldPriceToShow = finalCalculatedData.totalBoughtGoldValue;
                 }
-                invoiceHtml += `<p>قیمت: ${formatCurrency(boughtGoldPriceToShow)} تومان</p>`;
+                // Added class for styling
+                invoiceHtml += `<p class="buy-gold-from-customer-value">قیمت: ${formatCurrency(boughtGoldPriceToShow)} تومان</p>`;
             }
 
             // --- تخفیف ---
