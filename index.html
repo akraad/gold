@@ -922,14 +922,14 @@
                 const wageType = row.querySelector(`input[name="wageType${row.dataset.itemId}"]:checked`).value;
                 const buyWeightInput = row.querySelector('.gold-buy-weight');
 
-                // Using 'parseFloat' directly on cleaned value for decimals
-                let weight = parseFloat(convertToEnglishDigits(weightInput.value.replace(/,/g, ''))) || 0;
-                let buyWeight = parseFloat(convertToEnglishDigits((buyWeightInput ? buyWeightInput.value : '0').replace(/,/g, ''))) || 0;
+                // Get numeric values, allowing decimals
+                let weight = parseFloat(convertToEnglishDigits(weightInput.value)) || 0;
+                let buyWeight = parseFloat(convertToEnglishDigits((buyWeightInput ? buyWeightInput.value : '0'))) || 0;
 
-                // Format back to Farsi with commas for display
-                weightInput.value = formatNumberWithCommas(String(weight));
+                // Only format for display if value exists and is not 0
+                weightInput.value = weight === 0 ? '' : convertToFarsiDigits(String(weight));
                 if (buyWeightInput) {
-                    buyWeightInput.value = formatNumberWithCommas(String(buyWeight));
+                    buyWeightInput.value = buyWeight === 0 ? '' : convertToFarsiDigits(String(buyWeight));
                 }
 
                 const productType = productTypeSelect ? productTypeSelect.value : '';
@@ -1013,12 +1013,24 @@
             // --- Big suggested discount logic (round down to nearest 500,000 or 100,000 mark based on example) ---
             const priceForBigDiscount = Math.round(totalFinalPrice);
             let targetRoundedPrice = 0;
-            const remainderMillion = priceForBigDiscount % 1000000;
+            
+            // Example: 1,475,400 -> 1,450,000 (rounds down to the nearest 500k interval, or 1M interval)
+            // If priceForBigDiscount is 1,475,400:
+            // floor(1475400 / 500000) = 2
+            // targetRoundedPrice = 2 * 500000 = 1,000,000
+            // if (remainder (1,475,400 % 1,000,000) == 475,400) which is < 500,000, then it should round to nearest 100,000 interval downwards.
+            // If the price is 1,675,400, it should round to 1,650,000
+            
+            const floorMillions = Math.floor(priceForBigDiscount / 1000000);
+            const remainderAfterMillions = priceForBigDiscount % 1000000;
 
-            if (remainderMillion >= 500000) {
-                targetRoundedPrice = Math.floor(priceForBigDiscount / 1000000) * 1000000 + 500000;
+            if (remainderAfterMillions >= 500000) {
+                targetRoundedPrice = floorMillions * 1000000 + 500000;
+            } else if (remainderAfterMillions >= 100000) {
+                // If the remainder is less than 500k but more than 100k, round down to the nearest 100k
+                targetRoundedPrice = floorMillions * 1000000 + Math.floor(remainderAfterMillions / 100000) * 100000;
             } else {
-                targetRoundedPrice = Math.floor(priceForBigDiscount / 1000000) * 1000000;
+                targetRoundedPrice = floorMillions * 1000000;
             }
             
             const potentialBigSuggestedDiscount = priceForBigDiscount - targetRoundedPrice;
@@ -1051,6 +1063,9 @@
             } else if (isBigSuggestedDiscountApplied) {
                 discountAmount = currentBigSuggestedDiscount;
                 discountInput.value = formatNumberWithCommas(currentBigSuggestedDiscount);
+            } else {
+                 // If no suggested discount is applied, ensure the manual discount input is formatted
+                 discountInput.value = formatNumberWithCommas(discountInput.value);
             }
 
 
@@ -1150,27 +1165,31 @@
                 } else if (input.classList.contains('gold-buy-weight') || input.classList.contains('gold-weight')) {
                     input.addEventListener('input', (e) => {
                         let rawValue = e.target.value;
-                        let cleanValue = convertToEnglishDigits(rawValue.replace(/,/g, ''));
-
+                        let cleanValue = convertToEnglishDigits(rawValue); // Remove commas for calculation
+                        
                         // Allow only numbers and a single decimal point
                         cleanValue = cleanValue.replace(/[^\d.]/g, '');
                         if (cleanValue.split('.').length > 2) {
                             cleanValue = cleanValue.substring(0, cleanValue.lastIndexOf('.'));
                         }
 
-                        e.target.value = convertToFarsiDigits(cleanValue);
+                        e.target.value = cleanValue; // Keep English digits for internal processing
                         calculateFactor();
                     });
                     input.addEventListener('blur', (e) => {
                         let rawValue = e.target.value;
-                        let cleanValue = convertToEnglishDigits(rawValue.replace(/,/g, ''));
+                        let cleanValue = convertToEnglishDigits(rawValue);
                         cleanValue = cleanValue.replace(/[^\d.]/g, '');
                         if (cleanValue.endsWith('.')) {
                             cleanValue = cleanValue.slice(0, -1);
                         }
-                        e.target.value = convertToFarsiDigits(cleanValue);
+                        e.target.value = cleanValue === '' ? '' : convertToFarsiDigits(cleanValue); // Only format if not empty
                         calculateFactor();
                     });
+                     // Set initial display to empty if value is 0 or empty
+                     if (parseFloat(convertToEnglishDigits(input.value)) === 0) {
+                        input.value = '';
+                    }
                 } else if (input.id === 'discount') {
                     input.addEventListener('input', (e) => {
                         // Reset suggested discount flags if manual discount is entered
