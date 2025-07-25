@@ -208,6 +208,10 @@
             border-radius: 50%;
             transition: background-color 0.2s;
         }
+        /* NEW: Hide remove button for the initial item */
+        .item-row[data-removable="false"] .remove-item {
+            display: none;
+        }
 
         .item-row .remove-item:hover {
             background-color: #ffe0e0;
@@ -667,16 +671,16 @@
 
         /* UPDATED: Coin section specific styles - flatter structure */
         .coin-item-group { /* Replaces buy-option-group for coins, to be direct child of container */
-            margin-bottom: 8px; /* Consistent margin */
-            padding: 8px 10px 8px 15px; /* Consistent padding */
+            margin-bottom: 0px; /* Reduced margin */
+            padding: 8px 10px 8px 15px; /* Reduced padding */
             border-right: 3px solid #cfe6fa; /* Consistent border */
             background-color: #fcfdfe;
             position: relative;
-            /* Removed box-shadow */
             border-radius: 4px;
         }
-        .coin-item-group:last-child {
-            margin-bottom: 0;
+        /* NEW: Hide remove button for the initial coin-item-group */
+        .coin-item-group[data-removable="false"] .remove-buy-item {
+            display: none;
         }
 
         .coin-item-group .remove-buy-item { /* Reuse remove-buy-item for outer coin group */
@@ -751,7 +755,7 @@
         }
 
         /* Specific style for add coin button within its group (still centered, textual) */
-        .add-coin-button {
+        .add-coin-button { /* This is now the button to add a single coin row *within* a coin group */
             background-color: #4CAF50; /* Green */
             color: white;
             padding: 6px 10px; /* Smaller padding */
@@ -1017,8 +1021,7 @@
         </div>
 
         <div id="itemContainer">
-            <div class="item-row" data-item-id="1">
-                <button type="button" class="remove-item" onclick="removeItem(this)">✖</button>
+            <div class="item-row" data-item-id="1" data-removable="false"> <button type="button" class="remove-item" onclick="removeItem(this)">✖</button>
                 <div class="flex-group">
                     <div class="form-group">
                         <label for="weight1">وزن طلا (گرم):</label>
@@ -1065,41 +1068,38 @@
                 خرید طلا (از مشتری)
             </h2>
 
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label for="buyGoldWeight">طلا (گرم):</label>
+            <div class="form-group" style="margin-bottom: 8px;"> <label for="buyGoldWeight">طلا (گرم):</label>
                 <input type="text" id="buyGoldWeight" class="buy-option-input gold-buy-weight" inputmode="decimal">
             </div>
 
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label for="buyParsianWeight">پارسیان (گرم):</label>
+            <div class="form-group" style="margin-bottom: 8px;"> <label for="buyParsianWeight">پارسیان (گرم):</label>
                 <input type="text" id="buyParsianWeight" class="buy-option-input parsian-buy-weight" inputmode="decimal">
             </div>
 
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label for="buyIngotWeight">شمش (گرم):</label>
+            <div class="form-group" style="margin-bottom: 8px;"> <label for="buyIngotWeight">شمش (گرم):</label>
                 <input type="text" id="buyIngotWeight" class="buy-option-input ingot-buy-weight" inputmode="decimal">
             </div>
 
             <div class="form-group" style="margin-bottom: 0;">
                 <h3 style="font-size: 1em; font-weight: bold; color: #34495e; margin: 0 0 10px 0; display: flex; justify-content: space-between; align-items: center;">
                     سکه
-                    <button type="button" class="add-item-icon-button" onclick="addCoinBuyItem()">+</button>
-                </h3>
+                    <button type="button" class="add-item-icon-button" onclick="addSingleCoinItem()">+</button> </h3>
                 <div id="buyCoinItemsContainer">
-                    <div class="coin-item-group" data-buy-item-id="coin1">
-                        <button type="button" class="remove-buy-item" onclick="removeBuyItem(this)">✖</button>
-                        <div class="coin-sub-item">
-                            <select class="buy-option-input coin-model-select" onchange="updateCoinPriceInput(this, 'coin1')">
-                                <option value="">انتخاب مدل سکه</option>
-                                <option value="ربع ۸۶">ربع ۸۶</option>
-                                <option value="نیم ۸۶">نیم ۸۶</option>
-                                <option value="امامی ۸۶">امامی ۸۶</option>
-                                <option value="ربع زیر ۸۶">ربع زیر ۸۶</option>
-                                <option value="نیم زیر ۸۶">نیم زیر ۸۶</option>
-                                <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
-                                <option value="یک گرمی بانکی">یک گرمی بانکی</option>
-                            </select>
-                            <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" style="flex-grow: 1;">
+                    <div class="coin-item-group" data-removable="false"> 
+                        <div id="coinSubItemsWrapper">
+                            <div class="coin-sub-item" data-coin-sub-id="1"> <button type="button" class="coin-remove-button" onclick="removeCoinSubItem(this)">✖</button>
+                                <select class="buy-option-input coin-model-select" onchange="updateCoinPriceInput(this, 'coin1')">
+                                    <option value="">انتخاب مدل سکه</option>
+                                    <option value="ربع ۸۶">ربع ۸۶</option>
+                                    <option value="نیم ۸۶">نیم ۸۶</option>
+                                    <option value="امامی ۸۶">امامی ۸۶</option>
+                                    <option value="ربع زیر ۸۶">ربع زیر ۸۶</option>
+                                    <option value="نیم زیر ۸۶">نیم زیر ۸۶</option>
+                                    <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
+                                    <option value="یک گرمی بانکی">یک گرمی بانکی</option>
+                                </select>
+                                <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" style="flex-grow: 1;">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1172,13 +1172,14 @@
     <script>
         const farsiDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
         const itemContainer = document.getElementById('itemContainer');
-        const buyCoinItemsContainer = document.getElementById('buyCoinItemsContainer'); // Changed from buyCoinItemContainer
+        const coinSubItemsWrapper = document.getElementById('coinSubItemsWrapper'); // Renamed for clarity
+        
         const suggestedDiscountsSection = document.getElementById('suggestedDiscountsSection');
         const discountInput = document.getElementById('discount');
         const invoiceContainer = document.getElementById('invoiceContainer');
 
         let itemIdCounter = 1;
-        let buyCoinGroupCounter = 1; // Counter for "خرید سکه" groups (each group can have multiple coins)
+        let coinSubItemCounter = 1; // Counter for individual coin select/input rows
         
         let activeDiscountValue = 0;
         let activeDiscountType = null;
@@ -1250,7 +1251,25 @@
                 const value = parseFloat(convertToEnglishDigits(inputElement.value.replace(/,/g, '')));
                 if (!isNaN(value) && value !== 0) {
                     displayElement.textContent = `(${numToPersianWords(value)} تومان)`;
-                    displayElement.style.fontSize = '0.9em'; // Restore font size
+                    
+                    // NEW: Dynamically adjust font size if text overflows
+                    // Temporarily set font size to a base and check scroll width
+                    displayElement.style.fontSize = '0.9em'; // Reset to base
+                    const parentWidth = inputElement.offsetWidth;
+                    const displayWidth = displayElement.scrollWidth;
+
+                    // A buffer for padding and potential scrollbar
+                    const buffer = 30; 
+
+                    if (displayWidth > (parentWidth - inputElement.clientLeft * 2 - inputElement.style.paddingLeft.replace('px','') - buffer) ) { // Check if text overflows input's content area
+                        let currentFontSize = parseFloat(getComputedStyle(displayElement).fontSize);
+                        // Reduce font size until it fits or reaches a minimum
+                        while (displayElement.scrollWidth > (parentWidth - inputElement.clientLeft * 2 - inputElement.style.paddingLeft.replace('px','') - buffer) && currentFontSize > 0.6 * 16) { // min font size 0.6em (16px is default browser font size)
+                            currentFontSize -= 0.05 * 16; // Reduce by 0.05em
+                            displayElement.style.fontSize = `${currentFontSize / 16}em`;
+                        }
+                    }
+
                 } else {
                     displayElement.textContent = '';
                 }
@@ -1446,22 +1465,19 @@
                 });
             }
 
-            // Buy Coin from Customer (multiple items in the combined section)
-            const buyCoinGroups = buyCoinItemsContainer.querySelectorAll('.coin-item-group');
-            buyCoinGroups.forEach(group => {
-                const coinSubItems = group.querySelectorAll('.coin-sub-item');
-                coinSubItems.forEach(subItem => {
-                    const coinModel = subItem.querySelector('.coin-model-select').value;
-                    const coinPrice = parseFloat(convertToEnglishDigits(subItem.querySelector('.coin-price-input').value.replace(/,/g, ''))) || 0;
-                    if (coinModel && coinPrice > 0) {
-                        totalBoughtValue += coinPrice;
-                        boughtItems.push({
-                            type: 'سکه',
-                            model: coinModel,
-                            price: coinPrice
-                        });
-                    }
-                });
+            // Buy Coin from Customer (now from the single coin-item-group and its sub-items)
+            const coinSubItems = coinSubItemsWrapper.querySelectorAll('.coin-sub-item');
+            coinSubItems.forEach(subItem => {
+                const coinModel = subItem.querySelector('.coin-model-select').value;
+                const coinPrice = parseFloat(convertToEnglishDigits(subItem.querySelector('.coin-price-input').value.replace(/,/g, ''))) || 0;
+                if (coinModel && coinPrice > 0) {
+                    totalBoughtValue += coinPrice;
+                    boughtItems.push({
+                        type: 'سکه',
+                        model: coinModel,
+                        price: coinPrice
+                    });
+                }
             });
 
 
@@ -1602,8 +1618,7 @@
         function addItem() {
             itemIdCounter++;
             const newItemHtml = `
-                <div class="item-row" data-item-id="${itemIdCounter}">
-                    <button type="button" class="remove-item" onclick="removeItem(this)">✖</button>
+                <div class="item-row" data-item-id="${itemIdCounter}" data-removable="true"> <button type="button" class="remove-item" onclick="removeItem(this)">✖</button>
                     <div class="flex-group">
                         <div class="form-group">
                             <label for="weight${itemIdCounter}">وزن طلا (گرم):</label>
@@ -1752,45 +1767,43 @@
 
         // --- BUY SECTIONS LOGIC (GOLD, COIN, PARSIAN, INGOT) ---
 
-        // Removed toggleBuySection as combined section is static
+        let coinSubItemIds = new Set(); // To keep track of existing coin sub-item IDs
+        coinSubItemIds.add(1); // Add the initial one
 
-        function addCoinBuyItem() {
-            buyCoinGroupCounter++;
-            const newCoinGroupHtml = `
-                <div class="coin-item-group" data-buy-item-id="coin${buyCoinGroupCounter}">
-                    <button type="button" class="remove-buy-item" onclick="removeBuyItem(this)">✖</button>
-                    <div class="coin-sub-item">
-                        <select class="buy-option-input coin-model-select" onchange="updateCoinPriceInput(this, 'coin${buyCoinGroupCounter}')">
-                            <option value="">انتخاب مدل سکه</option>
-                            <option value="ربع ۸۶">ربع ۸۶</option>
-                            <option value="نیم ۸۶">نیم ۸۶</option>
-                            <option value="امامی ۸۶">امامی ۸۶</option>
-                            <option value="ربع زیر ۸۶">ربع زیر ۸۶</option>
-                            <option value="نیم زیر ۸۶">نیم زیر ۸۶</option>
-                            <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
-                            <option value="یک گرمی بانکی">یک گرمی بانکی</option>
-                        </select>
-                        <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" style="flex-grow: 1;">
-                    </div>
+        function addSingleCoinItem() {
+            coinSubItemCounter++;
+            const newCoinSubItemHtml = `
+                <div class="coin-sub-item" data-coin-sub-id="${coinSubItemCounter}">
+                    <button type="button" class="coin-remove-button" onclick="removeCoinSubItem(this)">✖</button>
+                    <select class="buy-option-input coin-model-select" onchange="updateCoinPriceInput(this, 'coin${coinSubItemCounter}')">
+                        <option value="">انتخاب مدل سکه</option>
+                        <option value="ربع ۸۶">ربع ۸۶</option>
+                        <option value="نیم ۸۶">نیم ۸۶</option>
+                        <option value="امامی ۸۶">امامی ۸۶</option>
+                        <option value="ربع زیر ۸۶">ربع زیر ۸۶</option>
+                        <option value="نیم زیر ۸۶">نیم زیر ۸۶</option>
+                        <option value="امامی زیر ۸۶">امامی زیر ۸۶</option>
+                        <option value="یک گرمی بانکی">یک گرمی بانکی</option>
+                    </select>
+                    <input type="text" class="buy-option-input coin-price-input" placeholder="قیمت سکه" oninput="calculateFactor()" style="flex-grow: 1;">
                 </div>
             `;
-            buyCoinItemsContainer.insertAdjacentHTML('beforeend', newCoinGroupHtml);
+            coinSubItemsWrapper.insertAdjacentHTML('beforeend', newCoinSubItemHtml);
+            coinSubItemIds.add(coinSubItemCounter); // Add new ID to the set
             calculateFactor();
         }
 
-        function removeBuyItem(button) {
-            const itemGroup = button.closest('.coin-item-group'); // Only coin groups have removable items in the new structure
-            if (itemGroup) {
-                itemGroup.remove();
+        function removeCoinSubItem(button) {
+            const subItem = button.closest('.coin-sub-item');
+            if (subItem) {
+                const subItemId = parseInt(subItem.dataset.coinSubId);
+                subItem.remove();
+                coinSubItemIds.delete(subItemId); // Remove ID from the set
+                calculateFactor();
             }
-            calculateFactor();
         }
-
-        // Removed addCoinSelect and removeCoinSubItem functions as coin items are now a single group within coin-item-group
-        // The coin-sub-item is now effectively the direct content of coin-item-group, and coin-item-group is added/removed.
-        // The plus button for coins will add a new `coin-item-group`.
-
-        function updateCoinPriceInput(selectElement, coinGroupId) {
+        
+        function updateCoinPriceInput(selectElement) { // Removed unused coinGroupId parameter
             const selectedModel = selectElement.value;
             const priceInput = selectElement.nextElementSibling; // The input field right after the select
 
