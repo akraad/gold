@@ -277,7 +277,7 @@
         .result-item.final-total {
             color: #27ae60;
         }
-        .result-item.deducted-amount {
+        .result-item.deducted-amount { /* Changed from deducted-amount to align with new label */
             color: #d35400;
             font-size: 1em;
         }
@@ -299,7 +299,8 @@
             color: #007bff;
             direction: ltr;
         }
-        .result-item.deducted-amount span:last-child {
+        .result-item.deducted-amount span:last-child, /* Updated selector */
+        .result-item.buy-gold-amount span:last-child {
             color: #e74c3c;
         }
         .result-item.final-total span:last-child {
@@ -884,7 +885,7 @@
 
             let totalOverallPriceWithoutTax = 0;
             let totalCalculatedTax = 0;
-            let totalDeductedAmount = 0; // This will store the total amount for bought gold
+            let totalBuyGoldAmount = 0; // This will store the total amount for bought gold
             let itemResultsHtml = '';
 
             const itemRows = document.querySelectorAll('.item-row');
@@ -899,12 +900,6 @@
                 let weight = parseFloat(convertToEnglishDigits(weightInput.value)) || 0;
                 let buyWeight = parseFloat(convertToEnglishDigits((buyWeightInput ? buyWeightInput.value : '0'))) || 0;
 
-                // Only format for display if value exists and is not 0
-                weightInput.value = (weight === 0 && weightInput.value.trim() === '') ? '' : convertToFarsiDigits(String(weight));
-                if (buyWeightInput) {
-                    buyWeightInput.value = (buyWeight === 0 && buyWeightInput.value.trim() === '') ? '' : convertToFarsiDigits(String(buyWeight));
-                }
-
                 const productType = productTypeSelect ? productTypeSelect.value : '';
 
                 let wageAmount = 0;
@@ -913,8 +908,8 @@
                 let itemTaxableAmount = 0;
 
                 const baseItemPrice = rawGoldPrice * weight;
-                const deductedAmountForItem = rawGoldPrice * buyWeight; // Amount for gold customer is selling to us
-                totalDeductedAmount += deductedAmountForItem;
+                const buyAmountForItem = rawGoldPrice * buyWeight; // Amount for gold customer is selling to us
+                totalBuyGoldAmount += buyAmountForItem;
 
                 if (wageType === 'percent') {
                     const wagePercent = parseFloat(convertToEnglishDigits(wageInput.value)) / 100 || 0;
@@ -950,16 +945,14 @@
             if (includeTax) {
                 baseTotalFinalPriceBeforeDiscount += totalCalculatedTax;
             }
-            // totalDeductedAmount is applied after tax for calculation clarity, 
-            // but for "totalFinalPrice" it's considered from the total.
-
-            let totalFinalPriceBeforeDiscountAndPayoutCheck = baseTotalFinalPriceBeforeDiscount - totalDeductedAmount;
+            
+            let totalFinalPriceBeforeDiscountAndPayoutCheck = baseTotalFinalPriceBeforeDiscount - totalBuyGoldAmount;
 
 
             // --- Suggested discount logic ---
             let suggestedDiscounts = [];
 
-            // Calculate potential discounts only if baseTotalFinalPriceBeforeDiscount is positive
+            // Calculate potential discounts only if totalFinalPriceBeforeDiscountAndPayoutCheck is positive
             if (totalFinalPriceBeforeDiscountAndPayoutCheck > 0) {
                 const roundedPriceForSuggestions = Math.round(totalFinalPriceBeforeDiscountAndPayoutCheck);
 
@@ -1065,11 +1058,12 @@
                 `;
             }
 
-            if (totalDeductedAmount > 0) {
+            // Display "خرید طلا" only if totalBuyGoldAmount is positive
+            if (totalBuyGoldAmount > 0) {
                 resultSection.innerHTML += `
-                    <div class="result-item deducted-amount">
-                        <span>کسر بابت خرید طلا:</span>
-                        <span>${formatCurrency(totalDeductedAmount)}</span>
+                    <div class="result-item buy-gold-amount">
+                        <span>خرید طلا:</span>
+                        <span>${formatCurrency(totalBuyGoldAmount)}</span>
                     </div>
                 `;
             }
@@ -1133,12 +1127,16 @@
                         let cleanValue = convertToEnglishDigits(rawValue);
                         
                         // Allow only numbers and a single decimal point
-                        cleanValue = cleanValue.replace(/[^\d.]/g, '');
-                        if (cleanValue.split('.').length > 2) {
-                            cleanValue = cleanValue.substring(0, cleanValue.lastIndexOf('.'));
+                        cleanValue = cleanValue.replace(/[^\d.]/g, ''); // Remove all non-digit, non-dot characters
+                        
+                        // Ensure only one dot
+                        const parts = cleanValue.split('.');
+                        if (parts.length > 2) {
+                            cleanValue = parts[0] + '.' + parts.slice(1).join('');
                         }
-
-                        e.target.value = cleanValue; // Keep English digits for internal processing
+                        
+                        // Update the input value with the cleaned English digits
+                        e.target.value = cleanValue; 
                         calculateFactor();
                     });
                     input.addEventListener('blur', (e) => {
@@ -1148,6 +1146,7 @@
                         if (cleanValue.endsWith('.')) {
                             cleanValue = cleanValue.slice(0, -1);
                         }
+                        // Format for display with Farsi digits and ensure empty if 0 or blank
                         e.target.value = (cleanValue === '' || parseFloat(cleanValue) === 0) ? '' : convertToFarsiDigits(cleanValue);
                         calculateFactor();
                     });
