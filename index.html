@@ -2132,4 +2132,142 @@
         }
 
         function addInputEventListeners(element) {
-            element
+            element.querySelectorAll('input, select').forEach(input => {
+                if (input.id === 'goldPrice') {
+                    // Handled by specific event listeners above
+                } else if (input.classList.contains('gold-wage')) {
+                    input.addEventListener('input', () => updateWageInWordsDisplay(input));
+                    input.addEventListener('blur', () => updateWageInWordsDisplay(input));
+                } else if (input.classList.contains('gold-weight') || input.classList.contains('parsian-buy-weight') || input.classList.contains('ingot-buy-weight')) {
+                    input.addEventListener('input', (e) => {
+                        let rawValue = e.target.value;
+                        let cleanValue = convertToEnglishDigits(rawValue);
+                        
+                        // Allow only one decimal point
+                        const parts = cleanValue.split('.');
+                        if (parts.length > 2) {
+                            cleanValue = parts[0] + '.' + parts.slice(1).join('');
+                        }
+                        
+                        e.target.value = convertToFarsiDigits(cleanValue); // Display in Farsi digits
+                        calculateFactor();
+                    });
+                    input.addEventListener('blur', (e) => {
+                        let rawValue = e.target.value;
+                        let cleanValue = convertToEnglishDigits(rawValue);
+                        if (cleanValue.endsWith('.')) {
+                            cleanValue = cleanValue.slice(0, -1);
+                        }
+                        e.target.value = (cleanValue === '' || parseFloat(cleanValue) === 0) ? '' : convertToFarsiDigits(cleanValue);
+                        calculateFactor();
+                    });
+                } else if (input.classList.contains('gold-buy-weight')) { 
+                    input.addEventListener('input', (e) => {
+                        let rawValue = e.target.value;
+                        let cleanValue = convertToEnglishDigits(rawValue);
+                        const parts = cleanValue.split('.');
+                        if (parts.length > 2) {
+                            cleanValue = parts[0] + '.' + parts.slice(1).join('');
+                        }
+                        e.target.value = convertToFarsiDigits(cleanValue);
+                        calculateFactor();
+                    });
+                    input.addEventListener('blur', (e) => {
+                        let rawValue = e.target.value;
+                        let cleanValue = convertToEnglishDigits(rawValue);
+                        if (cleanValue.endsWith('.')) {
+                            cleanValue = cleanValue.slice(0, -1);
+                        }
+                        e.target.value = (cleanValue === '' || parseFloat(cleanValue) === 0) ? '' : convertToFarsiDigits(cleanValue);
+                        calculateFactor();
+                    });
+                }
+                else if (input.classList.contains('coin-price-input')) {
+                     input.addEventListener('input', (e) => {
+                        e.target.value = formatNumberWithCommas(convertToEnglishDigits(e.target.value));
+                        calculateFactor();
+                    });
+                    input.addEventListener('blur', (e) => {
+                        e.target.value = formatNumberWithCommas(convertToEnglishDigits(e.target.value));
+                        calculateFactor();
+                    });
+                } else if (input.id === 'discount') {
+                    input.addEventListener('input', (e) => {
+                        activeDiscountType = null;
+                        activeDiscountValue = 0;
+                        document.querySelectorAll('.suggested-discount-item').forEach(item => {
+                            item.classList.remove('active');
+                        });
+
+                        let value = convertToEnglishDigits(e.target.value); 
+                        e.target.value = formatNumberWithCommas(value);
+                        calculateFactor();
+                    });
+                    input.addEventListener('blur', (e) => {
+                        let value = convertToEnglishDigits(e.target.value); 
+                        e.target.value = formatNumberWithCommas(value);
+                        calculateFactor();
+                    });
+                } else if (input.classList.contains('customer-input')) {
+                    input.addEventListener('input', () => {
+                        // No calculation needed directly, but can trigger generateInvoiceDisplay if desired
+                    });
+                }
+                else { // For all other inputs and selects (like product type, profit rate, checkboxes)
+                    input.addEventListener('input', calculateFactor);
+                    input.addEventListener('change', calculateFactor);
+                }
+            });
+        }
+
+        // NEW: Collapsible sections logic
+        function toggleBuySection(sectionId) {
+            const section = document.getElementById(sectionId);
+            const content = section.querySelector('.buy-section-content');
+            const header = section.querySelector('.buy-section-header');
+
+            content.classList.toggle('expanded');
+            header.classList.toggle('expanded');
+        }
+
+        // Initial setup
+        document.addEventListener('DOMContentLoaded', () => {
+            updateRemoveButtonsVisibility();
+            updateRemoveBuyButtonsVisibility('buyGoldItemContainer'); 
+            updateRemoveBuyButtonsVisibility('buyCoinItemContainer'); 
+
+            addInputEventListeners(document); 
+            updateGoldPriceDisplay(); 
+            
+            // Ensure initial wage type is applied for the first item
+            const firstWageInput = document.getElementById('wage1');
+            const firstWageTypeRadio = document.querySelector('input[name="wageType1"][value="percent"]');
+            if (firstWageTypeRadio) {
+                toggleWageInput(firstWageTypeRadio); 
+            }
+            
+            // Set default values for Parsian and Ingot to empty if 0
+            const parsianWeightInput = document.getElementById('buyParsianWeight1');
+            const ingotWeightInput = document.getElementById('buyIngotWeight1');
+            if (parsianWeightInput && parseFloat(convertToEnglishDigits(parsianWeightInput.value)) === 0 && parsianWeightInput.value.trim() === '') {
+                parsianWeightInput.value = '';
+            }
+            if (ingotWeightInput && parseFloat(convertToEnglishDigits(ingotWeightInput.value)) === 0 && ingotWeightInput.value.trim() === '') {
+                ingotWeightInput.value = '';
+            }
+
+            // Collapse all buy sections and invoice section by default
+            document.getElementById('buyGoldSection').querySelector('.buy-section-content').classList.remove('expanded');
+            document.getElementById('buyGoldSection').querySelector('.buy-section-header').classList.remove('expanded');
+            document.getElementById('buyCoinSection').querySelector('.buy-section-content').classList.remove('expanded');
+            document.getElementById('buyCoinSection').querySelector('.buy-section-header').classList.remove('expanded');
+            document.getElementById('buyParsianIngotSection').querySelector('.buy-section-content').classList.remove('expanded');
+            document.getElementById('buyParsianIngotSection').querySelector('.buy-section-header').classList.remove('expanded');
+            document.getElementById('invoiceOutputContent').classList.remove('expanded');
+            document.getElementById('invoiceOutputWrapper').querySelector('.invoice-output-header').classList.remove('expanded');
+
+            calculateFactor(); 
+        });
+    </script>
+</body>
+</html>
