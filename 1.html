@@ -1,1 +1,168 @@
+<!DOCTYPE html><html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>فاکتور طلا</title>
+  <style>
+    @font-face {
+      font-family: 'Vazirmatn';
+      src: url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/fonts/webfonts/Vazirmatn-Regular.woff2') format('woff2');
+    }body {
+  margin: 0;
+  font-family: 'Vazirmatn', sans-serif;
+  background: linear-gradient(180deg, #f6f9fc, #e9f3fa);
+  color: #333;
+  padding: 0;
+}
 
+header {
+  background-color: #007acc;
+  color: white;
+  padding: 1rem;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.container {
+  max-width: 600px;
+  margin: 1.5rem auto;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 16px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.06);
+}
+
+h2.section-title {
+  font-size: 1.2rem;
+  margin: 1rem 0 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #007acc;
+  color: #007acc;
+}
+
+.form-group {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+  color: #444;
+}
+
+input, select {
+  width: 100%;
+  padding: 0.6rem;
+  font-size: 1rem;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.button {
+  background-color: #00b894;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.2rem;
+  font-size: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  display: block;
+  margin: 1rem auto;
+}
+
+.button:hover {
+  background-color: #019174;
+}
+
+.item-card {
+  background: #f9fcff;
+  padding: 1rem;
+  border: 1px dashed #ccc;
+  border-radius: 10px;
+  margin-bottom: 1rem;
+}
+
+.results {
+  background: #e6f9ed;
+  padding: 1rem;
+  border-radius: 12px;
+  margin-top: 1.5rem;
+  color: #2d624d;
+  font-weight: bold;
+}
+
+.footer {
+  text-align: center;
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-top: 2rem;
+  padding: 1rem;
+}
+
+@media (max-width: 480px) {
+  .container {
+    border-radius: 0;
+    margin: 0;
+  }
+}
+
+  </style>
+</head>
+<body>
+  <header>فاکتور طلا</header>  <div class="container">
+    <h2 class="section-title">قیمت طلا</h2>
+    <div class="form-group">
+      <label for="goldPrice">قیمت هر گرم (تومان):</label>
+      <input type="text" id="goldPrice">
+    </div><h2 class="section-title">آیتم‌های فروش</h2>
+<div id="items">
+  <div class="item-card">
+    <div class="form-group">
+      <label>وزن طلا:</label>
+      <input type="text">
+    </div>
+    <div class="form-group">
+      <label>نوع محصول:</label>
+      <select>
+        <option>زنجیر</option>
+        <option>النگو</option>
+        <option>دستبند</option>
+        <option>سرویس</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>اجرت (٪):</label>
+      <input type="text">
+    </div>
+  </div>
+</div>
+<button class="button">افزودن آیتم</button>
+
+<h2 class="section-title">تخفیف و مالیات</h2>
+<div class="form-group">
+  <label>درصد سود فروشنده:</label>
+  <select>
+    <option>5%</option>
+    <option selected>7%</option>
+    <option>10%</option>
+  </select>
+</div>
+<div class="form-group">
+  <label>تخفیف (تومان):</label>
+  <input type="text">
+</div>
+
+<div class="results">
+  <div>جمع کل: ۲۵٬۰۰۰٬۰۰۰ تومان</div>
+</div>
+
+<button class="button">صدور فاکتور</button>
+
+  </div>  <div class="footer">طراحی شده توسط ChatGPT | نسخه نمایشی</div>
+</body>
+</html>
