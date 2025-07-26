@@ -257,21 +257,21 @@
         .btn-secondary:hover { background-color: #dbe8fd; }
         
         /* Styles for individual product profit slider */
-        .product-profit-group {
+        .profit-slider-group {
             padding-top: 0.5rem; /* Reduced padding */
             margin-top: 0.5rem; /* Small margin to separate from ajrat */
         }
-        .product-profit-slider {
+        .profit-slider {
             -webkit-appearance: none; width: 100%; height: 6px; /* Narrower slider */
             background: var(--border-color); outline: none; border-radius: 3px; /* Smaller border radius */
         }
 
-        .product-profit-slider::-webkit-slider-thumb {
+        .profit-slider::-webkit-slider-thumb {
             -webkit-appearance: none; appearance: none; width: 18px; height: 18px; /* Smaller thumb */
             background: var(--primary-color); cursor: pointer; border: 2px solid #fff; /* Thinner border */
         }
         
-        .product-slider-value {
+        .profit-slider-value {
             text-align: center; font-weight: 600; font-size: 0.95rem; /* Slightly smaller text */
             margin-top: 0.3rem; /* Reduced margin */
             color: var(--primary-color);
@@ -327,8 +327,7 @@
         /* Print-specific styles */
         @media print {
             body > .container > *:not(#invoice-card),
-            #print-btn-container,
-            #profit-tax-section { /* Hide elements not part of the invoice */
+            #print-btn-container { /* Hide elements not part of the invoice */
                 display: none;
             }
             #invoice-card {
@@ -362,7 +361,7 @@
         <h1 class="main-title">فاکتور آبشده و متفرقه</h1>
 
         <div class="card">
-            <h2 class="card-header">قیمت هر گرم طلا ۱۸ عیار</h2>
+            <h2 class="card-header">قیمت مظنه طلا</h2>
             <div class="form-group">
                 <div class="input-group rtl">
                     <input type="tel" id="gold-price" class="input-field" inputmode="numeric" maxlength="11">
@@ -371,28 +370,66 @@
                 <p id="price-in-words"></p>
             </div>
         </div>
-        
-        <div class="card" id="profit-tax-section">
-            <h2 class="card-header">مالیات</h2>
-            <div class="toggle-switch">
-                <label for="tax-switch" class="form-label" style="margin-bottom:0;">مالیات (۱۰٪ بر سود و اجرت)</label>
-                <label class="switch">
-                    <input type="checkbox" id="tax-switch" checked>
-                    <span class="slider"></span>
-                </label>
+
+        <div class="card">
+            <h2 class="card-header">نوع معامله</h2>
+            <div class="segmented-control" style="margin-bottom: 1rem;">
+                <button id="abshe-toggle-btn" class="abshe-motaferghe-toggle active" data-type="abshe">آبشده</button>
+                <button id="motaferghe-toggle-btn" class="abshe-motaferghe-toggle" data-type="motaferghe">متفرقه</button>
+            </div>
+
+            <div id="abshe-input-section">
+                <div class="item-row">
+                    <div class="form-group">
+                        <label class="form-label">وزن گرم</label>
+                        <div class="input-group rtl">
+                            <input type="text" id="abshe-weight-gram" class="input-field" inputmode="decimal">
+                            <span class="input-group-text">گرم</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">وزن مثقال</label>
+                        <div class="input-group rtl">
+                            <input type="text" id="abshe-weight-mesghal" class="input-field" inputmode="decimal">
+                            <span class="input-group-text">مثقال</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">عیار</label>
+                    <div class="input-group rtl">
+                        <input type="text" id="abshe-ayar" class="input-field" inputmode="decimal" value="705">
+                        <span class="input-group-text">عیار</span>
+                    </div>
+                </div>
+            </div>
+
+            <div id="motaferghe-input-section" class="hidden">
+                <div class="form-group">
+                    <label class="form-label">عنوان / توضیحات</label>
+                    <input type="text" id="motaferghe-description" class="input-field">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">مبلغ (تومان)</label>
+                    <div class="input-group rtl">
+                        <input type="tel" id="motaferghe-price" class="input-field" inputmode="numeric">
+                        <span class="input-group-text">تومان</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="profit-section">
+            <h2 class="card-header">سود</h2>
+            <div class="form-group profit-slider-group">
+                <div class="profit-slider-value" id="profit-display">۲.۰ %</div>
+                <input type="range" min="1" max="5" value="2" step="0.1" class="profit-slider" id="profit-slider">
             </div>
         </div>
 
         <div class="card">
-            <h2 class="card-header">تخفیف</h2>
-            <div class="form-group">
-                <label for="manual-discount" class="form-label">تخفیف دستی</label>
-                 <div class="input-group rtl">
-                    <input type="tel" id="manual-discount" class="input-field" inputmode="numeric">
-                    <span class="input-group-text">تومان</span>
-                </div>
-            </div>
-            <div id="smart-discount-container" class="form-group hidden">
+            <h2 class="card-header">تخفیف رند</h2>
+            <div id="smart-discount-container" class="form-group">
                 <label class="form-label">تخفیف هوشمند (برای رند شدن)</label>
                 <div class="smart-discount-options" id="smart-discount-options"></div>
             </div>
@@ -414,26 +451,38 @@
         // --- DOM Elements ---
         const goldPriceInput = document.getElementById('gold-price');
         const priceInWords = document.getElementById('price-in-words');
-        const taxSwitch = document.getElementById('tax-switch');
-        const manualDiscountInput = document.getElementById('manual-discount');
+        const profitSlider = document.getElementById('profit-slider');
+        const profitDisplay = document.getElementById('profit-display');
         const smartDiscountContainer = document.getElementById('smart-discount-container');
         const smartDiscountOptions = document.getElementById('smart-discount-options');
         const invoiceContentContainer = document.getElementById('invoice-content');
         const printBtn = document.getElementById('print-btn');
 
+        // Abshe/Motaferghe specific elements
+        const absheToggleBtn = document.getElementById('abshe-toggle-btn');
+        const motafergheToggleBtn = document.getElementById('motaferghe-toggle-btn');
+        const absheInputSection = document.getElementById('abshe-input-section');
+        const motafergheInputSection = document.getElementById('motaferghe-input-section');
+        const absheWeightGramInput = document.getElementById('abshe-weight-gram');
+        const absheWeightMesghalInput = document.getElementById('abshe-weight-mesghal');
+        const absheAyarInput = document.getElementById('abshe-ayar');
+        const motafergheDescriptionInput = document.getElementById('motaferghe-description');
+        const motaferghePriceInput = document.getElementById('motaferghe-price');
+
+
         // --- State ---
         let state = {
             goldPrice: 0,
-            taxEnabled: true,
-            manualDiscount: 0,
+            profitPercentage: 2.0, // Default profit for abshe/motaferghe
             smartDiscount: 0,
-            // New state properties for Abshe and Motaferghe
-            absheWeight: 0,
-            absheOunces: 0,
+            
+            // State for Abshe/Motaferghe calculations
+            isAbsheActive: true, // true for Abshe, false for Motaferghe
+            absheWeightGram: 0,
+            absheWeightMesghal: 0,
             absheAyars: 705, // Default for 17.76 Ayar gold
             motaferghePrice: 0,
-            isAbsheActive: true, // To determine which calculation to use
-            motafergheDescription: '', // For the description of miscellaneous item
+            motafergheDescription: '',
         };
 
         // --- Helper Functions ---
@@ -458,8 +507,15 @@
         };
         const parseFormattedNumber = (str) => {
             if (!str) return 0;
+            // Remove non-numeric characters except decimal point for parsing
             return parseInt(toEnglishDigits(str).replace(/,/g, ''), 10) || 0;
         };
+        const parseFloatFormattedNumber = (str) => {
+            if (!str) return 0;
+            // Remove non-numeric characters except decimal point for parsing
+            return parseFloat(toEnglishDigits(str).replace(/,/g, '')) || 0;
+        };
+
         const numberToWords = (num) => {
             if (num === 0) return 'صفر';
             num = Math.floor(num);
@@ -478,7 +534,8 @@
                     let h = Math.floor(threeDigits / 100);
                     let t = Math.floor((threeDigits % 100) / 10);
                     let o = threeDigits % 10;
-                    if (h > 0) { chunk += hundreds[h] + ' و '; }
+                    if (h > 0) { chunk += hundreds[h]; }
+                    if (h > 0 && (t > 0 || o > 0)) chunk += ' و ';
                     if (t === 1) { chunk += teens[o]; }
                     else {
                         chunk += tens[t];
@@ -487,13 +544,17 @@
                     }
                     chunk = chunk.trim();
                     if(chunk.endsWith(' و')) chunk = chunk.slice(0, -2);
-                    if(scales[i]) chunk += ' ' + scales[i];
+                    if(scales[i]) {
+                        if (words.length > 0) chunk += ' و '; // Add 'و' between scale chunks
+                        chunk += scales[i];
+                    }
                     words.unshift(chunk);
                 }
                 num = Math.floor(num/1000);
             }
-            return words.join(' و ');
+            return words.join(' ');
         };
+
         const updatePriceInWords = () => {
             const price = state.goldPrice;
             if (price > 0) {
@@ -507,69 +568,70 @@
         // --- Calculation & Rendering ---
         function calculateAndRender() {
             let invoiceHTML = '';
-            let grandTotal = 0;
-            
+            let baseValue = 0; // This will be the value before profit and discount
+            let totalProfitAmount = 0;
+            let finalInvoiceValue = 0; // This will be the value after profit, before discount
+
+            const goldPricePerMesghal = state.goldPrice * 4.331; // Convert 18-Karat gold price to per Mesghal
+
             // Abshe Calculation (if active)
             if (state.isAbsheActive) {
                 const goldPricePerGram = state.goldPrice;
-                const absheWeightInGrams = parseFloat(state.absheWeight) || 0;
-                const absheOuncesInGrams = (parseFloat(state.absheOunces) || 0) * 4.331; // Convert ounces to grams (each ounce is 4.331 grams)
-                const totalAbsheWeight = absheWeightInGrams + absheOuncesInGrams;
-                const absheAyars = parseFloat(state.absheAyars) || 0;
+                const absheWeightGram = parseFloatFormattedNumber(absheWeightGramInput.value);
+                const absheWeightMesghal = parseFloatFormattedNumber(absheWeightMesghalInput.value);
+                const absheAyars = parseFloatFormattedNumber(absheAyarInput.value);
 
-                if (totalAbsheWeight > 0 && goldPricePerGram > 0 && absheAyars > 0) {
-                    const absheEquivalent18K = (totalAbsheWeight * absheAyars) / 750;
-                    const absheValue = absheEquivalent18K * goldPricePerGram;
+                const totalAbsheWeightInGrams = absheWeightGram + (absheWeightMesghal * 4.331); // Total weight in grams
+
+                if (totalAbsheWeightInGrams > 0 && goldPricePerGram > 0 && absheAyars > 0) {
+                    // Convert total abshe weight to equivalent 18K gold grams
+                    const absheEquivalent18K = (totalAbsheWeightInGrams * absheAyars) / 750;
+                    baseValue = absheEquivalent18K * goldPricePerGram;
                     
                     invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">فاکتور آبشده</div>`;
                     invoiceHTML += `<div class="invoice-item">
                         <div class="invoice-item-header">
-                            <span>آبشده ${toPersianDigits(totalAbsheWeight.toFixed(2))} گرم با عیار ${toPersianDigits(absheAyars)}</span>
-                            <span>${formatNumber(absheValue)} تومان</span>
+                            <span>آبشده ${toPersianDigits(totalAbsheWeightInGrams.toFixed(2))} گرم با عیار ${toPersianDigits(absheAyars)}</span>
+                            <span>${formatNumber(baseValue)} تومان</span>
                         </div>
                     </div></div>`;
-                    grandTotal = absheValue;
                 }
             } else { // Motaferghe Calculation (if active)
-                const motaferghePrice = state.motaferghePrice;
-                if (motaferghePrice > 0) {
+                baseValue = parseFormattedNumber(motaferghePriceInput.value);
+                if (baseValue > 0) {
                     invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">فاکتور متفرقه</div>`;
                     invoiceHTML += `<div class="invoice-item">
                         <div class="invoice-item-header">
                             <span>${state.motafergheDescription || 'آیتم متفرقه'}</span>
-                            <span>${formatNumber(motaferghePrice)} تومان</span>
+                            <span>${formatNumber(baseValue)} تومان</span>
                         </div>
                     </div></div>`;
-                    grandTotal = motaferghePrice;
                 }
             }
             
-            // Tax and Discount calculations (remain largely the same)
-            let totalTax = 0;
-            // For abshe and motaferghe, there is no "ajrat" or "profit" to apply tax on.
-            // Tax would only apply if there's a specific "soud" (profit) field added later, which is not present now.
-            // So, for now, tax will always be 0 in this simplified version.
-            // If you add a "profit" field for abshe/motaferghe, tax calculation needs to be updated here.
+            // Apply Profit
+            if (baseValue > 0 && state.profitPercentage > 0) {
+                totalProfitAmount = baseValue * (state.profitPercentage / 100);
+                finalInvoiceValue = baseValue + totalProfitAmount;
+            } else {
+                finalInvoiceValue = baseValue;
+            }
 
-            state.manualDiscount = parseFormattedNumber(manualDiscountInput.value);
-            const maxDiscount = grandTotal * 0.3; // Maximum 30% discount
-            if (state.manualDiscount > maxDiscount) {
-                state.manualDiscount = maxDiscount;
-                manualDiscountInput.value = formatNumber(state.manualDiscount);
+            // Render Profit line in invoice if applicable
+            if (totalProfitAmount > 0) {
+                invoiceHTML += `<div class="invoice-separator"></div>`;
+                invoiceHTML += `<div class="invoice-summary-line"><span>سود (${toPersianDigits(state.profitPercentage.toFixed(1))}٪)</span><span>${formatNumber(totalProfitAmount)} تومان</span></div>`;
             }
-            const effectiveDiscount = state.smartDiscount > 0 ? state.smartDiscount : state.manualDiscount;
 
-            if (totalTax > 0 || effectiveDiscount > 0) {
-                 invoiceHTML += `<div class="invoice-separator"></div>`;
-            }
-            if (totalTax > 0) {
-                invoiceHTML += `<div class="invoice-summary-line"><span>مالیات</span><span>${formatNumber(totalTax)} تومان</span></div>`;
-            }
+            // Determine effective discount
+            const effectiveDiscount = state.smartDiscount; // Only smart discount is active
+
+            // Render Discount line in invoice if applicable
             if (effectiveDiscount > 0) {
                  invoiceHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-discount">${formatNumber(effectiveDiscount)} تومان</span></div>`;
             }
             
-            grandTotal = grandTotal - effectiveDiscount - totalTax;
+            let grandTotal = finalInvoiceValue - effectiveDiscount;
             
             let finalTotalHTML = `<div class="invoice-final-total">`;
             if (grandTotal >= 0) {
@@ -582,36 +644,66 @@
             // Add gold price to the invoice header, only visible in print
             let invoiceHeaderExtra = '';
             if (state.goldPrice > 0) {
-                invoiceHeaderExtra = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">قیمت هر گرم طلا ۱۸ عیار: ${formatNumber(state.goldPrice)} تومان</div>`;
+                invoiceHeaderExtra = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">قیمت مظنه طلا: ${formatNumber(state.goldPrice)} تومان</div>`;
             }
 
             invoiceContentContainer.innerHTML = invoiceHeaderExtra + invoiceHTML + finalTotalHTML;
-            renderSmartDiscount(grandTotal);
+            renderSmartDiscount(grandTotal); // Smart discount is based on the final grand total
         }
         
-        function renderSmartDiscount(total) {
-            if (total <= 1000 || state.manualDiscount > 0) {
+        function renderSmartDiscount(currentTotal) {
+            // Only show smart discount if currentTotal is positive and there's a need to round
+            if (currentTotal <= 0) { // Also disable if currentTotal is zero or negative (means paying customer)
                 smartDiscountContainer.classList.add('hidden');
-                state.smartDiscount = 0;
+                state.smartDiscount = 0; // Reset smart discount
                 return;
             }
             smartDiscountContainer.classList.remove('hidden');
             smartDiscountOptions.innerHTML = '';
+            
             let options = new Set();
-            [1000, 10000, 100000, 500000, 1000000].forEach(unit => {
-                const remainder = total % unit;
-                if (remainder > 0 && remainder <= 990000 && (total - remainder) >= 0) options.add(remainder);
+            
+            // Round to nearest 1,000, 10,000, 100,000, 1,000,000, 5,000,000
+            const units = [1000, 10000, 100000, 1000000, 5000000];
+
+            units.forEach(unit => {
+                // Calculate how much to subtract to round down to the nearest 'unit'
+                const remainder = currentTotal % unit;
+                if (remainder > 0) {
+                    // Only add if the resulting rounded value is not negative
+                    const roundedDownValue = currentTotal - remainder;
+                    if (roundedDownValue >= 0) {
+                        options.add(remainder);
+                    }
+                }
+                // Also consider rounding to the "half" of the next unit if applicable for certain units
+                // For example, rounding to 50,000 if unit is 100,000, or 500,000 if unit is 1,000,000
+                if (unit === 100000 || unit === 1000000) {
+                    const halfUnit = unit / 2;
+                    const remainderHalf = currentTotal % halfUnit;
+                    if (remainderHalf > 0) {
+                         const roundedDownToHalf = currentTotal - remainderHalf;
+                         if (roundedDownToHalf >= 0 && roundedDownToHalf % unit !== 0) { // Don't add if it's already a multiple of the full unit
+                             options.add(remainderHalf);
+                         }
+                    }
+                }
             });
-            const sortedOptions = Array.from(options).sort((a,b) => a - b).slice(0, 5);
+
+            // Sort unique options in ascending order
+            const sortedOptions = Array.from(options).sort((a, b) => a - b).slice(0, 5); // Take up to 5 options
+
             if (sortedOptions.length === 0) {
                  smartDiscountContainer.classList.add('hidden'); return;
             }
-            sortedOptions.forEach(optValue => {
+
+            sortedOptions.forEach(discountAmount => {
                 const btn = document.createElement('button');
                 btn.className = 'btn smart-discount-btn';
-                btn.textContent = `رند به ${formatNumber(total - optValue)}`;
-                btn.dataset.value = optValue;
-                if (state.smartDiscount === optValue) btn.classList.add('active');
+                const roundedFinalPrice = currentTotal - discountAmount;
+                btn.textContent = `رند به ${formatNumber(roundedFinalPrice)}`;
+                btn.dataset.value = discountAmount;
+                if (state.smartDiscount === discountAmount) btn.classList.add('active');
                 smartDiscountOptions.appendChild(btn);
             });
         }
@@ -619,31 +711,109 @@
         // --- Event Listeners ---
         goldPriceInput.addEventListener('input', (e) => {
             const value = parseFormattedNumber(e.target.value);
-            if (value.toString().length <= 8) {
+            if (value.toString().length <= 11) { // Allow up to 11 digits for gold price
                 state.goldPrice = value;
                 e.target.value = formatNumber(value);
             } else e.target.value = formatNumber(state.goldPrice);
             updatePriceInWords();
             calculateAndRender();
         });
-        taxSwitch.addEventListener('change', (e) => { state.taxEnabled = e.target.checked; calculateAndRender(); });
-        manualDiscountInput.addEventListener('input', () => {
-            if (state.smartDiscount > 0) state.smartDiscount = 0; // Clear smart discount if manual is used
+
+        // Profit slider event listener
+        profitSlider.addEventListener('input', (e) => {
+            state.profitPercentage = parseFloat(e.target.value);
+            profitDisplay.textContent = `${toPersianDigits(state.profitPercentage.toFixed(1))} %`;
             calculateAndRender();
         });
+
+        // Abshe/Motaferghe Toggle
+        absheToggleBtn.addEventListener('click', () => {
+            state.isAbsheActive = true;
+            absheToggleBtn.classList.add('active');
+            motafergheToggleBtn.classList.remove('active');
+            absheInputSection.classList.remove('hidden');
+            motafergheInputSection.classList.add('hidden');
+            calculateAndRender();
+        });
+
+        motafergheToggleBtn.addEventListener('click', () => {
+            state.isAbsheActive = false;
+            motafergheToggleBtn.classList.add('active');
+            absheToggleBtn.classList.remove('active');
+            motafergheInputSection.classList.remove('hidden');
+            absheInputSection.classList.add('hidden');
+            calculateAndRender();
+        });
+
+        // Abshe Inputs
+        absheWeightGramInput.addEventListener('input', (e) => {
+            const value = toEnglishDigits(e.target.value);
+            if (/^\d*\.?\d*$/.test(value)) {
+                state.absheWeightGram = parseFloat(value);
+                e.target.value = toPersianDigits(value);
+            } else {
+                e.target.value = toPersianDigits(state.absheWeightGram);
+            }
+            calculateAndRender();
+        });
+
+        absheWeightMesghalInput.addEventListener('input', (e) => {
+            const value = toEnglishDigits(e.target.value);
+            if (/^\d*\.?\d*$/.test(value)) {
+                state.absheWeightMesghal = parseFloat(value);
+                e.target.value = toPersianDigits(value);
+            } else {
+                e.target.value = toPersianDigits(state.absheWeightMesghal);
+            }
+            calculateAndRender();
+        });
+
+        absheAyarInput.addEventListener('input', (e) => {
+            const value = toEnglishDigits(e.target.value);
+            if (/^\d*\.?\d*$/.test(value)) {
+                state.absheAyars = parseFloat(value);
+                e.target.value = toPersianDigits(value);
+            } else {
+                e.target.value = toPersianDigits(state.absheAyars);
+            }
+            calculateAndRender();
+        });
+
+        // Motaferghe Inputs
+        motafergheDescriptionInput.addEventListener('input', (e) => {
+            state.motafergheDescription = e.target.value;
+            calculateAndRender();
+        });
+
+        motaferghePriceInput.addEventListener('input', (e) => {
+            const value = parseFormattedNumber(e.target.value);
+            if (value.toString().length <= 11) { // Allow up to 11 digits for price
+                state.motaferghePrice = value;
+                e.target.value = formatNumber(value);
+            } else {
+                e.target.value = formatNumber(state.motaferghePrice);
+            }
+            calculateAndRender();
+        });
+
         smartDiscountOptions.addEventListener('click', e => {
             const targetButton = e.target.closest('.smart-discount-btn');
             if (targetButton) {
                 const discountValue = Number(targetButton.dataset.value);
-                if (state.smartDiscount === discountValue) state.smartDiscount = 0; // Deselect if already active
+                if (state.smartDiscount === discountValue) {
+                    state.smartDiscount = 0; // Deselect if already active
+                    targetButton.classList.remove('active');
+                }
                 else {
+                    // Remove active from all buttons first
+                    smartDiscountOptions.querySelectorAll('.smart-discount-btn').forEach(btn => btn.classList.remove('active'));
                     state.smartDiscount = discountValue;
-                    state.manualDiscount = 0; // Clear manual discount if smart is used
-                    manualDiscountInput.value = '';
+                    targetButton.classList.add('active');
                 }
                 calculateAndRender();
             }
         });
+
         printBtn.addEventListener('click', () => {
             window.print();
         });
