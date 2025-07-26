@@ -6,7 +6,7 @@
     <title>فاکتور طلا</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --color-primary: #2980b9;
@@ -22,92 +22,76 @@
             font-family: 'Vazirmatn', sans-serif;
             background-color: var(--color-light-gray);
             color: var(--color-dark);
-            font-size: 13px; /* Compact Layout */
-            line-height: 1.6; /* Compact Layout */
+            font-size: 12px; /* Compact */
+            line-height: 1.5; /* Compact */
         }
         .container { max-width: 600px; margin: 0 auto; background-color: var(--color-white); box-shadow: 0 0 10px rgba(0,0,0,0.1); }
-        header { background-color: var(--color-primary); color: var(--color-white); padding: 10px; text-align: center; font-size: 1.3rem; font-weight: 700; }
-        main { padding: 10px; }
+        header { background-color: var(--color-primary); color: var(--color-white); padding: 8px; text-align: center; font-size: 1.2rem; font-weight: 700; }
+        main { padding: 8px; }
         section {
-            background-color: var(--color-white);
-            margin-bottom: 12px; /* Compact Layout */
-            padding: 10px; /* Compact Layout */
-            border-radius: 8px;
+            margin-bottom: 10px; /* Compact */
+            padding: 8px; /* Compact */
+            border-radius: 6px;
             border: 1px solid #dfe6e9;
         }
         h2 {
-            font-size: 1rem; /* Compact Layout */
+            font-size: 0.95rem; /* Compact */
             font-weight: 700;
-            padding-bottom: 6px;
-            margin-bottom: 10px;
+            padding-bottom: 5px; /* Compact */
+            margin-bottom: 8px; /* Compact */
             border-bottom: 1px solid var(--color-light-gray);
         }
-        .collapsible-header {
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            user-select: none;
-            margin-bottom: 0;
-            border-bottom: none;
-        }
-        .collapsible-header::after { content: '▼'; font-size: 0.8em; transition: transform 0.3s; padding: 5px;}
-        .collapsible-header.open::after { transform: rotate(180deg); }
-        .collapsible-content { display: none; padding-top: 10px; border-top: 1px solid var(--color-light-gray); margin-top: 8px; }
-        
-        .form-group { margin-bottom: 10px; display: flex; flex-direction: column; }
-        .form-group label { margin-bottom: 4px; font-weight: 500; }
+        .form-group { margin-bottom: 8px; display: flex; flex-direction: column; }
+        .form-group label { margin-bottom: 3px; font-weight: 500; }
         input[type="text"], input[type="tel"], input[type="range"] {
-            width: 100%; padding: 8px; border: 1px solid var(--color-medium-gray); border-radius: 5px;
-            font-family: 'Vazirmatn', sans-serif; font-size: 0.95rem; text-align: right;
+            width: 100%;
+            padding: 7px; /* Compact */
+            border: 1px solid var(--color-medium-gray);
+            border-radius: 4px;
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 0.9rem; /* Compact */
+            text-align: right;
         }
         input:focus { outline: none; border-color: var(--color-primary); box-shadow: 0 0 4px rgba(41, 128, 185, 0.4); }
-        .gold-price-words { padding: 4px 2px; margin-top: 4px; text-align: right; font-weight: 500; color: var(--color-secondary); font-size: 0.85rem;}
-        .item-card { border: 1px solid var(--color-medium-gray); border-radius: 8px; padding: 10px; margin-bottom: 10px; position: relative; }
-        .item-card .form-group { margin-bottom: 8px; }
-        .item-card-header { font-weight: bold; margin-bottom: 8px; color: var(--color-primary); }
-        
-        /* -- CHANGE 1: Fee Toggle Styles Re-added -- */
-        .fee-toggle { display: flex; align-items: center; gap: 5px; margin: 5px 0; }
-        .fee-switch { position: relative; display: inline-block; width: 50px; height: 24px; }
-        .fee-switch input { display: none; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--color-medium-gray); transition: .4s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        .gold-price-words { padding: 3px 2px; margin-top: 3px; color: var(--color-secondary); font-size: 0.8rem; }
+        .item-card { border: 1px solid var(--color-medium-gray); border-radius: 6px; padding: 8px; margin-bottom: 8px; position: relative; }
+        .item-card .form-group { margin-bottom: 6px; }
+        .item-card-header { font-weight: bold; margin-bottom: 6px; color: var(--color-primary); font-size: 0.9rem; }
+        .fee-toggle { display: flex; align-items: center; gap: 5px; margin: 4px 0; }
+        .fee-switch { position: relative; display: inline-block; width: 44px; height: 22px; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--color-medium-gray); transition: .4s; border-radius: 22px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
         input:checked + .slider { background-color: var(--color-secondary); }
-        input:checked + .slider:before { transform: translateX(26px); }
-        .fee-label { font-weight: 500; }
+        input:checked + .slider:before { transform: translateX(22px); }
+        .fee-label { font-weight: 500; font-size: 11px; }
         .fee-label.active { color: var(--color-primary); font-weight: bold; }
-
-        .btn { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-family: 'Vazirmatn', sans-serif; font-weight: 500; font-size: 0.95rem; }
-        .btn-add { background-color: var(--color-secondary); color: var(--color-white); width: 100%; margin-top: 8px; }
-        .btn-remove { background-color: var(--color-danger); color: var(--color-white); border: none; width: 26px; height: 26px; border-radius: 50%; font-weight: bold; position: absolute; top: -8px; left: -8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        
-        .invoice-result { margin-top: 10px; padding-top: 10px; border-top: 2px dashed var(--color-medium-gray); }
-        .invoice-line { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--color-light-gray); }
+        .btn { padding: 7px 10px; border: none; border-radius: 4px; cursor: pointer; font-family: 'Vazirmatn', sans-serif; font-weight: 500; font-size: 0.9rem; }
+        .btn-add { background-color: var(--color-secondary); color: var(--color-white); width: 100%; margin-top: 6px; }
+        .btn-remove { background-color: var(--color-danger); color: var(--color-white); width: 24px; height: 24px; border-radius: 50%; position: absolute; top: -7px; left: -7px; display: flex; align-items: center; justify-content: center; border: none; font-weight: bold; }
+        .invoice-result { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--color-medium-gray); }
+        .invoice-line { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px solid var(--color-light-gray); }
         .invoice-line:last-child { border-bottom: none; }
         .invoice-line span:first-child { font-weight: 500; }
         .invoice-line span:last-child { font-weight: 700; }
         .discount-value { color: var(--color-danger); }
-        .final-price { color: var(--color-primary); font-size: 1.2rem; font-weight: 700; }
-
+        .final-price { color: var(--color-primary); font-size: 1.1rem; font-weight: 700; }
         .custom-select { position: relative; }
         .custom-select-trigger { background-color: white; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; }
-        .custom-select-trigger::after { content: '▾'; font-size: 1.2rem; }
+        .custom-select-trigger::after { content: '▾'; font-size: 1.1rem; }
         .custom-select.open .custom-select-trigger { border-color: var(--color-primary); box-shadow: 0 0 4px rgba(41, 128, 185, 0.4); }
-        .custom-options { display: none; position: absolute; top: 100%; left: 0; right: 0; background-color: var(--color-white); border: 1px solid var(--color-medium-gray); border-radius: 5px; z-index: 1000; max-height: 150px; overflow-y: auto; box-shadow: 0 3px 8px rgba(0,0,0,0.1); }
+        .custom-options { display: none; position: absolute; top: 100%; left: 0; right: 0; background-color: var(--color-white); border: 1px solid var(--color-medium-gray); border-radius: 4px; z-index: 1000; max-height: 150px; overflow-y: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .custom-select.open .custom-options { display: block; }
-        .custom-option { padding: 8px; cursor: pointer; }
+        .custom-option { padding: 7px; cursor: pointer; }
         .custom-option:hover { background-color: var(--color-light-gray); }
     </style>
 </head>
 <body>
-
     <div class="container">
         <header>فاکتور طلا</header>
         <main id="invoice-app">
             <section>
                 <h2>قیمت طلا</h2>
-                <div class="form-group"><label for="gold-price">قیمت هر گرم طلا ۱۸ عیار (تومان)</label><input type="text" id="gold-price" inputmode="numeric"><div id="gold-price-words-box" class="gold-price-words"></div></div>
+                <div class="form-group"><label for="gold-price">قیمت هر گرم طلا ۱۸ عیار (تومان)</label><input type="text" id="gold-price" inputmode="numeric"></div>
             </section>
             
             <section>
@@ -117,23 +101,18 @@
             </section>
 
             <section>
-                <h2 class="collapsible-header">خرید طلا از مشتری</h2>
-                <div class="collapsible-content">
-                    <div class="form-group"><label>خرید طلا (متفرقه):</label><input type="text" id="purchase-plain-weight" class="persian-number-input" inputmode="decimal"></div>
-                    <div class="form-group"><label>خرید شمش:</label><input type="text" id="purchase-bullion-weight" class="persian-number-input" inputmode="decimal"></div>
-                    <div class="form-group"><label>خرید سکه (قیمت کل):</label><input type="text" id="purchase-coin-total" class="persian-number-input" inputmode="numeric"></div>
-                </div>
+                <h2>خرید طلا از مشتری</h2>
+                <div class="form-group"><label>خرید طلا (متفرقه):</label><input type="text" id="purchase-plain-weight" class="persian-number-input" inputmode="decimal"></div>
+                <div class="form-group"><label>خرید شمش:</label><input type="text" id="purchase-bullion-weight" class="persian-number-input" inputmode="decimal"></div>
+                <div class="form-group"><label>خرید سکه (قیمت کل):</label><input type="text" id="purchase-coin-total" class="persian-number-input" inputmode="numeric"></div>
             </section>
             
             <section>
-                <h2 class="collapsible-header">تنظیمات نهایی و تخفیف</h2>
-                <div class="collapsible-content">
-                    <div class="form-group"><label>سود فروشنده:</label><div style="display:flex; align-items:center; gap:10px;"><input type="range" id="profit-slider" min="1" max="10" value="7" step="0.5"><span id="profit-value">7 %</span></div></div>
-                    <div class="form-group"><div style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" id="tax-checkbox" checked style="width: auto;"><label for="tax-checkbox">محاسبه ۹٪ مالیات بر سود و اجرت</label></div></div>
-                    <hr style="border: none; border-top: 1px dashed var(--color-light-gray); margin: 12px 0;">
-                    <div class="form-group"><label for="manual-discount">مبلغ تخفیف دستی (تومان)</label><input type="text" id="manual-discount" class="persian-number-input" inputmode="numeric"></div>
-                    <div><label>تخفیف هوشمند (رُند کردن):</label><div id="smart-discount-options" style="margin-top: 8px;"></div></div>
-                </div>
+                <h2>تنظیمات نهایی و تخفیف</h2>
+                <div class="form-group"><label>سود فروشنده:</label><div style="display:flex; align-items:center; gap:8px;"><input type="range" id="profit-slider" min="1" max="10" value="7" step="0.5"><span id="profit-value">7 %</span></div></div>
+                <div class="form-group"><div style="display: flex; align-items: center; gap: 5px;"><input type="checkbox" id="tax-checkbox" checked style="width: auto;"><label for="tax-checkbox">محاسبه ۹٪ مالیات بر سود و اجرت</label></div></div>
+                <div class="form-group"><label for="manual-discount">مبلغ تخفیف دستی (تومان)</label><input type="text" id="manual-discount" class="persian-number-input" inputmode="numeric"></div>
+                <div><label>تخفیف هوشمند (رُند کردن):</label><div id="smart-discount-options" style="margin-top: 5px;"></div></div>
             </section>
 
             <section>
@@ -142,12 +121,10 @@
             </section>
             
             <section>
-                <h2 class="collapsible-header">فاکتور مشتری</h2>
-                <div class="collapsible-content">
-                    <div class="form-group"><label for="customer-name">نام خریدار</label><input type="text" id="customer-name"></div>
-                    <div class="form-group"><label for="customer-phone">شماره تماس</label><input type="tel" id="customer-phone" inputmode="numeric" maxlength="11"></div>
-                    <div id="customer-invoice-details" class="invoice-result"></div>
-                </div>
+                <h2>فاکتور مشتری</h2>
+                <div class="form-group"><label for="customer-name">نام خریدار</label><input type="text" id="customer-name"></div>
+                <div class="form-group"><label for="customer-phone">شماره تماس</label><input type="tel" id="customer-phone" inputmode="numeric" maxlength="11"></div>
+                <div id="customer-invoice-details" class="invoice-result"></div>
             </section>
         </main>
     </div>
@@ -159,7 +136,7 @@
              <div class="form-group"><label>وزن (گرم)</label><input type="text" class="item-weight persian-number-input" inputmode="decimal"></div>
             <div class="form-group">
                 <label>مدل طلا</label>
-                <div class="custom-select"><input type="hidden" class="item-model-value" value="طلا"><div class="custom-select-trigger">طلا (پیش‌فرض)</div><div class="custom-options"></div></div>
+                <div class="custom-select"><input type="hidden" class="item-model-value" value="طلا"><div class="custom-select-trigger">طلا</div><div class="custom-options"></div></div>
             </div>
             <div class="form-group">
                 <label>اجرت</label>
@@ -180,7 +157,7 @@
         const goldModels = ["سرویس", "النگو", "نیم‌ست", "دستبند", "زنجیر", "گردنبند", "گوشواره", "مدال", "پلاک", "سفارشی"];
 
         const toPersianNum = s => s.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹' [d]);
-        const toEnglishNumForFormatting = s => (s || '').toString().replace(/,/g, '').replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[^0-9]/g, '');
+        const toEnglishNumForFormatting = s => (s || '').toString().replace(/,/g, '').replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[^0-9.]/g, '');
         const formatCurrency = num => (isNaN(num) || num === 0) ? '۰' : toPersianNum(Math.round(num).toLocaleString('en-US'));
         
         function formatInputWithCommas(inputElement) {
@@ -200,8 +177,7 @@
             const target = e.target;
             if (target.id !== 'manual-discount') resetSmartDiscount();
             if (target.id === 'manual-discount' && target.value) resetSmartDiscount();
-
-            if (target.matches('.persian-number-input, #customer-phone')) {
+            if (target.matches('.persian-number-input, #customer-phone, #manual-discount')) {
                 target.value = toPersianNum(toEnglishNumForFormatting(target.value));
             }
             if (target.matches('#gold-price, .item-fee, #purchase-coin-total, #manual-discount')) {
@@ -215,9 +191,11 @@
 
         app.addEventListener('change', e => {
             const target = e.target;
-            resetSmartDiscount();
-            // -- CHANGE 1: Event listener for fee type toggle
+            if(target.id === 'tax-checkbox') {
+                resetSmartDiscount();
+            }
             if (target.classList.contains('fee-type-toggle')) {
+                resetSmartDiscount();
                 const itemCard = target.closest('.item-card');
                 const feeInput = itemCard.querySelector('.item-fee');
                 const labels = itemCard.querySelectorAll('.fee-label');
@@ -235,7 +213,6 @@
             window.calculateAll();
         });
 
-        // Event delegation for dynamically added elements
         app.addEventListener('click', e => {
             const target = e.target;
             if (target.matches('.smart-discount-btn')) {
@@ -249,10 +226,6 @@
                     activeSmartDiscount = parseFloat(toEnglishNumForFormatting(target.dataset.value));
                 }
                 window.calculateAll();
-            }
-            if (target.matches('.collapsible-header')) {
-                target.classList.toggle('open');
-                target.nextElementSibling.style.display = target.nextElementSibling.style.display === 'block' ? 'none' : 'block';
             }
         });
         
@@ -303,14 +276,13 @@
             let totalRawGoldValue = 0, totalFee = 0, customerInvoiceItems = [];
 
             document.querySelectorAll('#items-container .item-card').forEach(item => {
-                const weight = parseFloat(toEnglishNumForFormatting(item.querySelector('.item-weight').value)) / 100 || 0;
+                const weight = parseFloat(toEnglishNumForFormatting(item.querySelector('.item-weight').value)) || 0;
                 const feeValue = parseFloat(toEnglishNumForFormatting(item.querySelector('.item-fee').value)) || 0;
                 const isPercentFee = item.querySelector('.fee-type-toggle').checked;
                 const model = item.querySelector('.item-model-value').value;
 
                 if (weight > 0) {
                     const itemRawValue = weight * goldPrice;
-                    // -- CHANGE 1: Fee calculation logic updated to support both modes
                     const itemFee = isPercentFee ? (itemRawValue * feeValue / 100) : (weight * feeValue);
                     totalRawGoldValue += itemRawValue;
                     totalFee += itemFee;
@@ -318,8 +290,8 @@
                 }
             });
 
-            const plainWeight = parseFloat(toEnglishNumForFormatting(document.getElementById('purchase-plain-weight').value)) / 100 || 0;
-            const bullionWeight = parseFloat(toEnglishNumForFormatting(document.getElementById('purchase-bullion-weight').value)) / 100 || 0;
+            const plainWeight = parseFloat(toEnglishNumForFormatting(document.getElementById('purchase-plain-weight').value)) || 0;
+            const bullionWeight = parseFloat(toEnglishNumForFormatting(document.getElementById('purchase-bullion-weight').value)) || 0;
             const coinValue = parseFloat(toEnglishNumForFormatting(document.getElementById('purchase-coin-total').value)) || 0;
             let purchasedValue = (plainWeight * goldPrice) + ((bullionWeight * 995 / 750) * goldPrice) + coinValue;
 
@@ -346,11 +318,11 @@
             if (total < 10000) return;
             const options = new Set([Math.floor(total / 10000) * 10000, Math.floor(total / 50000) * 50000, Math.floor(total / 100000) * 100000]);
             Array.from(options).filter(opt => opt > 0 && opt < total).sort((a, b) => b - a).slice(0, 3).forEach(opt => {
-                const btn = document.createElement('div');
-                btn.className = 'btn'; // Use general button style
+                const btn = document.createElement('button');
+                btn.className = 'btn smart-discount-btn';
                 btn.textContent = `رُند به ${formatCurrency(opt)}`;
                 btn.dataset.value = opt;
-                if (opt === activeSmartDiscount) btn.classList.add('active'); // Needs active style for .btn
+                if (opt === activeSmartDiscount) btn.classList.add('active');
                 container.appendChild(btn);
             });
         }
@@ -370,17 +342,23 @@
             const details = document.getElementById('customer-invoice-details');
             details.innerHTML = '';
             let totalFee = 0;
+            let totalValue = 0;
+
             if (items.length === 0 && purchased === 0) return;
             
             items.forEach(item => {
                 totalFee += item.fee;
+                totalValue += item.price;
                 details.innerHTML += `<div class="invoice-line"><span>${item.model} (${toPersianNum(item.weight.toFixed(2))} گ)</span><span>${formatCurrency(item.price)} ت</span></div>`;
             });
             if (totalFee > 0) details.innerHTML += `<div class="invoice-line"><span>اجرت ساخت</span><span>${formatCurrency(totalFee)} ت</span></div>`;
             if (purchased > 0) details.innerHTML += `<div class="invoice-line"><span>کسر بابت طلای دست دوم</span><span class="discount-value">-${formatCurrency(purchased)} ت</span></div>`;
-            details.innerHTML += `<hr style="border:none; border-top:1px dashed #ddd; margin:8px 0;">`;
-            if (tax > 0) details.innerHTML += `<div class="invoice-line"><span>مالیات</span><span>${formatCurrency(tax)} ت</span></div>`;
+            
+            const subtotalBeforeDiscount = totalValue + totalFee + tax - purchased;
+            details.innerHTML += `<div class="invoice-line"><span>جمع</span><span>${formatCurrency(subtotalBeforeDiscount)} ت</span></div>`;
+
             if (discount > 0) details.innerHTML += `<div class="invoice-line"><span>تخفیف</span><span class="discount-value">-${formatCurrency(discount)} ت</span></div>`;
+            details.innerHTML += `<hr style="border:none; border-top:1px dashed #ddd; margin:6px 0;">`;
             details.innerHTML += `<div class="invoice-line"><strong>جمع کل</strong><strong class="final-price">${formatCurrency(total)} تومان</strong></div>`;
         }
         
