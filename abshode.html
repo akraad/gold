@@ -368,6 +368,11 @@
             .print-only { /* Show elements only in print */
                 display: block !important;
             }
+            /* Hide the profit section and profit line in invoice during print */
+            #profit-section,
+            .invoice-summary-line:has(span:contains("سود")) {
+                display: none !important;
+            }
         }
 
         /* Screen-only styles */
@@ -616,20 +621,20 @@
                                     <span class="input-group-text">عیار</span>
                                 </div>
                             </div>
-                        </div> <div class="item-row"> <div class="form-group">
-                                <label class="form-label">انگ</label>
-                                <div class="input-group rtl">
-                                    <input type="text" class="input-field abshe-eng-input" inputmode="numeric" value="${item.eng === 0 ? '' : toPersianDigits(item.eng)}">
-                                    <span class="input-group-text">انگ</span>
-                                </div>
+                        </div> <div class="form-group">
+                            <label class="form-label">انگ</label>
+                            <div class="input-group rtl">
+                                <input type="text" class="input-field abshe-eng-input" inputmode="numeric" value="${item.eng === 0 ? '' : toPersianDigits(item.eng)}">
+                                <span class="input-group-text">انگ</span>
                             </div>
-                            <div class="form-group">
-                                <label class="form-label">آزمایشگاه</label>
-                                <div class="input-group rtl">
-                                    <input type="text" class="input-field abshe-lab-input left-align" value="${item.lab || ''}">
-                                    <span class="input-group-text">نام</span>
-                                </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">آزمایشگاه</label>
+                            <div class="input-group rtl">
+                                <input type="text" class="input-field abshe-lab-input left-align" value="${item.lab || ''}">
+                                <span class="input-group-text">نام</span>
                             </div>
+                        </div>
                     `;
                 } else if (item.type === 'motaferghe') {
                     // Motaferghe takes full row and has a specific label
@@ -778,9 +783,17 @@
                     if (item.weight > 0 && state.goldPrice > 0 && item.ayar > 0) {
                         const absheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (item.ayar / 750);
                         itemBaseValue = absheEquivalent18KMesghals * state.goldPrice;
+                        
+                        // Start item description with main details
                         itemDescription = `آبشده ${toPersianDigits(item.weight.toFixed(2))} گرم با عیار ${toPersianDigits(item.ayar)}`;
-                        if (item.eng > 0) itemDescription += `, انگ ${toPersianDigits(item.eng)}`;
-                        if (item.lab) itemDescription += `, آزمایشگاه ${item.lab}`;
+
+                        // Add Eng and Lab on separate lines using <br> and new spans/divs if values exist
+                        if (item.eng > 0) {
+                            itemDescription += `<br><span class="invoice-item-details">انگ: ${toPersianDigits(item.eng)}</span>`;
+                        }
+                        if (item.lab) {
+                            itemDescription += `<br><span class="invoice-item-details">آزمایشگاه: ${item.lab}</span>`;
+                        }
                     }
                 } else if (item.type === 'motaferghe') {
                     // Always add a separator before a motaferghe item, unless it's the very first item
@@ -819,7 +832,7 @@
                 finalInvoiceValue = totalBaseValue;
             }
 
-            // Render Profit line in invoice if applicable
+            // Render Profit line in invoice if applicable (visible on screen, hidden on print)
             if (totalProfitAmount > 0) {
                 invoiceHTML += `<div class="invoice-separator"></div>`;
                 invoiceHTML += `<div class="invoice-summary-line"><span>سود (${toPersianDigits(state.profitPercentage.toFixed(1))}٪)</span><span>${formatNumber(totalProfitAmount)} تومان</span></div>`;
@@ -888,7 +901,7 @@
                 const roundedFinalPrice = currentTotal - discountAmount;
                 btn.textContent = `رند به ${formatNumber(roundedFinalPrice)}`;
                 btn.dataset.value = discountAmount;
-                if (state.smartDiscount === discountAmount) btn.classList.add('active');
+                if (state.smartDiscount === discountValue) btn.classList.add('active');
                 smartDiscountOptions.appendChild(btn);
             });
         }
