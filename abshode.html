@@ -786,6 +786,7 @@
             let motafergheBaseValueTotal = 0;
             let hasAbsheItems = false;
             let hasMotafergheItems = false;
+            let conditionalAbsheItems = []; // To track conditional abshe items for disclaimer
 
             invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">جزئیات اقلام</div>`;
 
@@ -800,12 +801,22 @@
                         invoiceHTML += `<div class="invoice-separator" style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></div>`;
                     }
 
-                    if (item.weight > 0 && state.goldPrice > 0 && item.ayar > 0) {
-                        const absheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (item.ayar / 750);
+                    const ayarForCalculation = item.ayar > 0 ? item.ayar : 750; // Use 750 for calculation if ayar is 0
+
+                    if (item.weight > 0 && state.goldPrice > 0) {
+                        const absheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (ayarForCalculation / 750);
                         itemRawBaseValue = absheEquivalent18KMesghals * state.goldPrice;
                         itemValueWithProfit = itemRawBaseValue * (1 + item.profit / 100);
                         
-                        itemDescription = `آبشده ${toPersianDigits(item.weight)} گرم با عیار ${toPersianDigits(item.ayar)}`;
+                        let ayarDisplay = '';
+                        if (item.ayar === 0) { // If ayar is 0 (empty field)
+                            ayarDisplay = `<strong style="color:var(--danger-color);">شرطی</strong>`;
+                            conditionalAbsheItems.push({ index: index + 1, weight: item.weight }); // Track conditional item
+                        } else {
+                            ayarDisplay = toPersianDigits(item.ayar);
+                        }
+
+                        itemDescription = `آبشده ${toPersianDigits(item.weight)} گرم با عیار ${ayarDisplay}`;
 
                         if (item.eng > 0) {
                             itemDescription += `<br><span class="invoice-item-details">انگ: ${toPersianDigits(item.eng)}</span>`;
@@ -814,8 +825,8 @@
                             itemDescription += `<br><span class="invoice-item-details">آزمایشگاه: ${item.lab}</span>`;
                         }
                         
-                        if (item.ayar !== 750) {
-                            const equivalentWeight750 = item.weight * (item.ayar / 750);
+                        if (ayarForCalculation !== 750) {
+                            const equivalentWeight750 = item.weight * (ayarForCalculation / 750);
                             itemDescription += `<br><span class="invoice-item-details">وزن آبشده به عیار ۷۵۰: ${toPersianDigits(equivalentWeight750.toFixed(2))} گرم</span>`;
                         }
 
@@ -906,13 +917,31 @@
                  finalTotalHTML += `<span>پرداخت به مشتری</span><span>${formatNumber(Math.abs(grandTotal)) || '۰'} تومان</span>`;
             }
             finalTotalHTML += `</div>`;
+
+            let disclaimerHTML = '';
+            if (conditionalAbsheItems.length > 0) {
+                let conditionalText = '';
+                if (conditionalAbsheItems.length === 1) {
+                    const item = conditionalAbsheItems[0];
+                    conditionalText = `آبشده (وزن ${toPersianDigits(item.weight)})`;
+                } else {
+                    const formattedItems = conditionalAbsheItems.map((item, idx) => {
+                        // Use Persian ordinals for "اول", "دوم", etc.
+                        const ordinalMap = {1: 'اول', 2: 'دوم', 3: 'سوم', 4: 'چهارم', 5: 'پنجم'};
+                        const ordinal = ordinalMap[idx + 1] || toPersianDigits(idx + 1); // Fallback for higher numbers
+                        return `آبشده ${ordinal} (وزن ${toPersianDigits(item.weight)})`;
+                    }).join(' و ');
+                    conditionalText = formattedItems;
+                }
+                disclaimerHTML = `<p style="font-size:0.8em; color:var(--text-light); text-align:center; margin-top:0.5rem;">(به دلیل شرطی بودن ${conditionalText}؛ مبلغ نهایی می‌تواند کمتر یا بیشتر شود)</p>`;
+            }
             
             let invoiceHeaderExtra = '';
             if (state.goldPrice > 0) {
                 invoiceHeaderExtra = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">قیمت مظنه طلا: ${formatNumber(state.goldPrice)} تومان</div>`;
             }
 
-            invoiceContentContainer.innerHTML = invoiceHeaderExtra + invoiceHTML + finalTotalHTML;
+            invoiceContentContainer.innerHTML = invoiceHeaderExtra + invoiceHTML + finalTotalHTML + disclaimerHTML;
             renderSmartDiscount(grandTotal);
         }
         
