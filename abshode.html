@@ -506,44 +506,57 @@
             if (!str) return 0;
             return parseFloat(toEnglishDigits(str).replace(/,/g, '')) || 0;
         };
+        // Revised numberToWords for correct spacing
         const numberToWords = (num) => {
             if (num === 0) return 'صفر';
-            num = Math.floor(num);
-            const ones = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
+            num = Math.floor(num); // Ensure it's an integer
+
+            const units = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
             const teens = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
             const tens = ['', 'ده', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
             const hundreds = ['', 'یکصد', 'دویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
-            const scales = ['', 'هزار', 'میلیون', 'میلیارد'];
+            const scales = ['', 'هزار', 'میلیون', 'میلیارد', 'تریلیون']; // Added more scales for larger numbers
+
+            function convertThreeDigits(n) {
+                let chunk = [];
+                const h = Math.floor(n / 100);
+                const t = Math.floor((n % 100) / 10);
+                const u = n % 10;
+
+                if (h > 0) {
+                    chunk.push(hundreds[h]);
+                }
+                if (t === 1) {
+                    chunk.push(teens[u]);
+                } else {
+                    if (t > 0) chunk.push(tens[t]);
+                    if (u > 0) chunk.push(units[u]);
+                }
+                return chunk.join(' و '); // Join parts of three-digit number with ' و '
+            }
 
             let words = [];
-            if (num === 0) return 'صفر';
-            for(let i=0; num > 0; i++){
-                let threeDigits = num % 1000;
-                if(threeDigits > 0){
-                    let chunk = '';
-                    let h = Math.floor(threeDigits / 100);
-                    let t = Math.floor((threeDigits % 100) / 10);
-                    let o = threeDigits % 10;
-                    if (h > 0) { chunk += hundreds[h]; }
-                    if (h > 0 && (t > 0 || o > 0)) chunk += ' و ';
-                    if (t === 1) { chunk += teens[o]; }
-                    else {
-                        chunk += tens[t];
-                        if (t > 0 && o > 0) chunk += ' و ';
-                        chunk += ones[o];
+            let i = 0; // Scale index
+
+            while (num > 0) {
+                const threeDigits = num % 1000;
+                if (threeDigits > 0) {
+                    let chunkWord = convertThreeDigits(threeDigits);
+                    let scaleWord = scales[i];
+                    if (scaleWord) {
+                        // Combine chunkWord and scaleWord with a space if both exist
+                        chunkWord = chunkWord + (chunkWord ? ' ' : '') + scaleWord;
                     }
-                    chunk = chunk.trim();
-                    if(chunk.endsWith(' و')) chunk = chunk.slice(0, -2);
-                    if(scales[i]) {
-                        if (words.length > 0) chunk += ' و '; // Add 'و' between scale chunks
-                        chunk += scales[i];
-                    }
-                    words.unshift(chunk);
+                    words.unshift(chunkWord);
                 }
-                num = Math.floor(num/1000);
+                num = Math.floor(num / 1000);
+                i++;
             }
-            return words.join(' ');
+            
+            // Join the main segments (thousands, millions, etc.) with ' و '
+            return words.filter(Boolean).join(' و '); // Filter out empty strings before joining
         };
+
 
         const updatePriceInWords = () => {
             const price = state.goldPrice;
@@ -749,7 +762,7 @@
                     // Update the display next to the slider immediately
                     const display = e.target.closest('.profit-slider-group').querySelector('.profit-slider-value');
                     if (display) {
-                        display.textContent = `${toPersianDigits(value.toFixed(1))} %`;
+                        display.textContent = `${toPersianDigits(value.toFixed(1))} %`; // Correctly updates slider value
                     }
                 };
             });
