@@ -69,6 +69,32 @@
             border-bottom: 2px solid var(--color-light-gray);
         }
         
+        /* -- CHANGE 3 START -- */
+        .collapsible-header {
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+        }
+
+        .collapsible-header::after {
+            content: '▼';
+            font-size: 0.8em;
+            transition: transform 0.3s;
+        }
+
+        .collapsible-header.open::after {
+            transform: rotate(180deg);
+        }
+
+        .collapsible-content {
+            display: none;
+            padding-top: 15px;
+        }
+        /* -- CHANGE 3 END -- */
+
+
         .title-gold { color: var(--color-primary); }
         .title-purchase { color: var(--color-purple); }
         .title-discount { color: var(--color-danger); }
@@ -318,65 +344,64 @@
             </section>
             
             <section id="gold-items-section">
-                <h2 class="title-gold">محاسبه قیمت طلا</h2>
                 <div id="items-container">
                     </div>
                 <button class="btn btn-add" id="add-item-btn">+ افزودن آیتم جدید</button>
             </section>
 
             <section id="other-purchases-section">
-                <h2 class="title-purchase">خرید طلا از مشتری</h2>
+                <h2 class="title-purchase collapsible-header">خرید طلا از مشتری</h2>
+                <div class="collapsible-content">
+                    <div class="form-group">
+                        <label>خرید طلا (متفرقه):</label>
+                        <input type="text" id="purchase-plain-weight" class="persian-number-input" inputmode="decimal">
+                    </div>
 
-                <div class="form-group">
-                    <label>خرید طلا (متفرقه):</label>
-                    <input type="text" id="purchase-plain-weight" class="persian-number-input" inputmode="decimal">
-                </div>
+                    <div class="form-group">
+                        <label>خرید شمش:</label>
+                        <input type="text" id="purchase-bullion-weight" class="persian-number-input" inputmode="decimal">
+                    </div>
 
-                <div class="form-group">
-                    <label>خرید شمش:</label>
-                    <input type="text" id="purchase-bullion-weight" class="persian-number-input" inputmode="decimal">
-                </div>
+                    <div class="form-group">
+                        <label>خرید پارسیان:</label>
+                        <input type="text" id="purchase-parsian-weight" class="persian-number-input" inputmode="decimal">
+                    </div>
 
-                <div class="form-group">
-                    <label>خرید پارسیان:</label>
-                    <input type="text" id="purchase-parsian-weight" class="persian-number-input" inputmode="decimal">
-                </div>
-
-                <div class="form-group">
-                    <label>خرید سکه:</label>
-                    <div class="coin-selection-grid">
-                        <div class="coin-option">
-                            <label for="sekeh-emami86"><input type="checkbox" id="sekeh-emami86" class="coin-checkbox" data-name="امامی ۸۶"> امامی ۸۶</label>
-                            <input type="text" class="coin-price-input" inputmode="numeric" style="display: none;">
-                        </div>
-                         <div class="coin-option">
-                             <label for="sekeh-nim86"><input type="checkbox" id="sekeh-nim86" class="coin-checkbox" data-name="نیم ۸۶"> نیم ۸۶</label>
-                            <input type="text" class="coin-price-input" inputmode="numeric" style="display: none;">
-                        </div>
-                         <div class="coin-option">
-                             <label for="sekeh-rob86"><input type="checkbox" id="sekeh-rob86" class="coin-checkbox" data-name="ربع ۸۶"> ربع ۸۶</label>
-                            <input type="text" class="coin-price-input" inputmode="numeric" style="display: none;">
-                        </div>
-                         <div class="coin-option">
-                             <label for="sekeh-emami-under86"><input type="checkbox" id="sekeh-emami-under86" class="coin-checkbox" data-name="امامی زیر ۸۶"> امامی زیر ۸۶</label>
-                            <input type="text" class="coin-price-input" inputmode="numeric" style="display: none;">
-                        </div>
-                         <div class="coin-option">
-                            <label for="sekeh-nim-under86"><input type="checkbox" id="sekeh-nim-under86" class="coin-checkbox" data-name="نیم زیر ۸۶"> نیم زیر ۸۶</label>
-                            <input type="text" class="coin-price-input" inputmode="numeric" style="display: none;">
-                        </div>
-                         <div class="coin-option">
-                           <label for="sekeh-rob-under86"><input type="checkbox" id="sekeh-rob-under86" class="coin-checkbox" data-name="ربع زیر ۸۶"> ربع زیر ۸۶</label>
-                           <input type="text" class="coin-price-input" inputmode="numeric" style="display: none;">
-                        </div>
-                         <div class="coin-option">
-                            <label for="sekeh-gerami"><input type="checkbox" id="sekeh-gerami" class="coin-checkbox" data-name="یک گرمی بانکی"> یک گرمی</label>
-                            <input type="text" class="coin-price-input" inputmode="numeric" style="display: none;">
+                    <div class="form-group">
+                        <label>خرید سکه:</label>
+                        <div class="coin-selection-grid">
+                            <div class="coin-option">
+                                <label for="sekeh-emami86"><input type="checkbox" id="sekeh-emami86" class="coin-checkbox" data-name="امامی ۸۶"> امامی ۸۶</label>
+                                <input type="text" class="coin-price-input" inputmode="numeric" style="display: none;">
+                            </div>
+                             <div class="coin-option">
+                                 <label for="sekeh-nim86"><input type="checkbox" id="sekeh-nim86" class="coin-checkbox" data-name="نیم ۸۶"> نیم ۸۶</label>
+                                <input type="text" class="coin-price-input" inputmode="numeric" style="display: none;">
+                            </div>
+                             <div class="coin-option">
+                                 <label for="sekeh-rob86"><input type="checkbox" id="sekeh-rob86" class="coin-checkbox" data-name="ربع ۸۶"> ربع ۸۶</label>
+                                <input type="text" class="coin-price-input" inputmode="numeric" style="display: none;">
+                            </div>
+                             <div class="coin-option">
+                                 <label for="sekeh-emami-under86"><input type="checkbox" id="sekeh-emami-under86" class="coin-checkbox" data-name="امامی زیر ۸۶"> امامی زیر ۸۶</label>
+                                <input type="text" class="coin-price-input" inputmode="numeric" style="display: none;">
+                            </div>
+                             <div class="coin-option">
+                                <label for="sekeh-nim-under86"><input type="checkbox" id="sekeh-nim-under86" class="coin-checkbox" data-name="نیم زیر ۸۶"> نیم زیر ۸۶</label>
+                                <input type="text" class="coin-price-input" inputmode="numeric" style="display: none;">
+                            </div>
+                             <div class="coin-option">
+                               <label for="sekeh-rob-under86"><input type="checkbox" id="sekeh-rob-under86" class="coin-checkbox" data-name="ربع زیر ۸۶"> ربع زیر ۸۶</label>
+                               <input type="text" class="coin-price-input" inputmode="numeric" style="display: none;">
+                            </div>
+                             <div class="coin-option">
+                                <label for="sekeh-gerami"><input type="checkbox" id="sekeh-gerami" class="coin-checkbox" data-name="یک گرمی بانکی"> یک گرمی</label>
+                                <input type="text" class="coin-price-input" inputmode="numeric" style="display: none;">
+                            </div>
                         </div>
                     </div>
                 </div>
-
-            </section>
+                </section>
             
             <section>
                 <div class="form-group">
@@ -482,15 +507,11 @@
             const toPersianNum = (s) => s.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
             const toEnglishNum = (s) => s.toString().replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[^0-9.-]/g, '');
             
-            // --- FIXED HELPER FUNCTION ---
             const toEnglishNumForFormatting = (s) => {
                 if (!s) return '';
                 let str = s.toString();
-                // First, remove all non-Persian-digit characters except the comma
                 str = str.replace(/,/g, '');
-                // Then, convert Persian digits to English
                 str = str.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
-                // Finally, ensure only digits remain
                 return str.replace(/[^0-9]/g, '');
             };
 
@@ -536,20 +557,43 @@
                 }
                 return words.join(' و ');
             }
+
+            // -- CHANGE 5 START --
+            // This function resets the smart discount. It's called when any data changes.
+            function resetSmartDiscount() {
+                if (activeSmartDiscount !== null) {
+                    activeSmartDiscount = null;
+                    const activeBtn = document.querySelector('.smart-discount-btn.active');
+                    if (activeBtn) {
+                        activeBtn.classList.remove('active');
+                    }
+                }
+            }
+            // -- CHANGE 5 END --
             
             // --- Event Listeners Setup ---
             app.addEventListener('input', e => {
+                // -- CHANGE 5 START --
+                // Reset smart discount on any input change, except for the manual discount field itself.
+                if(e.target.id !== 'manual-discount') {
+                   resetSmartDiscount();
+                }
+                // When user types a manual discount, it should override/reset the smart one.
+                if(e.target.id === 'manual-discount' && e.target.value.length > 0) {
+                    resetSmartDiscount();
+                }
+                // -- CHANGE 5 END --
+
                 if (e.target.matches('.persian-number-input, #customer-phone, #manual-discount')) {
                     const val = toEnglishNum(e.target.value);
                     e.target.value = toPersianNum(val);
                 }
                 
-                // --- CORRECTED LOGIC FOR INPUT FORMATTING ---
                 if (e.target.matches('#gold-price')) {
-                    formatInputWithCommas(e.target, 7); // Apply 7-digit limit
+                    formatInputWithCommas(e.target, 7);
                 }
                 if (e.target.matches('.coin-price-input')) {
-                    formatInputWithCommas(e.target); // No limit for coins
+                    formatInputWithCommas(e.target);
                 }
                 
                 if (e.target.matches('#customer-name')) {
@@ -586,6 +630,10 @@
 
             app.addEventListener('change', e => {
                  if (e.target.matches('.item-model, .fee-type-toggle, #tax-checkbox, .coin-checkbox, #profit-slider')) {
+                    // -- CHANGE 5 START --
+                    resetSmartDiscount();
+                    // -- CHANGE 5 END --
+
                     if (e.target.classList.contains('fee-type-toggle')) {
                         const itemCard = e.target.closest('.item-card');
                         const feeInput = itemCard.querySelector('.item-fee');
@@ -610,6 +658,9 @@
             
             document.getElementById('smart-discount-options').addEventListener('click', e => {
                 if (e.target.classList.contains('smart-discount-btn')) {
+                    // Clear manual discount when a smart one is chosen
+                    document.getElementById('manual-discount').value = '';
+
                     if (e.target.classList.contains('active')) {
                         e.target.classList.remove('active');
                         activeSmartDiscount = null;
@@ -622,6 +673,15 @@
                 }
             });
             
+            // -- CHANGE 3 START --
+            document.querySelector('.collapsible-header').addEventListener('click', function() {
+                this.classList.toggle('open');
+                const content = this.nextElementSibling;
+                content.style.display = content.style.display === 'block' ? 'none' : 'block';
+            });
+            // -- CHANGE 3 END --
+
+
             document.getElementById('add-item-btn').addEventListener('click', addNewItem);
 
             function addNewItem() {
@@ -638,6 +698,17 @@
                 const items = itemsContainer.querySelectorAll('.item-card');
                 items.forEach((item, index) => {
                     item.querySelector('.item-card-header').textContent = `آیتم طلا #${toPersianNum(index + 1)}`;
+                    
+                    // -- CHANGE 2 START --
+                    const removeBtn = item.querySelector('.btn-remove');
+                    if (index === 0) {
+                        // Hide remove button for the first item
+                        removeBtn.style.display = 'none';
+                    } else {
+                        // Ensure it's visible for subsequent items
+                        removeBtn.style.display = 'flex';
+                    }
+                    // -- CHANGE 2 END --
                 });
             }
 
@@ -706,12 +777,14 @@
                 updateSmartDiscountOptions(subTotal);
                 
                 let finalPrice = subTotal;
-                let discountAmount = parseFloat(toEnglishNum(document.getElementById('manual-discount').value)) || 0;
+                let discountAmount = parseFloat(toEnglishNumForFormatting(document.getElementById('manual-discount').value)) || 0;
+
                 if (activeSmartDiscount !== null) {
                     discountAmount = subTotal - activeSmartDiscount;
                     finalPrice = activeSmartDiscount;
-                    if(document.getElementById('manual-discount').value) document.getElementById('manual-discount').value = '';
-                } else { finalPrice -= discountAmount; }
+                } else { 
+                    finalPrice -= discountAmount; 
+                }
                 
                 renderInvoiceSummary(totalBasePrice, totalFee, profitAmount, taxAmount, discountAmount, finalPrice);
                 renderCustomerInvoice(customerInvoiceItems, taxAmount, discountAmount, finalPrice);
@@ -726,11 +799,13 @@
                 options.add(Math.floor(total / 50000) * 50000);
                 options.add(Math.floor(total / 100000) * 100000);
                 options.add(Math.floor(total / 500000) * 500000);
+                
                 const sortedOptions = Array.from(options).filter(opt => opt > 0 && opt < total).sort((a,b) => b-a).slice(0, 4);
+                
                 sortedOptions.forEach(opt => {
                     const btn = document.createElement('div');
                     btn.className = 'smart-discount-btn';
-                    btn.textContent = formatCurrency(opt);
+                    btn.textContent = `رُند کردن به ${formatCurrency(opt)}`;
                     btn.dataset.value = opt;
                     if (opt === activeSmartDiscount) btn.classList.add('active');
                     smartDiscountContainer.appendChild(btn);
@@ -753,17 +828,24 @@
                 customerInvoiceDetails.innerHTML = '';
                 if(items.length === 0) return;
                 let totalFee = 0;
+                let totalGoldValue = 0;
+
                 items.forEach(item => {
                      totalFee += item.fee;
+                     totalGoldValue += item.price;
                      customerInvoiceDetails.innerHTML += `<div class="invoice-line"><span>${item.model} ${ (typeof item.weight === 'number') ? `(${toPersianNum(item.weight.toFixed(2))} گ)` : '' }</span><span>${formatCurrency(item.price)} تومان</span></div>`;
                 });
+                
+                const subTotal = totalGoldValue + totalFee + tax;
+
                 customerInvoiceDetails.innerHTML += `<hr style="border: 1px solid var(--color-light-gray); margin: 10px 0;">`;
-                if (totalFee > 0) customerInvoiceDetails.innerHTML += `<div class="invoice-line"><span>اجرت</span><span>${formatCurrency(totalFee)} تومان</span></div>`;
+                if (totalFee > 0) customerInvoiceDetails.innerHTML += `<div class="invoice-line"><span>جمع اجرت</span><span>${formatCurrency(totalFee)} تومان</span></div>`;
                 if (tax > 0) customerInvoiceDetails.innerHTML += `<div class="invoice-line"><span>مالیات</span><span>${formatCurrency(tax)} تومان</span></div>`;
                 if (discount > 0) customerInvoiceDetails.innerHTML += `<div class="invoice-line"><span>تخفیف</span><span class="discount-value">-${formatCurrency(discount)} تومان</span></div>`;
-                customerInvoiceDetails.innerHTML += `<div class="invoice-line"><strong>قیمت کل</strong><strong class="final-price">${formatCurrency(total)} تومان</strong></div>`;
+                customerInvoiceDetails.innerHTML += `<div class="invoice-line"><strong>مبلغ نهایی فاکتور</strong><strong class="final-price">${formatCurrency(total)} تومان</strong></div>`;
             }
             
+            // Initial call to set up the first item correctly
             addNewItem();
         });
     </script>
