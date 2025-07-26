@@ -484,6 +484,7 @@
         };
 
         // Global variable to store generated discount buttons to prevent re-shuffling
+        // This is crucial for the event delegation and style toggling
         let generatedSmartDiscountButtons = [];
 
         // --- Helper Functions ---
@@ -520,7 +521,7 @@
             const units = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
             const teens = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
             const tens = ['', 'ده', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
-            const hundreds = ['', 'یکصد', 'دویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
+            const hundreds = ['', 'یکصد', 'dویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
             const scales = ['', 'هزار', 'میلیون', 'میلیارد', 'تریلیون'];
 
             function convertThreeDigits(n) {
@@ -818,7 +819,7 @@
                         itemValueWithProfit = itemRawBaseValue * (1 + item.profit / 100);
                         
                         let ayarDisplay = '';
-                        if (item.ayar === null || item.ayar === 0) { // Check for both null and 0 (empty field input often becomes 0)
+                        if (item.ayar === null || item.ayar === 0) {
                             ayarDisplay = `<strong style="color:var(--danger-color);">شرطی</strong>`;
                             conditionalAbsheItems.push({ id: item.id, index: index + 1, weight: item.weight });
                         } else {
@@ -941,7 +942,7 @@
                     if (showTypeLabelInProfitLine) {
                         typeLabel = line.type === 'abshe' ? ` <span style="color:var(--text-light);">(آبشده)</span>` : ` <span style="color:var(--text-light);">(متفرقه)</span>`;
                     }
-                    invoiceHTML += `<div class="invoice-summary-line"><span>سود${typeLabel}: ${formattedPercentage}٪</span></div>`;
+                    invoiceHTML += `<div class="invoice-summary-line"><span>سود${typeLabel}: ${formattedPercentage}٪</span></div>`; // Removed amount
                 });
             }
             
@@ -998,7 +999,6 @@
             }
             smartDiscountContainer.classList.remove('hidden');
             
-            // Rebuild buttons to ensure they are consistent with currentTotal and state
             smartDiscountOptions.innerHTML = ''; 
             generatedSmartDiscountButtons = []; // Clear global array for fresh population
 
@@ -1030,14 +1030,13 @@
                 const roundedFinalPrice = currentTotal - discountAmount;
                 btn.textContent = `رند به ${formatNumber(roundedFinalPrice)}`;
                 
-                // Set initial active state based on current state.smartDiscount
                 if (state.smartDiscount === discountAmount) {
                     btn.classList.add('active');
-                    btn.style.backgroundColor = 'var(--primary-color)'; // Apply blue background
-                    btn.style.color = '#fff'; // Apply white text
+                    btn.style.backgroundColor = 'var(--primary-color)';
+                    btn.style.color = '#fff';
                 } else {
-                     btn.style.backgroundColor = ''; // Reset background (from active state)
-                     btn.style.color = ''; // Reset text color (from active state)
+                     btn.style.backgroundColor = '';
+                     btn.style.color = '';
                 }
 
                 smartDiscountOptions.appendChild(btn);
@@ -1063,7 +1062,7 @@
             if (value.toString().length <= 11) {
                 state.manualDiscount = value;
                 e.target.value = formatNumber(value);
-                state.smartDiscount = 0; // Clear smart discount if manual is used
+                state.smartDiscount = 0;
                 calculateAndRender();
             } else {
                 e.target.value = formatNumber(state.manualDiscount);
@@ -1079,25 +1078,21 @@
                 // Iterate through ALL currently displayed smart discount buttons
                 generatedSmartDiscountButtons.forEach(btn => {
                     btn.classList.remove('active');
-                    btn.style.backgroundColor = ''; // Reset to default
-                    btn.style.color = ''; // Reset to default
+                    btn.style.backgroundColor = '';
+                    btn.style.color = '';
                 });
 
                 if (state.smartDiscount === discountValue) {
-                    // If the clicked button was already active, deselect it
-                    state.smartDiscount = 0; // State is updated to 0, will be rendered non-active on next calculateAndRender
+                    state.smartDiscount = 0;
                 } else {
-                    // Otherwise, select this new button
-                    state.manualDiscount = 0; // Clear manual discount
-                    manualDiscountInput.value = ''; // Visually clear manual input field
+                    state.manualDiscount = 0;
+                    manualDiscountInput.value = '';
                     state.smartDiscount = discountValue;
-                    
-                    // Apply active style to the newly selected button immediately
                     targetButton.classList.add('active');
-                    targetButton.style.backgroundColor = 'var(--primary-color)'; // Set to blue
-                    targetButton.style.color = '#fff'; // Set to white
+                    targetButton.style.backgroundColor = 'var(--primary-color)';
+                    targetButton.style.color = '#fff';
                 }
-                calculateAndRender(); // Recalculate to update totals and trigger re-render of Smart Discount section
+                calculateAndRender();
             }
         });
 
