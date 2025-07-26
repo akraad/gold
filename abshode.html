@@ -432,9 +432,15 @@
         </div>
 
         <div class="card">
-            <h2 class="card-header">تخفیف رند</h2>
-            <div id="smart-discount-container" class="form-group">
-                <label class="form-label">تخفیف هوشمند (برای رند شدن)</label>
+            <h2 class="card-header">تخفیف</h2> <div class="form-group">
+                <label class="form-label">تخفیف دستی (تومان)</label>
+                <div class="input-group rtl">
+                    <input type="tel" id="manual-discount-input" class="input-field" inputmode="numeric">
+                    <span class="input-group-text">تومان</span>
+                </div>
+            </div>
+
+            <div id="smart-discount-container" class="form-group" style="margin-top: 1.5rem;"> <label class="form-label">تخفیف هوشمند (برای رند شدن)</label>
                 <div class="smart-discount-options" id="smart-discount-options"></div>
             </div>
         </div>
@@ -455,9 +461,9 @@
         // --- DOM Elements ---
         const goldPriceInput = document.getElementById('gold-price');
         const priceInWords = document.getElementById('price-in-words');
-        // REMOVED: profitSlider, profitDisplay since profit is now per item
         const smartDiscountContainer = document.getElementById('smart-discount-container');
         const smartDiscountOptions = document.getElementById('smart-discount-options');
+        const manualDiscountInput = document.getElementById('manual-discount-input'); // New DOM element
         const invoiceContentContainer = document.getElementById('invoice-content');
         const printBtn = document.getElementById('print-btn');
 
@@ -472,8 +478,8 @@
 
         let state = {
             goldPrice: 0,
-            // REMOVED: profitPercentage: 2.0, // Global profit is removed
             smartDiscount: 0,
+            manualDiscount: 0, // New state variable
             products: []
         };
 
@@ -481,7 +487,6 @@
         const toPersianDigits = (n) => {
             if (n === null || typeof n === 'undefined') return '';
             const persian = { 0: '۰', 1: '۱', 2: '۲', 3: '۳', 4: '۴', 5: '۵', 6: '۶', 7: '۷', 8: '۸', 9: '۹' };
-            // Ensure n is a string for replacement
             return String(n).replace(/[0-9]/g, (w) => persian[w]);
         };
         const toEnglishDigits = (str) => {
@@ -495,7 +500,6 @@
         };
         const formatNumber = (num) => {
             if (isNaN(num) || num === null || num === 0) return '';
-            // Round to 0 decimal places for general formatting of currency, then add commas
             return toPersianDigits(Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','));
         };
         const parseFormattedNumber = (str) => {
@@ -509,13 +513,13 @@
         // Revised numberToWords for correct spacing
         const numberToWords = (num) => {
             if (num === 0) return 'صفر';
-            num = Math.floor(num); // Ensure it's an integer
+            num = Math.floor(num);
 
             const units = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
             const teens = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
             const tens = ['', 'ده', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
             const hundreds = ['', 'یکصد', 'دویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
-            const scales = ['', 'هزار', 'میلیون', 'میلیارد', 'تریلیون']; // Added more scales for larger numbers
+            const scales = ['', 'هزار', 'میلیون', 'میلیارد', 'تریلیون'];
 
             function convertThreeDigits(n) {
                 let chunk = [];
@@ -532,11 +536,11 @@
                     if (t > 0) chunk.push(tens[t]);
                     if (u > 0) chunk.push(units[u]);
                 }
-                return chunk.join(' و '); // Join parts of three-digit number with ' و '
+                return chunk.join(' و ');
             }
 
             let words = [];
-            let i = 0; // Scale index
+            let i = 0;
 
             while (num > 0) {
                 const threeDigits = num % 1000;
@@ -544,7 +548,6 @@
                     let chunkWord = convertThreeDigits(threeDigits);
                     let scaleWord = scales[i];
                     if (scaleWord) {
-                        // Combine chunkWord and scaleWord with a space if both exist
                         chunkWord = chunkWord + (chunkWord ? ' ' : '') + scaleWord;
                     }
                     words.unshift(chunkWord);
@@ -552,9 +555,7 @@
                 num = Math.floor(num / 1000);
                 i++;
             }
-            
-            // Join the main segments (thousands, millions, etc.) with ' و '
-            return words.filter(Boolean).join(' و '); // Filter out empty strings before joining
+            return words.filter(Boolean).join(' و ');
         };
 
 
@@ -568,33 +569,20 @@
             }
         };
 
-        // Helper function for random gradient background (now removed for delete button)
         const getRandomGradient = () => {
             const colors = [
-                '#e74c3c', // Red
-                '#9b59b6', // Purple
-                '#3498db', // Blue
-                '#2ecc71', // Green
-                '#f1c40f', // Yellow
-                '#e67e22', // Orange
-                '#34495e', // Dark Blue/Grey
-                '#1abc9c'  // Turquoise
+                '#e74c3c', '#9b59b6', '#3498db', '#2ecc71', '#f1c40f', '#e67e22', '#34495e', '#1abc9c'
             ];
-            // Pick 3-5 random colors for a more varied gradient
             const shuffled = colors.sort(() => 0.5 - Math.random());
-            const selectedColors = shuffled.slice(0, Math.floor(Math.random() * 3) + 3); // 3 to 5 colors
-
-            // Random angle for the gradient
+            const selectedColors = shuffled.slice(0, Math.floor(Math.random() * 3) + 3);
             const angle = Math.floor(Math.random() * 360);
-
             return `linear-gradient(${angle}deg, ${selectedColors.join(', ')})`;
         };
 
         // --- Dynamic Item Management ---
-        // Added default values for eng, lab, and profit for each item
-        function createProductItem(type, weight = 0, ayar = 0, eng = 0, lab = '', profit = 2.0) { // Ayar defaults to 0 (empty field)
+        function createProductItem(type, weight = 0, ayar = 0, eng = 0, lab = '', profit = 2.0) {
             const id = itemIdCounter++;
-            const item = { id, type, weight, ayar, eng, lab, profit }; // Include new profit property
+            const item = { id, type, weight, ayar, eng, lab, profit };
             state.products.push(item);
             renderProductItems();
             calculateAndRender();
@@ -650,7 +638,8 @@
                         <div class="item-label-input-compact">
                             <label class="form-label compact-label">آزمایشگاه</label>
                             <div class="input-group rtl compact-input-group">
-                                <input type="text" class="input-field abshe-lab-input" style="text-align: right;" value="${item.lab || ''}"> <span class="input-group-text">نام</span>
+                                <input type="text" class="input-field abshe-lab-input" style="text-align: right;" value="${item.lab || ''}">
+                                <span class="input-group-text">نام</span>
                             </div>
                         </div>
 
@@ -660,7 +649,6 @@
                         </div>
                     `;
                 } else if (item.type === 'motaferghe') {
-                    // Motaferghe takes full row and has a specific label
                     itemCardHTML += `
                             <div class="form-group" style="grid-column: span 2;">
                                 <label class="form-label">وزن متفرقه</label>
@@ -677,12 +665,12 @@
                     `;
                 }
                 itemCardHTML += `
-                        </div> </div>
+                        </div>
+                    </div>
                 `;
                 productItemsContainer.insertAdjacentHTML('beforeend', itemCardHTML);
             });
 
-            // Re-attach event listeners to new elements
             attachItemEventListeners();
         }
 
@@ -700,39 +688,43 @@
                 };
             });
 
+            // Corrected: Ayar input with real-time Persian conversion
             productItemsContainer.querySelectorAll('.abshe-ayar-input').forEach(input => {
                 input.oninput = (e) => {
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
-                    const value = toEnglishDigits(e.target.value);
-                    if (/^\d*\.?\d*$/.test(value)) {
-                        updateProductItem(id, 'ayar', parseFloat(value));
-                        e.target.value = toPersianDigits(value);
+                    const rawValue = e.target.value;
+                    const englishValue = toEnglishDigits(rawValue);
+                    
+                    if (/^\d*\.?\d*$/.test(englishValue)) {
+                        updateProductItem(id, 'ayar', parseFloat(englishValue));
+                        e.target.value = toPersianDigits(englishValue);
                     } else {
                         e.target.value = toPersianDigits(state.products.find(item => item.id === id).ayar);
                     }
                 };
             });
 
-            // Event listener for Eng input (whole numbers only)
+            // Corrected: Eng input with real-time Persian conversion
             productItemsContainer.querySelectorAll('.abshe-eng-input').forEach(input => {
                 input.oninput = (e) => {
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
-                    const value = toEnglishDigits(e.target.value);
-                    if (/^\d*$/.test(value)) {
-                        updateProductItem(id, 'eng', parseInt(value) || 0);
-                        e.target.value = toPersianDigits(value);
+                    const rawValue = e.target.value;
+                    const englishValue = toEnglishDigits(rawValue);
+                    
+                    if (/^\d*$/.test(englishValue)) {
+                        updateProductItem(id, 'eng', parseInt(englishValue) || 0);
+                        e.target.value = toPersianDigits(englishValue);
                     } else {
                         e.target.value = toPersianDigits(state.products.find(item => item.id === id).eng);
                     }
                 };
             });
 
-            // Event listener for Lab input (text only, fixed font size)
             productItemsContainer.querySelectorAll('.abshe-lab-input').forEach(input => {
                 input.oninput = (e) => {
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
                     const value = e.target.value;
-                    if (!/\d/.test(value)) { // Ensure no digits are entered
+                    if (!/\d/.test(value)) {
                         updateProductItem(id, 'lab', value);
                     } else {
                         e.target.value = state.products.find(item => item.id === id).lab;
@@ -753,16 +745,16 @@
                 };
             });
 
-            // Corrected: Event listener for individual item profit sliders, with dynamic display update
+            // Fixed: Event listener for individual item profit sliders, with correct dynamic display update
             productItemsContainer.querySelectorAll('.item-profit-slider').forEach(slider => {
                 slider.oninput = (e) => {
                     const id = parseInt(e.target.dataset.id);
-                    const value = parseFloat(e.target.value);
+                    let value = parseFloat(e.target.value);
+                    
                     updateProductItem(id, 'profit', value);
-                    // Update the display next to the slider immediately
+                    
                     const display = e.target.closest('.profit-slider-group').querySelector('.profit-slider-value');
                     if (display) {
-                        // Smart decimal formatting for slider display
                         const formattedProfit = value % 1 === 0
                             ? toPersianDigits(value.toFixed(0))
                             : toPersianDigits(value.toFixed(1));
@@ -776,7 +768,6 @@
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
                     removeProductItem(id);
                 };
-                // Ensure delete button is white and 'x' is black
                 button.style.backgroundColor = 'white';
                 button.style.color = 'black';
             });
@@ -786,19 +777,19 @@
         // --- Calculation & Rendering ---
         function calculateAndRender() {
             let invoiceHTML = '';
-            let totalBaseValueBeforeProfit = 0; // Accumulates raw base value for overall total calculation
-            let absheProfitAmount = 0; // Accumulates profit amount from abshe items
-            let motafergheProfitAmount = 0; // Accumulates profit amount from motaferghe items
-            let absheBaseValueTotal = 0; // Accumulates raw base value of abshe items for average percentage calc
-            let motafergheBaseValueTotal = 0; // Accumulates raw base value of motaferghe items for average percentage calc
+            let totalBaseValueBeforeProfit = 0;
+            let absheProfitAmount = 0;
+            let motafergheProfitAmount = 0;
+            let absheBaseValueTotal = 0;
+            let motafergheBaseValueTotal = 0;
             let hasAbsheItems = false;
             let hasMotafergheItems = false;
 
             invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">جزئیات اقلام</div>`;
 
             state.products.forEach((item, index) => {
-                let itemRawBaseValue = 0; // Value of item without profit
-                let itemValueWithProfit = 0; // Value of item including profit for display
+                let itemRawBaseValue = 0;
+                let itemValueWithProfit = 0;
                 let itemDescription = '';
 
                 if (item.type === 'abshe') {
@@ -810,7 +801,7 @@
                     if (item.weight > 0 && state.goldPrice > 0 && item.ayar > 0) {
                         const absheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (item.ayar / 750);
                         itemRawBaseValue = absheEquivalent18KMesghals * state.goldPrice;
-                        itemValueWithProfit = itemRawBaseValue * (1 + item.profit / 100); // Calculate value with profit for display
+                        itemValueWithProfit = itemRawBaseValue * (1 + item.profit / 100);
                         
                         itemDescription = `آبشده ${toPersianDigits(item.weight)} گرم با عیار ${toPersianDigits(item.ayar)}`;
 
@@ -841,7 +832,7 @@
                         const MOTAFERGHE_DEFAULT_AYAR = 750;
                         const motafergheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (MOTAFERGHE_DEFAULT_AYAR / 750);
                         itemRawBaseValue = motafergheEquivalent18KMesghals * state.goldPrice;
-                        itemValueWithProfit = itemRawBaseValue * (1 + item.profit / 100); // Calculate value with profit for display
+                        itemValueWithProfit = itemRawBaseValue * (1 + item.profit / 100);
                         
                         itemDescription = `متفرقه ${toPersianDigits(item.weight)} گرم`; 
                         
@@ -852,21 +843,21 @@
                     }
                 }
                 
-                if (itemRawBaseValue > 0) { // Only add to total if item has a raw base value
+                if (itemRawBaseValue > 0) {
                     totalBaseValueBeforeProfit += itemRawBaseValue;
                     invoiceHTML += `<div class="invoice-item">
                         <div class="invoice-item-header">
                             <span>${itemDescription}</span>
-                            <span>${formatNumber(itemValueWithProfit)} تومان</span> </div>
+                            <span>${formatNumber(itemValueWithProfit)} تومان</span>
+                        </div>
                     </div>`;
                 }
             });
-            invoiceHTML += `</div>`; // Close invoice-section for items
+            invoiceHTML += `</div>`;
 
             let totalProfitAmountDisplayed = absheProfitAmount + motafergheProfitAmount;
-            let finalInvoiceValue = totalBaseValueBeforeProfit + totalProfitAmountDisplayed; // Final total calculation
+            let finalInvoiceValue = totalBaseValueBeforeProfit + totalProfitAmountDisplayed;
 
-            // Render Profit lines based on item types and percentages
             if (totalProfitAmountDisplayed > 0) {
                 invoiceHTML += `<div class="invoice-separator"></div>`;
 
@@ -877,7 +868,6 @@
                     if (absheBaseValueTotal > 0) {
                         averageAbsheProfitPercentage = (absheProfitAmount / absheBaseValueTotal) * 100;
                     }
-                    // Format profit percentage - show decimals only if needed
                     const formattedAbsheProfit = averageAbsheProfitPercentage % 1 === 0 
                         ? toPersianDigits(averageAbsheProfitPercentage.toFixed(0)) 
                         : toPersianDigits(averageAbsheProfitPercentage.toFixed(1));
@@ -891,7 +881,6 @@
                     if (motafergheBaseValueTotal > 0) {
                         averageMotafergheProfitPercentage = (motafergheProfitAmount / motafergheBaseValueTotal) * 100;
                     }
-                    // Format profit percentage - show decimals only if needed
                     const formattedMotafergheProfit = averageMotafergheProfitPercentage % 1 === 0 
                         ? toPersianDigits(averageMotafergheProfitPercentage.toFixed(0)) 
                         : toPersianDigits(averageMotafergheProfitPercentage.toFixed(1));
@@ -901,7 +890,8 @@
                 }
             }
             
-            let grandTotal = finalInvoiceValue - state.smartDiscount;
+            let totalDiscount = state.manualDiscount + state.smartDiscount; // Sum both discounts
+            let grandTotal = finalInvoiceValue - totalDiscount;
             
             let finalTotalHTML = `<div class="invoice-final-total">`;
             if (grandTotal >= 0) {
@@ -911,20 +901,20 @@
             }
             finalTotalHTML += `</div>`;
             
-            // Add gold price to the invoice header, only visible in print
             let invoiceHeaderExtra = '';
             if (state.goldPrice > 0) {
                 invoiceHeaderExtra = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">قیمت مظنه طلا: ${formatNumber(state.goldPrice)} تومان</div>`;
             }
 
             invoiceContentContainer.innerHTML = invoiceHeaderExtra + invoiceHTML + finalTotalHTML;
+            // IMPORTANT: Call renderSmartDiscount AFTER all calculations and HTML updates
             renderSmartDiscount(grandTotal);
         }
         
         function renderSmartDiscount(currentTotal) {
             if (currentTotal <= 0) {
                 smartDiscountContainer.classList.add('hidden');
-                state.smartDiscount = 0;
+                state.smartDiscount = 0; // Reset smart discount if total is zero or negative
                 return;
             }
             smartDiscountContainer.classList.remove('hidden');
@@ -956,7 +946,8 @@
                 const roundedFinalPrice = currentTotal - discountAmount;
                 btn.textContent = `رند به ${formatNumber(roundedFinalPrice)}`;
                 btn.dataset.value = discountAmount;
-                if (state.smartDiscount === discountValue) btn.classList.add('active');
+                // Highlight the active smart discount button
+                if (state.smartDiscount === discountAmount) btn.classList.add('active');
                 smartDiscountOptions.appendChild(btn);
             });
         }
@@ -973,6 +964,37 @@
             updatePriceInWords();
             calculateAndRender();
         });
+
+        // Event listener for Manual Discount
+        manualDiscountInput.addEventListener('input', (e) => {
+            const value = parseFormattedNumber(e.target.value);
+            if (value.toString().length <= 11) {
+                state.manualDiscount = value;
+                e.target.value = formatNumber(value);
+                // Clear smart discount if manual is used
+                state.smartDiscount = 0;
+                calculateAndRender();
+            } else {
+                e.target.value = formatNumber(state.manualDiscount);
+            }
+        });
+
+        // Event listener for Smart Discount buttons
+        smartDiscountOptions.addEventListener('click', e => {
+            const targetButton = e.target.closest('.smart-discount-btn');
+            if (targetButton) {
+                const discountValue = Number(targetButton.dataset.value);
+                if (state.smartDiscount === discountValue) {
+                    state.smartDiscount = 0; // Deselect if already active
+                } else {
+                    state.manualDiscount = 0; // Clear manual discount if smart discount is used
+                    manualDiscountInput.value = ''; // Visually clear the manual input field
+                    state.smartDiscount = discountValue;
+                }
+                calculateAndRender(); // Recalculate to update totals and re-render smart discount buttons
+            }
+        });
+
 
         // Event listeners for Add buttons - now they also reveal the container
         addAbsheBtn.addEventListener('click', () => {
