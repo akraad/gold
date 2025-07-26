@@ -257,7 +257,6 @@
             position: relative;
         }
         
-        /* UPDATED: Changed to grid for better control */
         .item-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -271,6 +270,17 @@
         .item-card .form-group {
             margin-bottom: 0;
         }
+        
+        /* UPDATED: Smaller font size for product section inputs */
+        #product-items-container .input-field,
+        #product-items-container .select-field,
+        #product-items-container .input-group-text,
+        #product-items-container .segmented-control button {
+            font-size: 0.9rem;
+            padding-top: 0.6rem;
+            padding-bottom: 0.6rem;
+        }
+
 
         .delete-item-btn {
             position: absolute;
@@ -487,8 +497,6 @@
             .card {
                 padding: 1rem;
             }
-             /* This rule was removed to keep model/weight side by side on mobile */
-             /* .item-row { grid-template-columns: 1fr; } */
         }
     </style>
 </head>
@@ -702,7 +710,7 @@
                 id,
                 type: 'طلا',
                 weight: '',
-                ajratType: 'percent',
+                ajratType: 'toman', // UPDATED: Default is now Toman
                 ajratValue: ''
             };
             state.products.push(item);
@@ -733,12 +741,12 @@
                     <label class="form-label">اجرت</label>
                     <div style="display: flex; gap: 0.5rem;">
                         <div class="segmented-control" style="flex-shrink: 0;">
-                            <button class="ajrat-type-btn active" data-type="percent">%</button>
-                            <button class="ajrat-type-btn" data-type="toman">تومان</button>
+                            <button class="ajrat-type-btn" data-type="percent">%</button>
+                            <button class="ajrat-type-btn active" data-type="toman">تومان</button>
                         </div>
                         <div class="input-group rtl" style="flex-grow: 1;">
                             <input type="text" class="input-field product-ajrat" inputmode="decimal">
-                            <span class="input-group-text ajrat-unit">%</span>
+                            <span class="input-group-text ajrat-unit">تومان</span>
                         </div>
                     </div>
                 </div>
