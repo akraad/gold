@@ -244,16 +244,30 @@
             padding-bottom: 0.6rem;
         }
 
+        /* Updated delete button styling */
         .delete-item-btn {
             position: absolute; top: -10px; left: -10px; width: 24px; height: 24px;
-            border-radius: 50%; background-color: var(--danger-color); color: white;
-            border: none; cursor: pointer; display: flex; align-items: center;
+            border-radius: 50%;
+            border: 1px solid black; /* Black border */
+            color: white;
+            cursor: pointer; display: flex; align-items: center;
             justify-content: center; font-weight: bold; transition: all 0.2s ease;
             z-index: 10;
+            /* Initial background, will be overridden by JS */
+            background: linear-gradient(45deg, #e74c3c, #9b59b6, #3498db, #2ecc71);
+            background-size: 200% 200%; /* Make gradient larger for smooth movement */
+            animation: gradientShift 5s ease infinite; /* Optional: animate gradient */
         }
         
-        .delete-item-btn:hover { transform: scale(1.1); background-color: #c0392b; }
+        .delete-item-btn:hover { transform: scale(1.1); }
         
+        /* Keyframes for optional gradient animation */
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         .btn {
             width: 100%; padding: 0.85rem 1rem; font-family: var(--font-family);
             font-size: 1rem; font-weight: 600; border: none;
@@ -389,7 +403,7 @@
         <div class="card">
             <h2 class="card-header">نوع معامله</h2>
             <div id="abshe-input-section">
-                <div id="product-items-container">
+                <div id="product-items-container" class="hidden">
                     </div>
 
                 <div class="add-purchase-options">
@@ -532,6 +546,28 @@
             }
         };
 
+        // Helper function for random gradient background
+        const getRandomGradient = () => {
+            const colors = [
+                '#e74c3c', // Red
+                '#9b59b6', // Purple
+                '#3498db', // Blue
+                '#2ecc71', // Green
+                '#f1c40f', // Yellow
+                '#e67e22', // Orange
+                '#34495e', // Dark Blue/Grey
+                '#1abc9c'  // Turquoise
+            ];
+            // Pick 3-5 random colors for a more varied gradient
+            const shuffled = colors.sort(() => 0.5 - Math.random());
+            const selectedColors = shuffled.slice(0, Math.floor(Math.random() * 3) + 3); // 3 to 5 colors
+
+            // Random angle for the gradient
+            const angle = Math.floor(Math.random() * 360);
+
+            return `linear-gradient(${angle}deg, ${selectedColors.join(', ')})`;
+        };
+
         // --- Dynamic Item Management ---
         function createProductItem(type, weight = 0, ayar = 750) { // Default ayar for new items (both types) is 750
             const id = itemIdCounter++;
@@ -650,6 +686,8 @@
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
                     removeProductItem(id);
                 };
+                // Apply random gradient on creation/re-render
+                button.style.background = getRandomGradient();
             });
         }
 
@@ -807,13 +845,17 @@
             calculateAndRender();
         });
 
-        // Event listeners for Add buttons
-        addAbsheBtn.addEventListener('click', () => createProductItem('abshe'));
-        addMotafergheBtn.addEventListener('click', () => createProductItem('motaferghe'));
+        // Event listeners for Add buttons - now they also reveal the container
+        addAbsheBtn.addEventListener('click', () => {
+            productItemsContainer.classList.remove('hidden'); // Show container when adding
+            createProductItem('abshe');
+        });
+        addMotafergheBtn.addEventListener('click', () => {
+            productItemsContainer.classList.remove('hidden'); // Show container when adding
+            createProductItem('motaferghe');
+        });
 
-        // Initial rendering on load
-        // Add one abshe item by default when the page loads
-        createProductItem('abshe'); 
+        // Initial rendering on load - no items added initially, container starts hidden
         calculateAndRender();
     });
     </script>
