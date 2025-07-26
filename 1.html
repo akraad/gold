@@ -215,7 +215,7 @@
             font-weight: 700;
             box-shadow: var(--shadow-sm);
         }
-        .fee-switch { display: none; } /* Hide original switch */
+        .fee-switch { display: none; }
         
         #smart-discount-options {
             display: grid;
@@ -245,6 +245,12 @@
 
         .invoice-result {
             margin-top: 20px;
+        }
+
+        .invoice-result hr {
+            border: none;
+            border-top: 1px solid var(--color-border);
+            margin: 15px 0;
         }
         
         .invoice-line {
@@ -444,14 +450,14 @@
             </section>
 
             <section class="card" id="invoice-summary-card">
-                <h2 class="card-header">پیش‌نمایش فاکتور</h2>
+                <h2 class="card-header">فاکتور طلافروش</h2>
                 <div id="invoice-summary" class="invoice-result">
                     <p style="text-align: center; color: var(--color-text-secondary);">برای مشاهده پیش‌نمایش، اطلاعات را وارد کنید.</p>
                 </div>
             </section>
             
             <section class="card" id="customer-invoice-section">
-                <h2 class="card-header">صدور فاکتور مشتری</h2>
+                <h2 class="card-header">فاکتور مشتری</h2>
                 <div class="form-group">
                     <label for="customer-name">نام خریدار</label>
                     <input type="text" id="customer-name">
@@ -461,7 +467,7 @@
                     <input type="tel" id="customer-phone" inputmode="numeric" maxlength="11">
                 </div>
                 <div id="customer-invoice-details" class="invoice-result">
-                     </div>
+                </div>
             </section>
 
         </main>
@@ -529,58 +535,30 @@
                 if (!value) { inputElement.value = ''; return; }
                 inputElement.value = toPersianNum(parseInt(value, 10).toLocaleString('en-US'));
             }
-            function numberToWords(n) {
-                 if (n === 0) return 'صفر';
-                const units = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
-                const teens = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
-                const tens = ['', '', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
-                const hundreds = ['', 'صد', 'دویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
-                const thousands = ['', 'هزار', 'میلیون', 'میلیارد'];
-                let words = []; let i = 0;
-                while (n > 0) {
-                    let chunk = n % 1000;
-                    if (chunk > 0) {
-                        let chunkWords = [];
-                        let h = Math.floor(chunk / 100); let t = Math.floor((chunk % 100) / 10); let u = chunk % 10;
-                        if (h > 0) chunkWords.push(hundreds[h]);
-                        if (t === 1) { chunkWords.push(teens[u]); } 
-                        else { if (t > 1) chunkWords.push(tens[t]); if (u > 0) chunkWords.push(units[u]); }
-                        if (i > 0) chunkWords.push(thousands[i]);
-                        words.unshift(chunkWords.join(' و '));
-                    }
-                    n = Math.floor(n / 1000); i++;
-                }
-                return words.join(' و ');
-            }
             
             // --- Event Listeners ---
             app.addEventListener('input', e => {
-                if (e.target.matches('.persian-number-input, #customer-phone, #manual-discount')) {
-                    e.target.value = toPersianNum(toEnglishNum(e.target.value));
+                if (e.target.matches('.persian-number-input, #customer-phone, #manual-discount, .item-fee')) {
+                    const el = e.target;
+                    const isPercent = el.closest('.item-card')?.querySelector('.fee-type-toggle')?.checked;
+                    if(el.classList.contains('item-fee') && isPercent) {
+                         el.value = toPersianNum(toEnglishNum(el.value));
+                         const val = parseFloat(toEnglishNum(el.value));
+                         if(val > 30) el.value = toPersianNum('30');
+                         if(val < 0) el.value = toPersianNum('1');
+                    } else if (el.classList.contains('item-fee')) {
+                        formatInputWithCommas(el, 8);
+                    } else if (el.matches('#gold-price, .coin-price-input')) {
+                        formatInputWithCommas(el, 9);
+                    } else {
+                        el.value = toPersianNum(toEnglishNum(el.value));
+                    }
                 }
-                if (e.target.matches('#gold-price, .coin-price-input')) {
-                    formatInputWithCommas(e.target, 9);
-                }
+                
                 if (e.target.matches('#customer-name')) {
                     e.target.value = e.target.value.replace(/[0-9۰-۹]/g, '');
                 }
-                if (e.target.id === 'gold-price') {
-                    const goldPriceWordsBox = document.getElementById('gold-price-words-box');
-                    const numValue = parseFloat(toEnglishNumForFormatting(e.target.value)) || 0;
-                    goldPriceWordsBox.textContent = numValue > 0 ? numberToWords(numValue) + ' تومان' : '';
-                }
-                if (e.target.classList.contains('item-fee')) {
-                    const itemCard = e.target.closest('.item-card');
-                    const isPercent = itemCard.querySelector('.fee-type-toggle').checked;
-                    if(isPercent){
-                        e.target.value = toPersianNum(toEnglishNum(e.target.value));
-                        const val = parseFloat(toEnglishNum(e.target.value));
-                        if(val > 30) e.target.value = toPersianNum('30');
-                        if(val < 0) e.target.value = toPersianNum('1');
-                    } else {
-                        formatInputWithCommas(e.target, 8);
-                    }
-                }
+
                 window.calculateAll();
             });
 
@@ -652,62 +630,68 @@
 
             window.calculateAll = function() {
                 const goldPrice = parseFloat(toEnglishNumForFormatting(document.getElementById('gold-price').value)) || 0;
-                let totalRawGoldValue = 0, totalFee = 0, customerInvoiceItems = [];
-                
-                document.getElementById('items-container').querySelectorAll('.item-card').forEach(item => {
-                    const weight = parseFloat(toEnglishNum(item.querySelector('.item-weight').value)) || 0;
-                    const feeValueRaw = item.querySelector('.item-fee').value;
-                    const isPercentFee = item.querySelector('.fee-type-toggle').checked;
-                    const model = item.querySelector('.item-model').value;
-                    const feeRate = parseFloat(toEnglishNumForFormatting(feeValueRaw)) || 0;
+                const profitSlider = document.getElementById('profit-slider');
+                const profitPercent = parseFloat(profitSlider.value) / 100;
+                document.getElementById('profit-value').textContent = `${toPersianNum(profitSlider.value)} %`;
+                const taxEnabled = document.getElementById('tax-checkbox').checked;
 
+                let allItems = [];
+                let totalTax = 0;
+                
+                // Process Sales
+                document.getElementById('items-container').querySelectorAll('.item-card').forEach(card => {
+                    const weight = parseFloat(toEnglishNum(card.querySelector('.item-weight').value)) || 0;
                     if (weight > 0) {
-                        const itemRawValue = weight * goldPrice;
-                        totalRawGoldValue += itemRawValue;
-                        let itemFee = isPercentFee ? (itemRawValue * feeRate / 100) : (feeRate * weight);
-                        totalFee += itemFee;
-                        customerInvoiceItems.push({ 
-                            type: 'sale', model, weight, price: itemRawValue, fee: itemFee,
-                            feeType: isPercentFee ? 'percent' : 'toman', feeRate: feeRate 
-                        });
+                        const feeValueRaw = card.querySelector('.item-fee').value;
+                        const isPercentFee = card.querySelector('.fee-type-toggle').checked;
+                        const feeRate = parseFloat(toEnglishNumForFormatting(feeValueRaw)) || 0;
+
+                        const item = { type: 'sale', model: card.querySelector('.item-model').value, weight };
+                        item.price = item.weight * goldPrice;
+                        item.fee = isPercentFee ? (item.price * feeRate / 100) : (feeRate * item.weight);
+                        item.profit = item.price * profitPercent;
+                        item.tax = taxEnabled ? (item.profit + item.fee) * 0.10 : 0;
+                        totalTax += item.tax;
+                        
+                        // Pass fee details for customer invoice
+                        item.feeType = isPercentFee ? 'percent' : 'toman';
+                        item.feeRate = feeRate;
+
+                        allItems.push(item);
                     }
                 });
                 
+                // Process Purchases
                 let otherPurchasesValue = 0;
                 const plainWeight = parseFloat(toEnglishNum(document.getElementById('purchase-plain-weight').value)) || 0;
                 if (plainWeight > 0) {
                     const value = plainWeight * goldPrice; otherPurchasesValue += value;
-                    customerInvoiceItems.push({type: 'purchase', model: 'طلای متفرقه', weight: plainWeight, price: value, fee: 0});
+                    allItems.push({type: 'purchase', model: 'طلای متفرقه', weight: plainWeight, price: value});
                 }
                 const bullionWeight = parseFloat(toEnglishNum(document.getElementById('purchase-bullion-weight').value)) || 0;
                  if (bullionWeight > 0) {
                     const value = (bullionWeight * 995 / 750) * goldPrice; otherPurchasesValue += value;
-                    customerInvoiceItems.push({type: 'purchase', model: 'شمش', weight: bullionWeight, price: value, fee: 0});
+                    allItems.push({type: 'purchase', model: 'شمش', weight: bullionWeight, price: value});
                 }
                 const parsianWeight = parseFloat(toEnglishNum(document.getElementById('purchase-parsian-weight').value)) || 0;
                  if (parsianWeight > 0) {
                     const value = parsianWeight * goldPrice; otherPurchasesValue += value;
-                    customerInvoiceItems.push({type: 'purchase', model: 'سکه پارسیان', weight: parsianWeight, price: value, fee: 0});
+                    allItems.push({type: 'purchase', model: 'سکه پارسیان', weight: parsianWeight, price: value});
                 }
-                let coinValue = 0;
                 document.querySelectorAll('.coin-checkbox:checked').forEach(cb => {
                     const price = parseFloat(toEnglishNumForFormatting(cb.closest('.coin-option').querySelector('.coin-price-input').value)) || 0;
                     if(price > 0) {
-                        coinValue += price;
-                        customerInvoiceItems.push({type: 'purchase', model: `سکه ${cb.dataset.name}`, weight: '-', price: price, fee: 0});
+                        otherPurchasesValue += price;
+                        allItems.push({type: 'purchase', model: `سکه ${cb.dataset.name}`, weight: '-', price: price});
                     }
                 });
-                otherPurchasesValue += coinValue;
 
-                const profitSlider = document.getElementById('profit-slider');
-                document.getElementById('profit-value').textContent = `${toPersianNum(profitSlider.value)} %`;
-                const profitAmount = (totalRawGoldValue * parseFloat(profitSlider.value) / 100);
-                const taxAmount = document.getElementById('tax-checkbox').checked ? (profitAmount + totalFee) * 0.10 : 0;
-                
-                const subTotal = totalRawGoldValue + totalFee + profitAmount + taxAmount;
+                // Calculate final price
+                const totalSales = allItems.filter(i => i.type === 'sale').reduce((sum, i) => sum + i.price + i.fee + i.profit, 0);
+                const subTotal = totalSales + totalTax;
                 let finalPrice = subTotal - otherPurchasesValue;
 
-                updateSmartDiscountOptions(finalPrice); // Smart discount on final price
+                updateSmartDiscountOptions(finalPrice);
                 
                 let discountAmount = parseFloat(toEnglishNumForFormatting(document.getElementById('manual-discount').value)) || 0;
 
@@ -723,8 +707,8 @@
                 
                 finalPrice -= discountAmount;
                 
-                renderInvoiceSummary(customerInvoiceItems, profitAmount, taxAmount, otherPurchasesValue, discountAmount, finalPrice);
-                renderCustomerInvoice(customerInvoiceItems, profitAmount, taxAmount, discountAmount, finalPrice);
+                renderInvoiceSummary(allItems, totalTax, discountAmount, finalPrice);
+                renderCustomerInvoice(allItems, totalTax, discountAmount, finalPrice);
             }
 
             function updateSmartDiscountOptions(total) {
@@ -751,38 +735,50 @@
                 });
             }
             
-            function renderInvoiceSummary(items, profit, tax, purchases, discount, final) {
+            function renderInvoiceSummary(items, totalTax, discount, final) {
                 const summary = document.getElementById('invoice-summary');
                 const salesItems = items.filter(item => item.type === 'sale');
+                const purchaseItems = items.filter(item => item.type === 'purchase');
 
-                if (salesItems.length === 0 && purchases === 0) {
-                    summary.innerHTML = `<p style="text-align: center; color: var(--color-text-secondary);">برای مشاهده پیش‌نمایش، اطلاعات را وارد کنید.</p>`;
+                if (items.length === 0) {
+                    summary.innerHTML = `<p style="text-align: center; color: var(--color-text-secondary);">برای مشاهده، اطلاعات را وارد کنید.</p>`;
                     return;
                 }
 
                 let html = '';
                 salesItems.forEach(item => {
-                    const totalItemPrice = item.price + item.fee; // Show price including fee
-                     html += `<div class="invoice-line"><span>${item.model}</span><span>${formatCurrency(totalItemPrice)} تومان</span></div>`;
+                    const itemTotalValue = item.price + item.fee + item.profit;
+                    html += `<div class="invoice-line"><span>${item.model}</span><span>${formatCurrency(itemTotalValue)} تومان</span></div>`;
+                    if (item.tax > 0) {
+                        html += `<div class="invoice-line" style="padding-top: 0; padding-right: 20px;"><span>مالیات</span><span>${formatCurrency(item.tax)} تومان</span></div>`;
+                    }
                 });
 
-                if (profit > 0) html += `<div class="invoice-line"><span>سود (${toPersianNum(document.getElementById('profit-slider').value)}٪)</span><span>${formatCurrency(profit)} تومان</span></div>`;
-                if (tax > 0) html += `<div class="invoice-line"><span>مالیات (۱۰٪)</span><span>${formatCurrency(tax)} تومان</span></div>`;
-                if (purchases > 0) html += `<div class="invoice-line purchase-line"><span>کسر بابت خرید از مشتری</span><span>-${formatCurrency(purchases)} تومان</span></div>`;
-                if (discount > 0) html += `<div class="invoice-line"><span>تخفیف</span><span class="discount-value">-${formatCurrency(discount)} تومان</span></div>`;
+                if (purchaseItems.length > 0) {
+                     html += `<hr>`;
+                    purchaseItems.forEach(item => {
+                         html += `<div class="invoice-line purchase-line"><span>${item.model}</span><span>${formatCurrency(item.price)} تومان</span></div>`;
+                    });
+                }
                 
-                html += `<div class="invoice-line total"><span>قیمت نهایی</span><span>${formatCurrency(final)} تومان</span></div>`;
+                html += `<hr>`;
+
+                if (totalTax > 0) html += `<div class="invoice-line"><span>مالیات کل</span><span>${formatCurrency(totalTax)} تومان</span></div>`;
+                if (discount > 0) html += `<div class="invoice-line purchase-line"><span>تخفیف</span><span>${formatCurrency(discount)} تومان</span></div>`;
+                html += `<div class="invoice-line total"><span>جمع کل</span><span>${formatCurrency(final)} تومان</span></div>`;
                 summary.innerHTML = html;
             }
 
-            function renderCustomerInvoice(items, profit, tax, discount, total) {
+            function renderCustomerInvoice(items, totalTax, discount, total) {
                 const details = document.getElementById('customer-invoice-details');
-                if(items.length === 0) {
+                if (items.length === 0) {
                     details.innerHTML = '';
                     return;
                 }
 
                 let html = '';
+                let totalProfit = 0;
+                items.filter(i => i.type === 'sale').forEach(i => totalProfit += i.profit);
 
                 items.forEach(item => {
                     const weightText = (typeof item.weight === 'number') ? ` (${toPersianNum(item.weight.toFixed(2))} گ)` : '';
@@ -791,21 +787,16 @@
                     html += `<div class="invoice-line ${lineClass}"><span>${item.model}${weightText}</span><span>${formatCurrency(item.price)} تومان</span></div>`;
 
                     if (item.type === 'sale' && item.fee > 0) {
-                        let feeDetailText = '';
-                        if (item.feeType === 'percent') {
-                            feeDetailText = `اجرت (${toPersianNum(item.feeRate)}٪)`;
-                        } else {
-                            feeDetailText = `اجرت (هر گرم: ${formatCurrency(item.feeRate)})`;
-                        }
+                        let feeDetailText = (item.feeType === 'percent') ? `اجرت (${toPersianNum(item.feeRate)}٪)` : `اجرت (هر گرم: ${formatCurrency(item.feeRate)})`;
                         html += `<div class="invoice-line"><span>${feeDetailText}</span><span>${formatCurrency(item.fee)} تومان</span></div>`;
                     }
                 });
 
-                html += `<hr style="border: 1px solid var(--color-border); margin: 10px 0;">`;
+                html += `<hr>`;
                 
-                if (profit > 0) html += `<div class="invoice-line"><span>سود فروشنده</span><span>${formatCurrency(profit)} تومان</span></div>`;
-                if (tax > 0) html += `<div class="invoice-line"><span>مالیات</span><span>${formatCurrency(tax)} تومان</span></div>`;
-                if (discount > 0) html += `<div class="invoice-line"><span>تخفیف</span><span class="discount-value">-${formatCurrency(discount)} تومان</span></div>`;
+                if (totalProfit > 0) html += `<div class="invoice-line"><span>سود فروشنده</span><span>${formatCurrency(totalProfit)} تومان</span></div>`;
+                if (totalTax > 0) html += `<div class="invoice-line"><span>مالیات</span><span>${formatCurrency(totalTax)} تومان</span></div>`;
+                if (discount > 0) html += `<div class="invoice-line purchase-line"><span>تخفیف</span><span>${formatCurrency(discount)} تومان</span></div>`;
                 html += `<div class="invoice-line total"><span>جمع کل</span><span>${formatCurrency(total)} تومان</span></div>`;
                 
                 details.innerHTML = html;
