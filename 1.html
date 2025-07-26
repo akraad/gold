@@ -282,7 +282,6 @@
 
         .discount-value { color: var(--color-danger) !important; font-weight: 700;}
         
-        /* Style for purchase items in customer invoice */
         .purchase-line span {
             color: var(--color-danger) !important;
         }
@@ -633,7 +632,6 @@
                 const clone = itemTemplate.content.cloneNode(true);
                 itemsContainer.appendChild(clone);
                 
-                // Make first item non-removable
                 const allItems = itemsContainer.querySelectorAll('.item-card');
                 if (allItems.length === 1) {
                     const removeBtn = allItems[0].querySelector('.btn-remove');
@@ -666,7 +664,6 @@
                     if (weight > 0) {
                         const itemRawValue = weight * goldPrice;
                         totalRawGoldValue += itemRawValue;
-                        // *** MODIFIED: Fee per gram for Toman option ***
                         let itemFee = isPercentFee ? (itemRawValue * feeRate / 100) : (feeRate * weight);
                         totalFee += itemFee;
                         customerInvoiceItems.push({ 
@@ -702,33 +699,31 @@
                 });
                 otherPurchasesValue += coinValue;
 
-                const totalBasePrice = totalRawGoldValue + otherPurchasesValue;
                 const profitSlider = document.getElementById('profit-slider');
                 document.getElementById('profit-value').textContent = `${toPersianNum(profitSlider.value)} %`;
                 const profitAmount = (totalRawGoldValue * parseFloat(profitSlider.value) / 100);
                 const taxAmount = document.getElementById('tax-checkbox').checked ? (profitAmount + totalFee) * 0.10 : 0;
-                const subTotal = totalBasePrice + totalFee + profitAmount + taxAmount;
                 
-                updateSmartDiscountOptions(subTotal);
+                const subTotal = totalRawGoldValue + totalFee + profitAmount + taxAmount;
+                let finalPrice = subTotal - otherPurchasesValue;
+
+                updateSmartDiscountOptions(finalPrice); // Smart discount on final price
                 
-                let finalPrice = subTotal;
                 let discountAmount = parseFloat(toEnglishNumForFormatting(document.getElementById('manual-discount').value)) || 0;
 
                 if (activeSmartDiscount !== null) {
-                    if (activeSmartDiscount >= subTotal) {
+                    if (activeSmartDiscount >= finalPrice) {
                         activeSmartDiscount = null;
                         document.querySelectorAll('.smart-discount-btn.active').forEach(b => b.classList.remove('active'));
                     } else {
-                        discountAmount = subTotal - activeSmartDiscount;
-                        finalPrice = activeSmartDiscount;
+                        discountAmount = finalPrice - activeSmartDiscount;
                         if(document.getElementById('manual-discount').value) document.getElementById('manual-discount').value = '';
                     }
                 }
-                if (activeSmartDiscount === null) {
-                    finalPrice -= discountAmount;
-                }
                 
-                renderInvoiceSummary(totalBasePrice, totalFee, profitAmount, taxAmount, discountAmount, finalPrice);
+                finalPrice -= discountAmount;
+                
+                renderInvoiceSummary(customerInvoiceItems, profitAmount, taxAmount, otherPurchasesValue, discountAmount, finalPrice);
                 renderCustomerInvoice(customerInvoiceItems, profitAmount, taxAmount, discountAmount, finalPrice);
             }
 
@@ -756,20 +751,28 @@
                 });
             }
             
-            function renderInvoiceSummary(base, fee, profit, tax, discount, final) {
+            function renderInvoiceSummary(items, profit, tax, purchases, discount, final) {
                 const summary = document.getElementById('invoice-summary');
-                if (final <= 0) {
+                const salesItems = items.filter(item => item.type === 'sale');
+
+                if (salesItems.length === 0 && purchases === 0) {
                     summary.innerHTML = `<p style="text-align: center; color: var(--color-text-secondary);">برای مشاهده پیش‌نمایش، اطلاعات را وارد کنید.</p>`;
                     return;
                 }
-                summary.innerHTML = `
-                    ${base > 0 ? `<div class="invoice-line"><span>طلا</span><span>${formatCurrency(base)} تومان</span></div>` : ''}
-                    ${fee > 0 ? `<div class="invoice-line"><span>جمع اجرت</span><span>${formatCurrency(fee)} تومان</span></div>` : ''}
-                    ${profit > 0 ? `<div class="invoice-line"><span>سود (${toPersianNum(document.getElementById('profit-slider').value)}٪)</span><span>${formatCurrency(profit)} تومان</span></div>` : ''}
-                    ${tax > 0 ? `<div class="invoice-line"><span>مالیات (۱۰٪)</span><span>${formatCurrency(tax)} تومان</span></div>` : ''}
-                    ${discount > 0 ? `<div class="invoice-line"><span>تخفیف</span><span class="discount-value">-${formatCurrency(discount)} تومان</span></div>` : ''}
-                    <div class="invoice-line total"><span>قیمت نهایی</span><span>${formatCurrency(final)} تومان</span></div>
-                `;
+
+                let html = '';
+                salesItems.forEach(item => {
+                    const totalItemPrice = item.price + item.fee; // Show price including fee
+                     html += `<div class="invoice-line"><span>${item.model}</span><span>${formatCurrency(totalItemPrice)} تومان</span></div>`;
+                });
+
+                if (profit > 0) html += `<div class="invoice-line"><span>سود (${toPersianNum(document.getElementById('profit-slider').value)}٪)</span><span>${formatCurrency(profit)} تومان</span></div>`;
+                if (tax > 0) html += `<div class="invoice-line"><span>مالیات (۱۰٪)</span><span>${formatCurrency(tax)} تومان</span></div>`;
+                if (purchases > 0) html += `<div class="invoice-line purchase-line"><span>کسر بابت خرید از مشتری</span><span>-${formatCurrency(purchases)} تومان</span></div>`;
+                if (discount > 0) html += `<div class="invoice-line"><span>تخفیف</span><span class="discount-value">-${formatCurrency(discount)} تومان</span></div>`;
+                
+                html += `<div class="invoice-line total"><span>قیمت نهایی</span><span>${formatCurrency(final)} تومان</span></div>`;
+                summary.innerHTML = html;
             }
 
             function renderCustomerInvoice(items, profit, tax, discount, total) {
@@ -787,7 +790,6 @@
                     
                     html += `<div class="invoice-line ${lineClass}"><span>${item.model}${weightText}</span><span>${formatCurrency(item.price)} تومان</span></div>`;
 
-                    // *** MODIFIED: Add fee details per item ***
                     if (item.type === 'sale' && item.fee > 0) {
                         let feeDetailText = '';
                         if (item.feeType === 'percent') {
