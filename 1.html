@@ -19,12 +19,10 @@
             --text-light: #8a94a6;
             --border-color: #e6e9f0;
             --danger-color: #e74c3c;
-            --danger-light: #fbecec;
-            --success-color: #2ecc71;
+            --success-color: #2ecc71; /* Green for discount */
             --font-family: 'Vazirmatn', sans-serif;
             --border-radius: 0.75rem;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-            --shadow-light: 0 2px 6px rgba(0, 0, 0, 0.04);
         }
 
         /* General Styles */
@@ -54,7 +52,6 @@
             padding: 1.5rem 1rem;
         }
         
-        /* Main Title */
         .main-title {
             text-align: center;
             font-size: 1.75rem;
@@ -66,14 +63,12 @@
             -webkit-text-fill-color: transparent;
         }
 
-        /* Card Styles */
         .card {
             background-color: var(--card-bg);
             border-radius: var(--border-radius);
             margin-bottom: 1.5rem;
             box-shadow: var(--shadow);
             padding: 1.25rem;
-            transition: all 0.3s ease;
         }
 
         .card-header {
@@ -84,7 +79,6 @@
             border-bottom: 1px solid var(--border-color);
         }
 
-        /* Form Elements */
         .form-group {
             margin-bottom: 1rem;
         }
@@ -112,7 +106,6 @@
             transition: all 0.3s ease;
         }
         
-        /* UPDATED: Added class for text alignment */
         .input-field.left-align {
             text-align: left;
             direction: ltr;
@@ -140,10 +133,6 @@
             font-weight: 500;
         }
 
-        .input-group .input-field {
-            border-radius: var(--border-radius) 0 0 var(--border-radius);
-        }
-        
         .input-group.rtl .input-field {
             border-radius: 0 var(--border-radius) var(--border-radius) 0;
         }
@@ -154,8 +143,6 @@
              border-radius: var(--border-radius) 0 0 var(--border-radius);
         }
 
-
-        /* Number to Words Display */
         #price-in-words {
             font-size: 0.9rem;
             color: var(--text-light);
@@ -163,10 +150,8 @@
             text-align: center;
             min-height: 20px;
             font-weight: 500;
-            transition: font-size 0.3s ease;
         }
         
-        /* Toggle Switch */
         .toggle-switch {
             display: flex;
             align-items: center;
@@ -181,11 +166,7 @@
             height: 28px;
         }
 
-        .switch input { 
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+        .switch input { opacity: 0; width: 0; height: 0; }
 
         .slider {
             position: absolute;
@@ -211,15 +192,9 @@
             border-radius: 50%;
         }
 
-        input:checked + .slider {
-            background-color: var(--primary-color);
-        }
-
-        input:checked + .slider:before {
-            transform: translateX(22px);
-        }
+        input:checked + .slider { background-color: var(--primary-color); }
+        input:checked + .slider:before { transform: translateX(22px); }
         
-        /* Segmented Control for Ajrat Type */
         .segmented-control {
             display: flex;
             border: 1px solid var(--primary-color);
@@ -228,54 +203,23 @@
         }
 
         .segmented-control button {
-            flex: 1;
-            padding: 0.6rem;
-            font-size: 0.9rem;
-            border: none;
-            background-color: #fff;
-            color: var(--primary-color);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-family: var(--font-family);
+            flex: 1; padding: 0.6rem; font-size: 0.9rem; border: none;
+            background-color: #fff; color: var(--primary-color); cursor: pointer;
+            transition: all 0.3s ease; font-family: var(--font-family);
         }
 
-        .segmented-control button.active {
-            background-color: var(--primary-color);
-            color: #fff;
-        }
+        .segmented-control button.active { background-color: var(--primary-color); color: #fff; }
+        .segmented-control button:first-child { border-left: 1px solid var(--primary-color); }
+        .segmented-control button:last-child { border-right: 1px solid var(--primary-color); }
         
-        .segmented-control button:first-child {
-            border-left: 1px solid var(--primary-color);
-        }
-        
-        .segmented-control button:last-child {
-            border-right: 1px solid var(--primary-color);
-        }
-        
-        /* Item Card Layout */
         .item-card {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            padding: 1rem;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius);
-            position: relative;
+            display: flex; flex-direction: column; gap: 1rem;
+            padding: 1rem; border: 1px solid var(--border-color);
+            border-radius: var(--border-radius); position: relative;
         }
         
-        .item-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
-        }
-        
-        .item-row .form-group {
-            margin-bottom: 0;
-        }
-        
-        .item-card .form-group {
-            margin-bottom: 0;
-        }
+        .item-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        .item-row .form-group, .item-card .form-group { margin-bottom: 0; }
         
         #product-items-container .input-field,
         #product-items-container .select-field,
@@ -286,233 +230,100 @@
             padding-bottom: 0.6rem;
         }
 
-
         .delete-item-btn {
-            position: absolute;
-            top: -10px;
-            left: -10px;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background-color: var(--danger-color);
-            color: white;
-            border: none;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            box-shadow: var(--shadow-light);
-            transition: all 0.2s ease;
+            position: absolute; top: -10px; left: -10px; width: 24px; height: 24px;
+            border-radius: 50%; background-color: var(--danger-color); color: white;
+            border: none; cursor: pointer; display: flex; align-items: center;
+            justify-content: center; font-weight: bold; transition: all 0.2s ease;
             z-index: 10;
         }
         
-        .delete-item-btn:hover {
-            transform: scale(1.1);
-            background-color: #c0392b;
-        }
+        .delete-item-btn:hover { transform: scale(1.1); background-color: #c0392b; }
         
-        /* Buttons */
         .btn {
-            width: 100%;
-            padding: 0.85rem 1rem;
-            font-family: var(--font-family);
-            font-size: 1rem;
-            font-weight: 600;
-            border: none;
-            border-radius: var(--border-radius);
-            cursor: pointer;
-            transition: all 0.3s ease;
+            width: 100%; padding: 0.85rem 1rem; font-family: var(--font-family);
+            font-size: 1rem; font-weight: 600; border: none;
+            border-radius: var(--border-radius); cursor: pointer; transition: all 0.3s ease;
         }
 
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: #fff;
-        }
-
-        .btn-primary:hover {
-            background-color: #3a7bc8;
-        }
+        .btn-primary { background-color: var(--primary-color); color: #fff; }
+        .btn-primary:hover { background-color: #3a7bc8; }
 
         .btn-secondary {
-            background-color: var(--primary-light);
-            color: var(--primary-color);
-            font-size: 0.9rem;
-            padding: 0.6rem 0.8rem;
-            font-weight: 500;
+            background-color: var(--primary-light); color: var(--primary-color);
+            font-size: 0.9rem; padding: 0.6rem 0.8rem; font-weight: 500;
         }
-        .btn-secondary:hover {
-            background-color: #dbe8fd;
-        }
+        .btn-secondary:hover { background-color: #dbe8fd; }
         
-        /* Range Slider for Profit */
-        .range-slider-group {
-            padding-top: 1rem;
-        }
+        .range-slider-group { padding-top: 1rem; }
         #profit-slider {
-            -webkit-appearance: none;
-            width: 100%;
-            height: 8px;
-            background: var(--border-color);
-            outline: none;
-            opacity: 0.9;
-            transition: opacity .2s;
-            border-radius: 5px;
+            -webkit-appearance: none; width: 100%; height: 8px;
+            background: var(--border-color); outline: none; border-radius: 5px;
         }
 
         #profit-slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 22px;
-            height: 22px;
-            background: var(--primary-color);
-            cursor: pointer;
-            border-radius: 50%;
+            -webkit-appearance: none; appearance: none; width: 22px; height: 22px;
+            background: var(--primary-color); cursor: pointer; border-radius: 50%;
             border: 3px solid #fff;
-            box-shadow: var(--shadow-light);
         }
-
-        #profit-slider::-moz-range-thumb {
-            width: 22px;
-            height: 22px;
-            background: var(--primary-color);
-            cursor: pointer;
-            border-radius: 50%;
-        }
-
+        
         .slider-value {
-            text-align: center;
-            font-weight: 600;
-            font-size: 1.1rem;
-            margin-top: 0.5rem;
-            color: var(--primary-color);
+            text-align: center; font-weight: 600; font-size: 1.1rem;
+            margin-top: 0.5rem; color: var(--primary-color);
         }
 
-        /* Customer Purchase Section */
         .add-purchase-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 0.75rem; margin-bottom: 1.5rem;
         }
 
-        #purchase-items-container .item-card:not(:first-child) {
-            margin-top: 1rem;
-        }
-        #purchase-items-container .item-card {
-            background-color: var(--bg-color);
-        }
+        #purchase-items-container .item-card:not(:first-child) { margin-top: 1rem; }
+        #purchase-items-container .item-card { background-color: var(--bg-color); }
         
         #purchase-items-container .input-field,
         #purchase-items-container .select-field,
         #purchase-items-container .input-group-text {
-            font-size: 0.9rem;
-            padding-top: 0.6rem;
-            padding-bottom: 0.6rem;
+            font-size: 0.9rem; padding-top: 0.6rem; padding-bottom: 0.6rem;
         }
 
-        /* Smart Discount */
         .smart-discount-options {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 0.75rem;
         }
 
         .smart-discount-btn {
-            background-color: var(--primary-light);
-            color: var(--primary-color);
-            border: 2px solid transparent;
-            font-weight: 600;
-            padding: 0.75rem 0.5rem;
+            background-color: var(--primary-light); color: var(--primary-color);
+            border: 2px solid transparent; font-weight: 600; padding: 0.75rem 0.5rem;
             font-size: 0.9rem;
         }
         
-        .smart-discount-btn:hover {
-            border-color: var(--primary-color);
-        }
+        .smart-discount-btn:hover { border-color: var(--primary-color); }
+        .smart-discount-btn.active { background-color: var(--primary-color); color: #fff; }
         
-        .smart-discount-btn.active {
-            background-color: var(--primary-color);
-            color: #fff;
-            border-color: var(--primary-color);
-        }
-        
-        /* Final Invoice Display */
-        #invoice-result {
-            padding: 1.5rem;
-        }
-
-        .invoice-line {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0.8rem 0;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
-        .invoice-line:last-child {
-            border-bottom: none;
-        }
-
-        .invoice-label {
-            font-weight: 500;
-            color: var(--text-light);
-        }
-
-        .invoice-value {
-            font-weight: 600;
-        }
-        
-        .invoice-value.danger {
-            color: var(--danger-color);
-        }
-        
-        .invoice-value.success {
-            color: var(--success-color);
-        }
-        
-        #invoice-total-line {
-            background-color: var(--primary-light);
-            margin: 1rem -1.5rem -1.5rem;
-            padding: 1rem 1.5rem;
-            border-radius: 0 0 var(--border-radius) var(--border-radius);
+        /* NEW: Invoice structure styling */
+        .invoice-section { margin-bottom: 1rem; }
+        .invoice-section-title { font-weight: 600; margin-bottom: 0.75rem; color: var(--text-color); }
+        .invoice-item { margin-bottom: 1rem; font-size: 0.95rem; }
+        .invoice-item-header { display: flex; justify-content: space-between; font-weight: 500; }
+        .invoice-item-details { color: var(--text-light); font-size: 0.85rem; }
+        .invoice-summary-line { display: flex; justify-content: space-between; padding: 0.5rem 0; font-weight: 500; font-size: 1rem; }
+        .invoice-separator { height: 1px; background-color: var(--border-color); margin: 1rem 0; }
+        .invoice-value-danger { color: var(--danger-color); }
+        .invoice-value-success { color: var(--success-color); }
+        .invoice-final-total {
+            display: flex; justify-content: space-between;
+            padding-top: 1rem; margin-top: 1rem;
             border-top: 2px solid var(--primary-color);
+            color: var(--primary-color); font-weight: 700; font-size: 1.2rem;
         }
         
-        #invoice-total-line .invoice-label, #invoice-total-line .invoice-value {
-            color: var(--primary-color);
-            font-size: 1.2rem;
-            font-weight: 700;
-        }
-        
-        .invoice-product-details {
-            font-size: 0.85rem;
-            color: var(--text-light);
-            margin-top: -0.5rem;
-            margin-bottom: 0.5rem;
-            padding-right: 1rem;
-        }
-        
-        /* Utility classes */
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
-            body {
-                font-size: 13px;
-            }
-            .container {
-                padding: 1rem 0.75rem;
-            }
-            .main-title {
-                font-size: 1.5rem;
-                margin-bottom: 1.5rem;
-            }
-            .card {
-                padding: 1rem;
-            }
+            body { font-size: 13px; }
+            .container { padding: 1rem 0.75rem; }
+            .main-title { font-size: 1.5rem; margin-bottom: 1.5rem; }
+            .card { padding: 1rem; }
         }
     </style>
 </head>
@@ -536,9 +347,7 @@
         <!-- Product Details Section -->
         <div class="card">
             <h2 class="card-header">مشخصات محصولات</h2>
-            <div id="product-items-container">
-                <!-- Product items will be injected here by JS -->
-            </div>
+            <div id="product-items-container"></div>
             <button id="add-product-item" class="btn btn-primary" style="margin-top: 1rem;">+ افزودن محصول جدید</button>
         </div>
         
@@ -551,11 +360,8 @@
                 <button class="btn btn-secondary add-purchase-btn" data-type="parsian">پارسیان</button>
                 <button class="btn btn-secondary add-purchase-btn" data-type="coin">سکه</button>
             </div>
-            <div id="purchase-items-container">
-                 <!-- Purchase items will be injected here by JS -->
-            </div>
+            <div id="purchase-items-container"></div>
         </div>
-
 
         <!-- Profit and Tax Section -->
         <div class="card">
@@ -563,7 +369,7 @@
             <div class="form-group">
                 <label for="profit-slider" class="form-label">سود فروشنده</label>
                 <div class="slider-value" id="profit-value">7 %</div>
-                <div class="range-slider-group">
+                <div class.range-slider-group">
                     <input type="range" min="1" max="7" value="7" step="0.1" class="range-slider" id="profit-slider">
                 </div>
             </div>
@@ -588,21 +394,15 @@
             </div>
             <div id="smart-discount-container" class="form-group hidden">
                 <label class="form-label">تخفیف هوشمند (برای رند شدن)</label>
-                <div class="smart-discount-options" id="smart-discount-options">
-                    <!-- Smart discount buttons will be here -->
-                </div>
+                <div class="smart-discount-options" id="smart-discount-options"></div>
             </div>
         </div>
 
         <!-- Final Invoice Section -->
-        <div class="card" id="invoice-result">
+        <div class="card">
             <h2 class="card-header">فاکتور</h2>
-            <div id="invoice-items"></div>
-            <div id="invoice-purchases"></div>
-            <div id="invoice-summary"></div>
-            <div class="invoice-line" id="invoice-total-line">
-                <span id="total-label" class="invoice-label">قیمت کل</span>
-                <span id="total-value" class="invoice-value">۰ تومان</span>
+            <div id="invoice-content">
+                <!-- Invoice content will be generated by JS -->
             </div>
         </div>
 
@@ -621,11 +421,7 @@
         const manualDiscountInput = document.getElementById('manual-discount');
         const smartDiscountContainer = document.getElementById('smart-discount-container');
         const smartDiscountOptions = document.getElementById('smart-discount-options');
-        const invoiceItemsContainer = document.getElementById('invoice-items');
-        const invoicePurchasesContainer = document.getElementById('invoice-purchases');
-        const invoiceSummaryContainer = document.getElementById('invoice-summary');
-        const totalLabel = document.getElementById('total-label');
-        const totalValue = document.getElementById('total-value');
+        const invoiceContentContainer = document.getElementById('invoice-content');
         const addPurchaseBtnContainer = document.querySelector('.add-purchase-options');
         const purchaseItemsContainer = document.getElementById('purchase-items-container');
 
@@ -642,11 +438,10 @@
 
         // --- Helper Functions ---
         const toPersianDigits = (n) => {
-            if (n === null || typeof n === 'undefined') return '';
+             if (n === null || typeof n === 'undefined') return '';
             const persian = { 0: '۰', 1: '۱', 2: '۲', 3: '۳', 4: '۴', 5: '۵', 6: '۶', 7: '۷', 8: '۸', 9: '۹' };
             return n.toString().replace(/[0-9]/g, (w) => persian[w]);
         };
-
         const toEnglishDigits = (str) => {
             if (!str) return '';
             const persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
@@ -656,17 +451,14 @@
             }
             return str;
         };
-
         const formatNumber = (num) => {
             if (isNaN(num) || num === null || num === 0) return '';
             return toPersianDigits(Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','));
         };
-        
         const parseFormattedNumber = (str) => {
             if (!str) return 0;
             return parseInt(toEnglishDigits(str).replace(/,/g, ''), 10) || 0;
         };
-        
         const numberToWords = (num) => {
             if (num === 0) return 'صفر';
             num = Math.floor(num);
@@ -678,7 +470,6 @@
 
             let words = [];
             if (num === 0) return 'صفر';
-
             for(let i=0; num > 0; i++){
                 let threeDigits = num % 1000;
                 if(threeDigits > 0){
@@ -686,7 +477,6 @@
                     let h = Math.floor(threeDigits / 100);
                     let t = Math.floor((threeDigits % 100) / 10);
                     let o = threeDigits % 10;
-
                     if (h > 0) { chunk += hundreds[h] + ' و '; }
                     if (t === 1) { chunk += teens[o]; }
                     else {
@@ -696,7 +486,6 @@
                     }
                     chunk = chunk.trim();
                     if(chunk.endsWith(' و')) chunk = chunk.slice(0, -2);
-                    
                     if(scales[i]) chunk += ' ' + scales[i];
                     words.unshift(chunk);
                 }
@@ -704,16 +493,11 @@
             }
             return words.join(' و ');
         };
-        
         const updatePriceInWords = () => {
             const price = state.goldPrice;
             if (price > 0) {
                 const words = numberToWords(price) + ' تومان';
                 priceInWords.textContent = words;
-                if (words.length > 40) priceInWords.style.fontSize = '0.7rem';
-                else if (words.length > 30) priceInWords.style.fontSize = '0.8rem';
-                else if (words.length > 20) priceInWords.style.fontSize = '0.85rem';
-                else priceInWords.style.fontSize = '0.9rem';
             } else {
                 priceInWords.textContent = '';
             }
@@ -724,11 +508,8 @@
         function createProductItem(isFirst = false) {
             const id = productItemId++;
             const item = {
-                id,
-                type: 'طلا',
-                weight: '',
-                ajratType: 'toman',
-                ajratValue: ''
+                id, type: 'طلا', weight: '',
+                ajratType: 'toman', ajratValue: ''
             };
             state.products.push(item);
             
@@ -770,15 +551,11 @@
             `;
             productItemsContainer.appendChild(itemDiv);
             
-            // Add event listeners for the new item
             const typeInput = itemDiv.querySelector('.product-type');
             const weightInput = itemDiv.querySelector('.product-weight');
             const ajratInput = itemDiv.querySelector('.product-ajrat');
             
-            typeInput.addEventListener('change', (e) => {
-                item.type = e.target.value;
-                calculateAndRender();
-            });
+            typeInput.addEventListener('change', (e) => { item.type = e.target.value; calculateAndRender(); });
             weightInput.addEventListener('input', (e) => {
                 const value = toEnglishDigits(e.target.value);
                 if (/^\d*\.?\d*$/.test(value)) {
@@ -805,7 +582,6 @@
                 }
                 calculateAndRender();
             });
-            
             itemDiv.querySelectorAll('.ajrat-type-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
@@ -816,7 +592,6 @@
                     ajratInput.value = '';
                     itemDiv.querySelector('.ajrat-unit').textContent = item.ajratType === 'percent' ? '%' : 'تومان';
                     ajratInput.placeholder = '';
-                    // UPDATED: Toggle text alignment class
                     if (item.ajratType === 'toman') {
                         ajratInput.classList.add('left-align');
                     } else {
@@ -825,7 +600,6 @@
                     calculateAndRender();
                 });
             });
-            
             if (!isFirst) {
                 itemDiv.querySelector('.delete-item-btn').addEventListener('click', () => {
                     state.products = state.products.filter(p => p.id !== id);
@@ -844,54 +618,26 @@
             const itemDiv = document.createElement('div');
             itemDiv.className = 'item-card';
             itemDiv.dataset.id = id;
-
             let content = '';
             if (type === 'gold' || type === 'bullion' || type === 'parsian') {
                 const typeName = {gold: 'طلای متفرقه', bullion: 'شمش', parsian: 'پارسیان'}[type];
                 item.weight = '';
-                content = `
-                    <div class="form-group">
-                        <label class="form-label">وزن ${typeName}</label>
-                        <div class="input-group rtl">
-                            <input type="text" class="input-field purchase-weight" inputmode="decimal">
-                            <span class="input-group-text">گرم</span>
-                        </div>
-                    </div>
-                `;
+                content = `<div class="form-group"><label class="form-label">وزن ${typeName}</label><div class="input-group rtl"><input type="text" class="input-field purchase-weight" inputmode="decimal"><span class="input-group-text">گرم</span></div></div>`;
             } else if (type === 'coin') {
                 const coinTypes = ['ربع ۸۶', 'نیم ۸۶', 'امامی ۸۶', 'ربع زیر ۸۶', 'نیم زیر ۸۶', 'امامی زیر ۸۶', 'یک گرمی بانکی'];
                 item.coinType = 'ربع ۸۶';
                 item.price = '';
-                content = `
-                    <div class="item-row">
-                        <div class="form-group">
-                            <label class="form-label">نوع سکه</label>
-                            <select class="select-field purchase-coin-type">
-                                ${coinTypes.map(c => `<option value="${c}">${c}</option>`).join('')}
-                            </select>
-                        </div>
-                        <div class="form-group">
-                             <label class="form-label">قیمت خرید</label>
-                            <div class="input-group rtl">
-                                <input type="tel" class="input-field purchase-coin-price" inputmode="numeric">
-                                <span class="input-group-text">تومان</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
+                content = `<div class="item-row"><div class="form-group"><label class="form-label">نوع سکه</label><select class="select-field purchase-coin-type">${coinTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div><div class="form-group"><label class="form-label">قیمت خرید</label><div class="input-group rtl"><input type="tel" class="input-field purchase-coin-price" inputmode="numeric"><span class="input-group-text">تومان</span></div></div></div>`;
             }
-            
             itemDiv.innerHTML = `<button class="delete-item-btn">&times;</button>${content}`;
             purchaseItemsContainer.appendChild(itemDiv);
             state.purchases.push(item);
             
-            // Add Listeners
             itemDiv.querySelector('.delete-item-btn').addEventListener('click', () => {
                 state.purchases = state.purchases.filter(p => p.id !== id);
                 itemDiv.remove();
                 calculateAndRender();
             });
-
             if (item.type === 'coin') {
                 const coinTypeInput = itemDiv.querySelector('.purchase-coin-type');
                 const coinPriceInput = itemDiv.querySelector('.purchase-coin-price');
@@ -917,36 +663,83 @@
             }
         }
 
-
-        // --- Calculation Engine ---
+        // --- Calculation & Rendering ---
         function calculateAndRender() {
-            let totalSale = 0, totalAjrat = 0, totalProfit = 0;
-            
-            state.products.forEach(p => {
-                const weight = parseFloat(p.weight) || 0;
-                if (weight === 0) return;
-                const priceOfGold = weight * state.goldPrice;
-                const ajratValue = p.ajratType === 'percent' ? (parseFloat(p.ajratValue) || 0) : (parseFormattedNumber(p.ajratValue.toString()) || 0);
-                const ajratAmount = p.ajratType === 'percent' ? priceOfGold * (ajratValue / 100) : ajratValue;
-                const profitAmount = (priceOfGold + ajratAmount) * (state.profitPercentage / 100);
-                totalSale += priceOfGold + ajratAmount + profitAmount;
-                totalAjrat += ajratAmount;
-                totalProfit += profitAmount;
-            });
+            let productsHTML = '';
+            let purchasesHTML = '';
+            let summaryHTML = '';
+            let grandTotal = 0;
+            let totalTax = 0;
 
-            const totalTax = state.taxEnabled ? (totalAjrat + totalProfit) * 0.10 : 0;
-            
-            let totalPurchase = 0;
-            state.purchases.forEach(p => {
-                if(p.type === 'coin') totalPurchase += (parseFloat(p.price) || 0);
-                else {
+            // --- Products Calculation ---
+            const validProducts = state.products.filter(p => parseFloat(p.weight) > 0);
+            if (validProducts.length > 0) {
+                productsHTML += `<div class="invoice-section"><div class="invoice-section-title">محصولات</div>`;
+                validProducts.forEach((p, index) => {
                     const weight = parseFloat(p.weight) || 0;
-                    if(p.type === 'bullion') totalPurchase += (weight * 995 / 750) * state.goldPrice;
-                    else totalPurchase += weight * state.goldPrice;
-                }
-            });
+                    const priceOfGold = weight * state.goldPrice;
+                    const ajratValue = p.ajratType === 'percent' ? (parseFloat(p.ajratValue) || 0) : (parseFormattedNumber(p.ajratValue.toString()) || 0);
+                    const ajratAmount = p.ajratType === 'percent' ? priceOfGold * (ajratValue / 100) : ajratValue;
+                    const profitAmount = (priceOfGold + ajratAmount) * (state.profitPercentage / 100);
+                    const itemTax = state.taxEnabled ? (ajratAmount + profitAmount) * 0.10 : 0;
+                    const itemTotal = priceOfGold + ajratAmount + profitAmount;
+                    totalTax += itemTax;
 
-            const totalBeforeDiscount = totalSale + totalTax;
+                    productsHTML += `<div class="invoice-item">`;
+                    if(validProducts.length > 1) productsHTML += `<b>آیتم ${toPersianDigits(index+1)}</b>`;
+                    productsHTML += `<div class="invoice-item-header"><span>${p.type} - ${toPersianDigits(weight)} گرم</span><span>${formatNumber(itemTotal)} تومان</span></div>`;
+                    let details = [];
+                    if (ajratAmount > 0) details.push(`اجرت: ${formatNumber(ajratAmount)}`);
+                    if (itemTax > 0) details.push(`مالیات: ${formatNumber(itemTax)}`);
+                    if (details.length > 0) productsHTML += `<div class="invoice-item-details">${details.join(' - ')}</div>`;
+                    productsHTML += `</div>`;
+                });
+                productsHTML += `</div>`;
+            }
+
+            // --- Purchases Calculation ---
+            let totalPurchaseValue = 0;
+            const validPurchases = state.purchases.filter(p => (p.weight && parseFloat(p.weight) > 0) || (p.price && parseFloat(p.price) > 0));
+            if (validPurchases.length > 0) {
+                 const hasCoin = validPurchases.some(p => ['coin', 'parsian', 'bullion'].includes(p.type));
+                 const hasGold = validPurchases.some(p => p.type === 'gold');
+                 let purchaseTitle = 'خرید ';
+                 if(hasGold && hasCoin) purchaseTitle += 'طلا و سکه از مشتری';
+                 else if(hasGold) purchaseTitle += 'طلا از مشتری';
+                 else if(hasCoin) purchaseTitle += 'سکه از مشتری';
+
+                purchasesHTML += `<div class="invoice-separator"></div><div class="invoice-section"><div class="invoice-section-title">${purchaseTitle}</div>`;
+                validPurchases.forEach(p => {
+                    let value = 0;
+                    let label = '';
+                    if (p.type === 'coin') {
+                        value = p.price || 0;
+                        label = `سکه ${p.coinType}`;
+                    } else {
+                        const weight = parseFloat(p.weight) || 0;
+                        if (p.type === 'bullion') value = (weight * 995 / 750) * state.goldPrice;
+                        else value = weight * state.goldPrice;
+                        
+                        const typeName = {gold: 'طلای متفرقه', bullion: 'شمش', parsian: 'پارسیان'}[p.type];
+                        label = `${typeName} - ${toPersianDigits(weight)} گرم`;
+                    }
+                    totalPurchaseValue += value;
+                    purchasesHTML += `<div class="invoice-summary-line"><span>${label}</span><span class="invoice-value-danger">- ${formatNumber(value)} تومان</span></div>`;
+                });
+                purchasesHTML += `</div>`;
+            }
+
+            // --- Summary & Grand Total ---
+            const saleTotal = state.products.reduce((acc, p) => {
+                 const weight = parseFloat(p.weight) || 0;
+                 const priceOfGold = weight * state.goldPrice;
+                 const ajratValue = p.ajratType === 'percent' ? (parseFloat(p.ajratValue) || 0) : (parseFormattedNumber(p.ajratValue.toString()) || 0);
+                 const ajratAmount = p.ajratType === 'percent' ? priceOfGold * (ajratValue / 100) : ajratValue;
+                 const profitAmount = (priceOfGold + ajratAmount) * (state.profitPercentage / 100);
+                 return acc + priceOfGold + ajratAmount + profitAmount;
+            }, 0);
+
+            const totalBeforeDiscount = saleTotal + totalTax;
             state.manualDiscount = parseFormattedNumber(manualDiscountInput.value);
             const maxDiscount = totalBeforeDiscount * 0.3;
             if (state.manualDiscount > maxDiscount) {
@@ -955,95 +748,29 @@
             }
             const effectiveDiscount = state.smartDiscount > 0 ? state.smartDiscount : state.manualDiscount;
 
-            const grandTotal = totalBeforeDiscount - effectiveDiscount - totalPurchase;
-
-            renderInvoiceItems(totalAjrat, totalProfit);
-            renderInvoicePurchases();
-            renderInvoiceSummary(totalTax, effectiveDiscount);
-            renderInvoiceTotal(grandTotal);
-            renderSmartDiscount(totalBeforeDiscount - totalPurchase);
-        }
-
-        // --- UI Rendering ---
-        function renderInvoiceItems(totalAjrat, totalProfit) {
-            invoiceItemsContainer.innerHTML = '';
-            if (state.products.every(p => !p.weight)) return;
-            let totalWeight = 0, totalGoldValue = 0;
-            state.products.forEach(p => {
-                const weight = parseFloat(p.weight) || 0;
-                totalWeight += weight;
-                totalGoldValue += weight * state.goldPrice;
-            });
-            if (totalWeight > 0) {
-                 invoiceItemsContainer.innerHTML = `
-                    <div class="invoice-line">
-                        <span class="invoice-label">جمع کل طلا</span>
-                        <span class="invoice-value">${formatNumber(totalGoldValue) || '۰'} تومان</span>
-                    </div>
-                    <div class="invoice-product-details">وزن کل: ${toPersianDigits(totalWeight.toFixed(3))} گرم</div>
-                    <div class="invoice-line">
-                        <span class="invoice-label">اجرت ساخت</span>
-                        <span class="invoice-value">${formatNumber(totalAjrat) || '۰'} تومان</span>
-                    </div>
-                    <div class="invoice-line">
-                        <span class="invoice-label">سود (${toPersianDigits(state.profitPercentage.toFixed(1))})%</span>
-                        <span class="invoice-value">${formatNumber(totalProfit) || '۰'} تومان</span>
-                    </div>`;
+            if (totalTax > 0 || effectiveDiscount > 0) {
+                 summaryHTML += `<div class="invoice-separator"></div>`;
             }
-        }
-        
-        function renderInvoicePurchases() {
-            invoicePurchasesContainer.innerHTML = '';
-            if (state.purchases.length === 0) return;
-
-            const addPurchaseLine = (label, value, details = '') => {
-                if (value > 0) {
-                    invoicePurchasesContainer.innerHTML += `
-                        <div class="invoice-line">
-                            <span class="invoice-label">${label}</span>
-                            <span class="invoice-value danger">- ${formatNumber(value) || '۰'} تومان</span>
-                        </div>
-                        ${details ? `<div class="invoice-product-details danger">${details}</div>` : ''}`;
-                }
-            };
-            
-            state.purchases.forEach(p => {
-                if (p.type === 'coin') {
-                    addPurchaseLine(`خرید سکه ${p.coinType}`, p.price);
-                } else {
-                    const weight = parseFloat(p.weight) || 0;
-                    const details = `وزن: ${toPersianDigits(weight)} گرم`;
-                    if (p.type === 'gold') addPurchaseLine('خرید طلای متفرقه', weight * state.goldPrice, details);
-                    if (p.type === 'parsian') addPurchaseLine('خرید پارسیان', weight * state.goldPrice, details);
-                    if (p.type === 'bullion') addPurchaseLine('خرید شمش', (weight * 995 / 750) * state.goldPrice, details);
-                }
-            });
-            
-            if (invoicePurchasesContainer.innerHTML) {
-                const separator = document.createElement('div');
-                separator.style.height = '1px';
-                separator.style.backgroundColor = 'var(--border-color)';
-                separator.style.margin = '0.5rem 0';
-                invoicePurchasesContainer.prepend(separator);
+            if (totalTax > 0) {
+                const taxLabel = validProducts.filter(p => state.taxEnabled && ((p.ajratType === 'percent' ? (parseFloat(p.ajratValue) || 0) : (parseFormattedNumber(p.ajratValue.toString()) || 0)) > 0)).length > 1 ? 'مالیات کل' : 'مالیات';
+                summaryHTML += `<div class="invoice-summary-line"><span>${taxLabel}</span><span>${formatNumber(totalTax)} تومان</span></div>`;
             }
-        }
-        
-        function renderInvoiceSummary(tax, discount) {
-            invoiceSummaryContainer.innerHTML = '';
-             if (tax > 0) invoiceSummaryContainer.innerHTML += `<div class="invoice-line"><span class="invoice-label">مالیات کل</span><span class="invoice-value">${formatNumber(tax) || '۰'} تومان</span></div>`;
-             if (discount > 0) invoiceSummaryContainer.innerHTML += `<div class="invoice-line"><span class="invoice-label">تخفیف</span><span class="invoice-value danger">- ${formatNumber(discount) || '۰'} تومان</span></div>`;
-        }
-        
-        function renderInvoiceTotal(total) {
-            if (total >= 0) {
-                totalLabel.textContent = 'مبلغ قابل پرداخت';
-                totalValue.textContent = `${formatNumber(total) || '۰'} تومان`;
-                totalValue.classList.remove('success');
+            if (effectiveDiscount > 0) {
+                 summaryHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-success">- ${formatNumber(effectiveDiscount)} تومان</span></div>`;
+            }
+            
+            grandTotal = totalBeforeDiscount - totalPurchaseValue - effectiveDiscount;
+            
+            let finalTotalHTML = `<div class="invoice-final-total">`;
+            if (grandTotal >= 0) {
+                finalTotalHTML += `<span>مبلغ نهایی</span><span>${formatNumber(grandTotal) || '۰'} تومان</span>`;
             } else {
-                totalLabel.textContent = 'مبلغ پرداختی به مشتری';
-                totalValue.textContent = `${formatNumber(Math.abs(total)) || '۰'} تومان`;
-                totalValue.classList.add('success');
+                 finalTotalHTML += `<span>پرداخت به مشتری</span><span>${formatNumber(Math.abs(grandTotal)) || '۰'} تومان</span>`;
             }
+            finalTotalHTML += `</div>`;
+            
+            invoiceContentContainer.innerHTML = productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
+            renderSmartDiscount(totalBeforeDiscount - totalPurchaseValue);
         }
         
         function renderSmartDiscount(total) {
@@ -1052,7 +779,6 @@
                 state.smartDiscount = 0;
                 return;
             }
-            
             smartDiscountContainer.classList.remove('hidden');
             smartDiscountOptions.innerHTML = '';
             let options = new Set();
@@ -1060,28 +786,19 @@
                 const remainder = total % unit;
                 if (remainder > 0 && remainder <= 990000) options.add(remainder);
             });
-            
             const sortedOptions = Array.from(options).sort((a,b) => a - b).slice(0, 5);
-
             if (sortedOptions.length === 0) {
-                 smartDiscountContainer.classList.add('hidden');
-                 return;
+                 smartDiscountContainer.classList.add('hidden'); return;
             }
-
             sortedOptions.forEach(optValue => {
                 const btn = document.createElement('button');
                 btn.className = 'btn smart-discount-btn';
                 btn.textContent = `رند به ${formatNumber(total - optValue)}`;
                 btn.dataset.value = optValue;
-
-                if (state.smartDiscount === optValue) {
-                    btn.classList.add('active');
-                }
-                
+                if (state.smartDiscount === optValue) btn.classList.add('active');
                 smartDiscountOptions.appendChild(btn);
             });
         }
-        
         
         // --- Event Listeners ---
         goldPriceInput.addEventListener('input', (e) => {
@@ -1093,38 +810,26 @@
             updatePriceInWords();
             calculateAndRender();
         });
-
         addProductBtn.addEventListener('click', () => createProductItem());
-        
         profitSlider.addEventListener('input', (e) => {
             state.profitPercentage = parseFloat(e.target.value);
             profitValue.textContent = `${toPersianDigits(state.profitPercentage.toFixed(1))} %`;
             calculateAndRender();
         });
-        
         taxSwitch.addEventListener('change', (e) => { state.taxEnabled = e.target.checked; calculateAndRender(); });
-        
         manualDiscountInput.addEventListener('input', () => {
-            if (state.smartDiscount > 0) {
-                state.smartDiscount = 0;
-            }
+            if (state.smartDiscount > 0) state.smartDiscount = 0;
             calculateAndRender();
         });
-        
         addPurchaseBtnContainer.addEventListener('click', e => {
-            if (e.target.classList.contains('add-purchase-btn')) {
-                createPurchaseItem(e.target.dataset.type);
-            }
+            if (e.target.classList.contains('add-purchase-btn')) createPurchaseItem(e.target.dataset.type);
         });
-
         smartDiscountOptions.addEventListener('click', e => {
             const targetButton = e.target.closest('.smart-discount-btn');
             if (targetButton) {
                 const discountValue = Number(targetButton.dataset.value);
-                
-                if (state.smartDiscount === discountValue) {
-                    state.smartDiscount = 0;
-                } else {
+                if (state.smartDiscount === discountValue) state.smartDiscount = 0;
+                else {
                     state.smartDiscount = discountValue;
                     state.manualDiscount = 0;
                     manualDiscountInput.value = '';
