@@ -392,20 +392,12 @@
 
             <div id="motaferghe-input-section" class="hidden">
                 <div class="form-group">
-                    <label class="form-label">وزن (گرم)</label>
-                    <div class="input-group rtl">
+                    <label class="form-label">وزن</label> <div class="input-group rtl">
                         <input type="text" id="motaferghe-weight-gram" class="input-field" inputmode="decimal">
                         <span class="input-group-text">گرم</span>
                     </div>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">مبلغ (تومان)</label>
-                    <div class="input-group rtl">
-                        <input type="tel" id="motaferghe-price" class="input-field" inputmode="numeric">
-                        <span class="input-group-text">تومان</span>
-                    </div>
                 </div>
-            </div>
         </div>
 
         <div class="card" id="profit-section">
@@ -456,11 +448,11 @@
         // Removed mesghalDisplaySwitch, mesghalDisplayGroup, absheWeightMesghalDisplayInput
         const absheAyarInput = document.getElementById('abshe-ayar');
         const motafergheWeightGramInput = document.getElementById('motaferghe-weight-gram');
-        const motaferghePriceInput = document.getElementById('motaferghe-price');
+        // REMOVED: const motaferghePriceInput = document.getElementById('motaferghe-price');
 
 
         // --- State ---
-        // Removed MESGHAL_GRAM_FACTOR as it's no longer needed for display
+        // Removed MESGHAL_GRAM_FACTOR from global state as it's only used inside calculation now
         let state = {
             goldPrice: 0,
             profitPercentage: 2.0, // Default profit for abshe/motaferghe
@@ -472,7 +464,7 @@
             absheAyars: 705, // Default for 17.76 Ayar gold
             // Removed showMesghalDisplay state
             motafergheWeightGram: 0,
-            motaferghePrice: 0,
+            // REMOVED: motaferghePrice: 0,
         };
 
         // --- Helper Functions ---
@@ -570,8 +562,6 @@
                 const absheWeightGram = parseFloatFormattedNumber(absheWeightGramInput.value);
                 const absheAyars = parseFloatFormattedNumber(absheAyarInput.value);
 
-                // Removed Mesghal display update logic
-
                 if (absheWeightGram > 0 && goldPricePerMesghal > 0 && absheAyars > 0) {
                     const MESGHAL_GRAM_FACTOR = 4.608; // Defined locally if needed for calculation, not display
                     const absheEquivalent18KMesghals = (absheWeightGram / MESGHAL_GRAM_FACTOR) * (absheAyars / 750);
@@ -587,24 +577,18 @@
                 }
             } else { // Motaferghe Calculation (if active)
                 const motafergheWeightGram = parseFloatFormattedNumber(motafergheWeightGramInput.value);
-                const motaferghePrice = parseFormattedNumber(motaferghePriceInput.value);
+                const MOTAFERGHE_DEFAULT_AYAR = 750; // New: Default Ayar for Motaferghe
+                const MESGHAL_GRAM_FACTOR = 4.608; // Needed for this calculation too
 
-                // If both weight and price are entered, use them
-                if (motafergheWeightGram > 0 && motaferghePrice > 0) {
-                    baseValue = motaferghePrice;
+                // Calculate baseValue for motaferghe based on weight and default ayar
+                if (motafergheWeightGram > 0 && state.goldPrice > 0) {
+                    const motafergheEquivalent18KMesghals = (motafergheWeightGram / MESGHAL_GRAM_FACTOR) * (MOTAFERGHE_DEFAULT_AYAR / 750);
+                    baseValue = motafergheEquivalent18KMesghals * state.goldPrice;
+
                     invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">فاکتور متفرقه</div>`;
                     invoiceHTML += `<div class="invoice-item">
                         <div class="invoice-item-header">
-                            <span>متفرقه ${toPersianDigits(motafergheWeightGram.toFixed(2))} گرم</span>
-                            <span>${formatNumber(baseValue)} تومان</span>
-                        </div>
-                    </div></div>`;
-                } else if (motaferghePrice > 0) { // Only price entered
-                     baseValue = motaferghePrice;
-                    invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">فاکتور متفرقه</div>`;
-                    invoiceHTML += `<div class="invoice-item">
-                        <div class="invoice-item-header">
-                            <span>آیتم متفرقه</span>
+                            <span>متفرقه ${toPersianDigits(motafergheWeightGram.toFixed(2))} گرم (عیار پیش‌فرض ۷۵۰)</span>
                             <span>${formatNumber(baseValue)} تومان</span>
                         </div>
                     </div></div>`;
@@ -782,6 +766,8 @@
             calculateAndRender();
         });
 
+        // REMOVED: motaferghePriceInput event listener and related code
+        /*
         motaferghePriceInput.addEventListener('input', (e) => {
             const value = parseFormattedNumber(e.target.value);
             if (value.toString().length <= 11) {
@@ -792,6 +778,7 @@
             }
             calculateAndRender();
         });
+        */
 
         smartDiscountOptions.addEventListener('click', e => {
             const targetButton = e.target.closest('.smart-discount-btn');
