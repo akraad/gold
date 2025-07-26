@@ -769,11 +769,11 @@
         // --- Calculation & Rendering ---
         function calculateAndRender() {
             let invoiceHTML = '';
-            let totalBaseValue = 0; // Sum of base values from all products
-            let absheProfitAmount = 0; // Track profit for abshe items
-            let motafergheProfitAmount = 0; // Track profit for motaferghe items
-            let absheBaseValueTotal = 0; // Track base value for abshe to calculate average profit %
-            let motafergheBaseValueTotal = 0; // Track base value for motaferghe to calculate average profit %
+            let totalBaseValue = 0;
+            let absheProfitAmount = 0;
+            let motafergheProfitAmount = 0;
+            let absheBaseValueTotal = 0;
+            let motafergheBaseValueTotal = 0;
             let hasAbsheItems = false;
             let hasMotafergheItems = false;
 
@@ -784,7 +784,7 @@
                 let itemDescription = '';
 
                 if (item.type === 'abshe') {
-                    hasAbsheItems = true; // Mark that an abshe item exists
+                    hasAbsheItems = true;
                     if (index > 0 && state.products[index-1].type !== 'abshe') {
                         invoiceHTML += `<div class="invoice-separator" style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></div>`;
                     }
@@ -801,14 +801,20 @@
                         if (item.lab) {
                             itemDescription += `<br><span class="invoice-item-details">آزمایشگاه: ${item.lab}</span>`;
                         }
-                        // Accumulate profit for abshe items
+                        
+                        // Display equivalent weight at 750 ayar if current ayar is not 750
+                        if (item.ayar !== 750) {
+                            const equivalentWeight750 = item.weight * (item.ayar / 750);
+                            itemDescription += `<br><span class="invoice-item-details">وزن آبشده به عیار ۷۵۰: ${toPersianDigits(equivalentWeight750.toFixed(2))} گرم</span>`;
+                        }
+
                         if (item.profit > 0) {
                             absheProfitAmount += itemBaseValue * (item.profit / 100);
                         }
-                        absheBaseValueTotal += itemBaseValue; // Accumulate base value for average calculation
+                        absheBaseValueTotal += itemBaseValue;
                     }
                 } else if (item.type === 'motaferghe') {
-                    hasMotafergheItems = true; // Mark that a motaferghe item exists
+                    hasMotafergheItems = true;
                     if (index > 0) {
                         invoiceHTML += `<div class="invoice-separator" style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></div>`;
                     }
@@ -818,11 +824,11 @@
                         const motafergheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (MOTAFERGHE_DEFAULT_AYAR / 750);
                         itemBaseValue = motafergheEquivalent18KMesghals * state.goldPrice;
                         itemDescription = `متفرقه ${toPersianDigits(item.weight)} گرم`; 
-                        // Accumulate profit for motaferghe items
+                        
                         if (item.profit > 0) {
                             motafergheProfitAmount += itemBaseValue * (item.profit / 100);
                         }
-                        motafergheBaseValueTotal += itemBaseValue; // Accumulate base value for average calculation
+                        motafergheBaseValueTotal += itemBaseValue;
                     }
                 }
                 
@@ -849,26 +855,33 @@
 
                 if (absheProfitAmount > 0) {
                     let averageAbsheProfitPercentage = 0;
-                    if (absheBaseValueTotal > 0) { // Calculate average only if there's a base value
+                    if (absheBaseValueTotal > 0) {
                         averageAbsheProfitPercentage = (absheProfitAmount / absheBaseValueTotal) * 100;
                     }
+                    // Format profit percentage - show decimals only if needed
+                    const formattedAbsheProfit = averageAbsheProfitPercentage % 1 === 0 
+                        ? toPersianDigits(averageAbsheProfitPercentage.toFixed(0)) 
+                        : toPersianDigits(averageAbsheProfitPercentage.toFixed(1));
                     
                     const label = showBothLabels ? ` <span style="color:var(--text-light);">(آبشده)</span>` : '';
-                    invoiceHTML += `<div class="invoice-summary-line"><span>سود${label}</span><span>${toPersianDigits(averageAbsheProfitPercentage.toFixed(1))}٪</span></div>`;
+                    invoiceHTML += `<div class="invoice-summary-line"><span>سود${label}</span><span>${formattedAbsheProfit}٪</span></div>`;
                 }
 
                 if (motafergheProfitAmount > 0) {
                     let averageMotafergheProfitPercentage = 0;
-                    if (motafergheBaseValueTotal > 0) { // Calculate average only if there's a base value
+                    if (motafergheBaseValueTotal > 0) {
                         averageMotafergheProfitPercentage = (motafergheProfitAmount / motafergheBaseValueTotal) * 100;
                     }
+                    // Format profit percentage - show decimals only if needed
+                    const formattedMotafergheProfit = averageMotafergheProfitPercentage % 1 === 0 
+                        ? toPersianDigits(averageMotafergheProfitPercentage.toFixed(0)) 
+                        : toPersianDigits(averageMotafergheProfitPercentage.toFixed(1));
 
                     const label = showBothLabels ? ` <span style="color:var(--text-light);">(متفرقه)</span>` : '';
-                    invoiceHTML += `<div class="invoice-summary-line"><span>سود${label}</span><span>${toPersianDigits(averageMotafergheProfitPercentage.toFixed(1))}٪</span></div>`;
+                    invoiceHTML += `<div class="invoice-summary-line"><span>سود${label}</span><span>${formattedMotafergheProfit}٪</span></div>`;
                 }
             }
             
-            // ... (rest of the function, smart discount, final total, etc., remains the same)
             let grandTotal = finalInvoiceValue - state.smartDiscount;
             
             let finalTotalHTML = `<div class="invoice-final-total">`;
