@@ -43,6 +43,7 @@
             color: var(--text-color);
             font-size: 14px;
             line-height: 1.6;
+            overflow-x: hidden; /* Prevent horizontal scroll on some devices */
             overscroll-behavior-y: contain;
         }
 
@@ -323,10 +324,11 @@
         
         .hidden { display: none !important; }
 
+        /* Print-specific styles */
         @media print {
             body > .container > *:not(#invoice-card),
             #print-btn-container,
-            #profit-tax-section { /* Hide the empty profit/tax section */
+            #profit-tax-section { /* Hide elements not part of the invoice */
                 display: none;
             }
             #invoice-card {
@@ -335,7 +337,16 @@
                 margin: 0;
                 padding: 0;
             }
+            .print-only { /* Show elements only in print */
+                display: block !important;
+            }
         }
+
+        /* Screen-only styles */
+        .print-only {
+            display: none; /* Hide by default on screen */
+        }
+
 
         @media (max-width: 768px) {
             body { font-size: 13px; }
@@ -873,10 +884,10 @@
             }
             finalTotalHTML += `</div>`;
             
-            // Add gold price to the invoice header
+            // Add gold price to the invoice header, only visible in print
             let invoiceHeaderExtra = '';
             if (state.goldPrice > 0) {
-                invoiceHeaderExtra = `<div style="text-align: right; margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">قیمت هر گرم طلا ۱۸ عیار: ${formatNumber(state.goldPrice)} تومان</div>`;
+                invoiceHeaderExtra = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">قیمت هر گرم طلا ۱۸ عیار: ${formatNumber(state.goldPrice)} تومان</div>`;
             }
 
             invoiceContentContainer.innerHTML = invoiceHeaderExtra + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
