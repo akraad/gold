@@ -397,7 +397,7 @@
                 <div class="form-group" id="mesghal-display-group" style="margin-top: 1rem;">
                     <label class="form-label">وزن مثقال</label>
                     <div class="input-group rtl">
-                        <input type="text" id="abshe-weight-mesghal-display" class="input-field" disabled>
+                        <div id="abshe-weight-mesghal-display" class="input-field" style="display: flex; align-items: center; min-height: 48px; border: 1px solid var(--border-color); border-radius: var(--border-radius); background-color: #f0f0f0; padding: 0.75rem 1rem;"></div>
                         <span class="input-group-text">مثقال</span>
                     </div>
                 </div>
@@ -475,9 +475,10 @@
         const absheWeightGramInput = document.getElementById('abshe-weight-gram');
         const mesghalDisplaySwitch = document.getElementById('mesghal-display-switch');
         const mesghalDisplayGroup = document.getElementById('mesghal-display-group');
+        // MODIFIED: Now selecting a DIV for display, not an input
         const absheWeightMesghalDisplayInput = document.getElementById('abshe-weight-mesghal-display');
         const absheAyarInput = document.getElementById('abshe-ayar');
-        const motafergheWeightGramInput = document.getElementById('motaferghe-weight-gram'); // Changed from motaferghe-description
+        const motafergheWeightGramInput = document.getElementById('motaferghe-weight-gram');
         const motaferghePriceInput = document.getElementById('motaferghe-price');
 
 
@@ -494,7 +495,7 @@
             absheWeightGram: 0,
             absheAyars: 705, // Default for 17.76 Ayar gold
             showMesghalDisplay: false, // State for Mesghal display toggle
-            motafergheWeightGram: 0, // Changed from motafergheDescription
+            motafergheWeightGram: 0,
             motaferghePrice: 0,
         };
 
@@ -606,13 +607,11 @@
 
                 // Update Mesghal display
                 if (state.showMesghalDisplay) {
-                    absheWeightMesghalDisplayInput.value = formatMesghal(absheWeightGram);
+                    // MODIFIED: Setting textContent for a div
+                    absheWeightMesghalDisplayInput.textContent = formatMesghal(absheWeightGram);
                 }
 
                 if (absheWeightGram > 0 && goldPricePerMesghal > 0 && absheAyars > 0) {
-                    // Convert total abshe weight (in grams) to equivalent 18K gold grams based on Ayar
-                    // Then convert 18K gold grams to 18K gold mesghals
-                    // Finally, multiply by the "Maghane" price (which is per Mesghal of 18K)
                     const absheEquivalent18KMesghals = (absheWeightGram / MESGHAL_GRAM_FACTOR) * (absheAyars / 750);
                     baseValue = absheEquivalent18KMesghals * goldPricePerMesghal;
                     
@@ -706,13 +705,13 @@
             
             // Define rounding levels for the smart discount
             const roundingLevels = [
-                1000,   // Round to nearest 1,000
-                5000,   // Round to nearest 5,000
-                10000,  // Round to nearest 10,000
-                50000,  // Round to nearest 50,000
-                100000, // Round to nearest 100,000
-                500000, // Round to nearest 500,000
-                1000000 // Round to nearest 1,000,000
+                1000,
+                5000,
+                10000,
+                50000,
+                100000,
+                500000,
+                1000000
             ];
 
             // Generate potential rounding options
@@ -721,7 +720,7 @@
                 if (remainder > 0) {
                     const discountAmount = remainder;
                     const roundedValue = currentTotal - discountAmount;
-                    if (roundedValue >= 0) { // Ensure the rounded value is not negative
+                    if (roundedValue >= 0) {
                         options.add(discountAmount);
                     }
                 }
@@ -748,7 +747,7 @@
         // --- Event Listeners ---
         goldPriceInput.addEventListener('input', (e) => {
             const value = parseFormattedNumber(e.target.value);
-            if (value.toString().length <= 11) { // Allow up to 11 digits for gold price
+            if (value.toString().length <= 11) {
                 state.goldPrice = value;
                 e.target.value = formatNumber(value);
             } else {
@@ -796,6 +795,7 @@
             calculateAndRender();
         });
         
+        // MODIFIED: Event listener for the new toggle switch
         mesghalDisplaySwitch.addEventListener('change', (e) => {
             state.showMesghalDisplay = e.target.checked;
             if (state.showMesghalDisplay) {
@@ -819,7 +819,7 @@
         });
 
         // Motaferghe Inputs
-        motafergheWeightGramInput.addEventListener('input', (e) => { // Now accepts weight
+        motafergheWeightGramInput.addEventListener('input', (e) => {
             const value = toEnglishDigits(e.target.value);
             if (/^\d*\.?\d*$/.test(value)) {
                 state.motafergheWeightGram = parseFloat(value);
@@ -832,7 +832,7 @@
 
         motaferghePriceInput.addEventListener('input', (e) => {
             const value = parseFormattedNumber(e.target.value);
-            if (value.toString().length <= 11) { // Allow up to 11 digits for price
+            if (value.toString().length <= 11) {
                 state.motaferghePrice = value;
                 e.target.value = formatNumber(value);
             } else {
