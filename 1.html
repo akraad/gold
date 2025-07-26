@@ -664,7 +664,7 @@
                 const coinTypes = ['ربع ۸۶', 'نیم ۸۶', 'امامی ۸۶', 'ربع زیر ۸۶', 'نیم زیر ۸۶', 'امامی زیر ۸۶', 'یک گرمی بانکی'];
                 item.coinType = 'ربع ۸۶';
                 item.price = '';
-                content = `<div class="item-row"><div class="form-group"><label class="form-label">نوع سکه</label><select class="select-field purchase-coin-type">${coinTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div><div class="form-group"><label class="form-label">قیمت خرید (تومان)</label><input type="tel" class="input-field purchase-coin-price" inputmode="numeric"></div></div>`;
+                content = `<div class="item-row"><div class="form-group"><label class="form-label">نوع سکه</label><select class="select-field purchase-coin-type">${coinTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div><div class="form-group"><label class="form-label">قیمت خرید</label><input type="tel" class="input-field purchase-coin-price" inputmode="numeric"></div></div>`;
             }
             itemDiv.innerHTML = `<button class="delete-item-btn">&times;</button>${content}`;
             purchaseItemsContainer.appendChild(itemDiv);
