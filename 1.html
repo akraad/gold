@@ -339,15 +339,15 @@
                 <h2 class="card-header">خرید طلا از مشتری</h2>
                 <div class="form-group">
                     <label>خرید طلا (متفرقه)</label>
-                    <input type="text" class="item-weight persian-number-input" inputmode="decimal">
+                    <input type="text" id="purchase-plain-weight" class="persian-number-input" inputmode="decimal">
                 </div>
                 <div class="form-group">
                     <label>خرید شمش</label>
-                    <input type="text" class="item-weight persian-number-input" inputmode="decimal">
+                    <input type="text" id="purchase-bullion-weight" class="persian-number-input" inputmode="decimal">
                 </div>
                 <div class="form-group">
                     <label>خرید پارسیان</label>
-                    <input type="text" class="item-weight persian-number-input" inputmode="decimal">
+                    <input type="text" id="purchase-parsian-weight" class="persian-number-input" inputmode="decimal">
                 </div>
                 <div class="form-group">
                     <label>خرید سکه</label>
@@ -471,62 +471,53 @@
             // --- Helper Functions ---
             const toPersianNum = (s) => s.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
             const toEnglishNum = (s) => {
-                 if (!s) return '';
-                 return s.toString().replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٫/]/g, '.').replace(/[^0-9.]/g, '');
+                 if (typeof s !== 'string') return '';
+                 return s.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[٫/]/g, '.').replace(/[^0-9.]/g, '');
             }
             const formatCurrency = (num) => {
                 if (isNaN(num)) return '۰';
                 return toPersianNum(Math.round(num).toLocaleString('en-US'));
             };
            
-            function formatDecimalWithCommas(inputElement, maxIntLength = 9) {
-                let val = toEnglishNum(inputElement.value);
-                
-                if (val === '.') {
-                    inputElement.value = toPersianNum('.');
+            function formatInput(input, maxIntLength) {
+                let engVal = toEnglishNum(input.value);
+                if (!engVal) {
+                    input.value = '';
                     return;
                 }
 
-                let [integerPart, decimalPart] = val.split('.');
+                let [integer, decimal] = engVal.split('.');
+
+                if (integer) {
+                    if (integer.length > maxIntLength) {
+                        integer = integer.slice(0, maxIntLength);
+                    }
+                    integer = Number(integer).toLocaleString('en-US');
+                } else {
+                    integer = '۰';
+                }
                 
-                if (!integerPart && decimalPart === undefined) {
-                     inputElement.value = '';
-                     return;
-                }
-
-                if (integerPart.length > maxIntLength) {
-                    integerPart = integerPart.substring(0, maxIntLength);
+                let finalVal = integer;
+                if (decimal !== undefined) {
+                    finalVal = integer + '.' + decimal;
                 }
                 
-                const formattedInteger = integerPart ? parseInt(integerPart, 10).toLocaleString('en-US') : '۰';
-
-                let finalValue = formattedInteger;
-
-                if (decimalPart !== undefined) {
-                    finalValue = formattedInteger + '.' + decimalPart;
-                } else if (val.endsWith('.')) {
-                    finalValue = formattedInteger + '.';
-                }
-
-                inputElement.value = toPersianNum(finalValue);
+                input.value = toPersianNum(finalVal);
             }
             
             // --- Event Listeners ---
             app.addEventListener('input', e => {
                 const target = e.target;
-                if (target.matches('#gold-price')) {
-                    formatDecimalWithCommas(target, 8);
-                } else if(target.matches('.coin-price-input')) {
-                    formatDecimalWithCommas(target, 9);
-                } else if (target.matches('.item-fee')) {
-                     const isPercent = target.closest('.item-card')?.querySelector('.fee-type-toggle')?.checked;
-                     if (!isPercent) {
-                         formatDecimalWithCommas(target, 8);
-                     } else {
-                         target.value = toPersianNum(toEnglishNum(target.value).replace(/[^0-9.]/g, ''));
-                     }
-                } else if (target.matches('.persian-number-input, .item-weight')) {
-                     target.value = toPersianNum(toEnglishNum(target.value));
+
+                if (target.matches('#gold-price')) formatInput(target, 8);
+                else if (target.matches('.coin-price-input')) formatInput(target, 9);
+                else if (target.matches('.item-fee')) {
+                    const isPercent = target.closest('.item-card')?.querySelector('.fee-type-toggle')?.checked;
+                    if (!isPercent) formatInput(target, 8);
+                    else target.value = toPersianNum(toEnglishNum(target.value));
+                }
+                else if (target.matches('.persian-number-input')) {
+                    target.value = toPersianNum(toEnglishNum(target.value));
                 }
 
                 if (target.matches('#customer-name')) {
@@ -618,30 +609,24 @@
                 });
                 
                 let otherPurchasesValue = 0;
-                const purchaseElements = [
-                    { id: 'purchase-plain-weight', name: 'طلای متفرقه', isCoin: false },
-                    { id: 'purchase-bullion-weight', name: 'شمش', isCoin: false },
-                    { id: 'purchase-parsian-weight', name: 'سکه پارسیان', isCoin: false }
-                ];
-
-                purchaseElements.forEach(p => {
-                    const element = document.getElementById(p.id);
-                    // This is a fix: other-purchases-section uses item-weight class
-                    if (element && element.closest('#other-purchases-section')) {
-                         const weight = parseFloat(toEnglishNum(element.value)) || 0;
-                         if (weight > 0) {
-                            let value = 0;
-                            if (p.name === 'شمش') {
-                                value = (weight * 995 / 750) * goldPrice;
-                            } else {
-                                value = weight * goldPrice;
-                            }
-                            otherPurchasesValue += value;
-                            allItems.push({ type: 'purchase', model: p.name, weight: weight, price: value });
-                         }
-                    }
-                });
-
+                const plainWeight = parseFloat(toEnglishNum(document.getElementById('purchase-plain-weight').value)) || 0;
+                if (plainWeight > 0) {
+                    const value = plainWeight * goldPrice;
+                    otherPurchasesValue += value;
+                    allItems.push({type: 'purchase', model: 'طلای متفرقه', weight: plainWeight, price: value});
+                }
+                const bullionWeight = parseFloat(toEnglishNum(document.getElementById('purchase-bullion-weight').value)) || 0;
+                if (bullionWeight > 0) {
+                    const value = (bullionWeight * 995 / 750) * goldPrice;
+                    otherPurchasesValue += value;
+                    allItems.push({type: 'purchase', model: 'شمش', weight: bullionWeight, price: value});
+                }
+                const parsianWeight = parseFloat(toEnglishNum(document.getElementById('purchase-parsian-weight').value)) || 0;
+                if (parsianWeight > 0) {
+                    const value = parsianWeight * goldPrice;
+                    otherPurchasesValue += value;
+                    allItems.push({type: 'purchase', model: 'سکه پارسیان', weight: parsianWeight, price: value});
+                }
                 document.querySelectorAll('.coin-checkbox:checked').forEach(cb => {
                     const price = parseFloat(toEnglishNum(cb.closest('.coin-option').querySelector('.coin-price-input').value)) || 0;
                     if(price > 0) {
@@ -652,7 +637,7 @@
 
                 const totalSales = allItems.filter(i => i.type === 'sale').reduce((sum, i) => sum + i.price + i.fee + i.profit, 0);
                 let finalPrice = (totalSales + totalTax) - otherPurchasesValue;
-                let discountAmount = parseFloat(toEnglishNum(document.getElementById('manual-discount').value)) || 0;
+                let discountAmount = parseFloat(toEnglishNum(document.getElementById('manual-discount')?.value)) || 0;
                 finalPrice -= discountAmount;
                 
                 renderInvoiceSummary(allItems, discountAmount, finalPrice);
