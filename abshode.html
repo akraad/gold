@@ -226,6 +226,24 @@
             margin-bottom: 0;
         }
 
+        /* Styles for dynamically added item cards */
+        .item-card {
+            display: flex; flex-direction: column; gap: 1rem;
+            padding: 1rem; border: 1px solid var(--border-color);
+            border-radius: var(--border-radius); position: relative;
+            margin-bottom: 1rem; /* Space between item cards */
+        }
+        
+        /* Specific styling for fields inside dynamically added items */
+        #product-items-container .input-field,
+        #product-items-container .select-field,
+        #product-items-container .input-group-text,
+        #product-items-container .segmented-control button {
+            font-size: 0.9rem;
+            padding-top: 0.6rem;
+            padding-bottom: 0.6rem;
+        }
+
         .delete-item-btn {
             position: absolute; top: -10px; left: -10px; width: 24px; height: 24px;
             border-radius: 50%; background-color: var(--danger-color); color: white;
@@ -273,8 +291,10 @@
         }
 
         .add-purchase-options {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 0.75rem; margin-bottom: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two columns for add buttons */
+            gap: 0.75rem;
+            margin-top: 1.5rem; /* Space above add buttons */
         }
 
         #purchase-items-container .item-card:not(:first-child) { margin-top: 1rem; }
@@ -368,37 +388,17 @@
 
         <div class="card">
             <h2 class="card-header">نوع معامله</h2>
-            <div class="segmented-control" style="margin-bottom: 1rem;">
-                <button id="abshe-toggle-btn" class="abshe-motaferghe-toggle active" data-type="abshe">آبشده</button>
-                <button id="motaferghe-toggle-btn" class="abshe-motaferghe-toggle" data-type="motaferghe">متفرقه</button>
+            <div id="abshe-input-section">
+                <div id="product-items-container">
+                    </div>
+
+                <div class="add-purchase-options">
+                    <button id="add-abshe-btn" class="btn btn-secondary">افزودن آبشده</button>
+                    <button id="add-motaferghe-btn" class="btn btn-secondary">افزودن متفرقه</button>
+                </div>
             </div>
 
-            <div id="abshe-input-section">
-                <div class="item-row"> <div class="form-group">
-                        <label class="form-label">وزن</label> <div class="input-group rtl">
-                            <input type="text" id="abshe-weight-gram" class="input-field" inputmode="decimal">
-                            <span class="input-group-text">گرم</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">عیار</label>
-                        <div class="input-group rtl">
-                            <input type="text" id="abshe-ayar" class="input-field" inputmode="decimal" value="705">
-                            <span class="input-group-text">عیار</span>
-                        </div>
-                    </div>
-                </div>
-                </div>
-
-            <div id="motaferghe-input-section" class="hidden">
-                <div class="form-group">
-                    <label class="form-label">وزن</label> <div class="input-group rtl">
-                        <input type="text" id="motaferghe-weight-gram" class="input-field" inputmode="decimal">
-                        <span class="input-group-text">گرم</span>
-                    </div>
-                </div>
-                </div>
-        </div>
+            </div>
 
         <div class="card" id="profit-section">
             <h2 class="card-header">سود</h2>
@@ -439,39 +439,27 @@
         const invoiceContentContainer = document.getElementById('invoice-content');
         const printBtn = document.getElementById('print-btn');
 
-        // Abshe/Motaferghe specific elements
-        const absheToggleBtn = document.getElementById('abshe-toggle-btn');
-        const motafergheToggleBtn = document.getElementById('motaferghe-toggle-btn');
-        const absheInputSection = document.getElementById('abshe-input-section');
-        const motafergheInputSection = document.getElementById('motaferghe-input-section');
-        const absheWeightGramInput = document.getElementById('abshe-weight-gram');
-        // Removed mesghalDisplaySwitch, mesghalDisplayGroup, absheWeightMesghalDisplayInput
-        const absheAyarInput = document.getElementById('abshe-ayar');
-        const motafergheWeightGramInput = document.getElementById('motaferghe-weight-gram');
-        // REMOVED: const motaferghePriceInput = document.getElementById('motaferghe-price');
-
+        // New DOM Elements for dynamic items
+        const productItemsContainer = document.getElementById('product-items-container');
+        const addAbsheBtn = document.getElementById('add-abshe-btn');
+        const addMotafergheBtn = document.getElementById('add-motaferghe-btn');
 
         // --- State ---
-        // Removed MESGHAL_GRAM_FACTOR from global state as it's only used inside calculation now
+        const MESGHAL_GRAM_FACTOR = 4.608; // This factor is still needed for calculations
+        let itemIdCounter = 0; // To give unique IDs to new items
+
         let state = {
             goldPrice: 0,
-            profitPercentage: 2.0, // Default profit for abshe/motaferghe
+            profitPercentage: 2.0,
             smartDiscount: 0,
-            
-            // State for Abshe/Motaferghe calculations
-            isAbsheActive: true, // true for Abshe, false for Motaferghe
-            absheWeightGram: 0,
-            absheAyars: 705, // Default for 17.76 Ayar gold
-            // Removed showMesghalDisplay state
-            motafergheWeightGram: 0,
-            // REMOVED: motaferghePrice: 0,
+            // products will now hold all abshe and motaferghe items
+            products: []
         };
 
         // --- Helper Functions ---
         const toPersianDigits = (n) => {
-             if (n === null || typeof n === 'undefined') return '';
+            if (n === null || typeof n === 'undefined') return '';
             const persian = { 0: '۰', 1: '۱', 2: '۲', 3: '۳', 4: '۴', 5: '۵', 6: '۶', 7: '۷', 8: '۸', 9: '۹' };
-            // Ensure n is a number or can be converted to a string before replacing
             return String(n).replace(/[0-9]/g, (w) => persian[w]);
         };
         const toEnglishDigits = (str) => {
@@ -489,15 +477,12 @@
         };
         const parseFormattedNumber = (str) => {
             if (!str) return 0;
-            // Remove non-numeric characters except decimal point for parsing
             return parseInt(toEnglishDigits(str).replace(/,/g, ''), 10) || 0;
         };
         const parseFloatFormattedNumber = (str) => {
             if (!str) return 0;
-            // Remove non-numeric characters except decimal point for parsing
             return parseFloat(toEnglishDigits(str).replace(/,/g, '')) || 0;
         };
-
         const numberToWords = (num) => {
             if (num === 0) return 'صفر';
             num = Math.floor(num);
@@ -547,60 +532,186 @@
             }
         };
 
-        // Removed formatMesghal as it's no longer needed
+        // --- Dynamic Item Management ---
+        function createProductItem(type, weight = 0, ayar = 750) { // Default ayar for new items (both types) is 750
+            const id = itemIdCounter++;
+            const item = { id, type, weight, ayar };
+            state.products.push(item);
+            renderProductItems();
+            calculateAndRender(); // Recalculate after adding
+        }
+
+        function removeProductItem(id) {
+            state.products = state.products.filter(item => item.id !== id);
+            renderProductItems();
+            calculateAndRender(); // Recalculate after removing
+        }
+
+        function updateProductItem(id, field, value) {
+            const itemIndex = state.products.findIndex(item => item.id === id);
+            if (itemIndex > -1) {
+                state.products[itemIndex][field] = value;
+                calculateAndRender(); // Recalculate after updating
+            }
+        }
+
+        function renderProductItems() {
+            productItemsContainer.innerHTML = ''; // Clear existing
+            state.products.forEach(item => {
+                let itemCardHTML = `
+                    <div class="item-card" data-id="${item.id}">
+                        <button class="delete-item-btn" data-id="${item.id}">×</button>
+                        <div class="item-row">
+                `;
+
+                if (item.type === 'abshe') {
+                    itemCardHTML += `
+                            <div class="form-group">
+                                <label class="form-label">وزن</label>
+                                <div class="input-group rtl">
+                                    <input type="text" class="input-field abshe-weight-gram-input" inputmode="decimal" value="${toPersianDigits(item.weight)}">
+                                    <span class="input-group-text">گرم</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عیار</label>
+                                <div class="input-group rtl">
+                                    <input type="text" class="input-field abshe-ayar-input" inputmode="decimal" value="${toPersianDigits(item.ayar)}">
+                                    <span class="input-group-text">عیار</span>
+                                </div>
+                            </div>
+                    `;
+                } else if (item.type === 'motaferghe') {
+                    // Motaferghe takes full row and has a specific label
+                    itemCardHTML += `
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label class="form-label">وزن متفرقه</label>
+                                <div class="input-group rtl">
+                                    <input type="text" class="input-field motaferghe-weight-gram-input" inputmode="decimal" value="${toPersianDigits(item.weight)}">
+                                    <span class="input-group-text">گرم</span>
+                                </div>
+                                <div style="font-size: 0.85em; color: var(--text-light); text-align: right; margin-top: 0.5rem;">(با عیار پیش‌فرض ۷۵۰ محاسبه می‌شود)</div>
+                            </div>
+                    `;
+                }
+                itemCardHTML += `
+                        </div>
+                    </div>
+                `;
+                productItemsContainer.insertAdjacentHTML('beforeend', itemCardHTML);
+            });
+
+            // Re-attach event listeners to new elements
+            attachItemEventListeners();
+        }
+
+        function attachItemEventListeners() {
+            productItemsContainer.querySelectorAll('.abshe-weight-gram-input').forEach(input => {
+                input.oninput = (e) => {
+                    const id = parseInt(e.target.closest('.item-card').dataset.id);
+                    const value = toEnglishDigits(e.target.value);
+                    if (/^\d*\.?\d*$/.test(value)) {
+                        updateProductItem(id, 'weight', parseFloat(value));
+                        e.target.value = toPersianDigits(value);
+                    } else {
+                        e.target.value = toPersianDigits(state.products.find(item => item.id === id).weight);
+                    }
+                };
+            });
+
+            productItemsContainer.querySelectorAll('.abshe-ayar-input').forEach(input => {
+                input.oninput = (e) => {
+                    const id = parseInt(e.target.closest('.item-card').dataset.id);
+                    const value = toEnglishDigits(e.target.value);
+                    if (/^\d*\.?\d*$/.test(value)) {
+                        updateProductItem(id, 'ayar', parseFloat(value));
+                        e.target.value = toPersianDigits(value);
+                    } else {
+                        e.target.value = toPersianDigits(state.products.find(item => item.id === id).ayar);
+                    }
+                };
+            });
+
+            productItemsContainer.querySelectorAll('.motaferghe-weight-gram-input').forEach(input => {
+                input.oninput = (e) => {
+                    const id = parseInt(e.target.closest('.item-card').dataset.id);
+                    const value = toEnglishDigits(e.target.value);
+                    if (/^\d*\.?\d*$/.test(value)) {
+                        updateProductItem(id, 'weight', parseFloat(value));
+                        e.target.value = toPersianDigits(value);
+                    } else {
+                        e.target.value = toPersianDigits(state.products.find(item => item.id === id).weight);
+                    }
+                };
+            });
+
+            productItemsContainer.querySelectorAll('.delete-item-btn').forEach(button => {
+                button.onclick = (e) => {
+                    const id = parseInt(e.target.closest('.item-card').dataset.id);
+                    removeProductItem(id);
+                };
+            });
+        }
+
 
         // --- Calculation & Rendering ---
         function calculateAndRender() {
             let invoiceHTML = '';
-            let baseValue = 0; // This will be the value before profit and discount
-            let totalProfitAmount = 0;
-            let finalInvoiceValue = 0; // This will be the value after profit, before discount
+            let totalBaseValue = 0; // Sum of base values from all products
 
-            // Abshe Calculation (if active)
-            if (state.isAbsheActive) {
-                const goldPricePerMesghal = state.goldPrice; // Assuming goldPriceInput is the "Maghane" price per Mesghal
-                const absheWeightGram = parseFloatFormattedNumber(absheWeightGramInput.value);
-                const absheAyars = parseFloatFormattedNumber(absheAyarInput.value);
+            invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">جزئیات اقلام</div>`;
 
-                if (absheWeightGram > 0 && goldPricePerMesghal > 0 && absheAyars > 0) {
-                    const MESGHAL_GRAM_FACTOR = 4.608; // Defined locally if needed for calculation, not display
-                    const absheEquivalent18KMesghals = (absheWeightGram / MESGHAL_GRAM_FACTOR) * (absheAyars / 750);
-                    baseValue = absheEquivalent18KMesghals * goldPricePerMesghal;
+            state.products.forEach((item, index) => { // Added index to handle separators
+                let itemBaseValue = 0;
+                let itemDescription = '';
+
+                if (item.type === 'abshe') {
+                    // Check if current item is 'abshe' and previous was 'motaferghe' or vice versa, to add a separator
+                    // This creates a visual line between different types of items if they are mixed
+                    if (index > 0 && state.products[index-1].type !== 'abshe') {
+                        invoiceHTML += `<div class="invoice-separator" style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></div>`;
+                    }
+
+                    if (item.weight > 0 && state.goldPrice > 0 && item.ayar > 0) {
+                        const absheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (item.ayar / 750);
+                        itemBaseValue = absheEquivalent18KMesghals * state.goldPrice;
+                        itemDescription = `آبشده ${toPersianDigits(item.weight.toFixed(2))} گرم با عیار ${toPersianDigits(item.ayar)}`;
+                    }
+                } else if (item.type === 'motaferghe') {
+                    // Always add a separator before a motaferghe item, unless it's the very first item
+                    if (index > 0) {
+                        invoiceHTML += `<div class="invoice-separator" style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></div>`;
+                    }
                     
-                    invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">فاکتور آبشده</div>`;
+                    if (item.weight > 0 && state.goldPrice > 0) {
+                        const MOTAFERGHE_DEFAULT_AYAR = 750;
+                        const motafergheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (MOTAFERGHE_DEFAULT_AYAR / 750);
+                        itemBaseValue = motafergheEquivalent18KMesghals * state.goldPrice;
+                        itemDescription = `متفرقه ${toPersianDigits(item.weight.toFixed(2))} گرم`; // Removed (عیار پیش‌فرض ۷۵۰) from display
+                    }
+                }
+                
+                if (itemBaseValue > 0) {
+                    totalBaseValue += itemBaseValue;
                     invoiceHTML += `<div class="invoice-item">
                         <div class="invoice-item-header">
-                            <span>آبشده ${toPersianDigits(absheWeightGram.toFixed(2))} گرم با عیار ${toPersianDigits(absheAyars)}</span>
-                            <span>${formatNumber(baseValue)} تومان</span>
+                            <span>${itemDescription}</span>
+                            <span>${formatNumber(itemBaseValue)} تومان</span>
                         </div>
-                    </div></div>`;
+                    </div>`;
                 }
-            } else { // Motaferghe Calculation (if active)
-                const motafergheWeightGram = parseFloatFormattedNumber(motafergheWeightGramInput.value);
-                const MOTAFERGHE_DEFAULT_AYAR = 750; // New: Default Ayar for Motaferghe
-                const MESGHAL_GRAM_FACTOR = 4.608; // Needed for this calculation too
+            });
+            invoiceHTML += `</div>`; // Close invoice-section for items
 
-                // Calculate baseValue for motaferghe based on weight and default ayar
-                if (motafergheWeightGram > 0 && state.goldPrice > 0) {
-                    const motafergheEquivalent18KMesghals = (motafergheWeightGram / MESGHAL_GRAM_FACTOR) * (MOTAFERGHE_DEFAULT_AYAR / 750);
-                    baseValue = motafergheEquivalent18KMesghals * state.goldPrice;
+            let totalProfitAmount = 0;
+            let finalInvoiceValue = 0;
 
-                    invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">فاکتور متفرقه</div>`;
-                    invoiceHTML += `<div class="invoice-item">
-                        <div class="invoice-item-header">
-                            <span>متفرقه ${toPersianDigits(motafergheWeightGram.toFixed(2))} گرم (عیار پیش‌فرض ۷۵۰)</span>
-                            <span>${formatNumber(baseValue)} تومان</span>
-                        </div>
-                    </div></div>`;
-                }
-            }
-            
-            // Apply Profit
-            if (baseValue > 0 && state.profitPercentage > 0) {
-                totalProfitAmount = baseValue * (state.profitPercentage / 100);
-                finalInvoiceValue = baseValue + totalProfitAmount;
+            // Apply Profit to the total base value
+            if (totalBaseValue > 0 && state.profitPercentage > 0) {
+                totalProfitAmount = totalBaseValue * (state.profitPercentage / 100);
+                finalInvoiceValue = totalBaseValue + totalProfitAmount;
             } else {
-                finalInvoiceValue = baseValue;
+                finalInvoiceValue = totalBaseValue;
             }
 
             // Render Profit line in invoice if applicable
@@ -610,7 +721,7 @@
             }
 
             // Determine effective discount
-            const effectiveDiscount = state.smartDiscount; // Only smart discount is active
+            const effectiveDiscount = state.smartDiscount;
 
             // Render Discount line in invoice if applicable
             if (effectiveDiscount > 0) {
@@ -638,29 +749,17 @@
         }
         
         function renderSmartDiscount(currentTotal) {
-            // Only show smart discount if currentTotal is positive and there's a need to round
-            if (currentTotal <= 0) { // Also disable if currentTotal is zero or negative (means paying customer)
+            if (currentTotal <= 0) {
                 smartDiscountContainer.classList.add('hidden');
-                state.smartDiscount = 0; // Reset smart discount
+                state.smartDiscount = 0;
                 return;
             }
             smartDiscountContainer.classList.remove('hidden');
             smartDiscountOptions.innerHTML = '';
             
             let options = new Set();
-            
-            // Define rounding levels for the smart discount
-            const roundingLevels = [
-                1000,
-                5000,
-                10000,
-                50000,
-                100000,
-                500000,
-                1000000
-            ];
+            const roundingLevels = [1000, 5000, 10000, 50000, 100000, 500000, 1000000];
 
-            // Generate potential rounding options
             roundingLevels.forEach(unit => {
                 const remainder = currentTotal % unit;
                 if (remainder > 0) {
@@ -672,7 +771,6 @@
                 }
             });
 
-            // Sort unique options in ascending order and take up to 5
             const sortedOptions = Array.from(options).sort((a, b) => a - b).slice(0, 5); 
 
             if (sortedOptions.length === 0) {
@@ -703,107 +801,19 @@
             calculateAndRender();
         });
 
-        // Profit slider event listener
         profitSlider.addEventListener('input', (e) => {
             state.profitPercentage = parseFloat(e.target.value);
             profitDisplay.textContent = `${toPersianDigits(state.profitPercentage.toFixed(1))} %`;
             calculateAndRender();
         });
 
-        // Abshe/Motaferghe Toggle
-        absheToggleBtn.addEventListener('click', () => {
-            state.isAbsheActive = true;
-            absheToggleBtn.classList.add('active');
-            motafergheToggleBtn.classList.remove('active');
-            absheInputSection.classList.remove('hidden');
-            motafergheInputSection.classList.add('hidden');
-            calculateAndRender();
-        });
+        // Event listeners for Add buttons
+        addAbsheBtn.addEventListener('click', () => createProductItem('abshe'));
+        addMotafergheBtn.addEventListener('click', () => createProductItem('motaferghe'));
 
-        motafergheToggleBtn.addEventListener('click', () => {
-            state.isAbsheActive = false;
-            motafergheToggleBtn.classList.add('active');
-            absheToggleBtn.classList.remove('active');
-            motafergheInputSection.classList.remove('hidden');
-            absheInputSection.classList.add('hidden');
-            calculateAndRender();
-        });
-
-        // Abshe Inputs
-        absheWeightGramInput.addEventListener('input', (e) => {
-            const value = toEnglishDigits(e.target.value);
-            if (/^\d*\.?\d*$/.test(value)) {
-                state.absheWeightGram = parseFloat(value);
-                e.target.value = toPersianDigits(value);
-            } else {
-                e.target.value = toPersianDigits(state.absheWeightGram);
-            }
-            calculateAndRender();
-        });
-        
-        // Removed mesghalDisplaySwitch event listener
-
-        absheAyarInput.addEventListener('input', (e) => {
-            const value = toEnglishDigits(e.target.value);
-            if (/^\d*\.?\d*$/.test(value)) {
-                state.absheAyars = parseFloat(value);
-                e.target.value = toPersianDigits(value);
-            } else {
-                e.target.value = toPersianDigits(state.absheAyars);
-            }
-            calculateAndRender();
-        });
-
-        // Motaferghe Inputs
-        motafergheWeightGramInput.addEventListener('input', (e) => {
-            const value = toEnglishDigits(e.target.value);
-            if (/^\d*\.?\d*$/.test(value)) {
-                state.motafergheWeightGram = parseFloat(value);
-                e.target.value = toPersianDigits(value);
-            } else {
-                e.target.value = toPersianDigits(state.motafergheWeightGram);
-            }
-            calculateAndRender();
-        });
-
-        // REMOVED: motaferghePriceInput event listener and related code
-        /*
-        motaferghePriceInput.addEventListener('input', (e) => {
-            const value = parseFormattedNumber(e.target.value);
-            if (value.toString().length <= 11) {
-                state.motaferghePrice = value;
-                e.target.value = formatNumber(value);
-            } else {
-                e.target.value = formatNumber(state.motaferghePrice);
-            }
-            calculateAndRender();
-        });
-        */
-
-        smartDiscountOptions.addEventListener('click', e => {
-            const targetButton = e.target.closest('.smart-discount-btn');
-            if (targetButton) {
-                const discountValue = Number(targetButton.dataset.value);
-                if (state.smartDiscount === discountValue) {
-                    state.smartDiscount = 0; // Deselect if already active
-                    targetButton.classList.remove('active');
-                }
-                else {
-                    // Remove active from all buttons first
-                    smartDiscountOptions.querySelectorAll('.smart-discount-btn').forEach(btn => btn.classList.remove('active'));
-                    state.smartDiscount = discountValue;
-                    targetButton.classList.add('active');
-                }
-                calculateAndRender();
-            }
-        });
-
-        printBtn.addEventListener('click', () => {
-            window.print();
-        });
-
-        // --- Initial Load ---
-        // Removed mesghalDisplayGroup.classList.add('hidden');
+        // Initial rendering on load
+        // Add one abshe item by default when the page loads
+        createProductItem('abshe'); 
         calculateAndRender();
     });
     </script>
