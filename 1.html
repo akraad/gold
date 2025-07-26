@@ -111,6 +111,12 @@
             background-color: #fff;
             transition: all 0.3s ease;
         }
+        
+        /* UPDATED: Added class for text alignment */
+        .input-field.left-align {
+            text-align: left;
+            direction: ltr;
+        }
 
         .input-field:focus, .select-field:focus {
             outline: none;
@@ -331,7 +337,6 @@
         .btn-secondary {
             background-color: var(--primary-light);
             color: var(--primary-color);
-            /* UPDATED: Smaller purchase buttons */
             font-size: 0.9rem;
             padding: 0.6rem 0.8rem;
             font-weight: 500;
@@ -386,7 +391,7 @@
         /* Customer Purchase Section */
         .add-purchase-options {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
             gap: 0.75rem;
             margin-bottom: 1.5rem;
         }
@@ -398,7 +403,6 @@
             background-color: var(--bg-color);
         }
         
-        /* UPDATED: Smaller purchase section inputs */
         #purchase-items-container .input-field,
         #purchase-items-container .select-field,
         #purchase-items-container .input-group-text {
@@ -542,10 +546,10 @@
         <div class="card">
             <h2 class="card-header">خرید از مشتری</h2>
             <div class="add-purchase-options">
-                <button class="btn btn-secondary add-purchase-btn" data-type="gold">افزودن طلای متفرقه</button>
-                <button class="btn btn-secondary add-purchase-btn" data-type="bullion">افزودن شمش</button>
-                <button class="btn btn-secondary add-purchase-btn" data-type="parsian">افزودن پارسیان</button>
-                <button class="btn btn-secondary add-purchase-btn" data-type="coin">افزودن سکه</button>
+                <button class="btn btn-secondary add-purchase-btn" data-type="gold">طلای متفرقه</button>
+                <button class="btn btn-secondary add-purchase-btn" data-type="bullion">شمش</button>
+                <button class="btn btn-secondary add-purchase-btn" data-type="parsian">پارسیان</button>
+                <button class="btn btn-secondary add-purchase-btn" data-type="coin">سکه</button>
             </div>
             <div id="purchase-items-container">
                  <!-- Purchase items will be injected here by JS -->
@@ -592,7 +596,7 @@
 
         <!-- Final Invoice Section -->
         <div class="card" id="invoice-result">
-            <h2 class="card-header">نتیجه فاکتور</h2>
+            <h2 class="card-header">فاکتور</h2>
             <div id="invoice-items"></div>
             <div id="invoice-purchases"></div>
             <div id="invoice-summary"></div>
@@ -638,6 +642,7 @@
 
         // --- Helper Functions ---
         const toPersianDigits = (n) => {
+            if (n === null || typeof n === 'undefined') return '';
             const persian = { 0: '۰', 1: '۱', 2: '۲', 3: '۳', 4: '۴', 5: '۵', 6: '۶', 7: '۷', 8: '۸', 9: '۹' };
             return n.toString().replace(/[0-9]/g, (w) => persian[w]);
         };
@@ -757,7 +762,7 @@
                             <button class="ajrat-type-btn active" data-type="toman">تومان</button>
                         </div>
                         <div class="input-group rtl" style="flex-grow: 1;">
-                            <input type="text" class="input-field product-ajrat" inputmode="decimal">
+                            <input type="text" class="input-field product-ajrat left-align" inputmode="decimal">
                             <span class="input-group-text ajrat-unit">تومان</span>
                         </div>
                     </div>
@@ -792,7 +797,6 @@
                         e.target.value = toPersianDigits(value);
                     } else e.target.value = toPersianDigits(item.ajratValue);
                 } else {
-                    // UPDATED: Use formatting for Toman input
                     const value = parseFormattedNumber(e.target.value);
                      if (value.toString().length <= 7) {
                         item.ajratValue = value;
@@ -812,6 +816,12 @@
                     ajratInput.value = '';
                     itemDiv.querySelector('.ajrat-unit').textContent = item.ajratType === 'percent' ? '%' : 'تومان';
                     ajratInput.placeholder = '';
+                    // UPDATED: Toggle text alignment class
+                    if (item.ajratType === 'toman') {
+                        ajratInput.classList.add('left-align');
+                    } else {
+                        ajratInput.classList.remove('left-align');
+                    }
                     calculateAndRender();
                 });
             });
@@ -916,7 +926,6 @@
                 const weight = parseFloat(p.weight) || 0;
                 if (weight === 0) return;
                 const priceOfGold = weight * state.goldPrice;
-                // UPDATED: Make sure to parse formatted number for ajrat
                 const ajratValue = p.ajratType === 'percent' ? (parseFloat(p.ajratValue) || 0) : (parseFormattedNumber(p.ajratValue.toString()) || 0);
                 const ajratAmount = p.ajratType === 'percent' ? priceOfGold * (ajratValue / 100) : ajratValue;
                 const profitAmount = (priceOfGold + ajratAmount) * (state.profitPercentage / 100);
