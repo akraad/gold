@@ -481,7 +481,18 @@
             // --- Helper Functions ---
             const toPersianNum = (s) => s.toString().replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
             const toEnglishNum = (s) => s.toString().replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[^0-9.-]/g, '');
-            const toEnglishNumForFormatting = (s) => s.toString().replace(/[۰-۹,]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/[^0-9]/g, '');
+            
+            // --- FIXED HELPER FUNCTION ---
+            const toEnglishNumForFormatting = (s) => {
+                if (!s) return '';
+                let str = s.toString();
+                // First, remove all non-Persian-digit characters except the comma
+                str = str.replace(/,/g, '');
+                // Then, convert Persian digits to English
+                str = str.replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+                // Finally, ensure only digits remain
+                return str.replace(/[^0-9]/g, '');
+            };
 
             const formatCurrency = (num) => {
                 if (isNaN(num) || num === 0) return '۰';
@@ -533,8 +544,12 @@
                     e.target.value = toPersianNum(val);
                 }
                 
-                if (e.target.matches('#gold-price, .coin-price-input')) {
-                    formatInputWithCommas(e.target);
+                // --- CORRECTED LOGIC FOR INPUT FORMATTING ---
+                if (e.target.matches('#gold-price')) {
+                    formatInputWithCommas(e.target, 7); // Apply 7-digit limit
+                }
+                if (e.target.matches('.coin-price-input')) {
+                    formatInputWithCommas(e.target); // No limit for coins
                 }
                 
                 if (e.target.matches('#customer-name')) {
@@ -557,6 +572,7 @@
                     const itemCard = e.target.closest('.item-card');
                     const isPercent = itemCard.querySelector('.fee-type-toggle').checked;
                     if(isPercent){
+                        e.target.value = toPersianNum(toEnglishNum(e.target.value));
                         const val = parseFloat(toEnglishNum(e.target.value));
                         if(val > 30) e.target.value = toPersianNum('30');
                         if(val < 0) e.target.value = toPersianNum('1');
@@ -578,12 +594,10 @@
                             labels[0].classList.remove('active');
                             labels[1].classList.add('active');
                             feeInput.placeholder = 'مبلغ اجرت به درصد';
-                            feeInput.classList.add('persian-number-input');
                         } else { // Toman
                             labels[1].classList.remove('active');
                             labels[0].classList.add('active');
                             feeInput.placeholder = 'مبلغ اجرت به تومان';
-                            feeInput.classList.remove('persian-number-input');
                         }
                         feeInput.value = '';
                     }
@@ -635,7 +649,6 @@
                 let totalFee = 0;
                 let customerInvoiceItems = [];
                 
-                // Main gold items
                 document.getElementById('items-container').querySelectorAll('.item-card').forEach(item => {
                     const weight = parseFloat(toEnglishNum(item.querySelector('.item-weight').value)) || 0;
                     const feeValueRaw = item.querySelector('.item-fee').value;
@@ -655,7 +668,6 @@
                     }
                 });
                 
-                // Other purchases
                 let otherPurchasesValue = 0;
                 const plainWeight = parseFloat(toEnglishNum(document.getElementById('purchase-plain-weight').value)) || 0;
                 if (plainWeight > 0) {
@@ -684,7 +696,6 @@
                 });
                 otherPurchasesValue += coinValue;
 
-                // Calculations
                 const totalBasePrice = totalRawGoldValue + otherPurchasesValue;
                 const profitSlider = document.getElementById('profit-slider');
                 document.getElementById('profit-value').textContent = `${toPersianNum(profitSlider.value)} %`;
@@ -702,7 +713,6 @@
                     if(document.getElementById('manual-discount').value) document.getElementById('manual-discount').value = '';
                 } else { finalPrice -= discountAmount; }
                 
-                // Render
                 renderInvoiceSummary(totalBasePrice, totalFee, profitAmount, taxAmount, discountAmount, finalPrice);
                 renderCustomerInvoice(customerInvoiceItems, taxAmount, discountAmount, finalPrice);
             }
