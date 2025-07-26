@@ -690,6 +690,7 @@
                     
                     // محاسبه اجرت هر گرم
                     let ajratPerGram = 0;
+                    
                     if (p.ajratType === 'toman') {
                         // اگر اجرت به تومان است و وزن هم موجود است، آن را به ازای هر گرم حساب می کنیم
                         ajratPerGram = weight > 0 ? (parseFormattedNumber(p.ajratValue.toString()) || 0) / weight : 0;
@@ -723,8 +724,15 @@
                     if(validProducts.length > 1) productsHTML += `<b>آیتم ${toPersianDigits(index+1)}</b>`;
                     productsHTML += `<div class="invoice-item-header"><span>${p.type} - ${toPersianDigits(weight)} گرم</span><span>${formatNumber(itemTotal)} تومان</span></div>`;
                     let details = [];
-                    // نمایش اجرت کل و سود کل
-                    if ((ajratPerGram * weight) > 0) details.push(`اجرت: ${formatNumber(ajratPerGram * weight)}`);
+                    // نمایش اجرت بر اساس نوع آن (کل یا هر گرم)
+                    if (ajratPerGram > 0 && weight > 0) { // اطمینان از اینکه اجرت و وزن معتبر هستند
+                        if (p.ajratType === 'toman') {
+                            details.push(`اجرت: ${formatNumber(parseFormattedNumber(p.ajratValue.toString()) || 0)} تومان`); // نمایش اجرت کل
+                        } else {
+                            details.push(`اجرت: ${formatNumber(ajratPerGram)} تومان/گرم`); // نمایش اجرت هر گرم
+                        }
+                    }
+                    
                     // اضافه کردن درصد سود به جزئیات
                     if (state.profitPercentage > 0) {
                         details.push(`سود: ${toPersianDigits(state.profitPercentage.toFixed(1))}٪`);
