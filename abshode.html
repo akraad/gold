@@ -483,9 +483,10 @@
             products: []
         };
 
-        // Global variable to store generated discount buttons to prevent re-shuffling
-        // This is crucial for the event delegation and style toggling
-        let generatedSmartDiscountButtons = [];
+        // This global array is no longer strictly needed for event listener but kept for clarity
+        // if external direct manipulation of buttons were to occur.
+        // The event listener is now delegated to the parent.
+        let generatedSmartDiscountButtons = []; 
 
         // --- Helper Functions ---
         const toPersianDigits = (n) => {
@@ -521,7 +522,7 @@
             const units = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
             const teens = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
             const tens = ['', 'ده', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
-            const hundreds = ['', 'یکصد', 'dویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
+            const hundreds = ['', 'یکصد', 'دویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
             const scales = ['', 'هزار', 'میلیون', 'میلیارد', 'تریلیون'];
 
             function convertThreeDigits(n) {
@@ -819,7 +820,7 @@
                         itemValueWithProfit = itemRawBaseValue * (1 + item.profit / 100);
                         
                         let ayarDisplay = '';
-                        if (item.ayar === null || item.ayar === 0) {
+                        if (item.ayar === null || item.ayar === 0) { // Check for both null and 0 (empty field input often becomes 0)
                             ayarDisplay = `<strong style="color:var(--danger-color);">شرطی</strong>`;
                             conditionalAbsheItems.push({ id: item.id, index: index + 1, weight: item.weight });
                         } else {
@@ -942,7 +943,7 @@
                     if (showTypeLabelInProfitLine) {
                         typeLabel = line.type === 'abshe' ? ` <span style="color:var(--text-light);">(آبشده)</span>` : ` <span style="color:var(--text-light);">(متفرقه)</span>`;
                     }
-                    invoiceHTML += `<div class="invoice-summary-line"><span>سود${typeLabel}: ${formattedPercentage}٪</span></div>`; // Removed amount
+                    invoiceHTML += `<div class="invoice-summary-line"><span>سود${typeLabel}: ${formattedPercentage}٪</span></div>`;
                 });
             }
             
@@ -1062,7 +1063,7 @@
             if (value.toString().length <= 11) {
                 state.manualDiscount = value;
                 e.target.value = formatNumber(value);
-                state.smartDiscount = 0;
+                state.smartDiscount = 0; // Clear smart discount if manual is used
                 calculateAndRender();
             } else {
                 e.target.value = formatNumber(state.manualDiscount);
@@ -1076,14 +1077,15 @@
                 const discountValue = Number(targetButton.dataset.value);
                 
                 // Iterate through ALL currently displayed smart discount buttons
-                generatedSmartDiscountButtons.forEach(btn => {
+                // This ensures only the correct button is active or none if deselected
+                smartDiscountOptions.querySelectorAll('.smart-discount-btn').forEach(btn => { // Use querySelectorAll directly on parent
                     btn.classList.remove('active');
                     btn.style.backgroundColor = '';
                     btn.style.color = '';
                 });
 
                 if (state.smartDiscount === discountValue) {
-                    state.smartDiscount = 0;
+                    state.smartDiscount = 0; // State is updated to 0, will be rendered non-active on next calculateAndRender
                 } else {
                     state.manualDiscount = 0;
                     manualDiscountInput.value = '';
