@@ -714,7 +714,8 @@
                 validProducts.forEach((p) => {
                     const weight = parseFloat(p.weight) || 0;
                     const priceOfGold = weight * state.goldPrice;
-                    const ajratValue = p.ajratType === 'percent' ? (parseFloat(p.ajratValue) || 0) : (parseFormattedNumber(p.ajratValue.toString()) || 0);
+                    // **RELIABLE FIX:** Directly use the numeric state value for 'toman'
+                    const ajratValue = p.ajratType === 'percent' ? (parseFloat(p.ajratValue) || 0) : (p.ajratValue || 0);
                     const ajratAmount = p.ajratType === 'percent' ? priceOfGold * (ajratValue / 100) : ajratValue;
                     const profitAmount = (priceOfGold + ajratAmount) * (state.profitPercentage / 100);
                     const itemTax = state.taxEnabled ? (ajratAmount + profitAmount) * 0.10 : 0;
@@ -765,7 +766,7 @@
             const saleTotal = state.products.reduce((acc, p) => {
                  const weight = parseFloat(p.weight) || 0;
                  const priceOfGold = weight * state.goldPrice;
-                 const ajratValue = p.ajratType === 'percent' ? (parseFloat(p.ajratValue) || 0) : (parseFormattedNumber(p.ajratValue.toString()) || 0);
+                 const ajratValue = p.ajratType === 'percent' ? (parseFloat(p.ajratValue) || 0) : (p.ajratValue || 0);
                  const ajratAmount = p.ajratType === 'percent' ? priceOfGold * (ajratValue / 100) : ajratValue;
                  const profitAmount = (priceOfGold + ajratAmount) * (state.profitPercentage / 100);
                  return acc + priceOfGold + ajratAmount + profitAmount;
@@ -784,7 +785,7 @@
                  summaryHTML += `<div class="invoice-separator"></div>`;
             }
             if (totalTax > 0) {
-                const taxLabel = validProducts.filter(p => state.taxEnabled && ((p.ajratType === 'percent' ? (parseFloat(p.ajratValue) || 0) : (parseFormattedNumber(p.ajratValue.toString()) || 0)) > 0)).length > 1 ? 'مالیات کل' : 'مالیات';
+                const taxLabel = validProducts.filter(p => state.taxEnabled && ((p.ajratType === 'percent' ? (parseFloat(p.ajratValue) || 0) : (p.ajratValue || 0)) > 0)).length > 1 ? 'مالیات کل' : 'مالیات';
                 summaryHTML += `<div class="invoice-summary-line"><span>${taxLabel}</span><span>${formatNumber(totalTax)} تومان</span></div>`;
             }
             if (effectiveDiscount > 0) {
