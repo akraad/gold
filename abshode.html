@@ -785,11 +785,11 @@
                         itemBaseValue = absheEquivalent18KMesghals * state.goldPrice;
                         
                         // Start item description with main details
-                        itemDescription = `آبشده ${toPersianDigits(item.weight.toFixed(2))} گرم با عیار ${toPersianDigits(item.ayar)}`;
+                        itemDescription = `آبشده ${toPersianDigits(Math.round(item.weight))} گرم با عیار ${toPersianDigits(item.ayar)}`;
 
                         // Add Eng and Lab on separate lines using <br> and new spans/divs if values exist
                         if (item.eng > 0) {
-                            itemDescription += `<br><span class="invoice-item-details">انگ: ${toPersianDigits(item.eng)}</span>`;
+                            itemDescription += `<br><span class="invoice-item-details">انگ: ${toPersianDigits(item.eng)}</span>`; // Ensured toPersianDigits
                         }
                         if (item.lab) {
                             itemDescription += `<br><span class="invoice-item-details">آزمایشگاه: ${item.lab}</span>`;
@@ -805,7 +805,7 @@
                         const MOTAFERGHE_DEFAULT_AYAR = 750;
                         const motafergheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (MOTAFERGHE_DEFAULT_AYAR / 750);
                         itemBaseValue = motafergheEquivalent18KMesghals * state.goldPrice;
-                        itemDescription = `متفرقه ${toPersianDigits(item.weight.toFixed(2))} گرم`; 
+                        itemDescription = `متفرقه ${toPersianDigits(Math.round(item.weight))} گرم`; 
                     }
                 }
                 
