@@ -450,7 +450,8 @@
         const toPersianDigits = (n) => {
              if (n === null || typeof n === 'undefined') return '';
             const persian = { 0: '۰', 1: '۱', 2: '۲', 3: '۳', 4: '۴', 5: '۵', 6: '۶', 7: '۷', 8: '۸', 9: '۹' };
-            return n.toString().replace(/[0-9]/g, (w) => persian[w]);
+            // Ensure n is a number or can be converted to a string before replacing
+            return String(n).replace(/[0-9]/g, (w) => persian[w]);
         };
         const toEnglishDigits = (str) => {
             if (!str) return '';
@@ -690,14 +691,20 @@
                     
                     // محاسبه اجرت هر گرم
                     let ajratPerGram = 0;
+                    let isAjratEntered = false; // پرچم برای بررسی اینکه اجرت وارد شده است یا خیر
                     
                     if (p.ajratType === 'toman') {
-                        // اگر اجرت به تومان است و وزن هم موجود است، آن را به ازای هر گرم حساب می کنیم
-                        ajratPerGram = weight > 0 ? (parseFormattedNumber(p.ajratValue.toString()) || 0) / weight : 0;
-                    } else {
-                        // اگر اجرت به درصد است، از قیمت هر گرم طلا محاسبه می شود
+                        const enteredAjrat = parseFormattedNumber(p.ajratValue.toString()) || 0;
+                        if (enteredAjrat > 0) {
+                            ajratPerGram = weight > 0 ? enteredAjrat / weight : 0;
+                            isAjratEntered = true;
+                        }
+                    } else { // ajratType is 'percent'
                         const ajratPercentage = (parseFloat(p.ajratValue) || 0) / 100;
-                        ajratPerGram = goldPricePerGram * ajratPercentage;
+                        if (ajratPercentage > 0) {
+                            ajratPerGram = goldPricePerGram * ajratPercentage;
+                            isAjratEntered = true;
+                        }
                     }
 
                     const profitPercentage = state.profitPercentage / 100; // سود به درصد
@@ -724,22 +731,39 @@
                     if(validProducts.length > 1) productsHTML += `<b>آیتم ${toPersianDigits(index+1)}</b>`;
                     productsHTML += `<div class="invoice-item-header"><span>${p.type} - ${toPersianDigits(weight)} گرم</span><span>${formatNumber(itemTotal)} تومان</span></div>`;
                     let details = [];
-                    // نمایش اجرت بر اساس نوع آن (کل یا هر گرم)
-                    if ((parseFormattedNumber(p.ajratValue.toString()) || 0) > 0 || (p.ajratType === 'percent' && parseFloat(p.ajratValue) > 0)) {
+                    
+                    // نمایش اجرت
+                    if (isAjratEntered) {
                         if (p.ajratType === 'toman') {
                             details.push(`اجرت: ${formatNumber(parseFormattedNumber(p.ajratValue.toString()) || 0)} تومان`); // نمایش اجرت کل (تومان)
                         } else {
                             // اگر اجرت درصدی است، مقدار درصدی را بدون اعشار .0 نمایش دهد
+                            // Math.round برای حذف اعشار .0 اگر وجود داشت
                             details.push(`اجرت: ${toPersianDigits(Math.round(parseFloat(p.ajratValue)))}٪`); // نمایش اجرت درصدی
                         }
+                    } else {
+                        details.push(`بدون اجرت`);
                     }
                     
                     // اضافه کردن درصد سود به جزئیات
                     if (state.profitPercentage > 0) {
                         // درصد سود: اعشار .0 حذف شود.
+                        // Math.round برای حذف اعشار .0 اگر وجود داشت
                         details.push(`سود: ${toPersianDigits(Math.round(state.profitPercentage))}٪`); // نمایش درصد سود بدون اعشار
+                    } else {
+                        details.push(`بدون سود`); // اگر سود 0 بود (یا اسلایدر روی 0 تنظیم شد)
                     }
-                    if (itemTax > 0) details.push(`مالیات: ${formatNumber(itemTax)}`);
+
+                    // نمایش مالیات
+                    // فقط اگر مالیات فعال باشه و مالیات محاسبه شده بیشتر از 0 باشه، مقدارش رو نشون بده
+                    if (state.taxEnabled && itemTax > 0) { 
+                        details.push(`مالیات: ${formatNumber(itemTax)}`);
+                    } else if (!state.taxEnabled) { // اگر مالیات کلاً از طریق سویچ غیر فعال شده بود
+                        details.push(`بدون مالیات`);
+                    }
+                    // در غیر این صورت (مالیات فعال است اما itemTax صفر است)، چیزی نمایش داده نمی‌شود.
+
+
                     if (details.length > 0) productsHTML += `<div class="invoice-item-details">${details.join(' - ')}</div>`;
                     productsHTML += `</div>`;
                 });
