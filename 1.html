@@ -727,16 +727,17 @@
                     // نمایش اجرت بر اساس نوع آن (کل یا هر گرم)
                     if ((parseFormattedNumber(p.ajratValue.toString()) || 0) > 0 || (p.ajratType === 'percent' && parseFloat(p.ajratValue) > 0)) {
                         if (p.ajratType === 'toman') {
-                            details.push(`اجرت: ${formatNumber(parseFormattedNumber(p.ajratValue.toString()) || 0)} تومان`); // نمایش اجرت کل
+                            details.push(`اجرت: ${formatNumber(parseFormattedNumber(p.ajratValue.toString()) || 0)} تومان`); // نمایش اجرت کل (تومان)
                         } else {
-                            // اگر اجرت درصدی است، مقدار درصدی را نمایش دهد
-                            details.push(`اجرت: ${toPersianDigits(parseFloat(p.ajratValue).toFixed(1))}٪`); // نمایش اجرت درصدی
+                            // اگر اجرت درصدی است، مقدار درصدی را بدون اعشار .0 نمایش دهد
+                            details.push(`اجرت: ${toPersianDigits(Math.round(parseFloat(p.ajratValue)))}٪`); // نمایش اجرت درصدی
                         }
                     }
                     
                     // اضافه کردن درصد سود به جزئیات
                     if (state.profitPercentage > 0) {
-                        details.push(`سود: ${toPersianDigits(state.profitPercentage.toFixed(1))}٪`);
+                        // درصد سود: اعشار .0 حذف شود.
+                        details.push(`سود: ${toPersianDigits(Math.round(state.profitPercentage))}٪`); // نمایش درصد سود بدون اعشار
                     }
                     if (itemTax > 0) details.push(`مالیات: ${formatNumber(itemTax)}`);
                     if (details.length > 0) productsHTML += `<div class="invoice-item-details">${details.join(' - ')}</div>`;
