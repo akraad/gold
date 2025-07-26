@@ -255,21 +255,26 @@
         }
         .btn-secondary:hover { background-color: #dbe8fd; }
         
-        .range-slider-group { padding-top: 1rem; }
-        #profit-slider {
-            -webkit-appearance: none; width: 100%; height: 8px;
-            background: var(--border-color); outline: none; border-radius: 5px;
+        /* Styles for individual product profit slider */
+        .product-profit-group {
+            padding-top: 0.5rem; /* Reduced padding */
+            margin-top: 0.5rem; /* Small margin to separate from ajrat */
+        }
+        .product-profit-slider {
+            -webkit-appearance: none; width: 100%; height: 6px; /* Narrower slider */
+            background: var(--border-color); outline: none; border-radius: 3px; /* Smaller border radius */
         }
 
-        #profit-slider::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 22px; height: 22px;
+        .product-profit-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; width: 18px; height: 18px; /* Smaller thumb */
             background: var(--primary-color); cursor: pointer; border-radius: 50%;
-            border: 3px solid #fff;
+            border: 2px solid #fff; /* Thinner border */
         }
         
-        .slider-value {
-            text-align: center; font-weight: 600; font-size: 1.1rem;
-            margin-top: 0.5rem; color: var(--primary-color);
+        .product-slider-value {
+            text-align: center; font-weight: 600; font-size: 0.95rem; /* Slightly smaller text */
+            margin-top: 0.3rem; /* Reduced margin */
+            color: var(--primary-color);
         }
 
         .add-purchase-options {
@@ -321,7 +326,8 @@
 
         @media print {
             body > .container > *:not(#invoice-card),
-            #print-btn-container {
+            #print-btn-container,
+            #profit-tax-section { /* Hide the empty profit/tax section */
                 display: none;
             }
             #invoice-card {
@@ -373,15 +379,8 @@
             <div id="purchase-items-container"></div>
         </div>
 
-        <div class="card">
-            <h2 class="card-header">سود و مالیات</h2>
-            <div class="form-group">
-                <label for="profit-slider" class="form-label">سود فروشنده</label>
-                <div class="slider-value" id="profit-value">7 %</div>
-                <div class="range-slider-group">
-                    <input type="range" min="1" max="7" value="7" step="0.1" class="range-slider" id="profit-slider">
-                </div>
-            </div>
+        <div class="card" id="profit-tax-section">
+            <h2 class="card-header">مالیات</h2>
             <div class="toggle-switch">
                 <label for="tax-switch" class="form-label" style="margin-bottom:0;">مالیات (۱۰٪ بر سود و اجرت)</label>
                 <label class="switch">
@@ -424,8 +423,7 @@
         const priceInWords = document.getElementById('price-in-words');
         const productItemsContainer = document.getElementById('product-items-container');
         const addProductBtn = document.getElementById('add-product-item');
-        const profitSlider = document.getElementById('profit-slider');
-        const profitValue = document.getElementById('profit-value');
+        // Removed profitSlider and profitValue from global elements as they are now per-product
         const taxSwitch = document.getElementById('tax-switch');
         const manualDiscountInput = document.getElementById('manual-discount');
         const smartDiscountContainer = document.getElementById('smart-discount-container');
@@ -440,7 +438,7 @@
             goldPrice: 0,
             products: [],
             purchases: [],
-            profitPercentage: 7,
+            // profitPercentage: 7, // This is now per product
             taxEnabled: true,
             manualDiscount: 0,
             smartDiscount: 0,
@@ -520,7 +518,8 @@
             const id = productItemId++;
             const item = {
                 id, type: 'طلا', weight: '',
-                ajratType: 'toman', ajratValue: ''
+                ajratType: 'toman', ajratValue: '',
+                profitPercentage: 7 // Default profit for each new product
             };
             state.products.push(item);
             
@@ -559,12 +558,21 @@
                         </div>
                     </div>
                 </div>
+                <div class="form-group product-profit-group">
+                    <label class="form-label">سود فروشنده</label>
+                    <div class="product-slider-value">${toPersianDigits(item.profitPercentage.toFixed(1))} %</div>
+                    <div class="range-slider-group">
+                        <input type="range" min="1" max="7" value="${item.profitPercentage}" step="0.1" class="range-slider product-profit-slider">
+                    </div>
+                </div>
             `;
             productItemsContainer.appendChild(itemDiv);
             
             const typeInput = itemDiv.querySelector('.product-type');
             const weightInput = itemDiv.querySelector('.product-weight');
             const ajratInput = itemDiv.querySelector('.product-ajrat');
+            const profitSlider = itemDiv.querySelector('.product-profit-slider'); // Get slider for THIS item
+            const profitDisplay = itemDiv.querySelector('.product-slider-value'); // Get display for THIS item
             
             typeInput.addEventListener('change', (e) => { item.type = e.target.value; calculateAndRender(); });
             weightInput.addEventListener('input', (e) => {
@@ -611,6 +619,14 @@
                     calculateAndRender();
                 });
             });
+
+            // Event listener for THIS product's profit slider
+            profitSlider.addEventListener('input', (e) => {
+                item.profitPercentage = parseFloat(e.target.value);
+                profitDisplay.textContent = `${toPersianDigits(item.profitPercentage.toFixed(1))} %`;
+                calculateAndRender();
+            });
+
             if (!isFirst) {
                 itemDiv.querySelector('.delete-item-btn').addEventListener('click', () => {
                     state.products = state.products.filter(p => p.id !== id);
@@ -707,7 +723,7 @@
                         }
                     }
 
-                    const profitPercentage = state.profitPercentage / 100; // سود به درصد
+                    const profitPercentage = (p.profitPercentage || 0) / 100; // سود به درصد (از هر محصول)
                     
                     // محاسبه قیمت پایه (طلا + اجرت) برای هر گرم
                     const basePricePerGram = goldPricePerGram + ajratPerGram;
@@ -723,7 +739,7 @@
                     const itemTax = itemTaxPerGram * weight;
                     totalTax += itemTax;
 
-                    // مبلغ کل آیتم شامل طلا، اجرت، سود و مالیات
+                    // مبلغ کل آیتم شامل طلا، اجرت, سود و مالیات
                     const itemTotal = (totalBeforeTaxPerGram * weight) + itemTax;
 
 
@@ -738,31 +754,25 @@
                             details.push(`اجرت: ${formatNumber(parseFormattedNumber(p.ajratValue.toString()) || 0)} تومان`); // نمایش اجرت کل (تومان)
                         } else {
                             // اگر اجرت درصدی است، مقدار درصدی را بدون اعشار .0 نمایش دهد
-                            // Math.round برای حذف اعشار .0 اگر وجود داشت
                             details.push(`اجرت: ${toPersianDigits(Math.round(parseFloat(p.ajratValue)))}٪`); // نمایش اجرت درصدی
                         }
                     } else {
                         details.push(`بدون اجرت`);
                     }
                     
-                    // اضافه کردن درصد سود به جزئیات
-                    if (state.profitPercentage > 0) {
-                        // درصد سود: اعشار .0 حذف شود.
-                        // Math.round برای حذف اعشار .0 اگر وجود داشت
-                        details.push(`سود: ${toPersianDigits(Math.round(state.profitPercentage))}٪`); // نمایش درصد سود بدون اعشار
+                    // اضافه کردن درصد سود به جزئیات (از هر محصول)
+                    if (p.profitPercentage > 0) {
+                        details.push(`سود: ${toPersianDigits(Math.round(p.profitPercentage))}٪`); // نمایش درصد سود بدون اعشار
                     } else {
-                        details.push(`بدون سود`); // اگر سود 0 بود (یا اسلایدر روی 0 تنظیم شد)
+                        details.push(`بدون سود`); // اگر سود 0 بود
                     }
 
                     // نمایش مالیات
-                    // فقط اگر مالیات فعال باشه و مالیات محاسبه شده بیشتر از 0 باشه، مقدارش رو نشون بده
                     if (state.taxEnabled && itemTax > 0) { 
                         details.push(`مالیات: ${formatNumber(itemTax)}`);
-                    } else if (!state.taxEnabled) { // اگر مالیات کلاً از طریق سویچ غیر فعال شده بود
+                    } else if (!state.taxEnabled) { 
                         details.push(`بدون مالیات`);
                     }
-                    // در غیر این صورت (مالیات فعال است اما itemTax صفر است)، چیزی نمایش داده نمی‌شود.
-
 
                     if (details.length > 0) productsHTML += `<div class="invoice-item-details">${details.join(' - ')}</div>`;
                     productsHTML += `</div>`;
@@ -814,7 +824,7 @@
                      ajratPerGram = goldPricePerGram * ajratPercentage;
                  }
 
-                 const profitPercentage = state.profitPercentage / 100;
+                 const profitPercentage = (p.profitPercentage || 0) / 100; // از هر محصول
                  const basePricePerGram = goldPricePerGram + ajratPerGram;
                  const profitPerGram = basePricePerGram * profitPercentage;
                  const totalBeforeTaxPerGram = basePricePerGram + profitPerGram;
@@ -836,7 +846,8 @@
                  summaryHTML += `<div class="invoice-separator"></div>`;
             }
             if (totalTax > 0) {
-                const taxLabel = validProducts.filter(p => state.taxEnabled && ((p.ajratType === 'percent' ? (parseFloat(p.ajratValue) || 0) : (parseFormattedNumber(p.ajratValue.toString()) || 0)) > 0)).length > 1 ? 'مالیات کل' : 'مالیات';
+                // این مالیات کل بر اساس جمع اجرت و سود تمام محصولات است
+                const taxLabel = validProducts.filter(p => state.taxEnabled && ((p.ajratType === 'percent' ? (parseFloat(p.ajratValue) || 0) : (parseFormattedNumber(p.ajratValue.toString()) || 0)) > 0 || (p.profitPercentage || 0) > 0)).length > 0 ? 'مالیات کل' : 'مالیات';
                 summaryHTML += `<div class="invoice-summary-line"><span>${taxLabel}</span><span>${formatNumber(totalTax)} تومان</span></div>`;
             }
             if (effectiveDiscount > 0) {
@@ -868,8 +879,6 @@
             let options = new Set();
             [1000, 10000, 100000, 500000, 1000000].forEach(unit => {
                 const remainder = total % unit;
-                // فقط اگر باقی مانده مثبت و کمتر از یک مقدار معقول باشد (مثلاً 1 میلیون تومان) نمایش داده شود
-                // و همچنین اطمینان حاصل شود که تخفیف کمتر از مقدار کل نباشد (یعنی حاصل تفریق منفی نشود)
                 if (remainder > 0 && remainder <= 990000 && (total - remainder) >= 0) options.add(remainder);
             });
             const sortedOptions = Array.from(options).sort((a,b) => a - b).slice(0, 5);
@@ -897,11 +906,7 @@
             calculateAndRender();
         });
         addProductBtn.addEventListener('click', () => createProductItem());
-        profitSlider.addEventListener('input', (e) => {
-            state.profitPercentage = parseFloat(e.target.value);
-            profitValue.textContent = `${toPersianDigits(state.profitPercentage.toFixed(1))} %`;
-            calculateAndRender();
-        });
+        // Removed global profitSlider event listener as it's now per product
         taxSwitch.addEventListener('change', (e) => { state.taxEnabled = e.target.checked; calculateAndRender(); });
         manualDiscountInput.addEventListener('input', () => {
             if (state.smartDiscount > 0) state.smartDiscount = 0; // Clear smart discount if manual is used
