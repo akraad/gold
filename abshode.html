@@ -483,6 +483,9 @@
             products: []
         };
 
+        // Global variable to store generated discount buttons to prevent re-shuffling
+        let generatedSmartDiscountButtons = [];
+
         // --- Helper Functions ---
         const toPersianDigits = (n) => {
             if (n === null || typeof n === 'undefined') return '';
@@ -792,7 +795,7 @@
             let conditionalAbsheItems = []; // To track conditional abshe items for disclaimer
 
             // Data structures to hold profit amounts and base values for each unique percentage
-            const absheProfitDetails = {}; // { '2.5': { amount: X, baseValue: Y }, '3.0': { amount: Z, baseValue: W } }
+            const absheProfitDetails = {};
             const motafergheProfitDetails = {};
 
             invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">جزئیات اقلام</div>`;
@@ -808,7 +811,7 @@
                         invoiceHTML += `<div class="invoice-separator" style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></div>`;
                     }
 
-                    const ayarForCalculation = item.ayar > 0 ? item.ayar : 750;
+                    const ayarForCalculation = item.ayar !== null && item.ayar > 0 ? item.ayar : 750;
 
                     if (item.weight > 0 && state.goldPrice > 0) {
                         const absheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (ayarForCalculation / 750);
@@ -818,7 +821,7 @@
                         let ayarDisplay = '';
                         if (item.ayar === null) {
                             ayarDisplay = `<strong style="color:var(--danger-color);">شرطی</strong>`;
-                            conditionalAbsheItems.push({ index: index + 1, weight: item.weight });
+                            conditionalAbsheItems.push({ id: item.id, index: index + 1, weight: item.weight }); // Store ID for specific reference
                         } else {
                             ayarDisplay = toPersianDigits(item.ayar);
                         }
@@ -836,7 +839,7 @@
                             const equivalentWeight750 = item.weight * (ayarForCalculation / 750);
                             itemDescription += `<br><span class="invoice-item-details">وزن آبشده به عیار ۷۵۰: ${toPersianDigits(equivalentWeight750.toFixed(2))} گرم</span>`;
                         }
-                        
+
                         if (itemRawBaseValue > 0 && item.profit > 0) {
                             const profitPercentageString = item.profit.toFixed(1);
                             if (!absheProfitDetails[profitPercentageString]) {
@@ -883,13 +886,13 @@
             });
             invoiceHTML += `</div>`;
 
-            let totalProfitBeforeDiscount = 0; // Sum of profit values from absheProfitDetails and motafergheProfitDetails
+            let totalProfitBeforeDiscount = 0;
             
             let allProfitLines = [];
 
             for (const profitPercentKey in absheProfitDetails) {
                 const detail = absheProfitDetails[profitPercentKey];
-                if (detail.totalBaseValue > 0) { // Should always be true if profit exists
+                if (detail.totalBaseValue > 0) {
                     totalProfitBeforeDiscount += detail.totalProfitValue;
                     allProfitLines.push({ type: 'abshe', percentage: parseFloat(profitPercentKey), amount: detail.totalProfitValue });
                 }
@@ -903,17 +906,15 @@
                 }
             }
 
-            // Sort profit lines for consistent display (e.g., abshe first, then motaferghe, then by percentage)
             allProfitLines.sort((a, b) => {
                 if (a.type === b.type) {
-                    return a.percentage - b.percentage; // Sort by numeric percentage
+                    return a.percentage - b.percentage;
                 }
-                return a.type === 'abshe' ? -1 : 1; // Abshe before Motaferghe
+                return a.type === 'abshe' ? -1 : 1;
             });
 
             let finalInvoiceValue = totalBaseValueBeforeProfit + totalProfitBeforeDiscount;
 
-            // Calculate overall discount impact before rendering profit lines
             let totalDiscount = state.manualDiscount + state.smartDiscount;
             let totalAmountBeforeDiscount = totalBaseValueBeforeProfit + totalProfitBeforeDiscount;
             let discountPercentageOfTotalAmount = 0;
@@ -929,8 +930,9 @@
                 const showTypeLabelInProfitLine = hasAbsheProfitLine && hasMotafergheProfitLine;
 
                 allProfitLines.forEach(line => {
-                    // Adjust the displayed percentage by the overall discount impact
-                    const adjustedPercentage = line.percentage * (1 - discountPercentageOfTotalAmount);
+                    const originalPercentage = line.percentage;
+                    
+                    const adjustedPercentage = originalPercentage * (1 - discountPercentageOfTotalAmount);
 
                     const formattedPercentage = adjustedPercentage % 1 === 0 
                         ? toPersianDigits(adjustedPercentage.toFixed(0)) 
@@ -944,7 +946,7 @@
                 });
             }
             
-            let grandTotal = finalInvoiceValue - totalDiscount; // Apply total discount to the overall final value
+            let grandTotal = finalInvoiceValue - totalDiscount;
             
             if (totalDiscount > 0) {
                  invoiceHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-danger">${formatNumber(totalDiscount)} تومان</span></div>`;
@@ -965,14 +967,21 @@
                     const item = conditionalAbsheItems[0];
                     conditionalText = `آبشده (وزن ${toPersianDigits(item.weight)})`;
                 } else {
-                    const formattedItems = conditionalAbsheItems.map((item, idx) => {
+                    const formattedItems = conditionalAbsheItems.map(condItem => {
+                        // Find the original index of this conditional item among ALL current abshe items
+                        // to get its ordinal number (اول، دوم، ...)
+                        const absheItemsOnly = state.products.filter(p => p.type === 'abshe');
+                        const absheOrder = absheItemsOnly.findIndex(absheItem => absheItem.id === condItem.id) + 1;
+
                         const ordinalMap = {1: 'اول', 2: 'دوم', 3: 'سوم', 4: 'چهارم', 5: 'پنجم'};
-                        const ordinal = ordinalMap[idx + 1] || toPersianDigits(idx + 1);
-                        return `آبشده ${ordinal} (وزن ${toPersianDigits(item.weight)})`;
+                        const ordinal = ordinalMap[absheOrder] || toPersianDigits(absheOrder); // Fallback for higher numbers
+                        return `آبشده ${ordinal} (وزن ${toPersianDigits(condItem.weight)})`;
                     }).join(' و ');
                     conditionalText = formattedItems;
                 }
-                disclaimerHTML = `<p style="font-size:0.8em; color:var(--text-light); text-align:center; margin-top:0.5rem;">(به دلیل شرطی بودن ${conditionalText}؛ مبلغ نهایی می‌تواند کمتر یا بیشتر شود)</p>`;
+                disclaimerHTML = `<p style="font-size:0.8em; color:var(--text-light); text-align:center; margin-top:0.5rem;">
+                                    <strong style="color:var(--danger-color);">توجه:</strong> (به دلیل شرطی بودن ${conditionalText}؛ مبلغ نهایی می‌تواند کمتر یا بیشتر شود)
+                                  </p>`;
             }
             
             let invoiceHeaderExtra = '';
@@ -991,8 +1000,11 @@
                 return;
             }
             smartDiscountContainer.classList.remove('hidden');
-            smartDiscountOptions.innerHTML = '';
             
+            // Rebuild buttons to ensure they are consistent with currentTotal and state
+            smartDiscountOptions.innerHTML = ''; 
+            generatedSmartDiscountButtons = []; // Clear global array for fresh population
+
             let options = new Set();
             const roundingLevels = [1000, 5000, 10000, 50000, 100000, 500000, 1000000];
 
@@ -1010,7 +1022,9 @@
             const sortedOptions = Array.from(options).sort((a, b) => a - b).slice(0, 5); 
 
             if (sortedOptions.length === 0) {
-                 smartDiscountContainer.classList.add('hidden'); return;
+                smartDiscountContainer.classList.add('hidden');
+                state.smartDiscount = 0;
+                return;
             }
 
             sortedOptions.forEach(discountAmount => {
@@ -1019,8 +1033,19 @@
                 const roundedFinalPrice = currentTotal - discountAmount;
                 btn.textContent = `رند به ${formatNumber(roundedFinalPrice)}`;
                 btn.dataset.value = discountAmount;
-                if (state.smartDiscount === discountAmount) btn.classList.add('active');
+                
+                // Set initial active state based on current state.smartDiscount
+                if (state.smartDiscount === discountAmount) {
+                    btn.classList.add('active');
+                    btn.style.backgroundColor = 'var(--primary-color)'; // Apply blue background
+                    btn.style.color = '#fff'; // Apply white text
+                } else {
+                     btn.style.backgroundColor = ''; // Reset background
+                     btn.style.color = ''; // Reset text color
+                }
+
                 smartDiscountOptions.appendChild(btn);
+                generatedSmartDiscountButtons.push(btn); // Store reference for click listener
             });
         }
         
@@ -1042,25 +1067,37 @@
             if (value.toString().length <= 11) {
                 state.manualDiscount = value;
                 e.target.value = formatNumber(value);
-                state.smartDiscount = 0;
+                state.smartDiscount = 0; // Clear smart discount if manual is used
                 calculateAndRender();
             } else {
                 e.target.value = formatNumber(state.manualDiscount);
             }
         });
 
+        // Fixed: Smart Discount buttons click listener to handle active state correctly
         smartDiscountOptions.addEventListener('click', e => {
             const targetButton = e.target.closest('.smart-discount-btn');
             if (targetButton) {
                 const discountValue = Number(targetButton.dataset.value);
+                
+                // First, remove active style from ALL buttons
+                generatedSmartDiscountButtons.forEach(btn => { // Use the global array
+                    btn.classList.remove('active');
+                    btn.style.backgroundColor = ''; // Reset to default
+                    btn.style.color = ''; // Reset to default
+                });
+
                 if (state.smartDiscount === discountValue) {
-                    state.smartDiscount = 0;
+                    // If the clicked button was already active, deselect it
+                    state.smartDiscount = 0; // Will be rendered non-active
                 } else {
-                    state.manualDiscount = 0;
-                    manualDiscountInput.value = '';
+                    // Otherwise, select this button
+                    state.manualDiscount = 0; // Clear manual discount
+                    manualDiscountInput.value = ''; // Visually clear manual input
                     state.smartDiscount = discountValue;
+                    // Will be rendered active by renderSmartDiscount
                 }
-                calculateAndRender();
+                calculateAndRender(); // Recalculate to update totals and re-render smart discount buttons (including active state)
             }
         });
 
