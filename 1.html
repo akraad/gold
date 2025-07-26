@@ -873,7 +873,13 @@
             }
             finalTotalHTML += `</div>`;
             
-            invoiceContentContainer.innerHTML = productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
+            // Add gold price to the invoice header
+            let invoiceHeaderExtra = '';
+            if (state.goldPrice > 0) {
+                invoiceHeaderExtra = `<div style="text-align: right; margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">قیمت هر گرم طلا ۱۸ عیار: ${formatNumber(state.goldPrice)} تومان</div>`;
+            }
+
+            invoiceContentContainer.innerHTML = invoiceHeaderExtra + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
             renderSmartDiscount(grandTotal); // Smart discount should be based on the final grand total before applying smart discount
         }
         
