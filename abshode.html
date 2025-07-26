@@ -249,7 +249,7 @@
             position: absolute; top: -10px; left: -10px; width: 24px; height: 24px;
             border-radius: 50%;
             border: 1px solid black; /* Black border */
-            color: white;
+            color: white; /* Make the 'x' white */
             cursor: pointer; display: flex; align-items: center;
             justify-content: center; font-weight: bold; transition: all 0.2s ease;
             z-index: 10;
@@ -411,8 +411,7 @@
                     <button id="add-motaferghe-btn" class="btn btn-secondary">افزودن متفرقه</button>
                 </div>
             </div>
-
-            </div>
+        </div>
 
         <div class="card" id="profit-section">
             <h2 class="card-header">سود</h2>
@@ -569,9 +568,10 @@
         };
 
         // --- Dynamic Item Management ---
-        function createProductItem(type, weight = 0, ayar = 750) { // Default ayar for new items (both types) is 750
+        // Added default values for eng and lab
+        function createProductItem(type, weight = 0, ayar = 750, eng = 0, lab = '') {
             const id = itemIdCounter++;
-            const item = { id, type, weight, ayar };
+            const item = { id, type, weight, ayar, eng, lab }; // Include new properties in item state
             state.products.push(item);
             renderProductItems();
             calculateAndRender(); // Recalculate after adding
@@ -605,15 +605,29 @@
                             <div class="form-group">
                                 <label class="form-label">وزن</label>
                                 <div class="input-group rtl">
-                                    <input type="text" class="input-field abshe-weight-gram-input" inputmode="decimal" value="${toPersianDigits(item.weight)}">
+                                    <input type="text" class="input-field abshe-weight-gram-input" inputmode="decimal" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
                                     <span class="input-group-text">گرم</span>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <label class="form-label">عیار</label>
                                 <div class="input-group rtl">
-                                    <input type="text" class="input-field abshe-ayar-input" inputmode="decimal" value="${toPersianDigits(item.ayar)}">
+                                    <input type="text" class="input-field abshe-ayar-input" inputmode="decimal" value="${item.ayar === 0 ? '' : toPersianDigits(item.ayar)}">
                                     <span class="input-group-text">عیار</span>
+                                </div>
+                            </div>
+                        </div> <div class="item-row"> <div class="form-group">
+                                <label class="form-label">انگ</label>
+                                <div class="input-group rtl">
+                                    <input type="text" class="input-field abshe-eng-input" inputmode="numeric" value="${item.eng === 0 ? '' : toPersianDigits(item.eng)}">
+                                    <span class="input-group-text">انگ</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">آزمایشگاه</label>
+                                <div class="input-group rtl">
+                                    <input type="text" class="input-field abshe-lab-input left-align" value="${item.lab || ''}">
+                                    <span class="input-group-text">نام</span>
                                 </div>
                             </div>
                     `;
@@ -623,7 +637,7 @@
                             <div class="form-group" style="grid-column: span 2;">
                                 <label class="form-label">وزن متفرقه</label>
                                 <div class="input-group rtl">
-                                    <input type="text" class="input-field motaferghe-weight-gram-input" inputmode="decimal" value="${toPersianDigits(item.weight)}">
+                                    <input type="text" class="input-field motaferghe-weight-gram-input" inputmode="decimal" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
                                     <span class="input-group-text">گرم</span>
                                 </div>
                                 <div style="font-size: 0.85em; color: var(--text-light); text-align: right; margin-top: 0.5rem;">(با عیار پیش‌فرض ۷۵۰ محاسبه می‌شود)</div>
@@ -668,6 +682,58 @@
                 };
             });
 
+            // New: Event listener for Eng input (whole numbers only)
+            productItemsContainer.querySelectorAll('.abshe-eng-input').forEach(input => {
+                input.oninput = (e) => {
+                    const id = parseInt(e.target.closest('.item-card').dataset.id);
+                    const value = toEnglishDigits(e.target.value);
+                    // Allow only digits
+                    if (/^\d*$/.test(value)) { // Checks if value contains only digits
+                        updateProductItem(id, 'eng', parseInt(value) || 0); // Parse as integer, default to 0 if empty
+                        e.target.value = toPersianDigits(value);
+                    } else {
+                        e.target.value = toPersianDigits(state.products.find(item => item.id === id).eng);
+                    }
+                };
+            });
+
+            // New: Event listener for Lab input (text only, dynamic font size)
+            productItemsContainer.querySelectorAll('.abshe-lab-input').forEach(input => {
+                // Function to adjust font size based on character count
+                const adjustFontSize = (element) => {
+                    const len = element.value.length; // Use raw length for font size
+                    if (len >= 20) {
+                        element.style.fontSize = '0.7em';
+                    } else if (len >= 16) {
+                        element.style.fontSize = '0.8em';
+                    } else if (len >= 13) {
+                        element.style.fontSize = '0.9em';
+                    } else if (len >= 10) {
+                        element.style.fontSize = '0.95em';
+                    } else if (len >= 6) {
+                        element.style.fontSize = '1em'; // Base font size
+                    } else {
+                        element.style.fontSize = '1.05em'; // Slightly larger for very short inputs
+                    }
+                };
+
+                input.oninput = (e) => {
+                    const id = parseInt(e.target.closest('.item-card').dataset.id);
+                    const value = e.target.value; // Don't convert to English digits for text input
+                    // Allow only non-numeric characters for 'آزمایشگاه'
+                    if (!/\d/.test(value)) { // Check if the input contains any digits
+                        updateProductItem(id, 'lab', value);
+                        // Adjust font size immediately after input
+                        adjustFontSize(e.target);
+                    } else {
+                        // Revert to previous valid value if digits are entered
+                        e.target.value = state.products.find(item => item.id === id).lab;
+                    }
+                };
+                // Initial font size adjustment when rendered for existing values
+                adjustFontSize(input);
+            });
+
             productItemsContainer.querySelectorAll('.motaferghe-weight-gram-input').forEach(input => {
                 input.oninput = (e) => {
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
@@ -704,8 +770,7 @@
                 let itemDescription = '';
 
                 if (item.type === 'abshe') {
-                    // Check if current item is 'abshe' and previous was 'motaferghe' or vice versa, to add a separator
-                    // This creates a visual line between different types of items if they are mixed
+                    // Add separator between abshe and motaferghe if they are mixed
                     if (index > 0 && state.products[index-1].type !== 'abshe') {
                         invoiceHTML += `<div class="invoice-separator" style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></div>`;
                     }
@@ -714,6 +779,8 @@
                         const absheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (item.ayar / 750);
                         itemBaseValue = absheEquivalent18KMesghals * state.goldPrice;
                         itemDescription = `آبشده ${toPersianDigits(item.weight.toFixed(2))} گرم با عیار ${toPersianDigits(item.ayar)}`;
+                        if (item.eng > 0) itemDescription += `, انگ ${toPersianDigits(item.eng)}`;
+                        if (item.lab) itemDescription += `, آزمایشگاه ${item.lab}`;
                     }
                 } else if (item.type === 'motaferghe') {
                     // Always add a separator before a motaferghe item, unless it's the very first item
@@ -725,7 +792,7 @@
                         const MOTAFERGHE_DEFAULT_AYAR = 750;
                         const motafergheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (MOTAFERGHE_DEFAULT_AYAR / 750);
                         itemBaseValue = motafergheEquivalent18KMesghals * state.goldPrice;
-                        itemDescription = `متفرقه ${toPersianDigits(item.weight.toFixed(2))} گرم`; // Removed (عیار پیش‌فرض ۷۵۰) from display
+                        itemDescription = `متفرقه ${toPersianDigits(item.weight.toFixed(2))} گرم`; 
                     }
                 }
                 
