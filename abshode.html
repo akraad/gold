@@ -214,22 +214,16 @@
         .segmented-control button:first-child { border-left: 1px solid var(--primary-color); }
         .segmented-control button:last-child { border-right: 1px solid var(--primary-color); }
         
-        .item-card {
-            display: flex; flex-direction: column; gap: 1rem;
-            padding: 1rem; border: 1px solid var(--border-color);
-            border-radius: var(--border-radius); position: relative;
+        /* New CSS for side-by-side fields */
+        .item-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* This creates two equal columns */
+            gap: 1rem; /* Adds space between the columns */
         }
         
-        .item-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .item-row .form-group, .item-card .form-group { margin-bottom: 0; }
-        
-        #product-items-container .input-field,
-        #product-items-container .select-field,
-        #product-items-container .input-group-text,
-        #product-items-container .segmented-control button {
-            font-size: 0.9rem;
-            padding-top: 0.6rem;
-            padding-bottom: 0.6rem;
+        /* Ensure form-groups inside item-row don't have extra bottom margin */
+        .item-row .form-group {
+            margin-bottom: 0;
         }
 
         .delete-item-btn {
@@ -380,35 +374,21 @@
             </div>
 
             <div id="abshe-input-section">
-                <div class="form-group">
-                    <label class="form-label">وزن گرم</label>
-                    <div class="input-group rtl">
-                        <input type="text" id="abshe-weight-gram" class="input-field" inputmode="decimal">
-                        <span class="input-group-text">گرم</span>
+                <div class="item-row"> <div class="form-group">
+                        <label class="form-label">وزن</label> <div class="input-group rtl">
+                            <input type="text" id="abshe-weight-gram" class="input-field" inputmode="decimal">
+                            <span class="input-group-text">گرم</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">عیار</label>
+                        <div class="input-group rtl">
+                            <input type="text" id="abshe-ayar" class="input-field" inputmode="decimal" value="705">
+                            <span class="input-group-text">عیار</span>
+                        </div>
                     </div>
                 </div>
-                <div class="toggle-switch" style="margin-top: 1rem;">
-                    <label for="mesghal-display-switch" class="form-label" style="margin-bottom:0;">نمایش وزن به مثقال</label>
-                    <label class="switch">
-                        <input type="checkbox" id="mesghal-display-switch">
-                        <span class="slider"></span>
-                    </label>
                 </div>
-                <div class="form-group" id="mesghal-display-group" style="margin-top: 1rem;">
-                    <label class="form-label">وزن مثقال</label>
-                    <div class="input-group rtl">
-                        <div id="abshe-weight-mesghal-display" class="input-field" style="display: flex; align-items: center; min-height: 48px; border: 1px solid var(--border-color); border-radius: var(--border-radius); background-color: #f0f0f0; padding: 0.75rem 1rem;"></div>
-                        <span class="input-group-text">مثقال</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">عیار</label>
-                    <div class="input-group rtl">
-                        <input type="text" id="abshe-ayar" class="input-field" inputmode="decimal" value="705">
-                        <span class="input-group-text">عیار</span>
-                    </div>
-                </div>
-            </div>
 
             <div id="motaferghe-input-section" class="hidden">
                 <div class="form-group">
@@ -473,18 +453,14 @@
         const absheInputSection = document.getElementById('abshe-input-section');
         const motafergheInputSection = document.getElementById('motaferghe-input-section');
         const absheWeightGramInput = document.getElementById('abshe-weight-gram');
-        const mesghalDisplaySwitch = document.getElementById('mesghal-display-switch');
-        const mesghalDisplayGroup = document.getElementById('mesghal-display-group');
-        // MODIFIED: Now selecting a DIV for display, not an input
-        const absheWeightMesghalDisplayInput = document.getElementById('abshe-weight-mesghal-display');
+        // Removed mesghalDisplaySwitch, mesghalDisplayGroup, absheWeightMesghalDisplayInput
         const absheAyarInput = document.getElementById('abshe-ayar');
         const motafergheWeightGramInput = document.getElementById('motaferghe-weight-gram');
         const motaferghePriceInput = document.getElementById('motaferghe-price');
 
 
         // --- State ---
-        const MESGHAL_GRAM_FACTOR = 4.608; // 1 Mesghal = 4.608 grams
-
+        // Removed MESGHAL_GRAM_FACTOR as it's no longer needed for display
         let state = {
             goldPrice: 0,
             profitPercentage: 2.0, // Default profit for abshe/motaferghe
@@ -494,7 +470,7 @@
             isAbsheActive: true, // true for Abshe, false for Motaferghe
             absheWeightGram: 0,
             absheAyars: 705, // Default for 17.76 Ayar gold
-            showMesghalDisplay: false, // State for Mesghal display toggle
+            // Removed showMesghalDisplay state
             motafergheWeightGram: 0,
             motaferghePrice: 0,
         };
@@ -579,18 +555,7 @@
             }
         };
 
-        const formatMesghal = (grams) => {
-            if (grams === 0) return '';
-            const totalMesghals = grams / MESGHAL_GRAM_FACTOR;
-            const mesghals = Math.floor(totalMesghals);
-            const sots = Math.round((totalMesghals - mesghals) * 1000); // 1 Mesghal = 1000 Sots
-            
-            let formatted = `${toPersianDigits(mesghals)} مثقال`;
-            if (sots > 0) {
-                formatted += ` و ${toPersianDigits(sots)} سوت`;
-            }
-            return formatted;
-        };
+        // Removed formatMesghal as it's no longer needed
 
         // --- Calculation & Rendering ---
         function calculateAndRender() {
@@ -605,13 +570,10 @@
                 const absheWeightGram = parseFloatFormattedNumber(absheWeightGramInput.value);
                 const absheAyars = parseFloatFormattedNumber(absheAyarInput.value);
 
-                // Update Mesghal display
-                if (state.showMesghalDisplay) {
-                    // MODIFIED: Setting textContent for a div
-                    absheWeightMesghalDisplayInput.textContent = formatMesghal(absheWeightGram);
-                }
+                // Removed Mesghal display update logic
 
                 if (absheWeightGram > 0 && goldPricePerMesghal > 0 && absheAyars > 0) {
+                    const MESGHAL_GRAM_FACTOR = 4.608; // Defined locally if needed for calculation, not display
                     const absheEquivalent18KMesghals = (absheWeightGram / MESGHAL_GRAM_FACTOR) * (absheAyars / 750);
                     baseValue = absheEquivalent18KMesghals * goldPricePerMesghal;
                     
@@ -795,17 +757,7 @@
             calculateAndRender();
         });
         
-        // MODIFIED: Event listener for the new toggle switch
-        mesghalDisplaySwitch.addEventListener('change', (e) => {
-            state.showMesghalDisplay = e.target.checked;
-            if (state.showMesghalDisplay) {
-                mesghalDisplayGroup.classList.remove('hidden');
-            } else {
-                mesghalDisplayGroup.classList.add('hidden');
-            }
-            calculateAndRender(); // Recalculate to update display if needed
-        });
-
+        // Removed mesghalDisplaySwitch event listener
 
         absheAyarInput.addEventListener('input', (e) => {
             const value = toEnglishDigits(e.target.value);
@@ -864,7 +816,7 @@
         });
 
         // --- Initial Load ---
-        mesghalDisplayGroup.classList.add('hidden'); // Hide mesghal display initially
+        // Removed mesghalDisplayGroup.classList.add('hidden');
         calculateAndRender();
     });
     </script>
