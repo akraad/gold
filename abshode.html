@@ -165,6 +165,7 @@
             display: inline-block;
             width: 50px;
             height: 28px;
+            flex-shrink: 0; /* Prevent switch from shrinking */
         }
 
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -379,20 +380,25 @@
             </div>
 
             <div id="abshe-input-section">
-                <div class="item-row">
-                    <div class="form-group">
-                        <label class="form-label">وزن گرم</label>
-                        <div class="input-group rtl">
-                            <input type="text" id="abshe-weight-gram" class="input-field" inputmode="decimal">
-                            <span class="input-group-text">گرم</span>
-                        </div>
+                <div class="form-group">
+                    <label class="form-label">وزن گرم</label>
+                    <div class="input-group rtl">
+                        <input type="text" id="abshe-weight-gram" class="input-field" inputmode="decimal">
+                        <span class="input-group-text">گرم</span>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">وزن مثقال</label>
-                        <div class="input-group rtl">
-                            <input type="text" id="abshe-weight-mesghal" class="input-field" inputmode="decimal">
-                            <span class="input-group-text">مثقال</span>
-                        </div>
+                </div>
+                <div class="toggle-switch" style="margin-top: 1rem;">
+                    <label for="mesghal-display-switch" class="form-label" style="margin-bottom:0;">نمایش وزن به مثقال</label>
+                    <label class="switch">
+                        <input type="checkbox" id="mesghal-display-switch">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+                <div class="form-group" id="mesghal-display-group" style="margin-top: 1rem;">
+                    <label class="form-label">وزن مثقال</label>
+                    <div class="input-group rtl">
+                        <input type="text" id="abshe-weight-mesghal-display" class="input-field" disabled>
+                        <span class="input-group-text">مثقال</span>
                     </div>
                 </div>
                 <div class="form-group">
@@ -406,8 +412,11 @@
 
             <div id="motaferghe-input-section" class="hidden">
                 <div class="form-group">
-                    <label class="form-label">عنوان / توضیحات</label>
-                    <input type="text" id="motaferghe-description" class="input-field">
+                    <label class="form-label">وزن (گرم)</label>
+                    <div class="input-group rtl">
+                        <input type="text" id="motaferghe-weight-gram" class="input-field" inputmode="decimal">
+                        <span class="input-group-text">گرم</span>
+                    </div>
                 </div>
                 <div class="form-group">
                     <label class="form-label">مبلغ (تومان)</label>
@@ -464,13 +473,17 @@
         const absheInputSection = document.getElementById('abshe-input-section');
         const motafergheInputSection = document.getElementById('motaferghe-input-section');
         const absheWeightGramInput = document.getElementById('abshe-weight-gram');
-        const absheWeightMesghalInput = document.getElementById('abshe-weight-mesghal');
+        const mesghalDisplaySwitch = document.getElementById('mesghal-display-switch');
+        const mesghalDisplayGroup = document.getElementById('mesghal-display-group');
+        const absheWeightMesghalDisplayInput = document.getElementById('abshe-weight-mesghal-display');
         const absheAyarInput = document.getElementById('abshe-ayar');
-        const motafergheDescriptionInput = document.getElementById('motaferghe-description');
+        const motafergheWeightGramInput = document.getElementById('motaferghe-weight-gram'); // Changed from motaferghe-description
         const motaferghePriceInput = document.getElementById('motaferghe-price');
 
 
         // --- State ---
+        const MESGHAL_GRAM_FACTOR = 4.608; // 1 Mesghal = 4.608 grams
+
         let state = {
             goldPrice: 0,
             profitPercentage: 2.0, // Default profit for abshe/motaferghe
@@ -479,10 +492,10 @@
             // State for Abshe/Motaferghe calculations
             isAbsheActive: true, // true for Abshe, false for Motaferghe
             absheWeightGram: 0,
-            absheWeightMesghal: 0,
             absheAyars: 705, // Default for 17.76 Ayar gold
+            showMesghalDisplay: false, // State for Mesghal display toggle
+            motafergheWeightGram: 0, // Changed from motafergheDescription
             motaferghePrice: 0,
-            motafergheDescription: '',
         };
 
         // --- Helper Functions ---
@@ -565,6 +578,19 @@
             }
         };
 
+        const formatMesghal = (grams) => {
+            if (grams === 0) return '';
+            const totalMesghals = grams / MESGHAL_GRAM_FACTOR;
+            const mesghals = Math.floor(totalMesghals);
+            const sots = Math.round((totalMesghals - mesghals) * 1000); // 1 Mesghal = 1000 Sots
+            
+            let formatted = `${toPersianDigits(mesghals)} مثقال`;
+            if (sots > 0) {
+                formatted += ` و ${toPersianDigits(sots)} سوت`;
+            }
+            return formatted;
+        };
+
         // --- Calculation & Rendering ---
         function calculateAndRender() {
             let invoiceHTML = '';
@@ -572,37 +598,52 @@
             let totalProfitAmount = 0;
             let finalInvoiceValue = 0; // This will be the value after profit, before discount
 
-            const goldPricePerMesghal = state.goldPrice * 4.331; // Convert 18-Karat gold price to per Mesghal
-
             // Abshe Calculation (if active)
             if (state.isAbsheActive) {
-                const goldPricePerGram = state.goldPrice;
+                const goldPricePerMesghal = state.goldPrice; // Assuming goldPriceInput is the "Maghane" price per Mesghal
                 const absheWeightGram = parseFloatFormattedNumber(absheWeightGramInput.value);
-                const absheWeightMesghal = parseFloatFormattedNumber(absheWeightMesghalInput.value);
                 const absheAyars = parseFloatFormattedNumber(absheAyarInput.value);
 
-                const totalAbsheWeightInGrams = absheWeightGram + (absheWeightMesghal * 4.331); // Total weight in grams
+                // Update Mesghal display
+                if (state.showMesghalDisplay) {
+                    absheWeightMesghalDisplayInput.value = formatMesghal(absheWeightGram);
+                }
 
-                if (totalAbsheWeightInGrams > 0 && goldPricePerGram > 0 && absheAyars > 0) {
-                    // Convert total abshe weight to equivalent 18K gold grams
-                    const absheEquivalent18K = (totalAbsheWeightInGrams * absheAyars) / 750;
-                    baseValue = absheEquivalent18K * goldPricePerGram;
+                if (absheWeightGram > 0 && goldPricePerMesghal > 0 && absheAyars > 0) {
+                    // Convert total abshe weight (in grams) to equivalent 18K gold grams based on Ayar
+                    // Then convert 18K gold grams to 18K gold mesghals
+                    // Finally, multiply by the "Maghane" price (which is per Mesghal of 18K)
+                    const absheEquivalent18KMesghals = (absheWeightGram / MESGHAL_GRAM_FACTOR) * (absheAyars / 750);
+                    baseValue = absheEquivalent18KMesghals * goldPricePerMesghal;
                     
                     invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">فاکتور آبشده</div>`;
                     invoiceHTML += `<div class="invoice-item">
                         <div class="invoice-item-header">
-                            <span>آبشده ${toPersianDigits(totalAbsheWeightInGrams.toFixed(2))} گرم با عیار ${toPersianDigits(absheAyars)}</span>
+                            <span>آبشده ${toPersianDigits(absheWeightGram.toFixed(2))} گرم با عیار ${toPersianDigits(absheAyars)}</span>
                             <span>${formatNumber(baseValue)} تومان</span>
                         </div>
                     </div></div>`;
                 }
             } else { // Motaferghe Calculation (if active)
-                baseValue = parseFormattedNumber(motaferghePriceInput.value);
-                if (baseValue > 0) {
+                const motafergheWeightGram = parseFloatFormattedNumber(motafergheWeightGramInput.value);
+                const motaferghePrice = parseFormattedNumber(motaferghePriceInput.value);
+
+                // If both weight and price are entered, use them
+                if (motafergheWeightGram > 0 && motaferghePrice > 0) {
+                    baseValue = motaferghePrice;
                     invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">فاکتور متفرقه</div>`;
                     invoiceHTML += `<div class="invoice-item">
                         <div class="invoice-item-header">
-                            <span>${state.motafergheDescription || 'آیتم متفرقه'}</span>
+                            <span>متفرقه ${toPersianDigits(motafergheWeightGram.toFixed(2))} گرم</span>
+                            <span>${formatNumber(baseValue)} تومان</span>
+                        </div>
+                    </div></div>`;
+                } else if (motaferghePrice > 0) { // Only price entered
+                     baseValue = motaferghePrice;
+                    invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">فاکتور متفرقه</div>`;
+                    invoiceHTML += `<div class="invoice-item">
+                        <div class="invoice-item-header">
+                            <span>آیتم متفرقه</span>
                             <span>${formatNumber(baseValue)} تومان</span>
                         </div>
                     </div></div>`;
@@ -663,35 +704,31 @@
             
             let options = new Set();
             
-            // Round to nearest 1,000, 10,000, 100,000, 1,000,000, 5,000,000
-            const units = [1000, 10000, 100000, 1000000, 5000000];
+            // Define rounding levels for the smart discount
+            const roundingLevels = [
+                1000,   // Round to nearest 1,000
+                5000,   // Round to nearest 5,000
+                10000,  // Round to nearest 10,000
+                50000,  // Round to nearest 50,000
+                100000, // Round to nearest 100,000
+                500000, // Round to nearest 500,000
+                1000000 // Round to nearest 1,000,000
+            ];
 
-            units.forEach(unit => {
-                // Calculate how much to subtract to round down to the nearest 'unit'
+            // Generate potential rounding options
+            roundingLevels.forEach(unit => {
                 const remainder = currentTotal % unit;
                 if (remainder > 0) {
-                    // Only add if the resulting rounded value is not negative
-                    const roundedDownValue = currentTotal - remainder;
-                    if (roundedDownValue >= 0) {
-                        options.add(remainder);
-                    }
-                }
-                // Also consider rounding to the "half" of the next unit if applicable for certain units
-                // For example, rounding to 50,000 if unit is 100,000, or 500,000 if unit is 1,000,000
-                if (unit === 100000 || unit === 1000000) {
-                    const halfUnit = unit / 2;
-                    const remainderHalf = currentTotal % halfUnit;
-                    if (remainderHalf > 0) {
-                         const roundedDownToHalf = currentTotal - remainderHalf;
-                         if (roundedDownToHalf >= 0 && roundedDownToHalf % unit !== 0) { // Don't add if it's already a multiple of the full unit
-                             options.add(remainderHalf);
-                         }
+                    const discountAmount = remainder;
+                    const roundedValue = currentTotal - discountAmount;
+                    if (roundedValue >= 0) { // Ensure the rounded value is not negative
+                        options.add(discountAmount);
                     }
                 }
             });
 
-            // Sort unique options in ascending order
-            const sortedOptions = Array.from(options).sort((a, b) => a - b).slice(0, 5); // Take up to 5 options
+            // Sort unique options in ascending order and take up to 5
+            const sortedOptions = Array.from(options).sort((a, b) => a - b).slice(0, 5); 
 
             if (sortedOptions.length === 0) {
                  smartDiscountContainer.classList.add('hidden'); return;
@@ -714,7 +751,9 @@
             if (value.toString().length <= 11) { // Allow up to 11 digits for gold price
                 state.goldPrice = value;
                 e.target.value = formatNumber(value);
-            } else e.target.value = formatNumber(state.goldPrice);
+            } else {
+                e.target.value = formatNumber(state.goldPrice);
+            }
             updatePriceInWords();
             calculateAndRender();
         });
@@ -756,17 +795,17 @@
             }
             calculateAndRender();
         });
-
-        absheWeightMesghalInput.addEventListener('input', (e) => {
-            const value = toEnglishDigits(e.target.value);
-            if (/^\d*\.?\d*$/.test(value)) {
-                state.absheWeightMesghal = parseFloat(value);
-                e.target.value = toPersianDigits(value);
+        
+        mesghalDisplaySwitch.addEventListener('change', (e) => {
+            state.showMesghalDisplay = e.target.checked;
+            if (state.showMesghalDisplay) {
+                mesghalDisplayGroup.classList.remove('hidden');
             } else {
-                e.target.value = toPersianDigits(state.absheWeightMesghal);
+                mesghalDisplayGroup.classList.add('hidden');
             }
-            calculateAndRender();
+            calculateAndRender(); // Recalculate to update display if needed
         });
+
 
         absheAyarInput.addEventListener('input', (e) => {
             const value = toEnglishDigits(e.target.value);
@@ -780,8 +819,14 @@
         });
 
         // Motaferghe Inputs
-        motafergheDescriptionInput.addEventListener('input', (e) => {
-            state.motafergheDescription = e.target.value;
+        motafergheWeightGramInput.addEventListener('input', (e) => { // Now accepts weight
+            const value = toEnglishDigits(e.target.value);
+            if (/^\d*\.?\d*$/.test(value)) {
+                state.motafergheWeightGram = parseFloat(value);
+                e.target.value = toPersianDigits(value);
+            } else {
+                e.target.value = toPersianDigits(state.motafergheWeightGram);
+            }
             calculateAndRender();
         });
 
@@ -819,6 +864,7 @@
         });
 
         // --- Initial Load ---
+        mesghalDisplayGroup.classList.add('hidden'); // Hide mesghal display initially
         calculateAndRender();
     });
     </script>
