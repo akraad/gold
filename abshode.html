@@ -463,7 +463,7 @@
         const priceInWords = document.getElementById('price-in-words');
         const smartDiscountContainer = document.getElementById('smart-discount-container');
         const smartDiscountOptions = document.getElementById('smart-discount-options');
-        const manualDiscountInput = document.getElementById('manual-discount-input'); // New DOM element
+        const manualDiscountInput = document.getElementById('manual-discount-input');
         const invoiceContentContainer = document.getElementById('invoice-content');
         const printBtn = document.getElementById('print-btn');
 
@@ -479,7 +479,7 @@
         let state = {
             goldPrice: 0,
             smartDiscount: 0,
-            manualDiscount: 0, // New state variable
+            manualDiscount: 0,
             products: []
         };
 
@@ -510,7 +510,6 @@
             if (!str) return 0;
             return parseFloat(toEnglishDigits(str).replace(/,/g, '')) || 0;
         };
-        // Revised numberToWords for correct spacing
         const numberToWords = (num) => {
             if (num === 0) return 'صفر';
             num = Math.floor(num);
@@ -627,7 +626,9 @@
                                     <span class="input-group-text">عیار</span>
                                 </div>
                             </div>
-                        </div> <div class="item-label-input-compact">
+                        </div>
+
+                        <div class="item-label-input-compact">
                             <label class="form-label compact-label">انگ</label>
                             <div class="input-group rtl compact-input-group">
                                 <input type="text" class="input-field abshe-eng-input" inputmode="numeric" value="${item.eng === 0 ? '' : toPersianDigits(item.eng)}">
@@ -658,7 +659,9 @@
                                 </div>
                                 <div style="font-size: 0.85em; color: var(--text-light); text-align: right; margin-top: 0.5rem;">(با عیار پیش‌فرض ۷۵۰ محاسبه می‌شود)</div>
                             </div>
-                        </div> <div class="profit-slider-group" style="margin-top: 1rem;">
+                        </div>
+
+                        <div class="profit-slider-group" style="margin-top: 1rem;">
                             <div class="profit-slider-value" data-id="${item.id}" data-type="profit-display-motaferghe">${toPersianDigits(item.profit.toFixed(1))} %</div>
                             <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
                         </div>
@@ -688,7 +691,6 @@
                 };
             });
 
-            // Corrected: Ayar input with real-time Persian conversion
             productItemsContainer.querySelectorAll('.abshe-ayar-input').forEach(input => {
                 input.oninput = (e) => {
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
@@ -704,7 +706,6 @@
                 };
             });
 
-            // Corrected: Eng input with real-time Persian conversion
             productItemsContainer.querySelectorAll('.abshe-eng-input').forEach(input => {
                 input.oninput = (e) => {
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
@@ -735,10 +736,12 @@
             productItemsContainer.querySelectorAll('.motaferghe-weight-gram-input').forEach(input => {
                 input.oninput = (e) => {
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
-                    const value = toEnglishDigits(e.target.value);
-                    if (/^\d*\.?\d*$/.test(value)) {
-                        updateProductItem(id, 'weight', parseFloat(value));
-                        e.target.value = toPersianDigits(value);
+                    const rawValue = e.target.value;
+                    const englishValue = toEnglishDigits(rawValue);
+                    
+                    if (/^\d*\.?\d*$/.test(englishValue)) {
+                        updateProductItem(id, 'weight', parseFloat(englishValue));
+                        e.target.value = toPersianDigits(englishValue);
                     } else {
                         e.target.value = toPersianDigits(state.products.find(item => item.id === id).weight);
                     }
@@ -890,7 +893,7 @@
                 }
             }
             
-            let totalDiscount = state.manualDiscount + state.smartDiscount; // Sum both discounts
+            let totalDiscount = state.manualDiscount + state.smartDiscount;
             let grandTotal = finalInvoiceValue - totalDiscount;
             
             let finalTotalHTML = `<div class="invoice-final-total">`;
@@ -907,14 +910,13 @@
             }
 
             invoiceContentContainer.innerHTML = invoiceHeaderExtra + invoiceHTML + finalTotalHTML;
-            // IMPORTANT: Call renderSmartDiscount AFTER all calculations and HTML updates
             renderSmartDiscount(grandTotal);
         }
         
         function renderSmartDiscount(currentTotal) {
             if (currentTotal <= 0) {
                 smartDiscountContainer.classList.add('hidden');
-                state.smartDiscount = 0; // Reset smart discount if total is zero or negative
+                state.smartDiscount = 0;
                 return;
             }
             smartDiscountContainer.classList.remove('hidden');
@@ -946,7 +948,6 @@
                 const roundedFinalPrice = currentTotal - discountAmount;
                 btn.textContent = `رند به ${formatNumber(roundedFinalPrice)}`;
                 btn.dataset.value = discountAmount;
-                // Highlight the active smart discount button
                 if (state.smartDiscount === discountAmount) btn.classList.add('active');
                 smartDiscountOptions.appendChild(btn);
             });
@@ -965,13 +966,11 @@
             calculateAndRender();
         });
 
-        // Event listener for Manual Discount
         manualDiscountInput.addEventListener('input', (e) => {
             const value = parseFormattedNumber(e.target.value);
             if (value.toString().length <= 11) {
                 state.manualDiscount = value;
                 e.target.value = formatNumber(value);
-                // Clear smart discount if manual is used
                 state.smartDiscount = 0;
                 calculateAndRender();
             } else {
@@ -979,39 +978,35 @@
             }
         });
 
-        // Event listener for Smart Discount buttons
         smartDiscountOptions.addEventListener('click', e => {
             const targetButton = e.target.closest('.smart-discount-btn');
             if (targetButton) {
                 const discountValue = Number(targetButton.dataset.value);
                 if (state.smartDiscount === discountValue) {
-                    state.smartDiscount = 0; // Deselect if already active
+                    state.smartDiscount = 0;
                 } else {
-                    state.manualDiscount = 0; // Clear manual discount if smart discount is used
-                    manualDiscountInput.value = ''; // Visually clear the manual input field
+                    state.manualDiscount = 0;
+                    manualDiscountInput.value = '';
                     state.smartDiscount = discountValue;
                 }
-                calculateAndRender(); // Recalculate to update totals and re-render smart discount buttons
+                calculateAndRender();
             }
         });
 
 
-        // Event listeners for Add buttons - now they also reveal the container
         addAbsheBtn.addEventListener('click', () => {
-            productItemsContainer.classList.remove('hidden'); // Show container when adding
+            productItemsContainer.classList.remove('hidden');
             createProductItem('abshe');
         });
         addMotafergheBtn.addEventListener('click', () => {
-            productItemsContainer.classList.remove('hidden'); // Show container when adding
+            productItemsContainer.classList.remove('hidden');
             createProductItem('motaferghe');
         });
 
-        // Print button functionality
         printBtn.addEventListener('click', () => {
             window.print();
         });
 
-        // Initial rendering on load - no items added initially, container starts hidden
         calculateAndRender();
     });
     </script>
