@@ -520,7 +520,7 @@
             const units = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
             const teens = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
             const tens = ['', 'ده', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
-            const hundreds = ['', 'یکصد', 'dویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتاد', 'نهصد'];
+            const hundreds = ['', 'یکصد', 'دویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
             const scales = ['', 'هزار', 'میلیون', 'میلیارد', 'تریلیون'];
 
             function convertThreeDigits(n) {
@@ -792,9 +792,8 @@
             let motafergheBaseValueTotal = 0;
             let hasAbsheItems = false;
             let hasMotafergheItems = false;
-            let conditionalAbsheItems = []; // To track conditional abshe items for disclaimer
+            let conditionalAbsheItems = [];
 
-            // Data structures to hold profit amounts and base values for each unique percentage
             const absheProfitDetails = {};
             const motafergheProfitDetails = {};
 
@@ -811,7 +810,7 @@
                         invoiceHTML += `<div class="invoice-separator" style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></div>`;
                     }
 
-                    const ayarForCalculation = item.ayar !== null && item.ayar > 0 ? item.ayar : 750; // Use 750 for calculation if ayar is 0 or null
+                    const ayarForCalculation = item.ayar !== null && item.ayar > 0 ? item.ayar : 750;
 
                     if (item.weight > 0 && state.goldPrice > 0) {
                         const absheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (ayarForCalculation / 750);
@@ -819,7 +818,7 @@
                         itemValueWithProfit = itemRawBaseValue * (1 + item.profit / 100);
                         
                         let ayarDisplay = '';
-                        if (item.ayar === null || item.ayar === 0) { // Check for both null and 0 (empty field input often becomes 0)
+                        if (item.ayar === null || item.ayar === 0) {
                             ayarDisplay = `<strong style="color:var(--danger-color);">شرطی</strong>`;
                             conditionalAbsheItems.push({ id: item.id, index: index + 1, weight: item.weight });
                         } else {
@@ -1109,7 +1108,7 @@
             productItemsContainer.classList.remove('hidden');
             createProductItem('abshe');
         });
-        addMotafergheBtn.addEventListener(() => {
+        addMotafergheBtn.addEventListener('click', () => {
             productItemsContainer.classList.remove('hidden');
             createProductItem('motaferghe');
         });
