@@ -220,76 +220,67 @@
             border-radius: var(--border-radius); position: relative;
         }
         
-        .item-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .item-row .form-group, .item-card .form-group { margin-bottom: 0; }
-        
-        #product-items-container .input-field,
-        #product-items-container .select-field,
-        #product-items-container .input-group-text,
-        #product-items-container .segmented-control button {
-            font-size: 0.9rem;
-            padding-top: 0.6rem;
-            padding-bottom: 0.6rem;
+        /* Updated Abshe weight row styles */
+        .abshe-weight-row {
+            display: flex;
+            gap: 1rem; /* Space between the two fields */
+            align-items: flex-end; /* Align bottoms of input groups */
         }
 
-        .delete-item-btn {
-            position: absolute; top: -10px; left: -10px; width: 24px; height: 24px;
-            border-radius: 50%; background-color: var(--danger-color); color: white;
-            border: none; cursor: pointer; display: flex; align-items: center;
-            justify-content: center; font-weight: bold; transition: all 0.2s ease;
-            z-index: 10;
-        }
-        
-        .delete-item-btn:hover { transform: scale(1.1); background-color: #c0392b; }
-        
-        .btn {
-            width: 100%; padding: 0.85rem 1rem; font-family: var(--font-family);
-            font-size: 1rem; font-weight: 600; border: none;
-            border-radius: var(--border-radius); cursor: pointer; transition: all 0.3s ease;
+        .abshe-weight-row > .form-group {
+            flex-grow: 1; /* Allow items to grow */
+            margin-bottom: 0; /* Remove default margin-bottom from form-group */
         }
 
-        .btn-primary { background-color: var(--primary-color); color: #fff; }
-        .btn-primary:hover { background-color: #3a7bc8; }
-
-        .btn-secondary {
-            background-color: var(--primary-light); color: var(--primary-color);
-            font-size: 0.9rem; padding: 0.6rem 0.8rem; font-weight: 500;
+        .abshe-weight-row #weight-gram-group {
+            flex-basis: 30%; /* 30% width for weight input */
+            max-width: 30%;
         }
-        .btn-secondary:hover { background-color: #dbe8fd; }
-        
-        /* Styles for individual product profit slider */
+
+        .abshe-weight-row #mesghal-display-group {
+            flex-basis: 70%; /* 70% width for mesghal display */
+            max-width: 70%;
+        }
+
+        /* Dynamic font sizing for mesghal display */
+        #abshe-weight-mesghal-display.font-small { font-size: 0.9rem; }
+        #abshe-weight-mesghal-display.font-xsmall { font-size: 0.8rem; }
+        #abshe-weight-mesghal-display.font-xxsmall { font-size: 0.7rem; }
+        #abshe-weight-mesghal-display.font-tiny { font-size: 0.6rem; }
+
+
+        .input-group-mesghal-display {
+            display: flex;
+            align-items: stretch;
+        }
+        .input-group-mesghal-display .input-field {
+            border-radius: 0 var(--border-radius) var(--border-radius) 0;
+            background-color: var(--bg-color); /* Grey out disabled field */
+        }
+        .input-group-mesghal-display .input-group-text {
+            border-left: 0;
+            border-right: 1px solid var(--border-color);
+            border-radius: var(--border-radius) 0 0 var(--border-radius);
+        }
+
         .profit-slider-group {
-            padding-top: 0.5rem; /* Reduced padding */
-            margin-top: 0.5rem; /* Small margin to separate from ajrat */
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
         }
         .profit-slider {
-            -webkit-appearance: none; width: 100%; height: 6px; /* Narrower slider */
-            background: var(--border-color); outline: none; border-radius: 3px; /* Smaller border radius */
+            -webkit-appearance: none; width: 100%; height: 6px;
+            background: var(--border-color); outline: none; border-radius: 3px;
         }
 
         .profit-slider::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 18px; height: 18px; /* Smaller thumb */
-            background: var(--primary-color); cursor: pointer; border: 2px solid #fff; /* Thinner border */
+            -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+            background: var(--primary-color); cursor: pointer; border: 2px solid #fff;
         }
         
         .profit-slider-value {
-            text-align: center; font-weight: 600; font-size: 0.95rem; /* Slightly smaller text */
-            margin-top: 0.3rem; /* Reduced margin */
+            text-align: center; font-weight: 600; font-size: 0.95rem;
+            margin-top: 0.3rem;
             color: var(--primary-color);
-        }
-
-        .add-purchase-options {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 0.75rem; margin-bottom: 1.5rem;
-        }
-
-        #purchase-items-container .item-card:not(:first-child) { margin-top: 1rem; }
-        #purchase-items-container .item-card { background-color: var(--bg-color); }
-        
-        #purchase-items-container .input-field,
-        #purchase-items-container .select-field,
-        #purchase-items-container .input-group-text {
-            font-size: 0.9rem; padding-top: 0.6rem; padding-bottom: 0.6rem;
         }
 
         .smart-discount-options {
@@ -380,11 +371,20 @@
             </div>
 
             <div id="abshe-input-section">
-                <div class="form-group">
-                    <label class="form-label">وزن گرم</label>
-                    <div class="input-group rtl">
-                        <input type="text" id="abshe-weight-gram" class="input-field" inputmode="decimal">
-                        <span class="input-group-text">گرم</span>
+                <div class="abshe-weight-row">
+                    <div class="form-group" id="weight-gram-group">
+                        <label class="form-label">وزن</label>
+                        <div class="input-group rtl">
+                            <input type="text" id="abshe-weight-gram" class="input-field" inputmode="decimal">
+                            <span class="input-group-text">گرم</span>
+                        </div>
+                    </div>
+                    <div class="form-group" id="mesghal-display-group">
+                        <label class="form-label">وزن مثقال</label>
+                        <div class="input-group-mesghal-display rtl">
+                            <input type="text" id="abshe-weight-mesghal-display" class="input-field" disabled>
+                            <span class="input-group-text">مثقال</span>
+                        </div>
                     </div>
                 </div>
                 <div class="toggle-switch" style="margin-top: 1rem;">
@@ -394,17 +394,10 @@
                         <span class="slider"></span>
                     </label>
                 </div>
-                <div class="form-group" id="mesghal-display-group" style="margin-top: 1rem;">
-                    <label class="form-label">وزن مثقال</label>
-                    <div class="input-group rtl">
-                        <input type="text" id="abshe-weight-mesghal-display" class="input-field" disabled>
-                        <span class="input-group-text">مثقال</span>
-                    </div>
-                </div>
                 <div class="form-group">
                     <label class="form-label">عیار</label>
                     <div class="input-group rtl">
-                        <input type="text" id="abshe-ayar" class="input-field" inputmode="decimal" value="705">
+                        <input type="text" id="abshe-ayar" class="input-field" inputmode="decimal" value="750">
                         <span class="input-group-text">عیار</span>
                     </div>
                 </div>
@@ -416,13 +409,6 @@
                     <div class="input-group rtl">
                         <input type="text" id="motaferghe-weight-gram" class="input-field" inputmode="decimal">
                         <span class="input-group-text">گرم</span>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">مبلغ (تومان)</label>
-                    <div class="input-group rtl">
-                        <input type="tel" id="motaferghe-price" class="input-field" inputmode="numeric">
-                        <span class="input-group-text">تومان</span>
                     </div>
                 </div>
             </div>
@@ -477,8 +463,7 @@
         const mesghalDisplayGroup = document.getElementById('mesghal-display-group');
         const absheWeightMesghalDisplayInput = document.getElementById('abshe-weight-mesghal-display');
         const absheAyarInput = document.getElementById('abshe-ayar');
-        const motafergheWeightGramInput = document.getElementById('motaferghe-weight-gram'); // Changed from motaferghe-description
-        const motaferghePriceInput = document.getElementById('motaferghe-price');
+        const motafergheWeightGramInput = document.getElementById('motaferghe-weight-gram');
 
 
         // --- State ---
@@ -492,10 +477,9 @@
             // State for Abshe/Motaferghe calculations
             isAbsheActive: true, // true for Abshe, false for Motaferghe
             absheWeightGram: 0,
-            absheAyars: 705, // Default for 17.76 Ayar gold
+            absheAyars: 750, // Default Ayar set to 750
             showMesghalDisplay: false, // State for Mesghal display toggle
-            motafergheWeightGram: 0, // Changed from motafergheDescription
-            motaferghePrice: 0,
+            motafergheWeightGram: 0, 
         };
 
         // --- Helper Functions ---
@@ -520,12 +504,10 @@
         };
         const parseFormattedNumber = (str) => {
             if (!str) return 0;
-            // Remove non-numeric characters except decimal point for parsing
             return parseInt(toEnglishDigits(str).replace(/,/g, ''), 10) || 0;
         };
         const parseFloatFormattedNumber = (str) => {
             if (!str) return 0;
-            // Remove non-numeric characters except decimal point for parsing
             return parseFloat(toEnglishDigits(str).replace(/,/g, '')) || 0;
         };
 
@@ -557,15 +539,18 @@
                     }
                     chunk = chunk.trim();
                     if(chunk.endsWith(' و')) chunk = chunk.slice(0, -2);
+                    
+                    // Add a space before scale words if the chunk is not empty and a scale exists
                     if(scales[i]) {
-                        if (words.length > 0) chunk += ' و '; // Add 'و' between scale chunks
+                        if (chunk !== '') chunk += ' ';
                         chunk += scales[i];
                     }
                     words.unshift(chunk);
                 }
                 num = Math.floor(num/1000);
             }
-            return words.join(' ');
+            // Ensure proper spacing between scale words
+            return words.join(' و ').replace(/ و (هزار|میلیون|میلیارد)/g, ' $1');
         };
 
         const updatePriceInWords = () => {
@@ -591,6 +576,26 @@
             return formatted;
         };
 
+        const adjustMesghalFontSize = () => {
+            const inputField = absheWeightMesghalDisplayInput;
+            const text = inputField.value;
+            const len = text.length;
+
+            // Reset classes
+            inputField.classList.remove('font-small', 'font-xsmall', 'font-xxsmall', 'font-tiny');
+
+            if (len >= 20) {
+                inputField.classList.add('font-tiny');
+            } else if (len >= 17) {
+                inputField.classList.add('font-xxsmall');
+            } else if (len >= 15) {
+                inputField.classList.add('font-xsmall');
+            } else if (len >= 13) {
+                inputField.classList.add('font-small');
+            }
+            // Default size will be applied if no conditions met
+        };
+
         // --- Calculation & Rendering ---
         function calculateAndRender() {
             let invoiceHTML = '';
@@ -604,15 +609,18 @@
                 const absheWeightGram = parseFloatFormattedNumber(absheWeightGramInput.value);
                 const absheAyars = parseFloatFormattedNumber(absheAyarInput.value);
 
-                // Update Mesghal display
+                // Update Mesghal display and font size
                 if (state.showMesghalDisplay) {
-                    absheWeightMesghalDisplayInput.value = formatMesghal(absheWeightGram);
+                    const formattedMesghal = formatMesghal(absheWeightGram);
+                    absheWeightMesghalDisplayInput.value = formattedMesghal;
+                    adjustMesghalFontSize(); // Adjust font size after updating value
+                } else {
+                    absheWeightMesghalDisplayInput.value = '';
                 }
 
                 if (absheWeightGram > 0 && goldPricePerMesghal > 0 && absheAyars > 0) {
-                    // Convert total abshe weight (in grams) to equivalent 18K gold grams based on Ayar
-                    // Then convert 18K gold grams to 18K gold mesghals
-                    // Finally, multiply by the "Maghane" price (which is per Mesghal of 18K)
+                    // Convert total abshe weight (in grams) to equivalent 18K gold mesghals
+                    // Then, multiply by the "Maghane" price (which is per Mesghal of 18K)
                     const absheEquivalent18KMesghals = (absheWeightGram / MESGHAL_GRAM_FACTOR) * (absheAyars / 750);
                     baseValue = absheEquivalent18KMesghals * goldPricePerMesghal;
                     
@@ -626,26 +634,19 @@
                 }
             } else { // Motaferghe Calculation (if active)
                 const motafergheWeightGram = parseFloatFormattedNumber(motafergheWeightGramInput.value);
-                const motaferghePrice = parseFormattedNumber(motaferghePriceInput.value);
+                // For Motaferghe, price is NOT directly entered. It's assumed the value is calculated elsewhere or based on custom logic.
+                // For now, if only weight is present, we will just display the weight without a price.
+                // If you want to associate a price with motaferghe, you'll need to define how that price is derived (e.g., specific price per gram, etc.)
+                if (motafergheWeightGram > 0) {
+                    // Assuming for "motaferghe" without a price input, it's just an item of specific weight
+                    // If you need a calculation for this (e.g., based on gold price), let me know.
+                    baseValue = 0; // No base value for motaferghe if no price is specified
 
-                // If both weight and price are entered, use them
-                if (motafergheWeightGram > 0 && motaferghePrice > 0) {
-                    baseValue = motaferghePrice;
                     invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">فاکتور متفرقه</div>`;
                     invoiceHTML += `<div class="invoice-item">
                         <div class="invoice-item-header">
                             <span>متفرقه ${toPersianDigits(motafergheWeightGram.toFixed(2))} گرم</span>
-                            <span>${formatNumber(baseValue)} تومان</span>
-                        </div>
-                    </div></div>`;
-                } else if (motaferghePrice > 0) { // Only price entered
-                     baseValue = motaferghePrice;
-                    invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">فاکتور متفرقه</div>`;
-                    invoiceHTML += `<div class="invoice-item">
-                        <div class="invoice-item-header">
-                            <span>آیتم متفرقه</span>
-                            <span>${formatNumber(baseValue)} تومان</span>
-                        </div>
+                            <span></span> </div>
                     </div></div>`;
                 }
             }
@@ -734,13 +735,15 @@
                  smartDiscountContainer.classList.add('hidden'); return;
             }
 
+            // Clear previous active state before rendering new buttons
+            state.smartDiscount = 0;
+
             sortedOptions.forEach(discountAmount => {
                 const btn = document.createElement('button');
                 btn.className = 'btn smart-discount-btn';
                 const roundedFinalPrice = currentTotal - discountAmount;
                 btn.textContent = `رند به ${formatNumber(roundedFinalPrice)}`;
                 btn.dataset.value = discountAmount;
-                if (state.smartDiscount === discountAmount) btn.classList.add('active');
                 smartDiscountOptions.appendChild(btn);
             });
         }
@@ -819,7 +822,7 @@
         });
 
         // Motaferghe Inputs
-        motafergheWeightGramInput.addEventListener('input', (e) => { // Now accepts weight
+        motafergheWeightGramInput.addEventListener('input', (e) => { 
             const value = toEnglishDigits(e.target.value);
             if (/^\d*\.?\d*$/.test(value)) {
                 state.motafergheWeightGram = parseFloat(value);
@@ -829,17 +832,8 @@
             }
             calculateAndRender();
         });
-
-        motaferghePriceInput.addEventListener('input', (e) => {
-            const value = parseFormattedNumber(e.target.value);
-            if (value.toString().length <= 11) { // Allow up to 11 digits for price
-                state.motaferghePrice = value;
-                e.target.value = formatNumber(value);
-            } else {
-                e.target.value = formatNumber(state.motaferghePrice);
-            }
-            calculateAndRender();
-        });
+        
+        // Removed motaferghePriceInput event listener
 
         smartDiscountOptions.addEventListener('click', e => {
             const targetButton = e.target.closest('.smart-discount-btn');
