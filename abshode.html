@@ -753,7 +753,7 @@
                 };
             });
 
-            // New: Event listener for individual item profit sliders
+            // Corrected: Event listener for individual item profit sliders, with dynamic display update
             productItemsContainer.querySelectorAll('.item-profit-slider').forEach(slider => {
                 slider.oninput = (e) => {
                     const id = parseInt(e.target.dataset.id);
@@ -762,7 +762,11 @@
                     // Update the display next to the slider immediately
                     const display = e.target.closest('.profit-slider-group').querySelector('.profit-slider-value');
                     if (display) {
-                        display.textContent = `${toPersianDigits(value.toFixed(1))} %`; // Correctly updates slider value
+                        // Smart decimal formatting for slider display
+                        const formattedProfit = value % 1 === 0
+                            ? toPersianDigits(value.toFixed(0))
+                            : toPersianDigits(value.toFixed(1));
+                        display.textContent = `${formattedProfit} %`;
                     }
                 };
             });
@@ -782,18 +786,19 @@
         // --- Calculation & Rendering ---
         function calculateAndRender() {
             let invoiceHTML = '';
-            let totalBaseValue = 0;
-            let absheProfitAmount = 0;
-            let motafergheProfitAmount = 0;
-            let absheBaseValueTotal = 0;
-            let motafergheBaseValueTotal = 0;
+            let totalBaseValueBeforeProfit = 0; // Accumulates raw base value for overall total calculation
+            let absheProfitAmount = 0; // Accumulates profit amount from abshe items
+            let motafergheProfitAmount = 0; // Accumulates profit amount from motaferghe items
+            let absheBaseValueTotal = 0; // Accumulates raw base value of abshe items for average percentage calc
+            let motafergheBaseValueTotal = 0; // Accumulates raw base value of motaferghe items for average percentage calc
             let hasAbsheItems = false;
             let hasMotafergheItems = false;
 
             invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">جزئیات اقلام</div>`;
 
             state.products.forEach((item, index) => {
-                let itemBaseValue = 0;
+                let itemRawBaseValue = 0; // Value of item without profit
+                let itemValueWithProfit = 0; // Value of item including profit for display
                 let itemDescription = '';
 
                 if (item.type === 'abshe') {
@@ -804,7 +809,8 @@
 
                     if (item.weight > 0 && state.goldPrice > 0 && item.ayar > 0) {
                         const absheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (item.ayar / 750);
-                        itemBaseValue = absheEquivalent18KMesghals * state.goldPrice;
+                        itemRawBaseValue = absheEquivalent18KMesghals * state.goldPrice;
+                        itemValueWithProfit = itemRawBaseValue * (1 + item.profit / 100); // Calculate value with profit for display
                         
                         itemDescription = `آبشده ${toPersianDigits(item.weight)} گرم با عیار ${toPersianDigits(item.ayar)}`;
 
@@ -815,16 +821,15 @@
                             itemDescription += `<br><span class="invoice-item-details">آزمایشگاه: ${item.lab}</span>`;
                         }
                         
-                        // Display equivalent weight at 750 ayar if current ayar is not 750
                         if (item.ayar !== 750) {
                             const equivalentWeight750 = item.weight * (item.ayar / 750);
                             itemDescription += `<br><span class="invoice-item-details">وزن آبشده به عیار ۷۵۰: ${toPersianDigits(equivalentWeight750.toFixed(2))} گرم</span>`;
                         }
 
                         if (item.profit > 0) {
-                            absheProfitAmount += itemBaseValue * (item.profit / 100);
+                            absheProfitAmount += itemRawBaseValue * (item.profit / 100);
                         }
-                        absheBaseValueTotal += itemBaseValue;
+                        absheBaseValueTotal += itemRawBaseValue;
                     }
                 } else if (item.type === 'motaferghe') {
                     hasMotafergheItems = true;
@@ -835,33 +840,34 @@
                     if (item.weight > 0 && state.goldPrice > 0) {
                         const MOTAFERGHE_DEFAULT_AYAR = 750;
                         const motafergheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (MOTAFERGHE_DEFAULT_AYAR / 750);
-                        itemBaseValue = motafergheEquivalent18KMesghals * state.goldPrice;
+                        itemRawBaseValue = motafergheEquivalent18KMesghals * state.goldPrice;
+                        itemValueWithProfit = itemRawBaseValue * (1 + item.profit / 100); // Calculate value with profit for display
+                        
                         itemDescription = `متفرقه ${toPersianDigits(item.weight)} گرم`; 
                         
                         if (item.profit > 0) {
-                            motafergheProfitAmount += itemBaseValue * (item.profit / 100);
+                            motafergheProfitAmount += itemRawBaseValue * (item.profit / 100);
                         }
-                        motafergheBaseValueTotal += itemBaseValue;
+                        motafergheBaseValueTotal += itemRawBaseValue;
                     }
                 }
                 
-                if (itemBaseValue > 0) {
-                    totalBaseValue += itemBaseValue;
+                if (itemRawBaseValue > 0) { // Only add to total if item has a raw base value
+                    totalBaseValueBeforeProfit += itemRawBaseValue;
                     invoiceHTML += `<div class="invoice-item">
                         <div class="invoice-item-header">
                             <span>${itemDescription}</span>
-                            <span>${formatNumber(itemBaseValue)} تومان</span>
-                        </div>
+                            <span>${formatNumber(itemValueWithProfit)} تومان</span> </div>
                     </div>`;
                 }
             });
             invoiceHTML += `</div>`; // Close invoice-section for items
 
-            let totalProfitAmount = absheProfitAmount + motafergheProfitAmount;
-            let finalInvoiceValue = totalBaseValue + totalProfitAmount;
+            let totalProfitAmountDisplayed = absheProfitAmount + motafergheProfitAmount;
+            let finalInvoiceValue = totalBaseValueBeforeProfit + totalProfitAmountDisplayed; // Final total calculation
 
             // Render Profit lines based on item types and percentages
-            if (totalProfitAmount > 0) {
+            if (totalProfitAmountDisplayed > 0) {
                 invoiceHTML += `<div class="invoice-separator"></div>`;
 
                 const showBothLabels = hasAbsheItems && hasMotafergheItems;
