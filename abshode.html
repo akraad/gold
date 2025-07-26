@@ -566,7 +566,8 @@
         };
 
         // --- Dynamic Item Management ---
-        function createProductItem(type, weight = 0, ayar = 750, eng = 0, lab = '') {
+        // Added default values for eng and lab
+        function createProductItem(type, weight = 0, ayar = 0, eng = 0, lab = '') { // Ayar defaults to 0 (empty field)
             const id = itemIdCounter++;
             const item = { id, type, weight, ayar, eng, lab };
             state.products.push(item);
@@ -613,19 +614,14 @@
                                     <span class="input-group-text">عیار</span>
                                 </div>
                             </div>
-                        </div> <div class="form-group">
-                            <label class="form-label">انگ</label>
-                            <div class="input-group rtl">
-                                <input type="text" class="input-field abshe-eng-input" inputmode="numeric" value="${item.eng === 0 ? '' : toPersianDigits(item.eng)}">
-                                <span class="input-group-text">انگ</span>
-                            </div>
+                        </div> <label class="form-label">انگ</label>
+                        <div class="input-group rtl" style="margin-bottom: 0.75rem;"> <input type="text" class="input-field abshe-eng-input" inputmode="numeric" value="${item.eng === 0 ? '' : toPersianDigits(item.eng)}">
+                            <span class="input-group-text">انگ</span>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">آزمایشگاه</label>
-                            <div class="input-group rtl">
-                                <input type="text" class="input-field abshe-lab-input left-align" value="${item.lab || ''}">
-                                <span class="input-group-text">نام</span>
-                            </div>
+                        
+                        <label class="form-label">آزمایشگاه</label>
+                        <div class="input-group rtl">
+                            <input type="text" class="input-field abshe-lab-input" style="text-align: right;" value="${item.lab || ''}"> <span class="input-group-text">نام</span>
                         </div>
                     `;
                 } else if (item.type === 'motaferghe') {
@@ -693,36 +689,17 @@
                 };
             });
 
-            // Event listener for Lab input (text only, dynamic font size)
+            // Event listener for Lab input (text only, fixed font size)
             productItemsContainer.querySelectorAll('.abshe-lab-input').forEach(input => {
-                const adjustFontSize = (element) => {
-                    const len = element.value.length;
-                    if (len >= 20) {
-                        element.style.fontSize = '0.7em';
-                    } else if (len >= 16) {
-                        element.style.fontSize = '0.8em';
-                    } else if (len >= 13) {
-                        element.style.fontSize = '0.9em';
-                    } else if (len >= 10) {
-                        element.style.fontSize = '0.95em';
-                    } else if (len >= 6) {
-                        element.style.fontSize = '1em';
-                    } else {
-                        element.style.fontSize = '1.05em';
-                    }
-                };
-
                 input.oninput = (e) => {
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
                     const value = e.target.value;
-                    if (!/\d/.test(value)) {
+                    if (!/\d/.test(value)) { // Ensure no digits are entered
                         updateProductItem(id, 'lab', value);
-                        adjustFontSize(e.target);
                     } else {
                         e.target.value = state.products.find(item => item.id === id).lab;
                     }
                 };
-                adjustFontSize(input); // Initial font size adjustment
             });
 
             productItemsContainer.querySelectorAll('.motaferghe-weight-gram-input').forEach(input => {
@@ -743,7 +720,7 @@
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
                     removeProductItem(id);
                 };
-                // Ensure delete button is white and 'x' is black (handled by CSS, but good to double check)
+                // Ensure delete button is white and 'x' is black (explicitly set here)
                 button.style.backgroundColor = 'white';
                 button.style.color = 'black';
             });
