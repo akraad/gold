@@ -271,7 +271,6 @@
             margin-bottom: 0;
         }
         
-        /* UPDATED: Smaller font size for product section inputs */
         #product-items-container .input-field,
         #product-items-container .select-field,
         #product-items-container .input-group-text,
@@ -332,6 +331,10 @@
         .btn-secondary {
             background-color: var(--primary-light);
             color: var(--primary-color);
+            /* UPDATED: Smaller purchase buttons */
+            font-size: 0.9rem;
+            padding: 0.6rem 0.8rem;
+            font-weight: 500;
         }
         .btn-secondary:hover {
             background-color: #dbe8fd;
@@ -393,6 +396,15 @@
         }
         #purchase-items-container .item-card {
             background-color: var(--bg-color);
+        }
+        
+        /* UPDATED: Smaller purchase section inputs */
+        #purchase-items-container .input-field,
+        #purchase-items-container .select-field,
+        #purchase-items-container .input-group-text {
+            font-size: 0.9rem;
+            padding-top: 0.6rem;
+            padding-bottom: 0.6rem;
         }
 
         /* Smart Discount */
@@ -641,7 +653,7 @@
         };
 
         const formatNumber = (num) => {
-            if (isNaN(num) || num === null) return '۰';
+            if (isNaN(num) || num === null || num === 0) return '';
             return toPersianDigits(Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','));
         };
         
@@ -710,7 +722,7 @@
                 id,
                 type: 'طلا',
                 weight: '',
-                ajratType: 'toman', // UPDATED: Default is now Toman
+                ajratType: 'toman',
                 ajratValue: ''
             };
             state.products.push(item);
@@ -771,20 +783,21 @@
                 calculateAndRender();
             });
             ajratInput.addEventListener('input', (e) => {
-                let value = toEnglishDigits(e.target.value);
                 const isPercent = item.ajratType === 'percent';
                 if (isPercent) {
+                    let value = toEnglishDigits(e.target.value);
                     if (/^\d*\.?\d*$/.test(value)) {
                         if (parseFloat(value) > 30) value = '30';
                         item.ajratValue = value;
                         e.target.value = toPersianDigits(value);
                     } else e.target.value = toPersianDigits(item.ajratValue);
                 } else {
-                    if (/^\d*$/.test(value)) {
-                        if (value.length > 7) value = value.slice(0, 7);
+                    // UPDATED: Use formatting for Toman input
+                    const value = parseFormattedNumber(e.target.value);
+                     if (value.toString().length <= 7) {
                         item.ajratValue = value;
-                        e.target.value = toPersianDigits(value);
-                    } else e.target.value = toPersianDigits(item.ajratValue);
+                        e.target.value = formatNumber(value);
+                    } else e.target.value = formatNumber(item.ajratValue);
                 }
                 calculateAndRender();
             });
@@ -903,7 +916,8 @@
                 const weight = parseFloat(p.weight) || 0;
                 if (weight === 0) return;
                 const priceOfGold = weight * state.goldPrice;
-                const ajratValue = parseFloat(p.ajratValue) || 0;
+                // UPDATED: Make sure to parse formatted number for ajrat
+                const ajratValue = p.ajratType === 'percent' ? (parseFloat(p.ajratValue) || 0) : (parseFormattedNumber(p.ajratValue.toString()) || 0);
                 const ajratAmount = p.ajratType === 'percent' ? priceOfGold * (ajratValue / 100) : ajratValue;
                 const profitAmount = (priceOfGold + ajratAmount) * (state.profitPercentage / 100);
                 totalSale += priceOfGold + ajratAmount + profitAmount;
@@ -955,16 +969,16 @@
                  invoiceItemsContainer.innerHTML = `
                     <div class="invoice-line">
                         <span class="invoice-label">جمع کل طلا</span>
-                        <span class="invoice-value">${formatNumber(totalGoldValue)} تومان</span>
+                        <span class="invoice-value">${formatNumber(totalGoldValue) || '۰'} تومان</span>
                     </div>
                     <div class="invoice-product-details">وزن کل: ${toPersianDigits(totalWeight.toFixed(3))} گرم</div>
                     <div class="invoice-line">
                         <span class="invoice-label">اجرت ساخت</span>
-                        <span class="invoice-value">${formatNumber(totalAjrat)} تومان</span>
+                        <span class="invoice-value">${formatNumber(totalAjrat) || '۰'} تومان</span>
                     </div>
                     <div class="invoice-line">
                         <span class="invoice-label">سود (${toPersianDigits(state.profitPercentage.toFixed(1))})%</span>
-                        <span class="invoice-value">${formatNumber(totalProfit)} تومان</span>
+                        <span class="invoice-value">${formatNumber(totalProfit) || '۰'} تومان</span>
                     </div>`;
             }
         }
@@ -978,7 +992,7 @@
                     invoicePurchasesContainer.innerHTML += `
                         <div class="invoice-line">
                             <span class="invoice-label">${label}</span>
-                            <span class="invoice-value danger">- ${formatNumber(value)} تومان</span>
+                            <span class="invoice-value danger">- ${formatNumber(value) || '۰'} تومان</span>
                         </div>
                         ${details ? `<div class="invoice-product-details danger">${details}</div>` : ''}`;
                 }
@@ -1007,18 +1021,18 @@
         
         function renderInvoiceSummary(tax, discount) {
             invoiceSummaryContainer.innerHTML = '';
-             if (tax > 0) invoiceSummaryContainer.innerHTML += `<div class="invoice-line"><span class="invoice-label">مالیات کل</span><span class="invoice-value">${formatNumber(tax)} تومان</span></div>`;
-             if (discount > 0) invoiceSummaryContainer.innerHTML += `<div class="invoice-line"><span class="invoice-label">تخفیف</span><span class="invoice-value danger">- ${formatNumber(discount)} تومان</span></div>`;
+             if (tax > 0) invoiceSummaryContainer.innerHTML += `<div class="invoice-line"><span class="invoice-label">مالیات کل</span><span class="invoice-value">${formatNumber(tax) || '۰'} تومان</span></div>`;
+             if (discount > 0) invoiceSummaryContainer.innerHTML += `<div class="invoice-line"><span class="invoice-label">تخفیف</span><span class="invoice-value danger">- ${formatNumber(discount) || '۰'} تومان</span></div>`;
         }
         
         function renderInvoiceTotal(total) {
             if (total >= 0) {
                 totalLabel.textContent = 'مبلغ قابل پرداخت';
-                totalValue.textContent = `${formatNumber(total)} تومان`;
+                totalValue.textContent = `${formatNumber(total) || '۰'} تومان`;
                 totalValue.classList.remove('success');
             } else {
                 totalLabel.textContent = 'مبلغ پرداختی به مشتری';
-                totalValue.textContent = `${formatNumber(Math.abs(total))} تومان`;
+                totalValue.textContent = `${formatNumber(Math.abs(total)) || '۰'} تومان`;
                 totalValue.classList.add('success');
             }
         }
@@ -1048,7 +1062,6 @@
             sortedOptions.forEach(optValue => {
                 const btn = document.createElement('button');
                 btn.className = 'btn smart-discount-btn';
-                // UPDATED: Show rounded total instead of discount amount
                 btn.textContent = `رند به ${formatNumber(total - optValue)}`;
                 btn.dataset.value = optValue;
 
@@ -1083,7 +1096,6 @@
         taxSwitch.addEventListener('change', (e) => { state.taxEnabled = e.target.checked; calculateAndRender(); });
         
         manualDiscountInput.addEventListener('input', () => {
-            // UPDATED: Clear smart discount when manual is used
             if (state.smartDiscount > 0) {
                 state.smartDiscount = 0;
             }
@@ -1096,17 +1108,16 @@
             }
         });
 
-        // UPDATED: Smart discount click delegation
         smartDiscountOptions.addEventListener('click', e => {
-            if (e.target.classList.contains('smart-discount-btn')) {
-                const discountValue = Number(e.target.dataset.value);
+            const targetButton = e.target.closest('.smart-discount-btn');
+            if (targetButton) {
+                const discountValue = Number(targetButton.dataset.value);
                 
-                // Toggle functionality
                 if (state.smartDiscount === discountValue) {
                     state.smartDiscount = 0;
                 } else {
                     state.smartDiscount = discountValue;
-                    state.manualDiscount = 0; // Clear manual discount
+                    state.manualDiscount = 0;
                     manualDiscountInput.value = '';
                 }
                 calculateAndRender();
