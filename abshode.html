@@ -81,7 +81,7 @@
         }
 
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem; /* Slightly reduced default margin */
         }
         
         .form-group:last-child {
@@ -249,24 +249,17 @@
             position: absolute; top: -10px; left: -10px; width: 24px; height: 24px;
             border-radius: 50%;
             border: 1px solid black; /* Black border */
-            color: white; /* Make the 'x' white */
+            color: black; /* Make the 'x' black for contrast on white */
+            background-color: white; /* Simple white background */
             cursor: pointer; display: flex; align-items: center;
             justify-content: center; font-weight: bold; transition: all 0.2s ease;
             z-index: 10;
-            /* Initial background, will be overridden by JS */
-            background: linear-gradient(45deg, #e74c3c, #9b59b6, #3498db, #2ecc71);
-            background-size: 200% 200%; /* Make gradient larger for smooth movement */
-            animation: gradientShift 5s ease infinite; /* Optional: animate gradient */
         }
         
         .delete-item-btn:hover { transform: scale(1.1); }
         
-        /* Keyframes for optional gradient animation */
-        @keyframes gradientShift {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+        /* Remove keyframes as animation is no longer used for delete button */
+        /* @keyframes gradientShift { ... } */
 
         .btn {
             width: 100%; padding: 0.85rem 1rem; font-family: var(--font-family);
@@ -550,7 +543,7 @@
             }
         };
 
-        // Helper function for random gradient background
+        // Helper function for random gradient background (now removed for delete button)
         const getRandomGradient = () => {
             const colors = [
                 '#e74c3c', // Red
@@ -573,31 +566,30 @@
         };
 
         // --- Dynamic Item Management ---
-        // Added default values for eng and lab
         function createProductItem(type, weight = 0, ayar = 750, eng = 0, lab = '') {
             const id = itemIdCounter++;
-            const item = { id, type, weight, ayar, eng, lab }; // Include new properties in item state
+            const item = { id, type, weight, ayar, eng, lab };
             state.products.push(item);
             renderProductItems();
-            calculateAndRender(); // Recalculate after adding
+            calculateAndRender();
         }
 
         function removeProductItem(id) {
             state.products = state.products.filter(item => item.id !== id);
             renderProductItems();
-            calculateAndRender(); // Recalculate after removing
+            calculateAndRender();
         }
 
         function updateProductItem(id, field, value) {
             const itemIndex = state.products.findIndex(item => item.id === id);
             if (itemIndex > -1) {
                 state.products[itemIndex][field] = value;
-                calculateAndRender(); // Recalculate after updating
+                calculateAndRender();
             }
         }
 
         function renderProductItems() {
-            productItemsContainer.innerHTML = ''; // Clear existing
+            productItemsContainer.innerHTML = '';
             state.products.forEach(item => {
                 let itemCardHTML = `
                     <div class="item-card" data-id="${item.id}">
@@ -687,14 +679,13 @@
                 };
             });
 
-            // New: Event listener for Eng input (whole numbers only)
+            // Event listener for Eng input (whole numbers only)
             productItemsContainer.querySelectorAll('.abshe-eng-input').forEach(input => {
                 input.oninput = (e) => {
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
                     const value = toEnglishDigits(e.target.value);
-                    // Allow only digits
-                    if (/^\d*$/.test(value)) { // Checks if value contains only digits
-                        updateProductItem(id, 'eng', parseInt(value) || 0); // Parse as integer, default to 0 if empty
+                    if (/^\d*$/.test(value)) {
+                        updateProductItem(id, 'eng', parseInt(value) || 0);
                         e.target.value = toPersianDigits(value);
                     } else {
                         e.target.value = toPersianDigits(state.products.find(item => item.id === id).eng);
@@ -702,11 +693,10 @@
                 };
             });
 
-            // New: Event listener for Lab input (text only, dynamic font size)
+            // Event listener for Lab input (text only, dynamic font size)
             productItemsContainer.querySelectorAll('.abshe-lab-input').forEach(input => {
-                // Function to adjust font size based on character count
                 const adjustFontSize = (element) => {
-                    const len = element.value.length; // Use raw length for font size
+                    const len = element.value.length;
                     if (len >= 20) {
                         element.style.fontSize = '0.7em';
                     } else if (len >= 16) {
@@ -716,27 +706,23 @@
                     } else if (len >= 10) {
                         element.style.fontSize = '0.95em';
                     } else if (len >= 6) {
-                        element.style.fontSize = '1em'; // Base font size
+                        element.style.fontSize = '1em';
                     } else {
-                        element.style.fontSize = '1.05em'; // Slightly larger for very short inputs
+                        element.style.fontSize = '1.05em';
                     }
                 };
 
                 input.oninput = (e) => {
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
-                    const value = e.target.value; // Don't convert to English digits for text input
-                    // Allow only non-numeric characters for 'آزمایشگاه'
-                    if (!/\d/.test(value)) { // Check if the input contains any digits
+                    const value = e.target.value;
+                    if (!/\d/.test(value)) {
                         updateProductItem(id, 'lab', value);
-                        // Adjust font size immediately after input
                         adjustFontSize(e.target);
                     } else {
-                        // Revert to previous valid value if digits are entered
                         e.target.value = state.products.find(item => item.id === id).lab;
                     }
                 };
-                // Initial font size adjustment when rendered for existing values
-                adjustFontSize(input);
+                adjustFontSize(input); // Initial font size adjustment
             });
 
             productItemsContainer.querySelectorAll('.motaferghe-weight-gram-input').forEach(input => {
@@ -757,8 +743,9 @@
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
                     removeProductItem(id);
                 };
-                // Apply random gradient on creation/re-render
-                button.style.background = getRandomGradient();
+                // Ensure delete button is white and 'x' is black (handled by CSS, but good to double check)
+                button.style.backgroundColor = 'white';
+                button.style.color = 'black';
             });
         }
 
@@ -766,16 +753,15 @@
         // --- Calculation & Rendering ---
         function calculateAndRender() {
             let invoiceHTML = '';
-            let totalBaseValue = 0; // Sum of base values from all products
+            let totalBaseValue = 0;
 
             invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">جزئیات اقلام</div>`;
 
-            state.products.forEach((item, index) => { // Added index to handle separators
+            state.products.forEach((item, index) => {
                 let itemBaseValue = 0;
                 let itemDescription = '';
 
                 if (item.type === 'abshe') {
-                    // Add separator between abshe and motaferghe if they are mixed
                     if (index > 0 && state.products[index-1].type !== 'abshe') {
                         invoiceHTML += `<div class="invoice-separator" style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></div>`;
                     }
@@ -784,19 +770,16 @@
                         const absheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (item.ayar / 750);
                         itemBaseValue = absheEquivalent18KMesghals * state.goldPrice;
                         
-                        // Start item description with main details
                         itemDescription = `آبشده ${toPersianDigits(Math.round(item.weight))} گرم با عیار ${toPersianDigits(item.ayar)}`;
 
-                        // Add Eng and Lab on separate lines using <br> and new spans/divs if values exist
                         if (item.eng > 0) {
-                            itemDescription += `<br><span class="invoice-item-details">انگ: ${toPersianDigits(item.eng)}</span>`; // Ensured toPersianDigits
+                            itemDescription += `<br><span class="invoice-item-details">انگ: ${toPersianDigits(item.eng)}</span>`;
                         }
                         if (item.lab) {
                             itemDescription += `<br><span class="invoice-item-details">آزمایشگاه: ${item.lab}</span>`;
                         }
                     }
                 } else if (item.type === 'motaferghe') {
-                    // Always add a separator before a motaferghe item, unless it's the very first item
                     if (index > 0) {
                         invoiceHTML += `<div class="invoice-separator" style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></div>`;
                     }
@@ -863,7 +846,7 @@
             }
 
             invoiceContentContainer.innerHTML = invoiceHeaderExtra + invoiceHTML + finalTotalHTML;
-            renderSmartDiscount(grandTotal); // Smart discount is based on the final grand total
+            renderSmartDiscount(grandTotal);
         }
         
         function renderSmartDiscount(currentTotal) {
@@ -933,6 +916,11 @@
         addMotafergheBtn.addEventListener('click', () => {
             productItemsContainer.classList.remove('hidden'); // Show container when adding
             createProductItem('motaferghe');
+        });
+
+        // Print button functionality
+        printBtn.addEventListener('click', () => {
+            window.print();
         });
 
         // Initial rendering on load - no items added initially, container starts hidden
