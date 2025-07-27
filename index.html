@@ -24,6 +24,7 @@
             --font-family: 'Vazirmatn', sans-serif;
             --border-radius: 0.75rem;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            --success-color: #27ae60; /* Green for positive effect */
         }
 
         /* General Styles */
@@ -310,6 +311,7 @@
         .invoice-separator { height: 1px; background-color: var(--border-color); margin: 1rem 0; }
         .invoice-value-danger { color: var(--danger-color); }
         .invoice-value-discount { color: var(--discount-color); }
+        .invoice-value-success { color: var(--success-color); } /* New style for success (green) */
         .invoice-final-total {
             display: flex; justify-content: space-between;
             padding-top: 1rem; margin-top: 1rem;
@@ -889,7 +891,7 @@
             let summaryHTML = '';
             let grandTotal = 0;
             let totalTax = 0;
-            let itemsWithTaxCount = 0; // New: Counter for items with tax
+            let itemsWithTaxCount = 0; 
 
             const validProducts = state.products.filter(p => parseFloat(p.weight) > 0);
             if (validProducts.length > 0) {
@@ -927,7 +929,6 @@
                     const itemTax = itemTaxPerGram * weight;
                     totalTax += itemTax;
 
-                    // Increment itemsWithTaxCount if this item has calculated tax
                     if (itemTax > 0) {
                         itemsWithTaxCount++;
                     }
@@ -956,13 +957,6 @@
                         details.push(`بدون اجرت`);
                     }
                     
-                    // Only show tax per item if tax is enabled and itemTax > 0
-                    if (state.taxEnabled && itemTax > 0) { 
-                        details.push(`مالیات: ${formatNumber(itemTax)}`);
-                    } else if (!state.taxEnabled) { 
-                        details.push(`بدون مالیات`);
-                    }
-
                     if (details.length > 0) productsHTML += `<div class="invoice-item-details">${details.join(' - ')}</div>`;
                     productsHTML += `</div>`;
                 });
@@ -1024,7 +1018,7 @@
             
             state.manualDiscount = parseFormattedNumber(manualDiscountInput.value);
             const maxDiscount = currentGrandTotal * 0.3; 
-            if (state.manualDiscount > maxDiscount) {
+            if (currentGrandTotal > 0 && state.manualDiscount > maxDiscount) { // Only cap discount if total is positive
                 state.manualDiscount = maxDiscount;
                 manualDiscountInput.value = formatNumber(state.manualDiscount);
             }
@@ -1032,40 +1026,80 @@
             currentGrandTotal -= state.manualDiscount;
 
             let roundDiscountAmount = 0;
-            if (state.roundDiscountEnabled && currentGrandTotal > 0) {
-                const remainder5k = currentGrandTotal % 5000;
-                const remainder10k = currentGrandTotal % 10000;
+            let roundDiscountLabel = 'تخفیف رند'; // Default label
+            let roundDiscountClass = 'invoice-value-discount'; // Default class (red)
 
-                if (remainder10k !== 0) { 
+            if (state.roundDiscountEnabled) {
+                if (currentGrandTotal > 0) { // Scenario 1: We receive money from customer (needs to be rounded down)
+                    const lastThreeDigits = currentGrandTotal % 1000;
+                    let desiredRoundedValue = currentGrandTotal - lastThreeDigits; 
+
+                    const remainder5k = desiredRoundedValue % 5000;
                     if (remainder5k !== 0) { 
-                        if (remainder5k < 2500) { 
-                            roundDiscountAmount = remainder5k;
-                        } else { 
-                            roundDiscountAmount = remainder5k - 5000; 
-                            roundDiscountAmount = Math.abs(roundDiscountAmount);
-                        }
+                        desiredRoundedValue = desiredRoundedValue - remainder5k; 
                     }
-                }
-                
-                roundDiscountAmount = Math.min(roundDiscountAmount, currentGrandTotal);
-                currentGrandTotal -= roundDiscountAmount;
+                    
+                    roundDiscountAmount = currentGrandTotal - desiredRoundedValue;
+                    roundDiscountAmount = Math.max(0, Math.min(roundDiscountAmount, currentGrandTotal)); // Ensure positive and not over total
+                    
+                    if (roundDiscountAmount > 0) { // Only apply if there's a positive discount
+                        currentGrandTotal -= roundDiscountAmount;
+                        roundDiscountLabel = 'تخفیف رند';
+                        roundDiscountClass = 'invoice-value-discount';
+                    } else {
+                        roundDiscountAmount = 0; // No effective round discount
+                    }
 
-                if (roundDiscountAmount > 0) {
-                    summaryHTML += `<div class="invoice-summary-line"><span>تخفیف رند</span><span class="invoice-value-discount">${formatNumber(roundDiscountAmount)} تومان</span></div>`;
+                } else if (currentGrandTotal < 0) { // Scenario 2: We pay money to customer (needs to be rounded up, to customer's benefit)
+                    // Work with absolute value for rounding
+                    let absoluteTotal = Math.abs(currentGrandTotal);
+                    
+                    const lastThreeDigits = absoluteTotal % 1000;
+                    let desiredRoundedValue;
+
+                    if (lastThreeDigits === 0) { // Already ends in 000
+                        desiredRoundedValue = absoluteTotal;
+                    } else {
+                        desiredRoundedValue = absoluteTotal + (1000 - lastThreeDigits); // Round up to nearest 000
+                    }
+
+                    const remainder5k = desiredRoundedValue % 5000;
+                    if (remainder5k !== 0) { 
+                        // If not divisible by 5000, round up to the next 5000 multiple
+                        desiredRoundedValue = desiredRoundedValue + (5000 - remainder5k); 
+                    }
+                    
+                    roundDiscountAmount = desiredRoundedValue - absoluteTotal;
+                    
+                    // The roundDiscountAmount here is effectively an "extra payment" to the customer
+                    // We need to ADD this amount to the currentGrandTotal (which is negative)
+                    // Or, subtract it from the absolute value, then convert back to negative.
+                    currentGrandTotal -= roundDiscountAmount; // This makes negative number "less negative" or positive
+                    
+                    if (roundDiscountAmount > 0) {
+                        roundDiscountLabel = 'رند به نفع مشتری';
+                        roundDiscountClass = 'invoice-value-success';
+                    } else {
+                         roundDiscountAmount = 0; // No effective round adjustment
+                    }
                 }
             }
 
 
             // Condition for displaying total tax
             if (state.taxEnabled && totalTax > 0 && itemsWithTaxCount >= 2) {
-                 summaryHTML += `<div class="invoice-separator"></div>`; // Add separator only if tax and/or manual discount is displayed
+                 summaryHTML += `<div class="invoice-separator"></div>`; 
                  summaryHTML += `<div class="invoice-summary-line"><span>جمع مالیات</span><span>${formatNumber(totalTax)} تومان</span></div>`;
-            } else if (state.manualDiscount > 0) { // If only manual discount is present
+            } else if (state.manualDiscount > 0 || (state.roundDiscountEnabled && roundDiscountAmount > 0)) { 
                 summaryHTML += `<div class="invoice-separator"></div>`;
             }
             
             if (state.manualDiscount > 0) {
                  summaryHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-discount">${formatNumber(state.manualDiscount)} تومان</span></div>`;
+            }
+
+            if (state.roundDiscountEnabled && roundDiscountAmount > 0) { // Display round discount if it was applied
+                summaryHTML += `<div class="invoice-summary-line"><span>${roundDiscountLabel}</span><span class="${roundDiscountClass}">${formatNumber(roundDiscountAmount)} تومان</span></div>`;
             }
             
             grandTotal = currentGrandTotal;
