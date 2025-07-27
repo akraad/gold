@@ -362,7 +362,8 @@
 
         @media print {
             body > .container > *:not(#invoice-card),
-            #print-btn-container { 
+            #print-btn-container,
+            .card:has(#customer-name) { /* Hide the customer and date input card */
                 display: none;
             }
             #invoice-card {
@@ -386,6 +387,24 @@
 
         .print-only {
             display: none; 
+        }
+
+        /* Styles for date sliders */
+        .date-slider-group {
+            padding-top: 0.5rem; 
+            margin-top: 0.5rem; 
+        }
+        .date-slider-value {
+            text-align: center; font-weight: 600; font-size: 0.95rem; 
+            margin-top: 0.3rem; 
+            color: var(--primary-color);
+        }
+
+        /* Specific style for selected gender icons */
+        .gender-icon-selected {
+            opacity: 1 !important;
+            border: 2px solid var(--primary-color);
+            border-radius: 50%;
         }
 
 
@@ -451,6 +470,38 @@
                 </div>
         </div>
 
+        <div class="card">
+            <h2 class="card-header">اطلاعات خریدار و تاریخ</h2>
+            
+            <div class="form-group">
+                <label class="form-label" style="display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
+                    <img src="https://img.icons8.com/ios-filled/20/000000/user-male-circle.png" alt="Male Icon" id="male-icon" style="cursor: pointer; opacity: 0.5;" title="جناب آقای">
+                    <img src="https://img.icons8.com/ios-filled/20/000000/user-female-circle.png" alt="Female Icon" id="female-icon" style="cursor: pointer; opacity: 0.5;" title="سرکار خانم">
+                    نام خریدار
+                </label>
+                <input type="text" id="customer-name" class="input-field" placeholder="فقط حروف فارسی">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">تاریخ</label>
+                <div class="date-input-group">
+                    <div class="date-slider-group">
+                        <div class="date-slider-value" id="day-display"></div>
+                        <input type="range" min="1" max="31" value="1" class="profit-slider" id="day-slider">
+                    </div>
+                    <div class="date-slider-group" style="margin-top: 1rem;">
+                        <div class="date-slider-value" id="month-display"></div>
+                        <input type="range" min="1" max="12" value="1" class="profit-slider" id="month-slider">
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <div class="input-group rtl">
+                            <input type="tel" id="year-input" class="input-field" inputmode="numeric" maxlength="4">
+                            <span class="input-group-text">سال</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div id="print-btn-container">
             <button id="print-btn" class="btn btn-primary">چاپ فاکتور</button>
         </div>
@@ -473,6 +524,14 @@
         const addAbsheBtn = document.getElementById('add-abshe-btn');
         const addMotafergheBtn = document.getElementById('add-motaferghe-btn');
 
+        // New DOM Elements for customer and date
+        const customerNameInput = document.getElementById('customer-name');
+        const maleIcon = document.getElementById('male-icon');
+        const femaleIcon = document.getElementById('female-icon');
+        const daySlider = document.getElementById('day-slider');
+        const monthSlider = document.getElementById('month-slider');
+        const yearInput = document.getElementById('year-input');
+
         // --- State ---
         const MESGHAL_GRAM_FACTOR = 4.608;
         let itemIdCounter = 0;
@@ -481,7 +540,12 @@
             goldPrice: 0,
             manualDiscount: 0,
             isRoundingActive: true, // Set to true by default for the switch
-            products: []
+            products: [],
+            customerName: '', // New
+            customerGender: null, // 'male', 'female', or null (New)
+            day: 1, // New
+            month: 1, // New
+            year: null // New
         };
 
         // --- Helper Functions ---
@@ -556,6 +620,45 @@
                 i++;
             }
             return words.filter(Boolean).join(' و ');
+        };
+
+        // Helper function for Jalali Date conversion
+        function gregorianToJalali(gy, gm, gd) {
+            var g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365];
+            var jy = (gy <= 1600) ? 979 : 10;
+            gy -= (gy >= 1600) ? 1600 : -471;
+            var gy2 = (gm > 2) ? (gy + 1) : gy;
+            var days = (365 * gy) + (parseInt((gy2 + 3) / 4)) - (parseInt((gy2 + 99) / 100)) + (parseInt((gy2 + 399) / 400)) - 80 + gd + g_d_m[gm - 1];
+            jy += 33 * (parseInt(days / 12053));
+            days %= 12053;
+            jy += 4 * (parseInt(days / 1461));
+            days %= 1461;
+            jy += parseInt(days / 365);
+            days %= 365;
+            for (var i = 0; i < 11; i++) {
+                if (days < (31 * (i + 1))) {
+                    break;
+                }
+            }
+            var jm = i + 1;
+            var jd = days - (31 * i) + 1;
+            return [jy, jm, jd];
+        }
+
+        const getJalaliMonthName = (monthNum) => {
+            const monthNames = [
+                'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
+                'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
+            ];
+            return monthNames[monthNum - 1] || '';
+        };
+
+        const getDaysInMonth = (year, month) => {
+            if (month <= 6) return 31; // Farvardin to Shahrivar
+            if (month <= 11) return 30; // Mehr to Bahman
+            // Esfand
+            const isLeapYear = (y) => (y % 33 === 1 || y % 33 === 5 || y % 33 === 8 || y % 33 === 12 || y % 33 === 17 || y % 33 === 21 || y % 33 === 26 || y % 33 === 30);
+            return isLeapYear(year) ? 30 : 29;
         };
 
 
@@ -1009,12 +1112,48 @@
                                   </p>`;
             }
             
-            let invoiceHeaderExtra = '';
+            // Update customer and date display in invoice (Moved from general event listeners)
+            let customerDisplay = '';
+            if (state.customerName) {
+                if (state.customerGender === 'male') {
+                    customerDisplay = `جناب آقای ${state.customerName}`;
+                } else if (state.customerGender === 'female') {
+                    customerDisplay = `سرکار خانم ${state.customerName}`;
+                    femaleIcon.classList.add('gender-icon-selected'); // Ensure the icon is selected if coming from state load
+                    maleIcon.classList.remove('gender-icon-selected');
+                } else {
+                    customerDisplay = state.customerName;
+                    maleIcon.classList.remove('gender-icon-selected'); // Ensure no icon is selected
+                    femaleIcon.classList.remove('gender-icon-selected');
+                }
+            } else { // If customer name is empty, clear gender selection visually
+                maleIcon.classList.remove('gender-icon-selected');
+                femaleIcon.classList.remove('gender-icon-selected');
+            }
+
+            let dateDisplay = '';
+            if (state.day && state.month && state.year) {
+                dateDisplay = `${toPersianDigits(state.day)} ${getJalaliMonthName(state.month)} ${toPersianDigits(state.year)}`;
+            }
+
+            let invoiceHeaderExtra = ''; // Initialize here
             if (state.goldPrice > 0) {
                 invoiceHeaderExtra = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">قیمت مظنه طلا: ${formatNumber(state.goldPrice)} تومان</div>`;
             }
 
-            invoiceContentContainer.innerHTML = invoiceHeaderExtra + invoiceHTML + finalTotalHTML + disclaimerHTML;
+            // Combine customer, date, and gold price display for print-only
+            let combinedPrintHeader = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 1em; color: var(--text-color);">`;
+            if (customerDisplay) {
+                combinedPrintHeader += `<p style="margin-bottom: 5px;">نام خریدار: ${customerDisplay}</p>`;
+            }
+            if (dateDisplay) {
+                combinedPrintHeader += `<p>تاریخ: ${dateDisplay}</p>`;
+            }
+            combinedPrintHeader += invoiceHeaderExtra; // Add existing gold price to this block
+            combinedPrintHeader += `</div>`;
+
+
+            invoiceContentContainer.innerHTML = combinedPrintHeader + invoiceHTML + finalTotalHTML + disclaimerHTML;
         }
         
         // --- Event Listeners ---
@@ -1061,7 +1200,95 @@
             window.print();
         });
 
+        // --- Customer Name and Gender Event Listeners ---
+        customerNameInput.addEventListener('input', (e) => {
+            const rawValue = e.target.value;
+            // Allow Persian letters, space, and ZWNJ (نیم فاصله)
+            const persianOnly = rawValue.replace(/[^ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی ئأإؤكيك\u200C ]/g, ''); 
+            
+            if (persianOnly !== rawValue) {
+                e.target.value = persianOnly; // Clean the input
+            }
+            state.customerName = persianOnly;
+            calculateAndRender();
+        });
+
+        maleIcon.addEventListener('click', () => {
+            if (state.customerGender === 'male') { // If already selected, deselect
+                state.customerGender = null;
+                maleIcon.classList.remove('gender-icon-selected');
+            } else {
+                state.customerGender = 'male';
+                maleIcon.classList.add('gender-icon-selected');
+                femaleIcon.classList.remove('gender-icon-selected');
+            }
+            calculateAndRender();
+        });
+
+        femaleIcon.addEventListener('click', () => {
+            if (state.customerGender === 'female') { // If already selected, deselect
+                state.customerGender = null;
+                femaleIcon.classList.remove('gender-icon-selected');
+            } else {
+                state.customerGender = 'female';
+                femaleIcon.classList.add('gender-icon-selected');
+                maleIcon.classList.remove('gender-icon-selected');
+            }
+            calculateAndRender();
+        });
+
+        // --- Date Event Listeners ---
+        const today = new Date();
+        const [currentJalaliYear, currentJalaliMonth, currentJalaliDay] = gregorianToJalali(today.getFullYear(), today.getMonth() + 1, today.getDate());
+
+        // Set initial values for sliders and year input
+        daySlider.value = state.day = currentJalaliDay;
+        monthSlider.value = state.month = currentJalaliMonth;
+        yearInput.value = toPersianDigits(state.year = currentJalaliYear);
+
+        const updateDaySliderMax = () => {
+            const maxDays = getDaysInMonth(state.year, state.month);
+            daySlider.max = maxDays;
+            if (state.day > maxDays) {
+                state.day = maxDays;
+                daySlider.value = maxDays;
+            }
+            document.getElementById('day-display').textContent = toPersianDigits(state.day) + ' (روز)';
+        };
+
+        const updateMonthDisplay = () => {
+            document.getElementById('month-display').textContent = getJalaliMonthName(state.month) + ' (ماه)';
+        };
+
+        daySlider.addEventListener('input', (e) => {
+            state.day = parseInt(e.target.value);
+            document.getElementById('day-display').textContent = toPersianDigits(state.day) + ' (روز)';
+            calculateAndRender();
+        });
+
+        monthSlider.addEventListener('input', (e) => {
+            state.month = parseInt(e.target.value);
+            updateMonthDisplay();
+            updateDaySliderMax(); // Update day slider max based on new month
+            calculateAndRender();
+        });
+
+        yearInput.addEventListener('input', (e) => {
+            const value = parseFormattedNumber(e.target.value);
+            // Allow only current year or current year - 1 (or empty/0)
+            if (value === currentJalaliYear || value === currentJalaliYear - 1 || value === 0 || isNaN(value)) {
+                state.year = value === 0 || isNaN(value) ? null : value;
+                e.target.value = value === 0 || isNaN(value) ? '' : toPersianDigits(value);
+            } else {
+                e.target.value = toPersianDigits(state.year || currentJalaliYear); // Revert to valid value or default
+            }
+            updateDaySliderMax(); // Update day slider max based on new year (for Esfand)
+            calculateAndRender();
+        });
+
         // Initial render on page load
+        updateDaySliderMax(); // Set initial max days for the day slider
+        updateMonthDisplay(); // Set initial month name for the month slider
         calculateAndRender();
     });
     </script>
