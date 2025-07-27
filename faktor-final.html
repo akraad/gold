@@ -9,26 +9,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Formal & Clean Color Palette */
-            --bg-color: hsl(210, 10%, 98%); /* Very light grey-blue */
-            --card-bg: #ffffff; /* Pure white for cards */
-            --primary-color: hsl(210, 20%, 30%); /* Dark Slate Blue - main accent */
-            --primary-dark: hsl(210, 25%, 25%); /* Even darker primary for hover */
-            --primary-light: hsl(210, 15%, 90%); /* Light grey-blue for subtle backgrounds */
-            --secondary-color: hsl(210, 15%, 55%); /* Medium Grey-Blue - secondary accent */
-            --text-color: hsl(210, 25%, 20%); /* Very dark grey-blue for main text */
-            --text-light: hsl(210, 10%, 40%); /* Medium grey for secondary text */
-            --border-color: hsl(210, 10%, 90%); /* Light grey for borders */
-            --danger-color: hsl(0, 70%, 50%); /* Classic Red */
-            --discount-color: hsl(340, 60%, 40%); /* Darker red/maroon for discount */
+            /* Sleek & Formal Color Palette */
+            --bg-color: #f8f9fa; /* Very light grey */
+            --card-bg: #ffffff; /* Pure white */
+            --primary-color: #007bff; /* Royal Blue */
+            --primary-dark: #0056b3; /* Darker Blue for hover */
+            --primary-light: #e0f0ff; /* Very light blue for accents/backgrounds */
+            --text-color: #343a40; /* Dark charcoal */
+            --text-light: #6c757d; /* Medium grey */
+            --border-color: #dee2e6; /* Light grey border */
+            --danger-color: #dc3545; /* Bootstrap red */
+            --discount-color: #fd7e14; /* Orange for discount */
 
             --font-family: 'Vazirmatn', sans-serif;
-            --border-radius-card: 0.5rem; /* Slightly rounded cards */
-            --border-radius-input: 0.3rem; /* Minimal rounding for inputs */
-            --border-radius-button: 0.3rem; /* Minimal rounding for buttons */
-            --shadow-subtle: 0 2px 8px rgba(0, 0, 0, 0.05);
-            --shadow-medium: 0 5px 15px rgba(0, 0, 0, 0.08);
-            --transition-speed: 0.2s ease-in-out;
+            --border-radius-card: 0.5rem;
+            --border-radius-input: 0.25rem;
+            --border-radius-button: 0.25rem;
+            --shadow-subtle: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            --shadow-medium: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            --transition-speed: 0.15s ease-in-out;
         }
 
         * {
@@ -52,62 +51,70 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: flex-start; /* Align content to top */
+            justify-content: flex-start;
         }
 
         .container {
-            max-width: 700px; /* More constrained width for formal look */
-            margin: 2rem auto; /* Vertical margin for spacing */
-            padding: 1.5rem 1rem;
+            max-width: 850px; /* Wider container for more organized layout */
+            margin: 2rem auto;
+            padding: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* Two columns */
+            gap: 2rem; /* Space between columns */
         }
         
         .main-title {
+            grid-column: 1 / -1; /* Span across both columns */
             text-align: center;
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             font-weight: 700;
             color: var(--primary-color);
             margin-bottom: 2.5rem;
-            letter-spacing: 0.5px;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
         }
 
         .card {
             background-color: var(--card-bg);
             border-radius: var(--border-radius-card);
-            margin-bottom: 2rem;
-            box-shadow: var(--shadow-medium);
-            padding: 1.75rem;
-            position: relative; /* For the accent bar */
+            box-shadow: var(--shadow-subtle);
+            padding: 1.5rem;
             border: 1px solid var(--border-color);
-            overflow: hidden; /* To contain accent bar */
-        }
-
-        .card-accent-bar {
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 8px; /* Width of the accent bar */
-            height: 100%;
-            background-color: var(--primary-color);
-            border-top-right-radius: var(--border-radius-card);
-            border-bottom-right-radius: var(--border-radius-card);
+            position: relative;
+            margin-bottom: 0; /* Cards are now part of grid, no default margin-bottom */
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* Ensure cards fill grid cell height */
         }
 
         .card-header {
-            font-size: 1.25rem;
+            font-size: 1.15rem;
             font-weight: 600;
-            margin-bottom: 1.5rem;
-            padding-bottom: 0.8rem;
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.75rem;
             border-bottom: 1px solid var(--border-color);
             color: var(--text-color);
             display: flex;
             align-items: center;
-            gap: 10px; /* Space between icon and text */
+            gap: 8px;
+            position: relative; /* For the accent line */
+            padding-left: 1rem; /* Space for the accent line */
+        }
+        .card-header::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px; /* Vertical line thickness */
+            height: 80%; /* Vertical line height */
+            background-color: var(--primary-color);
+            border-radius: 2px;
         }
         .card-header .icon {
-            font-size: 1.5em; /* Size of unicode icon */
+            font-size: 1.2em; /* Slightly smaller for elegance */
             color: var(--primary-color);
-            line-height: 1; /* Ensure proper alignment */
+            line-height: 1;
         }
 
         .form-group {
@@ -119,36 +126,28 @@
         }
 
         .form-label {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 0.6rem;
+            display: block; /* Label above input */
+            margin-bottom: 0.4rem;
             font-weight: 500;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             color: var(--text-light);
-            direction: rtl;
+        }
+        .form-label .gender-option-container { /* Adjust for gender options */
+            display: inline-flex;
+            float: left; /* Aligns gender options to the left (RTL context) */
+            margin-right: 0.5rem;
         }
 
-        .form-label-text {
-            flex-shrink: 0;
-        }
-
-        .gender-option-container {
-            display: flex;
-            gap: 5px;
-            flex-shrink: 0;
-        }
-        
         .input-field, .select-field {
             width: 100%;
-            padding: 0.75rem 1rem;
+            padding: 0.65rem 0.9rem;
             border: 1px solid var(--border-color);
             border-radius: var(--border-radius-input);
             font-family: var(--font-family);
-            font-size: 1rem;
+            font-size: 0.95rem;
             color: var(--text-color);
-            background-color: #fcfcfc; /* Off-white for inputs */
-            transition: border-color var(--transition-speed), box-shadow var(--transition-speed);
+            background-color: #fff;
+            transition: all var(--transition-speed);
         }
         
         .input-field.left-align {
@@ -159,8 +158,7 @@
         .input-field:focus, .select-field:focus {
             outline: none;
             border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(var(--primary-color-rgb), 0.1); /* Subtle shadow on focus */
-            background-color: white;
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         }
         
         .input-group {
@@ -171,13 +169,13 @@
         .input-group-text {
             display: flex;
             align-items: center;
-            padding: 0.75rem;
-            background-color: var(--primary-light); /* Light primary for suffix */
+            padding: 0.65rem 0.9rem;
+            background-color: var(--primary-light);
             border: 1px solid var(--border-color);
             border-right: 0;
             border-radius: 0 var(--border-radius-input) var(--border-radius-input) 0;
             font-weight: 500;
-            color: var(--text-color);
+            color: var(--primary-color);
         }
 
         .input-group.rtl .input-field {
@@ -191,7 +189,7 @@
         }
 
         #price-in-words {
-            font-size: 0.85rem;
+            font-size: 0.8em;
             color: var(--text-light);
             margin-top: 0.4rem;
             text-align: center;
@@ -199,14 +197,13 @@
             font-weight: 400;
         }
         
-        /* Toggle Switch */
         .toggle-switch-group {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 1.2rem;
-            padding: 0.6rem 0;
-            border-bottom: 1px dashed var(--border-color);
+            margin-bottom: 1rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
             font-weight: 500;
             color: var(--text-color);
         }
@@ -214,8 +211,8 @@
         .switch {
             position: relative;
             display: inline-block;
-            width: 45px;
-            height: 25px;
+            width: 40px;
+            height: 22px;
             flex-shrink: 0;
         }
 
@@ -230,26 +227,24 @@
             bottom: 0;
             background-color: #ccc;
             transition: var(--transition-speed);
-            border-radius: 25px;
+            border-radius: 22px;
         }
 
         .slider:before {
             position: absolute;
             content: "";
-            height: 17px;
-            width: 17px;
-            left: 4px;
-            bottom: 4px;
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            bottom: 3px;
             background-color: white;
             transition: var(--transition-speed);
             border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
         input:checked + .slider { background-color: var(--primary-color); }
-        input:checked + .slider:before { transform: translateX(20px); }
+        input:checked + .slider:before { transform: translateX(18px); }
         
-        /* Segmented control */
         .segmented-control {
             display: flex;
             border: 1px solid var(--border-color);
@@ -258,28 +253,21 @@
         }
 
         .segmented-control button {
-            flex: 1; padding: 0.6rem; font-size: 0.9rem; border: none;
-            background-color: var(--primary-light); /* Light background */
-            color: var(--text-color); cursor: pointer;
-            transition: all 0.2s ease; font-family: var(--font-family);
+            flex: 1; padding: 0.5rem; font-size: 0.85rem; border: none;
+            background-color: #fff; color: var(--text-color); cursor: pointer;
+            transition: all var(--transition-speed); font-family: var(--font-family);
             font-weight: 500;
         }
 
-        .segmented-control button.active {
-            background-color: var(--primary-color);
-            color: #fff;
-            font-weight: 600;
-        }
-        .segmented-control button:hover:not(.active) {
-            background-color: hsl(210, 15%, 85%); /* Slightly darker hover */
-        }
+        .segmented-control button.active { background-color: var(--primary-color); color: #fff; }
+        .segmented-control button:hover:not(.active) { background-color: var(--primary-light); }
         .segmented-control button:first-child { border-right: 1px solid var(--border-color); }
         .segmented-control button:last-child { border-left: 1px solid var(--border-color); }
         
         .item-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            gap: 0.8rem;
         }
         
         .item-row .form-group {
@@ -287,18 +275,18 @@
         }
 
         .item-card {
-            display: flex; flex-direction: column; gap: 0.75rem;
-            padding: 1rem; border: 1px solid var(--border-color);
+            display: flex; flex-direction: column; gap: 0.6rem;
+            padding: 0.9rem; border: 1px solid var(--border-color);
             border-radius: var(--border-radius-input);
             position: relative;
             margin-bottom: 0.8rem;
-            background-color: var(--primary-light); /* Lighter background for items */
+            background-color: var(--primary-light); /* Lighter background for nested items */
         }
 
         .item-label-input-compact {
             display: flex;
             flex-direction: column;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
         }
 
         .item-label-input-compact:last-of-type {
@@ -306,26 +294,26 @@
         }
 
         .compact-label {
-            margin-bottom: 0.25rem;
+            margin-bottom: 0.2rem;
             font-weight: 500;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: var(--text-light);
         }
 
         .compact-input-group .input-field,
         .compact-input-group .input-group-text {
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-            font-size: 0.95rem;
+            padding-top: 0.45rem;
+            padding-bottom: 0.45rem;
+            font-size: 0.85rem;
         }
         
         #product-items-container .input-field,
         #product-items-container .select-field,
         #product-items-container .input-group-text,
         #product-items-container .segmented-control button {
-            font-size: 0.9rem;
-            padding-top: 0.6rem;
-            padding-bottom: 0.6rem;
+            font-size: 0.85rem;
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
         }
 
         .delete-item-btn {
@@ -335,66 +323,58 @@
             color: var(--danger-color);
             background-color: white;
             cursor: pointer; display: flex; align-items: center;
-            justify-content: center; font-weight: bold; transition: all 0.2s ease;
+            justify-content: center; font-weight: bold; transition: all var(--transition-speed);
             z-index: 10;
             font-size: 0.9rem;
         }
         
         .delete-item-btn:hover {
-            transform: scale(1.1);
             background-color: var(--danger-color);
             color: white;
+            transform: scale(1.1);
         }
         
         .btn {
-            width: 100%; padding: 0.85rem 1.2rem;
+            width: 100%; padding: 0.75rem 1rem;
             font-family: var(--font-family);
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 600;
             border: none;
             border-radius: var(--border-radius-button);
-            cursor: pointer; transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
+            cursor: pointer; transition: all var(--transition-speed);
             box-shadow: var(--shadow-subtle);
         }
 
-        .btn-primary {
-            background-color: var(--primary-color);
-            color: #fff;
-        }
-        .btn-primary:hover {
-            background-color: var(--primary-dark);
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        }
+        .btn-primary { background-color: var(--primary-color); color: #fff; }
+        .btn-primary:hover { background-color: var(--primary-dark); }
 
         .btn-secondary {
             background-color: var(--secondary-color);
             color: #fff;
-            font-size: 0.95rem;
-            padding: 0.7rem 1rem;
+            font-size: 0.9rem;
+            padding: 0.65rem 0.9rem;
             font-weight: 500;
         }
-        .btn-secondary:hover {
-            background-color: hsl(210, 15%, 45%); /* Darker secondary on hover */
-        }
+        .btn-secondary:hover { background-color: hsl(210, 15%, 45%); }
         
         .profit-slider-group {
-            padding-top: 0.6rem;
-            margin-top: 0.6rem;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
         }
         .profit-slider {
-            -webkit-appearance: none; width: 100%; height: 5px;
-            background: var(--border-color); outline: none; border-radius: 3px;
+            -webkit-appearance: none; width: 100%; height: 4px;
+            background: var(--border-color); outline: none; border-radius: 2px;
         }
 
         .profit-slider::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 16px; height: 16px;
+            -webkit-appearance: none; appearance: none; width: 14px; height: 14px;
             background: var(--primary-color); cursor: pointer; border: 2px solid #fff;
             border-radius: 50%;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
         }
         
         .profit-slider-value {
-            text-align: center; font-weight: 600; font-size: 0.9rem;
+            text-align: center; font-weight: 600; font-size: 0.85rem;
             margin-top: 0.3rem;
             color: var(--primary-color);
         }
@@ -403,50 +383,64 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 0.8rem;
-            margin-top: 1.5rem;
+            margin-top: 1.25rem;
+            flex-shrink: 0; /* Prevent from shrinking in column layout */
+            margin-top: auto; /* Push to bottom of card */
+            padding-top: 1rem; /* Add some space above buttons */
+            border-top: 1px dashed var(--border-color); /* Separator line */
         }
 
-        #purchase-items-container .item-card:not(:first-child) { margin-top: 1rem; }
+        #product-items-container {
+            flex-grow: 1; /* Allows item container to take available space */
+            margin-bottom: 1rem;
+            overflow-y: auto; /* Enable scrolling for many items */
+            max-height: 400px; /* Max height for scrollable area */
+        }
+
+        #purchase-items-container .item-card:not(:first-child) { margin-top: 0.8rem; }
         #purchase-items-container .item-card { background-color: var(--primary-light); }
         
         #purchase-items-container .input-field,
         #purchase-items-container .select-field,
         #purchase-items-container .input-group-text {
-            font-size: 0.9rem; padding-top: 0.6rem; padding-bottom: 0.6rem;
+            font-size: 0.85rem; padding-top: 0.5rem; padding-bottom: 0.5rem;
         }
 
         /* Invoice Section */
-        .invoice-section { margin-bottom: 1rem; }
-        .invoice-section-title { font-weight: 600; margin-bottom: 0.75rem; color: var(--text-color); font-size: 1.1rem; }
-        .invoice-item { margin-bottom: 0.8rem; font-size: 0.95rem; }
+        #invoice-card {
+            grid-column: 1 / -1; /* Make invoice span full width */
+            margin-bottom: 2rem;
+        }
+        .invoice-section { margin-bottom: 0.8rem; }
+        .invoice-section-title { font-weight: 600; margin-bottom: 0.6rem; color: var(--text-color); font-size: 1rem; }
+        .invoice-item { margin-bottom: 0.6rem; font-size: 0.9rem; }
         .invoice-item-header { display: flex; justify-content: space-between; font-weight: 500; }
-        .invoice-item-details { color: var(--text-light); font-size: 0.85rem; margin-top: 0.2rem; }
+        .invoice-item-details { color: var(--text-light); font-size: 0.8rem; margin-top: 0.1rem; }
         .invoice-summary-line {
-            display: flex; justify-content: space-between; padding: 0.5rem 0;
-            font-weight: 500; font-size: 1rem;
-            border-bottom: 1px dotted var(--border-color); /* Dotted lines for summary */
+            display: flex; justify-content: space-between; padding: 0.4rem 0;
+            font-weight: 500; font-size: 0.95rem;
+            border-bottom: 1px dotted var(--border-color);
         }
         .invoice-summary-line:last-of-type { border-bottom: none; }
-        .invoice-separator { height: 1px; background-color: var(--border-color); margin: 1.2rem 0; }
+        .invoice-separator { height: 1px; background-color: var(--border-color); margin: 1rem 0; }
         .invoice-value-danger { color: var(--danger-color); font-weight: 600; }
         .invoice-value-discount { color: var(--discount-color); font-weight: 600; }
         .invoice-final-total {
             display: flex; justify-content: space-between;
-            padding-top: 1.2rem; margin-top: 1.2rem;
+            padding-top: 1rem; margin-top: 1rem;
             border-top: 2px solid var(--primary-color);
-            color: var(--primary-color); font-weight: 700; font-size: 1.2rem;
+            color: var(--primary-color); font-weight: 700; font-size: 1.1rem;
         }
         
         .hidden { display: none !important; }
 
-        /* Disclaimer text */
         .disclaimer-text {
-            font-size: 0.8em;
+            font-size: 0.75em;
             color: var(--text-light);
             text-align: right;
             margin-top: 0.8rem;
-            line-height: 1.5;
-            padding: 0.8rem;
+            line-height: 1.4;
+            padding: 0.6rem;
             background-color: var(--primary-light);
             border-right: 3px solid var(--danger-color);
             border-radius: var(--border-radius-input);
@@ -457,12 +451,22 @@
             font-weight: 600;
         }
 
+        #print-btn-container {
+            grid-column: 1 / -1; /* Span full width */
+            margin-top: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
         @media print {
             body { background-color: white; }
-            .container { margin: 0; padding: 0; box-shadow: none; max-width: 100%; }
+            .container {
+                margin: 0; padding: 0; box-shadow: none; max-width: 100%;
+                grid-template-columns: 1fr; /* Single column for print */
+                gap: 0;
+            }
             body > .container > *:not(#invoice-card),
             #print-btn-container,
-            .card:has(#customer-name) {
+            .card:has(#customer-name) { /* Hide customer card specific inputs */
                 display: none;
             }
             #invoice-card {
@@ -470,6 +474,7 @@
                 border: none;
                 margin: 0;
                 padding: 0;
+                grid-column: 1 / -1; /* Ensure it spans full width in print */
             }
             .print-only {
                 display: block !important;
@@ -485,7 +490,7 @@
                 box-shadow: none;
                 padding: 0;
             }
-            .card-accent-bar { display: none; }
+            .card-header::before { display: none; } /* Hide accent bar in print */
         }
 
         .print-only {
@@ -494,22 +499,22 @@
 
         /* Date sliders */
         .date-slider-group {
-            padding-top: 0.6rem;
-            margin-top: 0.6rem;
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
         }
         .date-slider-value {
-            text-align: center; font-weight: 600; font-size: 0.95rem;
+            text-align: center; font-weight: 600; font-size: 0.9rem;
             margin-top: 0.3rem;
             color: var(--primary-color);
         }
 
         /* Gender text "آقا" and "خانم" */
         .gender-text {
-            font-size: 1rem;
+            font-size: 0.95rem;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
-            padding: 0.3rem 0.7rem;
+            transition: all var(--transition-speed);
+            padding: 0.25rem 0.6rem;
             border-radius: var(--border-radius-input);
             color: var(--text-light);
             background-color: transparent;
@@ -543,15 +548,16 @@
             color: var(--primary-color);
             border: 1px solid var(--primary-color);
             border-radius: var(--border-radius-input);
-            padding: 0.5rem 0.8rem;
+            padding: 0.4rem 0.7rem;
             cursor: pointer;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 600;
-            transition: all 0.2s ease;
+            transition: all var(--transition-speed);
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 40px;
+            width: 35px;
+            height: 35px;
             flex-shrink: 0;
         }
         .year-control-btn:hover {
@@ -567,38 +573,44 @@
 
         @media (max-width: 768px) {
             body { font-size: 14px; }
-            .container { padding: 1rem 0.75rem; margin: 1rem auto; }
+            .container {
+                grid-template-columns: 1fr; /* Single column layout on small screens */
+                padding: 1rem;
+                gap: 1.5rem;
+            }
             .main-title { font-size: 2rem; margin-bottom: 2rem; }
-            .card { padding: 1.2rem; margin-bottom: 1.5rem; border-radius: 0.4rem; }
-            .card-header { font-size: 1.15rem; margin-bottom: 1.2rem; }
-            .card-header .icon { font-size: 1.3em; }
-            .input-field, .select-field { padding: 0.7rem 0.9rem; font-size: 0.95rem; border-radius: 0.3rem; }
-            .input-group-text { padding: 0.7rem 0.9rem; font-size: 0.9rem; border-radius: 0.3rem; }
-            .btn { padding: 0.8rem 1rem; font-size: 0.95rem; border-radius: 0.3rem; }
-            .btn-secondary { padding: 0.6rem 0.8rem; font-size: 0.85rem; }
-            .item-card { padding: 0.9rem; border-radius: 0.3rem; }
+            .card { padding: 1.2rem; }
+            .card-header { font-size: 1.05rem; margin-bottom: 1rem; }
+            .card-header .icon { font-size: 1.1em; }
+            .form-label { font-size: 0.85rem; }
+            .input-field, .select-field { padding: 0.6rem 0.8rem; font-size: 0.9rem; }
+            .input-group-text { padding: 0.6rem 0.8rem; font-size: 0.85rem; }
+            .btn { padding: 0.7rem 0.9rem; font-size: 0.9rem; }
+            .btn-secondary { padding: 0.55rem 0.75rem; font-size: 0.8rem; }
+            .item-card { padding: 0.8rem; margin-bottom: 0.6rem; }
             .delete-item-btn { width: 20px; height: 20px; font-size: 0.8rem; top: -7px; left: -7px; }
-            .profit-slider { height: 4px; }
-            .profit-slider::-webkit-slider-thumb { width: 14px; height: 14px; }
-            .toggle-switch-group label { font-size: 0.9rem; }
-            .switch { width: 40px; height: 22px; }
-            .slider:before { height: 15px; width: 15px; }
-            input:checked + .slider:before { transform: translateX(18px); }
-            .gender-text { font-size: 0.95rem; padding: 0.25rem 0.6rem; border-radius: 0.3rem; }
-            .year-control-btn { width: 35px; height: 35px; font-size: 1rem; padding: 0.4rem 0.7rem; }
-            .invoice-final-total { font-size: 1.1rem; }
+            .invoice-final-total { font-size: 1rem; }
+            .toggle-switch-group { font-size: 0.9rem; }
+            .switch { width: 35px; height: 20px; }
+            .slider:before { height: 14px; width: 14px; }
+            input:checked + .slider:before { transform: translateX(15px); }
+            .gender-text { font-size: 0.9rem; padding: 0.2rem 0.5rem; }
+            .year-control-btn { width: 30px; height: 30px; font-size: 0.9rem; padding: 0.3rem 0.6rem; }
+
+            /* Invoice card on small screens */
+            #invoice-card { padding: 1.2rem; }
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1 class="main-title">فاکتور آبشده و متفرقه</h1>
+        <h1 class="main-title">فاکتور فروش طلا</h1>
 
         <div class="card">
-            <div class="card-accent-bar"></div>
             <h2 class="card-header"><span class="icon">💰</span> قیمت مظنه طلا (مبنای هر گرم)</h2>
             <div class="form-group">
+                <label class="form-label" for="gold-price">قیمت هر گرم طلا (تومان)</label>
                 <div class="input-group rtl">
                     <input type="tel" id="gold-price" class="input-field" inputmode="numeric" maxlength="11">
                     <span class="input-group-text">تومان</span>
@@ -608,11 +620,10 @@
         </div>
 
         <div class="card">
-            <div class="card-accent-bar"></div>
-            <h2 class="card-header"><span class="icon">⚖️</span> نوع معامله</h2>
+            <h2 class="card-header"><span class="icon">⚖️</span> نوع معامله و اقلام</h2>
             <div id="abshe-input-section">
-                <div id="product-items-container" class="hidden">
-                </div>
+                <div id="product-items-container" class="">
+                    </div>
 
                 <div class="add-purchase-options">
                     <button id="add-abshe-btn" class="btn btn-secondary">افزودن آبشده</button>
@@ -622,8 +633,7 @@
         </div>
 
         <div class="card">
-            <div class="card-accent-bar"></div>
-            <h2 class="card-header"><span class="icon">🏷️</span> تخفیف</h2> 
+            <h2 class="card-header"><span class="icon">🏷️</span> تنظیمات تخفیف</h2> 
             
             <div class="toggle-switch-group">
                 <label for="round-switch">رند کردن مبلغ نهایی</label>
@@ -633,64 +643,58 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">
-                    <span class="form-label-text">تخفیف (تومان)</span>
-                </label> 
+                <label class="form-label" for="manual-discount-input">تخفیف دستی (تومان)</label> 
                 <div class="input-group rtl">
                     <input type="tel" id="manual-discount-input" class="input-field" inputmode="numeric">
                     <span class="input-group-text">تومان</span>
                 </div>
             </div>
-
-            </div>
-
-        <div class="card" id="invoice-card">
-            <div class="card-accent-bar"></div>
-            <h2 class="card-header"><span class="icon">📄</span> فاکتور</h2>
-            <div id="invoice-content">
-                </div>
         </div>
 
         <div class="card">
-            <div class="card-accent-bar"></div>
-            <h2 class="card-header"><span class="icon">👤</span> اطلاعات خریدار و تاریخ</h2>
+            <h2 class="card-header"><span class="icon">👤</span> اطلاعات خریدار</h2>
             
             <div class="form-group">
-                <div class="form-label">
-                    <span class="form-label-text">نام خریدار</span>
+                <label class="form-label" for="customer-name">
+                    <span class="form-label-text">نام خریدار:</span>
                     <div class="gender-option-container">
                         <span class="gender-text" id="male-option" title="جناب آقای">آقا</span>
                         <span class="gender-text" id="female-option" title="سرکار خانم">خانم</span>
                     </div>
-                </div>
+                </label>
                 <input type="text" id="customer-name" class="input-field">
             </div>
+        </div>
 
-            <div class="form-group">
-                <label class="form-label">
-                    <span class="form-label-text">تاریخ</span>
-                </label>
-                <div class="date-input-group">
-                    <div class="date-slider-group">
-                        <div class="date-slider-value" id="day-display"></div>
-                        <input type="range" min="1" max="31" value="1" class="profit-slider" id="day-slider">
-                    </div>
-                    <div class="date-slider-group" style="margin-top: 1rem;">
-                        <div class="date-slider-value" id="month-display"></div>
-                        <input type="range" min="1" max="12" value="1" class="profit-slider" id="month-slider">
-                    </div>
-                    <div class="form-group" style="margin-top: 1rem;">
-                        <div class="year-control-group input-group rtl">
-                            <button id="year-minus-btn" class="year-control-btn">-</button>
-                            <input type="tel" id="year-input" class="input-field" inputmode="numeric" maxlength="4">
-                            <span class="input-group-text">سال</span>
-                            <button id="year-plus-btn" class="year-control-btn">+</button>
-                        </div>
+        <div class="card">
+            <h2 class="card-header"><span class="icon">📅</span> تاریخ فاکتور</h2>
+            <div class="date-input-group">
+                <div class="date-slider-group">
+                    <div class="date-slider-value" id="day-display"></div>
+                    <input type="range" min="1" max="31" value="1" class="profit-slider" id="day-slider">
+                </div>
+                <div class="date-slider-group" style="margin-top: 1rem;">
+                    <div class="date-slider-value" id="month-display"></div>
+                    <input type="range" min="1" max="12" value="1" class="profit-slider" id="month-slider">
+                </div>
+                <div class="form-group" style="margin-top: 1rem;">
+                    <div class="year-control-group input-group rtl">
+                        <button id="year-minus-btn" class="year-control-btn">-</button>
+                        <input type="tel" id="year-input" class="input-field" inputmode="numeric" maxlength="4">
+                        <span class="input-group-text">سال</span>
+                        <button id="year-plus-btn" class="year-control-btn">+</button>
                     </div>
                 </div>
             </div>
         </div>
-        <div id="print-btn-container">
+
+        <div class="card" id="invoice-card">
+            <h2 class="card-header"><span class="icon">🧾</span> پیش‌نمایش فاکتور</h2>
+            <div id="invoice-content">
+                </div>
+        </div>
+
+        <div id="print-btn-container" style="grid-column: 1 / -1; text-align: center; margin-top: 1rem;">
             <button id="print-btn" class="btn btn-primary">چاپ فاکتور</button>
         </div>
     </div>
@@ -874,37 +878,33 @@
                 if (item.type === 'abshe') {
                     itemCardHTML += `
                             <div class="form-group">
-                                <label class="form-label">
-                                    <span class="form-label-text">وزن</span>
-                                </label>
-                                <div class="input-group rtl">
-                                    <input type="text" class="input-field abshe-weight-gram-input" inputmode="decimal" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
+                                <label class="compact-label" for="abshe-weight-${item.id}">وزن</label>
+                                <div class="input-group rtl compact-input-group">
+                                    <input type="text" id="abshe-weight-${item.id}" class="input-field abshe-weight-gram-input" inputmode="decimal" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
                                     <span class="input-group-text">گرم</span>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">
-                                    <span class="form-label-text">عیار</span>
-                                </label>
-                                <div class="input-group rtl">
-                                    <input type="text" class="input-field abshe-ayar-input" inputmode="decimal" value="${item.ayar === null ? '' : toPersianDigits(item.ayar)}">
+                                <label class="compact-label" for="abshe-ayar-${item.id}">عیار</label>
+                                <div class="input-group rtl compact-input-group">
+                                    <input type="text" id="abshe-ayar-${item.id}" class="input-field abshe-ayar-input" inputmode="decimal" value="${item.ayar === null ? '' : toPersianDigits(item.ayar)}">
                                     <span class="input-group-text">عیار</span>
                                 </div>
                             </div>
                         </div>
 
                         <div class="item-label-input-compact">
-                            <label class="form-label compact-label">انگ</label>
+                            <label class="compact-label" for="abshe-eng-${item.id}">انگ</label>
                             <div class="input-group rtl compact-input-group">
-                                <input type="text" class="input-field abshe-eng-input" inputmode="numeric" value="${item.eng === 0 ? '' : toPersianDigits(item.eng)}">
+                                <input type="text" id="abshe-eng-${item.id}" class="input-field abshe-eng-input" inputmode="numeric" value="${item.eng === 0 ? '' : toPersianDigits(item.eng)}">
                                 <span class="input-group-text">انگ</span>
                             </div>
                         </div>
                         
                         <div class="item-label-input-compact">
-                            <label class="form-label compact-label">آزمایشگاه</label>
+                            <label class="compact-label" for="abshe-lab-${item.id}">آزمایشگاه</label>
                             <div class="input-group rtl compact-input-group">
-                                <input type="text" class="input-field abshe-lab-input" style="text-align: right;" value="${item.lab || ''}">
+                                <input type="text" id="abshe-lab-${item.id}" class="input-field abshe-lab-input" style="text-align: right;" value="${item.lab || ''}">
                                 <span class="input-group-text">نام</span>
                             </div>
                         </div>
@@ -917,14 +917,12 @@
                 } else if (item.type === 'motaferghe') {
                     itemCardHTML += `
                             <div class="form-group" style="grid-column: span 2;">
-                                <label class="form-label">
-                                    <span class="form-label-text">وزن متفرقه</span>
-                                </label>
-                                <div class="input-group rtl">
-                                    <input type="text" class="input-field motaferghe-weight-gram-input" inputmode="decimal" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
+                                <label class="compact-label" for="motaferghe-weight-${item.id}">وزن متفرقه</label>
+                                <div class="input-group rtl compact-input-group">
+                                    <input type="text" id="motaferghe-weight-${item.id}" class="input-field motaferghe-weight-gram-input" inputmode="decimal" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
                                     <span class="input-group-text">گرم</span>
                                 </div>
-                                <div style="font-size: 0.85em; color: var(--text-light); text-align: right; margin-top: 0.5rem;">(با عیار پیش‌فرض ۷۵۰ محاسبه می‌شود)</div>
+                                <div style="font-size: 0.8em; color: var(--text-light); text-align: right; margin-top: 0.3rem;">(با عیار پیش‌فرض ۷۵۰ محاسبه می‌شود)</div>
                             </div>
                         </div>
 
@@ -1037,7 +1035,6 @@
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
                     removeProductItem(id);
                 };
-                // Original style for delete button as per new theme (formal)
                 button.style.backgroundColor = 'white';
                 button.style.color = 'var(--danger-color)';
                 button.style.border = '1px solid var(--danger-color)';
