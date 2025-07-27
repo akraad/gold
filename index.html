@@ -407,14 +407,6 @@
             color: var(--primary-color);
         }
 
-        .excess-gold-purchase-section {
-            padding-top: 1rem;
-            margin-top: 1rem;
-            border-top: 1px dashed var(--border-color);
-        }
-        .excess-gold-purchase-section .form-group {
-            margin-bottom: 0.5rem;
-        }
         /* Print-specific styles */
         @media print {
             body > .container > *:not(#invoice-card),
@@ -434,10 +426,6 @@
             }
             .print-only {
                 display: block !important;
-            }
-            /* Ensure the excess gold purchase input is hidden in print if it's dynamic */
-            #excess-gold-purchase-container { /* Use the specific ID */
-                display: none !important;
             }
         }
 
@@ -514,7 +502,17 @@
         <div class="card" id="invoice-card">
             <h2 class="card-header screen-only">فاکتور</h2>
             <div id="invoice-content">
+                <div class="print-only" style="margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                        <span>خریدار: <span id="print-customer-name"></span></span>
+                        <span>تاریخ: <span id="print-date"></span></span>
+                    </div>
+                    <div style="text-align: right; margin-bottom: 0.5rem;">
+                        <span>قیمت هر گرم طلا ۱۸ عیار: <span id="print-gold-price"></span> تومان</span>
+                    </div>
+                    <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.75rem 0;">
                 </div>
+            </div>
         </div>
 
         <div class="card" id="customer-info-card">
@@ -586,6 +584,12 @@
         const yearMinusBtn = document.getElementById('year-minus-btn'); 
         const yearPlusBtn = document.getElementById('year-plus-btn');   
         
+        // Print-only elements within the invoice card
+        const printCustomerNameSpan = document.getElementById('print-customer-name');
+        const printDateSpan = document.getElementById('print-date');
+        const printGoldPriceSpan = document.getElementById('print-gold-price');
+
+
         // --- State ---
         let state = {
             goldPrice: 0,
@@ -598,8 +602,7 @@
             customerGender: null, 
             day: null,
             month: null,
-            year: null,
-            excessGoldPurchasePricePerGram: 0 // New state for excess gold price
+            year: null
         };
 
         // --- Helper Functions ---
@@ -730,9 +733,9 @@
                 </div>
                 <div class="form-group product-profit-group">
                     <label class="form-label">سود فروشنده</label>
-                    <div class="product-slider-value">${toPersianDigits(item.profitPercentage.toFixed(0))} %</div>
+                    <div class="product-slider-value">${toPersianDigits(item.profitPercentage.toFixed(1))} %</div>
                     <div class="range-slider-group">
-                        <input type="range" min="1" max="7" value="${item.profitPercentage}" step="1" class="range-slider product-profit-slider">
+                        <input type="range" min="1" max="7" value="${item.profitPercentage}" step="0.1" class="range-slider product-profit-slider">
                     </div>
                 </div>
             `;
@@ -793,8 +796,11 @@
             profitSlider.addEventListener('input', (e) => {
                 item.profitPercentage = parseFloat(e.target.value);
                 let displayValue = item.profitPercentage;
-                // --- MODIFIED: Display as integer ---
-                profitDisplay.textContent = `${toPersianDigits(Math.round(displayValue))} %`;
+                if (displayValue === Math.floor(displayValue)) {
+                    profitDisplay.textContent = `${toPersianDigits(displayValue)} %`;
+                } else {
+                    profitDisplay.textContent = `${toPersianDigits(displayValue.toFixed(1))} %`;
+                }
                 calculateAndRender();
             });
 
@@ -820,8 +826,7 @@
             if (type === 'gold' || type === 'bullion' || type === 'parsian') {
                 const typeName = {gold: 'طلای متفرقه', bullion: 'شمش', parsian: 'پارسیان'}[type];
                 item.weight = '';
-                content = `<div class="form-group"><label class="form-label">وزن ${typeName}</label><div class="input-group rtl"><input type="text" class="input-field purchase-weight" inputmode="decimal">
-                <span class="input-group-text">گرم</span></div></div>`;
+                content = `<div class="form-group"><label class="form-label">وزن ${typeName}</label><div class="input-group rtl"><input type="text" class="input-field purchase-weight" inputmode="decimal"><span class="input-group-text">گرم</span></div></div>`;
             } else if (type === 'coin') {
                 const coinTypes = ['ربع ۸۶', 'نیم ۸۶', 'امامی ۸۶', 'ربع زیر ۸۶', 'نیم زیر ۸۶', 'امامی زیر ۸۶', 'یک گرمی بانکی'];
                 item.coinType = 'ربع ۸۶';
@@ -870,17 +875,12 @@
             let grandTotal = 0;
             let totalTax = 0;
             let itemsWithTaxCount = 0; 
-            
-            let totalSoldGoldWeight = 0; // For products
-            let totalPurchasedGoldWeight = 0; // For gold/bullion/parsian purchases
 
             const validProducts = state.products.filter(p => parseFloat(p.weight) > 0);
             if (validProducts.length > 0) {
                 productsHTML += `<div class="invoice-section"><div class="invoice-section-title">محصولات</div>`;
                 validProducts.forEach((p, index) => {
                     const weight = parseFloat(p.weight) || 0;
-                    totalSoldGoldWeight += weight; // Accumulate sold gold weight
-
                     const goldPricePerGram = state.goldPrice; 
                     
                     let ajratPerGram = 0;
@@ -925,7 +925,7 @@
                     let details = [];
                     
                     if (p.profitPercentage > 0) {
-                        details.push(`سود: ${toPersianDigits(Math.round(p.profitPercentage))}٪`); // Changed to round for integer display
+                        details.push(`سود: ${toPersianDigits(p.profitPercentage.toFixed(1))}٪`); 
                     } else {
                         details.push(`بدون سود`); 
                     }
@@ -940,10 +940,10 @@
                         details.push(`بدون اجرت`);
                     }
                     
-                    // --- MODIFIED: Removed the extra span for "(از اجرت و سود)" ---
+                    // --- MODIFIED: Add tax info per item ---
                     if(state.taxEnabled) {
                         if (itemTax > 0) {
-                           details.push(`مالیات: ۱۰٪`);
+                           details.push(`مالیات: ${formatNumber(itemTax)} تومان`);
                         }
                     } else {
                         details.push('بدون مالیات');
@@ -958,11 +958,11 @@
             let totalPurchaseValue = 0;
             const validPurchases = state.purchases.filter(p => (p.weight && parseFloat(p.weight) > 0) || (p.price && parseFloat(p.price) > 0));
             if (validPurchases.length > 0) {
-                 const hasCoin = validPurchases.some(p => ['coin'].includes(p.type));
-                 const hasGoldTypes = validPurchases.some(p => p.type === 'gold' || p.type === 'bullion' || p.type === 'parsian');
+                 const hasCoin = validPurchases.some(p => ['coin', 'parsian', 'bullion'].includes(p.type));
+                 const hasGold = validPurchases.some(p => p.type === 'gold');
                  let purchaseTitle = 'خرید ';
-                 if(hasGoldTypes && hasCoin) purchaseTitle += 'طلا و سکه از مشتری';
-                 else if(hasGoldTypes) purchaseTitle += 'طلا از مشتری';
+                 if(hasGold && hasCoin) purchaseTitle += 'طلا و سکه از مشتری';
+                 else if(hasGold) purchaseTitle += 'طلا از مشتری';
                  else if(hasCoin) purchaseTitle += 'سکه از مشتری';
 
                 purchasesHTML += `<div class="invoice-separator"></div><div class="invoice-section"><div class="invoice-section-title">${purchaseTitle}</div>`;
@@ -974,10 +974,6 @@
                         label = `سکه ${p.coinType}`;
                     } else {
                         const weight = parseFloat(p.weight) || 0;
-                        // Only count gold/bullion/parsian for totalPurchasedGoldWeight
-                        if (['gold', 'bullion', 'parsian'].includes(p.type)) {
-                            totalPurchasedGoldWeight += weight; 
-                        }
                         if (p.type === 'bullion') value = (weight * 995 / 750) * state.goldPrice;
                         else if (p.type === 'parsian') value = (weight * 740 / 750) * state.goldPrice; 
                         else value = weight * state.goldPrice; 
@@ -1075,39 +1071,12 @@
                     }
                 }
             }
-            
-            // --- NEW: Excess Gold Purchase Price Section ---
-            let excessGoldPurchaseHTML = '';
-            let excessGoldWeight = 0;
-            if (totalPurchasedGoldWeight > totalSoldGoldWeight) {
-                excessGoldWeight = totalPurchasedGoldWeight - totalSoldGoldWeight;
-                // If excessGoldPurchasePricePerGram is 0 or not set, use goldPrice for calculation
-                const effectiveExcessPricePerGram = state.excessGoldPurchasePricePerGram > 0 ? state.excessGoldPurchasePricePerGram : state.goldPrice;
-                const excessPrice = effectiveExcessPricePerGram * excessGoldWeight;
-                currentGrandTotal -= excessPrice; // Subtract this from the total
 
-                excessGoldPurchaseHTML = `
-                    <div id="excess-gold-purchase-container" class="excess-gold-purchase-section screen-only">
-                        <div class="invoice-section-title">خرید مازاد طلای متفرقه (اختیاری)</div>
-                        <div class="form-group">
-                            <label for="excess-gold-price-input" class="form-label">قیمت هر گرم مازاد (${toPersianDigits(excessGoldWeight)} گرم)</label>
-                            <div class="input-group rtl">
-                                <input type="text" id="excess-gold-price-input" class="input-field" inputmode="numeric" value="${state.excessGoldPurchasePricePerGram > 0 ? formatNumber(state.excessGoldPurchasePricePerGram) : ''}">
-                                <span class="input-group-text">تومان</span>
-                            </div>
-                        </div>
-                        <div class="invoice-summary-line">
-                            <span>ارزش مازاد طلا (${toPersianDigits(excessGoldWeight)} گرم)</span>
-                            <span class="invoice-value-danger">${formatNumber(excessPrice)} تومان</span>
-                        </div>
-                    </div>
-                `;
-            }
 
             if (state.taxEnabled && totalTax > 0 && itemsWithTaxCount >= 2) {
                  summaryHTML += `<div class="invoice-separator"></div>`; 
                  summaryHTML += `<div class="invoice-summary-line"><span>جمع مالیات</span><span>${formatNumber(totalTax)} تومان</span></div>`;
-            } else if (state.manualDiscount > 0 || (state.roundDiscountEnabled && roundDiscountAmount > 0) || excessGoldWeight > 0) { 
+            } else if (state.manualDiscount > 0 || (state.roundDiscountEnabled && roundDiscountAmount > 0)) { 
                 summaryHTML += `<div class="invoice-separator"></div>`;
             }
             
@@ -1130,8 +1099,11 @@
             finalTotalHTML += `</div>`;
             
             const customerPrefix = state.customerGender === 'male' ? 'جناب آقای' : (state.customerGender === 'female' ? 'سرکار خانم' : '');
-            
-            invoiceContentContainer.innerHTML = productsHTML + purchasesHTML + excessGoldPurchaseHTML + summaryHTML + finalTotalHTML;
+            printCustomerNameSpan.textContent = `${customerPrefix} ${state.customerName || ''}`;
+            printDateSpan.textContent = `${toPersianDigits(state.day || '')} ${getJalaliMonthName(state.month || '')} ${toPersianDigits(state.year || '')}`;
+            printGoldPriceSpan.textContent = formatNumber(state.goldPrice);
+
+            invoiceContentContainer.innerHTML = productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
             
             // Re-inject the print-only div at the top inside the invoice card content
             const printOnlyDiv = document.createElement('div');
@@ -1148,45 +1120,6 @@
                 <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.75rem 0;">
             `;
             invoiceContentContainer.prepend(printOnlyDiv);
-
-            // Add event listener for the new excess gold price input if it exists
-            const excessGoldPriceInput = document.getElementById('excess-gold-price-input');
-            if (excessGoldPriceInput) {
-                let isFocused = false; // Track if the input is focused
-
-                excessGoldPriceInput.addEventListener('focus', () => {
-                    isFocused = true;
-                    // When focused, show raw English number for easier typing
-                    excessGoldPriceInput.value = toEnglishDigits(String(state.excessGoldPurchasePricePerGram));
-                });
-
-                excessGoldPriceInput.addEventListener('input', (e) => {
-                    // Only process digits, no immediate re-formatting for display
-                    const value = toEnglishDigits(e.target.value.replace(/,/g, ''));
-                    const cleanedValue = value.replace(/[^0-9]/g, ''); 
-                    
-                    // Update state with the parsed number
-                    state.excessGoldPurchasePricePerGram = parseInt(cleanedValue, 10) || 0;
-                    
-                    // Do NOT update e.target.value here to prevent keyboard hiding
-                    
-                    calculateAndRender(); // Re-calculate to update totals in invoice
-                });
-
-                // Format the number only when the user leaves the field
-                excessGoldPriceInput.addEventListener('blur', (e) => {
-                    isFocused = false;
-                    e.target.value = formatNumber(state.excessGoldPurchasePricePerGram);
-                    calculateAndRender();
-                });
-
-                // Set initial value formatted, but if it's 0, keep it empty
-                if (state.excessGoldPurchasePricePerGram === 0) {
-                    excessGoldPriceInput.value = '';
-                } else {
-                    excessGoldPriceInput.value = formatNumber(state.excessGoldPurchasePricePerGram);
-                }
-            }
         }
         
         // --- Customer Info & Date Widget Rendering ---
