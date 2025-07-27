@@ -526,57 +526,9 @@
         <div class="card" id="invoice-card">
             <h2 class="card-header">فاکتور</h2>
             <div id="invoice-content">
-                <div class="print-only" style="margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
-                        <span>خریدار: <span id="print-customer-name"></span></span>
-                        <span>تاریخ: <span id="print-date"></span></span>
-                    </div>
-                    <div style="text-align: right; margin-bottom: 0.5rem;">
-                        <span>قیمت هر گرم طلا ۱۸ عیار: <span id="print-gold-price"></span> تومان</span>
-                    </div>
-                    <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.75rem 0;">
                 </div>
-            </div>
         </div>
 
-        <div class="card" id="customer-info-card">
-            <h2 class="card-header">اطلاعات خریدار و تاریخ</h2>
-            
-            <div class="form-group">
-                <div class="form-label">
-                    <span class="form-label-text">نام خریدار</span>
-                    <div class="gender-option-container">
-                        <span class="gender-text" id="male-option" title="جناب آقای">آقا</span>
-                        <span class="gender-text" id="female-option" title="سرکار خانم">خانم</span>
-                    </div>
-                </div>
-                <input type="text" id="customer-name" class="input-field">
-            </div>
-
-            <div class="form-group">
-                <div class="form-label">
-                    <span class="form-label-text">تاریخ</span>
-                </div>
-                <div class="date-input-group">
-                    <div class="date-slider-group">
-                        <div class="date-slider-value" id="day-display"></div>
-                        <input type="range" min="1" max="31" value="1" class="profit-slider" id="day-slider">
-                    </div>
-                    <div class="date-slider-group" style="margin-top: 1rem;">
-                        <div class="date-slider-value" id="month-display"></div>
-                        <input type="range" min="1" max="12" value="1" class="profit-slider" id="month-slider">
-                    </div>
-                    <div class="form-group" style="margin-top: 1rem;">
-                        <div class="year-control-group">
-                            <button id="year-minus-btn" class="year-control-btn">-</button>
-                            <input type="tel" id="year-input" class="input-field" inputmode="numeric" maxlength="4">
-                            <span class="input-group-text">سال</span>
-                            <button id="year-plus-btn" class="year-control-btn">+</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
         <div id="print-buttons-container" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
             <button id="print-btn" class="btn btn-primary" style="flex: 1;">چاپ فاکتور (PDF)</button>
             <button id="save-as-jpg-btn" class="btn btn-secondary" style="flex: 1;">ذخیره فاکتور (عکس)</button>
@@ -611,10 +563,11 @@
         const yearMinusBtn = document.getElementById('year-minus-btn'); 
         const yearPlusBtn = document.getElementById('year-plus-btn');   
         
-        // Print-only elements within the invoice card (به روز رسانی مستقیم اینها در calculateAndRender)
-        const printCustomerNameSpan = document.getElementById('print-customer-name');
-        const printDateSpan = document.getElementById('print-date');
-        const printGoldPriceSpan = document.getElementById('print-gold-price');
+        // اینها دیگر مستقیماً در HTML نیستند، بلکه در calculateAndRender ساخته میشوند.
+        // فقط برای ارجاع در کد اینجا می مانند، اما محتوای واقعی آنها در تابع ساخته می شود.
+        // const printCustomerNameSpan = document.getElementById('print-customer-name');
+        // const printDateSpan = document.getElementById('print-date');
+        // const printGoldPriceSpan = document.getElementById('print-gold-price');
 
 
         // --- State ---
@@ -1021,7 +974,7 @@
 
                  const profitPercentage = (p.profitPercentage || 0) / 100;
                  const basePricePerGram = goldPricePerGram + ajratPerGram;
-                 const profitPerGram = basePricePricePerGram * profitPercentage;
+                 const profitPerGram = basePricePerGram * profitPercentage;
                  const totalBeforeTaxPerGram = basePricePerGram + profitPerGram;
 
                  return acc + (totalBeforeTaxPerGram * weight);
@@ -1058,22 +1011,22 @@
             }
             finalTotalHTML += `</div>`;
             
-            // --- بروزرسانی عناصر 'print-only' ---
-            const customerPrefix = state.customerGender === 'male' ? 'جناب آقای' : (state.customerGender === 'female' ? 'سرکار خانم' : '');
-            printCustomerNameSpan.textContent = `${customerPrefix} ${state.customerName || ''}`;
-            printDateSpan.textContent = `${toPersianDigits(state.day || '')} ${getJalaliMonthName(state.month || '')} ${toPersianDigits(state.year || '')}`;
-            printGoldPriceSpan.textContent = formatNumber(state.goldPrice);
-
-            // حفظ محتوای print-only موجود و افزودن بقیه HTML به invoiceContentContainer
-            const printOnlyDiv = invoiceContentContainer.querySelector('.print-only');
-            invoiceContentContainer.innerHTML = ''; 
-            invoiceContentContainer.appendChild(printOnlyDiv); 
+            // --- ساخت محتوای 'print-only' به صورت کامل ---
+            let printOnlySectionHTML = `
+                <div class="print-only" style="margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                        <span>خریدار: <span id="print-customer-name-dynamic">${state.customerGender === 'male' ? 'جناب آقای' : (state.customerGender === 'female' ? 'سرکار خانم' : '')} ${state.customerName || ''}</span></span>
+                        <span>تاریخ: <span id="print-date-dynamic">${toPersianDigits(state.day || '')} ${getJalaliMonthName(state.month || '')} ${toPersianDigits(state.year || '')}</span></span>
+                    </div>
+                    <div style="text-align: right; margin-bottom: 0.5rem;">
+                        <span>قیمت هر گرم طلا ۱۸ عیار: <span id="print-gold-price-dynamic">${formatNumber(state.goldPrice)}</span> تومان</span>
+                    </div>
+                    <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.75rem 0;">
+                </div>
+            `;
             
-            const tempDiv = document.createElement('div'); 
-            tempDiv.innerHTML = productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
-            while(tempDiv.firstChild) {
-                invoiceContentContainer.appendChild(tempDiv.firstChild);
-            }
+            // --- بازسازی کامل invoiceContentContainer ---
+            invoiceContentContainer.innerHTML = printOnlySectionHTML + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
             
             renderSmartDiscount(grandTotal); 
         }
@@ -1270,11 +1223,15 @@
         function saveInvoiceAsJPG() {
             const invoiceCard = document.getElementById('invoice-card');
 
+            // قبل از گرفتن عکس، مطمئن می‌شویم که همه استایل‌های مربوط به پرینت اعمال شده باشند.
+            // این کار باعث می‌شود خروجی JPG دقیقا مشابه خروجی PDF باشد.
+            // اینجا دکمه‌های پرینت به دلیل media query در CSS خودکار مخفی می‌شوند.
+
             html2canvas(invoiceCard, {
-                scale: 2, 
-                useCORS: true 
+                scale: 2, // مقیاس بالاتر برای کیفیت بهتر
+                useCORS: true // اگر تصویر خارجی دارید
             }).then(function(canvas) {
-                const imgData = canvas.toDataURL('image/jpeg', 0.9); 
+                const imgData = canvas.toDataURL('image/jpeg', 0.9); // فرمت و کیفیت JPEG
 
                 const link = document.createElement('a');
                 link.href = imgData;
