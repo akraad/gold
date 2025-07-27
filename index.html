@@ -319,15 +319,22 @@
             color: var(--primary-color); font-weight: 700; font-size: 1.2rem;
         }
         
-        .hidden-on-print { display: none !important; } /* New class to hide elements only during print */
+        /* Corrected hidden-on-print class usage */
+        .hidden-on-print { 
+            display: none; /* Hide by default */
+        }
 
         /* Print-specific styles */
         @media print {
-            body > .container > *:not(#invoice-card), /* Hide all cards except invoice card */
-            .hidden-on-print { /* Hide elements with this class during print */
+            .hidden-on-print { /* This hides elements with this class during print */
                 display: none !important;
             }
+            body > .container > *:not(#invoice-card) { /* This rule was causing issues by overriding */
+                display: none; /* Remove or modify this if it conflicts with hidden-on-print */
+            }
+            /* Ensure only the invoice card is visible and styled for print */
             #invoice-card {
+                display: block !important; /* Make sure it's always visible for print */
                 box-shadow: none;
                 border: none;
                 margin: 0;
@@ -955,10 +962,13 @@
                         details.push(`بدون اجرت`);
                     }
                     
-                    // Always show tax per item if tax is enabled and itemTax > 0
+                    // Show tax per item if tax is enabled and itemTax > 0
                     if (state.taxEnabled && itemTax > 0) { 
                         details.push(`مالیات: ${formatNumber(itemTax)}`);
+                    } else if (state.taxEnabled && itemTax === 0) { // New: Show "بدون مالیات" if tax is enabled but amount is zero
+                         details.push(`بدون مالیات`);
                     }
+
 
                     if (details.length > 0) productsHTML += `<div class="invoice-item-details">${details.join(' - ')}</div>`;
                     productsHTML += `</div>`;
@@ -1021,56 +1031,34 @@
             
             state.manualDiscount = parseFormattedNumber(manualDiscountInput.value);
             // Cap manual discount only if currentGrandTotal is positive and discount makes it lower
-            if (currentGrandTotal > 0 && state.manualDiscount > (currentGrandTotal * 0.3)) { 
-                state.manualDiscount = Math.floor(currentGrandTotal * 0.3); // Cap at 30% and ensure it's an integer
-                manualDiscountInput.value = formatNumber(state.manualDiscount);
-            } else if (currentGrandTotal < 0 && state.manualDiscount > Math.abs(currentGrandTotal * 0.3)) { // Cap manual discount if total is negative (for display consistency if they try to over-discount)
-                // If total is negative, a manual discount reduces the amount we pay.
-                // It's still a discount FROM the total they would pay us, or reduces the amount we owe.
-                // Let's cap it at 30% of the absolute value of the total we would pay.
-                // This might need clarification based on exact business logic. For now, 30% of actual positive value.
-                // For simplicity, let's keep the manual discount only affecting the positive part if it goes negative.
-                // Or, if applied to negative, it *reduces* the amount we pay them.
-                // Let's re-think manual discount cap for negative total:
-                // If we owe them -100,000 and apply 30,000 manual discount, we owe -70,000. This is logical.
-                // The current cap `currentGrandTotal * 0.3` for negative `currentGrandTotal` will result in a negative `maxDiscount`,
-                // which means `state.manualDiscount` will be set to a large negative number. This is incorrect.
-                // Let's ensure manual discount is always applied as a positive value reducing the total.
-                // A simpler cap: `state.manualDiscount = Math.min(state.manualDiscount, Math.max(0, originalGrandTotal * 0.3));`
-                // However, originalGrandTotal isn't easily available here.
-                // For now, let's assume manual discount always *reduces* the final payment (whether paid by or to customer).
-                // If total is negative, manual discount makes it *less negative* (i.e., we pay less).
-                // If manual discount is for *us* to give, it makes total *more negative*.
-                // Assuming manual discount is always "reducing the customer's burden".
-                // So, if currentGrandTotal is negative, a manual discount of X means we pay X less.
-                // The old cap was implicitly trying to prevent the discount from being more than the positive amount.
-                // If the prompt implies discount can only be applied when customer pays us (positive grandTotal),
-                // then remove the cap check for negative currentGrandTotal entirely.
-                // Let's keep the existing cap that only applies if currentGrandTotal is positive.
-                if (currentGrandTotal < 0) { // If total is negative, manual discount can be anything the user inputs
-                    // No capping for manual discount if currentGrandTotal is negative
-                    // as it simply reduces the amount we pay the customer.
+            if (currentGrandTotal > 0) {
+                const maxAllowedManualDiscount = Math.floor(currentGrandTotal * 0.3);
+                if (state.manualDiscount > maxAllowedManualDiscount) {
+                    state.manualDiscount = maxAllowedManualDiscount; 
+                    manualDiscountInput.value = formatNumber(state.manualDiscount);
                 }
+            } else { // If currentGrandTotal is negative or zero, no cap for manual discount (it reduces what we owe)
+                // manualDiscountInput.value = formatNumber(state.manualDiscount); // No need to reformat here unless input changes
             }
+            
+            currentGrandTotal -= state.manualDiscount; 
 
-            currentGrandTotal -= state.manualDiscount; // Apply manual discount regardless of its source/sign
-
-            let roundAdjustmentAmount = 0; // Changed from roundDiscountAmount to be more general (can be negative for positive totals)
+            let roundAdjustmentAmount = 0; 
             let roundLabel = 'تخفیف رند';
             let roundClass = 'invoice-value-discount';
 
             if (state.roundDiscountEnabled) {
                 if (currentGrandTotal > 0) { // ما از مشتری دریافت می کنیم (به نفع ما رند شود - به سمت پایین)
                     const remainder = currentGrandTotal % 1000;
-                    let targetValue = currentGrandTotal - remainder; // سه رقم آخر را 000 کن
+                    let targetValue = currentGrandTotal - remainder; 
 
                     const remainder5kAfter1000s = targetValue % 5000;
                     if (remainder5kAfter1000s !== 0) {
-                        targetValue = targetValue - remainder5kAfter1000s; // به نزدیکترین 5000 یا 10000 پایین تر رند کن
+                        targetValue = targetValue - remainder5kAfter1000s; 
                     }
                     
-                    roundAdjustmentAmount = currentGrandTotal - targetValue; // این مقدار همیشه مثبت خواهد بود
-                    roundAdjustmentAmount = Math.max(0, Math.min(roundAdjustmentAmount, currentGrandTotal)); // اطمینان از مثبت و معتبر بودن
+                    roundAdjustmentAmount = currentGrandTotal - targetValue; 
+                    roundAdjustmentAmount = Math.max(0, Math.min(roundAdjustmentAmount, currentGrandTotal)); 
                     
                     if (roundAdjustmentAmount > 0) {
                         currentGrandTotal -= roundAdjustmentAmount;
@@ -1081,30 +1069,26 @@
                     }
 
                 } else if (currentGrandTotal < 0) { // ما به مشتری پرداخت می کنیم (به نفع مشتری رند شود - به سمت بالا)
-                    // برای رند کردن به نفع مشتری، مقدار فعلی (منفی) را به سمت صفر یا عدد منفی کوچکتر (مثلاً -125000 به جای -125123) می بریم.
-                    // این به معنای پرداخت *بیشتر* به مشتری است.
-                    
-                    // با مقدار مطلق کار می کنیم
                     let absoluteTotal = Math.abs(currentGrandTotal);
                     
                     const remainder = absoluteTotal % 1000;
                     let targetAbsoluteValue;
 
-                    if (remainder === 0) { // اگر از قبل 000 بود
+                    if (remainder === 0) { 
                         targetAbsoluteValue = absoluteTotal;
                     } else {
-                        targetAbsoluteValue = absoluteTotal + (1000 - remainder); // به نزدیکترین 000 بالا رند کن
+                        targetAbsoluteValue = absoluteTotal + (1000 - remainder); 
                     }
 
                     const remainder5kAfter1000s = targetAbsoluteValue % 5000;
                     if (remainder5kAfter1000s !== 0) {
-                        targetAbsoluteValue = targetAbsoluteValue + (5000 - remainder5kAfter1000s); // به نزدیکترین 5000 یا 10000 بالا رند کن
+                        targetAbsoluteValue = targetAbsoluteValue + (5000 - remainder5kAfter1000s); 
                     }
                     
-                    roundAdjustmentAmount = targetAbsoluteValue - absoluteTotal; // این مقدار همیشه مثبت خواهد بود
+                    roundAdjustmentAmount = targetAbsoluteValue - absoluteTotal; 
                     
                     if (roundAdjustmentAmount > 0) {
-                        currentGrandTotal -= roundAdjustmentAmount; // این باعث می شود مبلغ منفی، "منفی تر" شود (به نفع مشتری)
+                        currentGrandTotal -= roundAdjustmentAmount; 
                         roundLabel = 'رند به نفع مشتری';
                         roundClass = 'invoice-value-success';
                     } else {
@@ -1119,7 +1103,10 @@
                  summaryHTML += `<div class="invoice-separator"></div>`; 
                  summaryHTML += `<div class="invoice-summary-line"><span>جمع مالیات</span><span>${formatNumber(totalTax)} تومان</span></div>`;
             } else if (state.manualDiscount > 0 || (state.roundDiscountEnabled && roundAdjustmentAmount > 0)) { 
-                summaryHTML += `<div class="invoice-separator"></div>`;
+                // Only add separator if at least one of these (manual or round discount) is present and > 0
+                if (state.manualDiscount > 0 || (state.roundDiscountEnabled && roundAdjustmentAmount > 0)) {
+                    summaryHTML += `<div class="invoice-separator"></div>`;
+                }
             }
             
             if (state.manualDiscount > 0) {
@@ -1144,13 +1131,15 @@
             const customerPrefix = state.customerGender === 'male' ? 'جناب آقای' : (state.customerGender === 'female' ? 'سرکار خانم' : '');
             printCustomerNameSpan.textContent = `${customerPrefix} ${state.customerName || ''}`;
             printDateSpan.textContent = `${toPersianDigits(state.day || '')} ${getJalaliMonthName(state.month || '')} ${toPersianDigits(state.year || '')}`;
-            printGoldPriceSpan.textContent = formatNumber(state.goldPrice); // Ensure gold price is updated here
+            printGoldPriceSpan.textContent = formatNumber(state.goldPrice); 
 
-            const existingPrintOnlyDivContent = invoiceContentContainer.querySelector('.print-only').innerHTML;
-            
-            invoiceContentContainer.innerHTML = `<div class="print-only" style="margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">
-                                                    ${existingPrintOnlyDivContent}
-                                                </div>` + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
+            // IMPORTANT: Get the current print-only div's content *before* overwriting innerHTML
+            const existingPrintOnlyDiv = invoiceContentContainer.querySelector('.print-only');
+            if (existingPrintOnlyDiv) {
+                invoiceContentContainer.innerHTML = existingPrintOnlyDiv.outerHTML + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
+            } else {
+                 invoiceContentContainer.innerHTML = productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
+            }
         }
         
         // --- Customer Info & Date Widget Rendering ---
@@ -1210,9 +1199,17 @@
         });
         
         printBtn.addEventListener('click', () => {
-            // Before printing, ensure print-only sections are updated
-            calculateAndRender(); // Re-render to ensure all print-only data is current
+            // Hide all elements that should not be in the print output
+            document.querySelectorAll('.hidden-on-print').forEach(el => el.style.display = 'none');
+            
+            // Re-render to ensure all print-only data is current
+            calculateAndRender(); 
             window.print();
+
+            // Show hidden elements again after print dialog is closed or cancelled
+            setTimeout(() => { // Using setTimeout to allow print dialog to open first
+                document.querySelectorAll('.hidden-on-print').forEach(el => el.style.display = ''); // Revert to default display
+            }, 500); // Small delay might be needed for some browsers
         });
 
         saveAsJpgBtn.addEventListener('click', () => {
@@ -1318,11 +1315,11 @@
         function saveInvoiceAsJPG() {
             const invoiceCard = document.getElementById('invoice-card');
 
-            // Hide all elements that should not be in the JPG capture
-            const elementsToHideForCapture = document.querySelectorAll(
-                '.hidden-on-print, #print-btn-container, #profit-tax-section, #customer-info-card, .add-purchase-options, #add-product-item, .delete-item-btn'
-            );
-            elementsToHideForCapture.forEach(el => el.classList.add('hidden-on-print')); // Use the same class
+            // Collect all elements that should be hidden during capture
+            const elementsToHide = document.querySelectorAll('.hidden-on-print');
+            
+            // Temporarily hide elements using inline style display: none
+            elementsToHide.forEach(el => el.style.display = 'none'); 
 
             // Re-render to ensure all calculations and print-only data are current before capture
             calculateAndRender();
@@ -1342,13 +1339,13 @@
                 document.body.removeChild(link);
 
                 // Show hidden elements again after capture
-                elementsToHideForCapture.forEach(el => el.classList.remove('hidden-on-print'));
+                elementsToHide.forEach(el => el.style.display = ''); // Revert to original display
 
             }).catch(err => {
                 console.error('خطا در تبدیل HTML به عکس:', err);
                 alert('فاکتور ذخیره نشد. لطفاً دوباره تلاش کنید.');
                 // In case of error, ensure elements are shown again
-                elementsToHideForCapture.forEach(el => el.classList.remove('hidden-on-print'));
+                elementsToHide.forEach(el => el.style.display = ''); 
             });
         }
 
