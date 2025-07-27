@@ -545,6 +545,8 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/jalaali-js@1.2.6/dist/jalaali.min.js"></script>
+
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         // --- DOM Elements ---
@@ -569,8 +571,8 @@
         const daySlider = document.getElementById('day-slider');
         const monthSlider = document.getElementById('month-slider');
         const yearInput = document.getElementById('year-input');
-        const yearMinusBtn = document.getElementById('year-minus-btn'); // New
-        const yearPlusBtn = document.getElementById('year-plus-btn');   // New
+        const yearMinusBtn = document.getElementById('year-minus-btn'); 
+        const yearPlusBtn = document.getElementById('year-plus-btn');   
 
         // --- State ---
         const MESGHAL_GRAM_FACTOR = 4.608;
@@ -579,13 +581,13 @@
         let state = {
             goldPrice: 0,
             manualDiscount: 0,
-            isRoundingActive: true, // Set to true by default for the switch
+            isRoundingActive: true, 
             products: [],
-            customerName: '', // New
-            customerGender: null, // 'male', 'female', or null (New)
-            day: null, // Initialized later based on current Jalali date
-            month: null, // Initialized later based on current Jalali date
-            year: null // Initialized later based on current Jalali date
+            customerName: '', 
+            customerGender: null, 
+            day: null, 
+            month: null, 
+            year: null 
         };
 
         // --- Helper Functions ---
@@ -662,44 +664,6 @@
             return words.filter(Boolean).join(' و ');
         };
 
-        // --- CORRECTED Jalali Date conversion ---
-        function gregorianToJalali(gy, gm, gd) {
-            var g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365];
-            var J_Y_DAYS = [29, 30, 30, 30, 30, 30, 30, 29, 29, 29, 29, 29]; // Days in Jalali months
-
-            var jalali_days_in_month = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
-
-            var g_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-            if (gy % 4 === 0 && (gy % 100 !== 0 || gy % 400 === 0)) {
-                g_days_in_month[1] = 29; // Leap year
-            }
-
-            var gy2 = (gm > 2) ? (gy + 1) : gy;
-            var days = -79 + gd;
-            for (var i = 0; i < gm - 1; i++) {
-                days += g_days_in_month[i];
-            }
-
-            var J_Y = 979 + 33 * Math.floor(days / 12053);
-            days %= 12053;
-            J_Y += 4 * Math.floor(days / 1461);
-            days %= 1461;
-            if (days > 365) {
-                J_Y += Math.floor((days - 1) / 365);
-                days = (days - 1) % 365;
-            }
-
-            var J_M;
-            for (J_M = 1; J_M <= 12; J_M++) {
-                if (days < jalali_days_in_month[J_M - 1]) {
-                    break;
-                }
-                days -= jalali_days_in_month[J_M - 1];
-            }
-            var J_D = days + 1;
-            return [J_Y, J_M, J_D];
-        }
-
         const getJalaliMonthName = (monthNum) => {
             const monthNames = [
                 'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
@@ -709,29 +673,10 @@
         };
 
         const getDaysInMonth = (year, month) => {
-            if (month <= 6) return 31; // Farvardin to Shahrivar
-            if (month <= 11) return 30; // Mehr to Bahman
-            // Esfand
-            // The existing leap year logic for Jalali is a bit simplified.
-            // For 1403 and 1404, Esfand 1403 has 29 days, Esfand 1404 has 29 days (as 1404 is not a leap year in this system, it follows 1399, 1403, 1407...)
-            // A more accurate Persian leap year: years where (year % 33) is one of (1, 5, 9, 13, 17, 22, 26, 30) (or simplified common cases: years % 4 = 2, 6, 10, 14, 18, 23, 27, 31, 0, 4, 8, 12, 16, 20, 24, 28, 32).
-            // For simplicity and given the context (1403, 1404), Esfand is 29 days.
-            // If more accurate leap year detection is needed for a wider range of years:
-            // return (month === 12 && (year % 33 === 1 || year % 33 === 5 || year % 33 === 9 || year % 33 === 13 || year % 33 === 17 || year % 33 === 22 || year % 33 === 26 || year % 33 === 30 || year % 33 === 0)) ? 30 : 29;
-            // However, based on the prompt's simplicity, for 1403 and 1404, both Esfand will be 29 days.
-            // Simplified check based on common knowledge that 1403 is a leap year, 1404 is not, but Esfand 1403 has 29 days, Esfand 1404 has 29 days.
-            // The provided function `gregorianToJalali` handles leap years internally for Gregorian dates and outputs correct Jalali days.
-            // For the `getDaysInMonth` function which is used for slider max, we need to consider Jalali leap years.
-            // 1403 is a leap year (Esfand has 30 days). 1404 is not (Esfand has 29 days).
-            if (month <= 6) return 31;
-            if (month <= 11) return 30;
-            // For Esfand (month 12)
-            if (year % 33 === 1 || year % 33 === 5 || year % 33 === 9 || year % 33 === 13 || year % 33 === 17 || year % 33 === 22 || year % 33 === 26 || year % 33 === 30) {
-                return 30; // Leap year in Jalali
-            }
-            return 29; // Normal year in Jalali
+            // Use jalaali-js to get days in month
+            // jalaali.jalaaliMonthLength(year, monthIndex) takes monthIndex (0-11)
+            return jalaali.jalaaliMonthLength(year, month - 1);
         };
-
 
         const updatePriceInWords = () => {
             const price = state.goldPrice;
@@ -743,17 +688,6 @@
             }
         };
 
-        const getRandomGradient = () => {
-            const colors = [
-                '#e74c3c', '#9b59b6', '#3498db', '#2ecc71', '#f1c40f', '#e67e22', '#34495e', '#1abc9c'
-            ];
-            const shuffled = colors.sort(() => 0.5 - Math.random());
-            const selectedColors = shuffled.slice(0, Math.floor(Math.random() * 3) + 3);
-            const angle = Math.floor(Math.random() * 360);
-            return `linear-gradient(${angle}deg, ${selectedColors.join(', ')})`;
-        };
-
-        // --- Dynamic Item Management ---
         function createProductItem(type, weight = 0, ayar = null, eng = 0, lab = '', profit = 2.0) { 
             const id = itemIdCounter++;
             const item = { id, type, weight, ayar, eng, lab, profit }; 
@@ -776,14 +710,11 @@
             }
         }
 
-        // Helper for formatting profit percentage consistently
         const formatProfitPercentage = (value) => {
-            // Using a slightly larger epsilon for better robustness after calculations.
-            // This ensures numbers like 2.0000000000000004 are treated as integers.
             if (Math.abs(value - Math.round(value)) < 0.000001) { 
-                return toPersianDigits(Math.round(value).toFixed(0)); // Show without decimal
+                return toPersianDigits(Math.round(value).toFixed(0)); 
             }
-            return toPersianDigits(value.toFixed(1)); // Show with one decimal
+            return toPersianDigits(value.toFixed(1)); 
         };
 
 
@@ -946,7 +877,7 @@
                     
                     const display = e.target.closest('.profit-slider-group').querySelector('.profit-slider-value');
                     if (display) {
-                        display.textContent = `${formatProfitPercentage(value)} %`; // Using helper function
+                        display.textContent = `${formatProfitPercentage(value)} %`; 
                     }
                 };
             });
@@ -972,7 +903,7 @@
             let motafergheBaseValueTotal = 0;
             let hasAbsheItems = false;
             let hasMotafergheItems = false;
-            let conditionalAbsheItems = []; // To store conditional items for disclaimer
+            let conditionalAbsheItems = []; 
 
             const absheProfitDetails = {};
             const motafergheProfitDetails = {};
@@ -1000,7 +931,7 @@
                         let ayarDisplay = '';
                         if (item.ayar === null || item.ayar === 0) {
                             ayarDisplay = `<strong style="color:var(--danger-color);">شرطی</strong>`;
-                            conditionalAbsheItems.push({ id: item.id, weight: item.weight }); // Just push ID and weight
+                            conditionalAbsheItems.push({ id: item.id, weight: item.weight }); 
                         } else {
                             ayarDisplay = toPersianDigits(item.ayar);
                         }
@@ -1063,7 +994,7 @@
                     </div>`;
                 }
             });
-            invoiceHTML += `</div>`; // Close invoice-section for items
+            invoiceHTML += `</div>`; 
 
             let totalProfitBeforeDiscount = 0;
             
@@ -1094,7 +1025,6 @@
 
             let finalInvoiceValue = totalBaseValueBeforeProfit + totalProfitBeforeDiscount;
 
-            // Calculate rounding discount based on the new switch
             let roundingDiscount = 0;
             if (state.isRoundingActive && finalInvoiceValue > 0) {
                 const remainder = finalInvoiceValue % 10000;
@@ -1119,10 +1049,8 @@
                 const showTypeLabelInProfitLine = hasAbsheProfitLine && hasMotafergheProfitLine;
 
                 allProfitLines.forEach(line => {
-                    // تغییر اصلی اینجاست: درصد سود همیشه همان درصد اصلی باقی می‌ماند
                     const displayPercentage = line.percentage; 
 
-                    // Using the helper function for consistent formatting
                     let formattedPercentage = formatProfitPercentage(displayPercentage);
                     
                     let typeLabel = '';
@@ -1135,7 +1063,6 @@
             
             let grandTotal = finalInvoiceValue - totalCombinedDiscount;
             
-            // Display combined discount or "تخفیف رند" if only rounding is active
             if (totalCombinedDiscount > 0) {
                 let discountLabel = "تخفیف";
                 if (state.isRoundingActive && state.manualDiscount === 0 && roundingDiscount > 0) {
@@ -1156,7 +1083,6 @@
             let disclaimerHTML = '';
             if (conditionalAbsheItems.length > 0) {
                 let conditionalParts = [];
-                // Sort conditional items by their original index to get consistent "اول", "دوم"
                 const sortedConditionalAbsheItems = conditionalAbsheItems
                     .map(item => ({
                         ...item,
@@ -1175,7 +1101,6 @@
                     });
                 }
                 
-                // Construct the disclaimer message with newlines
                 disclaimerHTML = `<p class="disclaimer-text">
                                     <strong style="color:var(--danger-color);">توجه:</strong><br>
                                     به دلیل شرطی بودن ${conditionalParts.join(' و ')}<br>
@@ -1183,7 +1108,6 @@
                                   </p>`;
             }
             
-            // Update customer and date display in invoice (Moved from general event listeners)
             let customerDisplay = '';
             if (state.customerName) {
                 if (state.customerGender === 'male') {
@@ -1194,7 +1118,6 @@
                     customerDisplay = state.customerName;
                 }
             }
-            // Sync icon display with state.customerGender
             if (state.customerGender === 'male') {
                 maleIcon.classList.add('gender-icon-selected');
                 femaleIcon.classList.remove('gender-icon-selected');
@@ -1212,12 +1135,11 @@
                 dateDisplay = `${toPersianDigits(state.day)} ${getJalaliMonthName(state.month)} ${toPersianDigits(state.year)}`;
             }
 
-            let invoiceHeaderExtra = ''; // Initialize here
+            let invoiceHeaderExtra = ''; 
             if (state.goldPrice > 0) {
                 invoiceHeaderExtra = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">قیمت مظنه طلا: ${formatNumber(state.goldPrice)} تومان</div>`;
             }
 
-            // Combine customer, date, and gold price display for print-only
             let combinedPrintHeader = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 1em; color: var(--text-color);">`;
             if (customerDisplay) {
                 combinedPrintHeader += `<p style="margin-bottom: 5px;">نام خریدار: ${customerDisplay}</p>`;
@@ -1225,13 +1147,12 @@
             if (dateDisplay) {
                 combinedPrintHeader += `<p>تاریخ: ${dateDisplay}</p>`;
             }
-            combinedPrintHeader += invoiceHeaderExtra; // Add existing gold price to this block
+            combinedPrintHeader += invoiceHeaderExtra; 
             combinedPrintHeader += `</div>`;
 
 
             invoiceContentContainer.innerHTML = combinedPrintHeader + invoiceHTML + finalTotalHTML + disclaimerHTML;
             
-            // Update year buttons state after rendering
             updateYearButtonsState();
         }
         
@@ -1259,10 +1180,9 @@
             }
         });
 
-        // Event Listener for the new rounding switch
         roundSwitch.addEventListener('change', () => {
-            state.isRoundingActive = roundSwitch.checked; // Update state based on switch
-            calculateAndRender(); // Recalculate and render
+            state.isRoundingActive = roundSwitch.checked; 
+            calculateAndRender(); 
         });
 
 
@@ -1282,18 +1202,17 @@
         // --- Customer Name and Gender Event Listeners ---
         customerNameInput.addEventListener('input', (e) => {
             const rawValue = e.target.value;
-            // Allow Persian letters, space, and ZWNJ (نیم فاصله)
             const persianOnly = rawValue.replace(/[^ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی ئأإؤكيك\u200C ]/g, ''); 
             
             if (persianOnly !== rawValue) {
-                e.target.value = persianOnly; // Clean the input
+                e.target.value = persianOnly; 
             }
             state.customerName = persianOnly;
             calculateAndRender();
         });
 
         maleIcon.addEventListener('click', () => {
-            if (state.customerGender === 'male') { // If already selected, deselect
+            if (state.customerGender === 'male') { 
                 state.customerGender = null;
             } else {
                 state.customerGender = 'male';
@@ -1302,7 +1221,7 @@
         });
 
         femaleIcon.addEventListener('click', () => {
-            if (state.customerGender === 'female') { // If already selected, deselect
+            if (state.customerGender === 'female') { 
                 state.customerGender = null;
             } else {
                 state.customerGender = 'female';
@@ -1311,31 +1230,36 @@
         });
 
         // --- Date Event Listeners ---
-        // Current date for Mashhad, Razavi Khorasan Province, Iran is Sunday, July 27, 2025.
-        // Convert this Gregorian date to Jalali
-        const [currentJalaliYear, currentJalaliMonth, currentJalaliDay] = gregorianToJalali(2025, 7, 27); 
+        // Get today's date in Gregorian
+        const today = new Date();
+        // Convert Gregorian today to Jalali using jalaali-js
+        const currentJalaliDate = jalaali.toJalaali(today.getFullYear(), today.getMonth() + 1, today.getDate()); 
         
         // Define the allowed year range
-        const MIN_YEAR = currentJalaliYear - 1; // 1403
-        const MAX_YEAR = currentJalaliYear;     // 1404
+        // Based on your prompt "الان سال 1404 هست" and allowing 1 year back
+        const MIN_YEAR = currentJalaliDate.jy - 1; // 1403
+        const MAX_YEAR = currentJalaliDate.jy;     // 1404
 
         // Set initial values for sliders and year input
         if (state.day === null) {
-            daySlider.value = state.day = currentJalaliDay;
+            daySlider.value = state.day = currentJalaliDate.jd;
         }
         if (state.month === null) {
-            monthSlider.value = state.month = currentJalaliMonth;
+            monthSlider.value = state.month = currentJalaliDate.jm;
         }
         if (state.year === null) {
-            yearInput.value = toPersianDigits(state.year = currentJalaliYear);
+            yearInput.value = toPersianDigits(state.year = currentJalaliDate.jy);
         }
 
         const updateDaySliderMax = () => {
-            const maxDays = getDaysInMonth(state.year, state.month);
-            daySlider.max = maxDays;
-            if (state.day > maxDays) {
-                state.day = maxDays;
-                daySlider.value = maxDays;
+            // Ensure state.year and state.month are valid numbers before calling getDaysInMonth
+            if (state.year && state.month) {
+                const maxDays = getDaysInMonth(state.year, state.month);
+                daySlider.max = maxDays;
+                if (state.day > maxDays) {
+                    state.day = maxDays;
+                    daySlider.value = maxDays;
+                }
             }
             document.getElementById('day-display').textContent = toPersianDigits(state.day) + ' (روز)';
         };
@@ -1351,6 +1275,12 @@
 
         daySlider.addEventListener('input', (e) => {
             state.day = parseInt(e.target.value);
+            // Basic validation to prevent invalid day/month/year combinations
+            if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
+                // If invalid, revert or adjust (e.g., set to max day for that month)
+                state.day = getDaysInMonth(state.year, state.month);
+                daySlider.value = state.day;
+            }
             document.getElementById('day-display').textContent = toPersianDigits(state.day) + ' (روز)';
             calculateAndRender();
         });
@@ -1359,19 +1289,30 @@
             state.month = parseInt(e.target.value);
             updateMonthDisplay();
             updateDaySliderMax(); // Update day slider max based on new month
+            // Re-validate day after month change
+            if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
+                state.day = getDaysInMonth(state.year, state.month);
+                daySlider.value = state.day;
+                document.getElementById('day-display').textContent = toPersianDigits(state.day) + ' (روز)'; // Update display immediately
+            }
             calculateAndRender();
         });
 
         yearInput.addEventListener('input', (e) => {
             const value = parseFormattedNumber(e.target.value);
-            // Allow only current year or current year - 1 (or empty/0)
-            if ((value >= MIN_YEAR && value <= MAX_YEAR) || value === 0 || isNaN(value)) {
-                state.year = value === 0 || isNaN(value) ? null : value;
-                e.target.value = value === 0 || isNaN(value) ? '' : toPersianDigits(value);
+            if ((value >= MIN_YEAR && value <= MAX_YEAR) || isNaN(value)) {
+                state.year = isNaN(value) ? null : value;
+                e.target.value = isNaN(value) ? '' : toPersianDigits(value);
             } else {
-                e.target.value = toPersianDigits(state.year || currentJalaliYear); // Revert to valid value or default
+                e.target.value = toPersianDigits(state.year || currentJalaliDate.jy); 
             }
-            updateDaySliderMax(); // Update day slider max based on new year (for Esfand)
+            updateDaySliderMax(); 
+            // Re-validate day after year change (e.g., Esfand in leap vs non-leap year)
+            if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
+                state.day = getDaysInMonth(state.year, state.month);
+                daySlider.value = state.day;
+                document.getElementById('day-display').textContent = toPersianDigits(state.day) + ' (روز)'; 
+            }
             calculateAndRender();
         });
 
@@ -1380,6 +1321,12 @@
                 state.year++;
                 yearInput.value = toPersianDigits(state.year);
                 updateDaySliderMax();
+                // Re-validate day after year change
+                if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
+                    state.day = getDaysInMonth(state.year, state.month);
+                    daySlider.value = state.day;
+                    document.getElementById('day-display').textContent = toPersianDigits(state.day) + ' (روز)'; 
+                }
                 calculateAndRender();
             }
         });
@@ -1389,14 +1336,20 @@
                 state.year--;
                 yearInput.value = toPersianDigits(state.year);
                 updateDaySliderMax();
+                // Re-validate day after year change
+                if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
+                    state.day = getDaysInMonth(state.year, state.month);
+                    daySlider.value = state.day;
+                    document.getElementById('day-display').textContent = toPersianDigits(state.day) + ' (روز)'; 
+                }
                 calculateAndRender();
             }
         });
 
         // Initial render on page load
-        updateDaySliderMax(); // Set initial max days for the day slider
-        updateMonthDisplay(); // Set initial month name for the month slider
-        calculateAndRender(); // Perform initial calculation and rendering
+        updateDaySliderMax(); 
+        updateMonthDisplay(); 
+        calculateAndRender(); 
     });
     </script>
 
