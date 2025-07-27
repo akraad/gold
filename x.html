@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
             --bg-color: #f7f8fc;
@@ -401,12 +402,23 @@
         }
 
         /* Specific style for selected gender icons */
+        .gender-icon {
+            font-size: 24px; /* Adjust size as needed */
+            color: var(--text-light); /* Default color */
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 24px; /* Ensure consistent spacing */
+            text-align: center; /* Center icon within its space */
+        }
+        
+        .gender-icon:hover {
+            color: var(--primary-color);
+        }
+
         .gender-icon-selected {
-            opacity: 1 !important;
-            /* border: 2px solid var(--primary-color); */ /* Removed border for new icons */
-            /* border-radius: 50%; */ /* Removed border-radius for new icons */
-            filter: grayscale(0%) invert(20%) sepia(80%) saturate(1500%) hue-rotate(200deg) brightness(90%) contrast(90%); /* Example filter for color */
-            transform: scale(1.1);
+            color: var(--primary-color); /* Highlight color when selected */
+            transform: scale(1.1); /* Slightly enlarge when selected */
+            opacity: 1 !important; /* Ensure full opacity */
         }
 
         /* Styles for year control buttons */
@@ -512,9 +524,9 @@
             <h2 class="card-header">اطلاعات خریدار و تاریخ</h2>
             
             <div class="form-group">
-                <label class="form-label" style="display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
-                    <img src="https://img.icons8.com/material-rounded/24/000000/gender-neutral-user.png" alt="Male Icon" id="male-icon" style="cursor: pointer; opacity: 0.5; width: 24px; height: 24px;" title="جناب آقای">
-                    <img src="https://img.icons8.com/material-rounded/24/000000/gender-female.png" alt="Female Icon" id="female-icon" style="cursor: pointer; opacity: 0.5; width: 24px; height: 24px;" title="سرکار خانم">
+                <label class="form-label" style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; direction: rtl;">
+                    <i class="fas fa-male gender-icon" id="male-icon" title="جناب آقای"></i>
+                    <i class="fas fa-female gender-icon" id="female-icon" title="سرکار خانم"></i>
                     نام خریدار
                 </label>
                 <input type="text" id="customer-name" class="input-field">
@@ -558,15 +570,12 @@
         const invoiceContentContainer = document.getElementById('invoice-content');
         const printBtn = document.getElementById('print-btn');
 
-        // New DOM Element for the round switch
         const roundSwitch = document.getElementById('round-switch'); 
 
-        // New DOM Elements for dynamic items
         const productItemsContainer = document.getElementById('product-items-container');
         const addAbsheBtn = document.getElementById('add-abshe-btn');
         const addMotafergheBtn = document.getElementById('add-motaferghe-btn');
 
-        // New DOM Elements for customer and date
         const customerNameInput = document.getElementById('customer-name');
         const maleIcon = document.getElementById('male-icon');
         const femaleIcon = document.getElementById('female-icon');
