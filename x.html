@@ -7,7 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         :root {
             --bg-color: #f7f8fc;
@@ -401,25 +400,29 @@
             color: var(--primary-color);
         }
 
-        /* Specific style for selected gender icons */
-        .gender-icon {
-            font-size: 24px; /* Adjust size as needed */
-            color: var(--text-light); /* Default color */
+        /* Styles for gender text "آقا" and "خانم" */
+        .gender-text {
+            font-size: 1rem; /* Adjust size as needed */
+            font-weight: bold; /* Make bold */
             cursor: pointer;
             transition: all 0.2s ease;
-            width: 24px; /* Ensure consistent spacing */
-            text-align: center; /* Center icon within its space */
+            padding: 0 5px; /* Add some padding around the text */
         }
         
-        .gender-icon:hover {
-            color: var(--primary-color);
+        .gender-text.male {
+            color: #2ecc71; /* Green for Agha */
         }
 
-        .gender-icon-selected {
-            color: var(--primary-color); /* Highlight color when selected */
-            transform: scale(1.1); /* Slightly enlarge when selected */
-            opacity: 1 !important; /* Ensure full opacity */
+        .gender-text.female {
+            color: #e74c8c; /* Pink for Khanom */
         }
+
+        .gender-text-selected {
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2); /* Soft blue glow */
+            border-radius: var(--border-radius); /* Rounded corners for the shadow */
+            transform: scale(1.05); /* Slightly enlarge when selected */
+        }
+
 
         /* Styles for year control buttons */
         .year-control-group {
@@ -525,8 +528,8 @@
             
             <div class="form-group">
                 <label class="form-label" style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; direction: rtl;">
-                    <i class="fas fa-male gender-icon" id="male-icon" title="جناب آقای"></i>
-                    <i class="fas fa-female gender-icon" id="female-icon" title="سرکار خانم"></i>
+                    <span class="gender-text male" id="male-option" title="جناب آقای">آقا</span>
+                    <span class="gender-text female" id="female-option" title="سرکار خانم">خانم</span>
                     نام خریدار
                 </label>
                 <input type="text" id="customer-name" class="input-field">
@@ -577,8 +580,9 @@
         const addMotafergheBtn = document.getElementById('add-motaferghe-btn');
 
         const customerNameInput = document.getElementById('customer-name');
-        const maleIcon = document.getElementById('male-icon');
-        const femaleIcon = document.getElementById('female-icon');
+        // Changed IDs for text elements
+        const maleOption = document.getElementById('male-option');
+        const femaleOption = document.getElementById('female-option');
         const daySlider = document.getElementById('day-slider');
         const monthSlider = document.getElementById('month-slider');
         const yearInput = document.getElementById('year-input');
@@ -595,7 +599,7 @@
             isRoundingActive: true, 
             products: [],
             customerName: '', 
-            customerGender: null, 
+            customerGender: null, // 'male', 'female', or null 
             day: null, 
             month: null, 
             year: null 
@@ -1127,9 +1131,9 @@
                     customerDisplay = state.customerName;
                 }
             }
-            // Update icon display based on state.customerGender
-            maleIcon.classList.toggle('gender-icon-selected', state.customerGender === 'male');
-            femaleIcon.classList.toggle('gender-icon-selected', state.customerGender === 'female');
+            // Update text element display based on state.customerGender
+            maleOption.classList.toggle('gender-text-selected', state.customerGender === 'male');
+            femaleOption.classList.toggle('gender-text-selected', state.customerGender === 'female');
 
 
             let dateDisplay = '';
@@ -1213,7 +1217,8 @@
             calculateAndRender();
         });
 
-        maleIcon.addEventListener('click', () => {
+        // Event listeners for text options
+        maleOption.addEventListener('click', () => {
             if (state.customerGender === 'male') { 
                 state.customerGender = null;
             } else {
@@ -1222,7 +1227,7 @@
             calculateAndRender();
         });
 
-        femaleIcon.addEventListener('click', () => {
+        femaleOption.addEventListener('click', () => {
             if (state.customerGender === 'female') { 
                 state.customerGender = null;
             } else {
