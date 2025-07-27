@@ -415,22 +415,13 @@
         .excess-gold-purchase-section .form-group {
             margin-bottom: 0.5rem;
         }
-        .excess-gold-input-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        .excess-gold-input-wrapper .input-group {
-            flex-grow: 1;
-        }
         /* Print-specific styles */
         @media print {
-            body > .container > *:not(#invoice-card, #excess-gold-purchase-container), /* Keep excess gold section visible if it contains relevant info */
+            body > .container > *:not(#invoice-card),
             #print-btn-container,
             #profit-tax-section,
-            #customer-info-card,
-            #excess-gold-purchase-container .excess-gold-input-wrapper.screen-only { /* Hide input wrapper itself in print */
-                display: none !important;
+            #customer-info-card {
+                display: none;
             }
             .screen-only {
                 display: none !important;
@@ -443,6 +434,10 @@
             }
             .print-only {
                 display: block !important;
+            }
+            /* Ensure the excess gold purchase input is hidden in print if it's dynamic */
+            #excess-gold-purchase-container { /* Use the specific ID */
+                display: none !important;
             }
         }
 
@@ -522,27 +517,6 @@
                 </div>
         </div>
 
-        <div class="card excess-gold-purchase-section hidden" id="excess-gold-purchase-container">
-            <div class="form-label">
-                <span class="invoice-section-title">خرید مازاد طلای متفرقه (اختیاری)</span>
-                <label class="switch">
-                    <input type="checkbox" id="excess-gold-switch">
-                    <span class="slider"></span>
-                </label>
-            </div>
-            <div class="excess-gold-input-wrapper screen-only hidden"> <div class="form-group" style="flex-grow: 1;">
-                    <label for="excess-gold-price-input" class="form-label">قیمت هر گرم مازاد (<span id="excess-gold-weight-display"></span> گرم)</label>
-                    <div class="input-group rtl">
-                        <input type="text" id="excess-gold-price-input" class="input-field" inputmode="numeric">
-                        <span class="input-group-text">تومان</span>
-                    </div>
-                </div>
-            </div>
-            <div class="invoice-summary-line">
-                <span>ارزش مازاد طلا (<span id="excess-gold-summary-weight"></span> گرم)</span>
-                <span class="invoice-value-danger" id="excess-gold-summary-value"></span>
-            </div>
-        </div>
         <div class="card" id="customer-info-card">
             <h2 class="card-header">اطلاعات خریدار و تاریخ</h2>
             
@@ -611,15 +585,6 @@
         const yearInput = document.getElementById('year-input');
         const yearMinusBtn = document.getElementById('year-minus-btn'); 
         const yearPlusBtn = document.getElementById('year-plus-btn');   
-
-        // --- NEW DOM Elements (Excess Gold) ---
-        const excessGoldContainer = document.getElementById('excess-gold-purchase-container');
-        const excessGoldSwitch = document.getElementById('excess-gold-switch');
-        const excessGoldPriceInput = document.getElementById('excess-gold-price-input');
-        const excessGoldInputWrapper = document.querySelector('#excess-gold-purchase-container .excess-gold-input-wrapper');
-        const excessGoldWeightDisplay = document.getElementById('excess-gold-weight-display');
-        const excessGoldSummaryWeight = document.getElementById('excess-gold-summary-weight');
-        const excessGoldSummaryValue = document.getElementById('excess-gold-summary-value');
         
         // --- State ---
         let state = {
@@ -634,8 +599,7 @@
             day: null,
             month: null,
             year: null,
-            excessGoldPurchasePricePerGram: 0, // New state for excess gold price
-            excessGoldPurchaseEnabled: false // New state for excess gold purchase switch (default off)
+            excessGoldPurchasePricePerGram: 0 // New state for excess gold price
         };
 
         // --- Helper Functions ---
@@ -781,65 +745,39 @@
             const profitDisplay = itemDiv.querySelector('.product-slider-value'); 
             
             typeInput.addEventListener('change', (e) => { item.type = e.target.value; calculateAndRender(); });
-            
-            // --- Unified Input/Blur handling for numeric fields ---
-            weightInput.addEventListener('focus', (e) => {
-                e.target.value = toEnglishDigits(item.weight);
-            });
             weightInput.addEventListener('input', (e) => {
                 const value = toEnglishDigits(e.target.value);
                 if (/^\d*\.?\d*$/.test(value)) {
                     item.weight = value;
-                } else {
-                    e.target.value = toPersianDigits(item.weight); // Revert if invalid char
-                }
+                    e.target.value = toPersianDigits(value);
+                } else e.target.value = toPersianDigits(item.weight);
                 calculateAndRender();
-            });
-            weightInput.addEventListener('blur', (e) => {
-                e.target.value = toPersianDigits(item.weight);
-            });
-
-
-            ajratInput.addEventListener('focus', (e) => {
-                e.target.value = toEnglishDigits(item.ajratValue);
             });
             ajratInput.addEventListener('input', (e) => {
                 const isPercent = item.ajratType === 'percent';
                 if (isPercent) {
                     let value = toEnglishDigits(e.target.value);
                     if (/^\d*\.?\d*$/.test(value)) {
-                        if (parseFloat(value) > 30) value = '30'; // Clamp percentage
+                        if (parseFloat(value) > 30) value = '30';
                         item.ajratValue = value;
-                    } else {
-                        e.target.value = toPersianDigits(item.ajratValue); // Revert if invalid char
-                    }
+                        e.target.value = toPersianDigits(value);
+                    } else e.target.value = toPersianDigits(item.ajratValue);
                 } else {
                     const value = parseFormattedNumber(e.target.value);
                      if (value.toString().length <= 7) {
                         item.ajratValue = value;
-                    } else {
-                        e.target.value = formatNumber(item.ajratValue); // Revert if too long
-                    }
+                        e.target.value = formatNumber(value);
+                    } else e.target.value = formatNumber(item.ajratValue);
                 }
                 calculateAndRender();
             });
-            ajratInput.addEventListener('blur', (e) => {
-                const isPercent = item.ajratType === 'percent';
-                if (isPercent) {
-                    e.target.value = toPersianDigits(item.ajratValue);
-                } else {
-                    e.target.value = formatNumber(item.ajratValue);
-                }
-            });
-
-
             itemDiv.querySelectorAll('.ajrat-type-btn').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     e.preventDefault();
                     itemDiv.querySelectorAll('.ajrat-type-btn').forEach(b => b.classList.remove('active'));
                     e.target.classList.add('active');
                     item.ajratType = e.target.dataset.type;
-                    item.ajratValue = ''; // Clear value on type change
+                    item.ajratValue = '';
                     ajratInput.value = '';
                     itemDiv.querySelector('.ajrat-unit').textContent = item.ajratType === 'percent' ? '%' : 'تومان';
                     ajratInput.placeholder = '';
@@ -855,6 +793,7 @@
             profitSlider.addEventListener('input', (e) => {
                 item.profitPercentage = parseFloat(e.target.value);
                 let displayValue = item.profitPercentage;
+                // --- MODIFIED: Display as integer ---
                 profitDisplay.textContent = `${toPersianDigits(Math.round(displayValue))} %`;
                 calculateAndRender();
             });
@@ -902,39 +841,23 @@
                 const coinTypeInput = itemDiv.querySelector('.purchase-coin-type');
                 const coinPriceInput = itemDiv.querySelector('.purchase-coin-price');
                 coinTypeInput.addEventListener('change', e => { item.coinType = e.target.value; calculateAndRender(); });
-                
-                coinPriceInput.addEventListener('focus', (e) => {
-                    e.target.value = toEnglishDigits(item.price);
-                });
                 coinPriceInput.addEventListener('input', e => {
                     const value = parseFormattedNumber(e.target.value);
                     if (value.toString().length <= 9) {
                         item.price = value;
-                    } else {
-                        e.target.value = formatNumber(item.price);
-                    }
+                        e.target.value = formatNumber(value);
+                    } else e.target.value = formatNumber(item.price);
                     calculateAndRender();
                 });
-                coinPriceInput.addEventListener('blur', (e) => {
-                    e.target.value = formatNumber(item.price);
-                });
-
             } else {
                  const weightInput = itemDiv.querySelector('.purchase-weight');
-                 weightInput.addEventListener('focus', (e) => {
-                     e.target.value = toEnglishDigits(item.weight);
-                 });
                  weightInput.addEventListener('input', e => {
                     const value = toEnglishDigits(e.target.value);
                     if (/^\d*\.?\d*$/.test(value)) {
                         item.weight = value;
-                    } else {
-                        e.target.value = toPersianDigits(item.weight);
-                    }
+                        e.target.value = toPersianDigits(value);
+                    } else e.target.value = toPersianDigits(item.weight);
                     calculateAndRender();
-                 });
-                 weightInput.addEventListener('blur', (e) => {
-                     e.target.value = toPersianDigits(item.weight);
                  });
             }
         }
@@ -982,6 +905,7 @@
                     const basePricePerGram = goldPricePerGram + ajratPerGram;
                     
                     const profitPerGram = basePricePerGram * profitPercentage;
+
                     const totalBeforeTaxPerGram = basePricePerGram + profitPerGram;
                     
                     const itemTaxPerGram = state.taxEnabled ? (ajratPerGram + profitPerGram) * 0.10 : 0;
@@ -1016,6 +940,7 @@
                         details.push(`بدون اجرت`);
                     }
                     
+                    // --- MODIFIED: Removed the extra span for "(از اجرت و سود)" ---
                     if(state.taxEnabled) {
                         if (itemTax > 0) {
                            details.push(`مالیات: ۱۰٪`);
@@ -1091,8 +1016,7 @@
             const maxDiscount = currentGrandTotal * 0.3; 
             if (currentGrandTotal > 0 && state.manualDiscount > maxDiscount) {
                 state.manualDiscount = maxDiscount;
-                // Don't format here, only on blur
-                // manualDiscountInput.value = formatNumber(state.manualDiscount); 
+                manualDiscountInput.value = formatNumber(state.manualDiscount);
             }
             
             currentGrandTotal -= state.manualDiscount;
@@ -1152,51 +1076,38 @@
                 }
             }
             
-            // --- UPDATED: Excess Gold Purchase Price Section (Direct DOM manipulation) ---
+            // --- NEW: Excess Gold Purchase Price Section ---
+            let excessGoldPurchaseHTML = '';
             let excessGoldWeight = 0;
-            let effectiveExcessPricePerGram = 0;
-            let excessPrice = 0;
-
             if (totalPurchasedGoldWeight > totalSoldGoldWeight) {
                 excessGoldWeight = totalPurchasedGoldWeight - totalSoldGoldWeight;
-                
-                // Show the excess gold container
-                excessGoldContainer.classList.remove('hidden'); 
-                
-                // Update weight displays
-                excessGoldWeightDisplay.textContent = toPersianDigits(excessGoldWeight);
-                excessGoldSummaryWeight.textContent = toPersianDigits(excessGoldWeight);
+                // If excessGoldPurchasePricePerGram is 0 or not set, use goldPrice for calculation
+                const effectiveExcessPricePerGram = state.excessGoldPurchasePricePerGram > 0 ? state.excessGoldPurchasePricePerGram : state.goldPrice;
+                const excessPrice = effectiveExcessPricePerGram * excessGoldWeight;
+                currentGrandTotal -= excessPrice; // Subtract this from the total
 
-                if (state.excessGoldPurchaseEnabled && state.excessGoldPurchasePricePerGram > 0) {
-                    effectiveExcessPricePerGram = state.excessGoldPurchasePricePerGram;
-                } else {
-                    effectiveExcessPricePerGram = state.goldPrice;
-                }
-                
-                excessPrice = effectiveExcessPricePerGram * excessGoldWeight;
-                currentGrandTotal -= excessPrice; 
-
-                // Update summary value
-                excessGoldSummaryValue.textContent = formatNumber(excessPrice) + ' تومان';
-
-                // Ensure input wrapper visibility based on switch state
-                excessGoldInputWrapper.classList.toggle('hidden', !state.excessGoldPurchaseEnabled);
-
-            } else {
-                // Hide the entire excess gold container if no excess gold
-                excessGoldContainer.classList.add('hidden');
-                // Also reset the state related to excess gold if it's no longer applicable
-                state.excessGoldPurchasePricePerGram = 0; 
-                state.excessGoldPurchaseEnabled = false; 
-                excessGoldSwitch.checked = false; // Ensure switch reflects state
+                excessGoldPurchaseHTML = `
+                    <div id="excess-gold-purchase-container" class="excess-gold-purchase-section screen-only">
+                        <div class="invoice-section-title">خرید مازاد طلای متفرقه (اختیاری)</div>
+                        <div class="form-group">
+                            <label for="excess-gold-price-input" class="form-label">قیمت هر گرم مازاد (${toPersianDigits(excessGoldWeight)} گرم)</label>
+                            <div class="input-group rtl">
+                                <input type="text" id="excess-gold-price-input" class="input-field" inputmode="numeric" value="${state.excessGoldPurchasePricePerGram > 0 ? formatNumber(state.excessGoldPurchasePricePerGram) : ''}">
+                                <span class="input-group-text">تومان</span>
+                            </div>
+                        </div>
+                        <div class="invoice-summary-line">
+                            <span>ارزش مازاد طلا (${toPersianDigits(excessGoldWeight)} گرم)</span>
+                            <span class="invoice-value-danger">${formatNumber(excessPrice)} تومان</span>
+                        </div>
+                    </div>
+                `;
             }
-
 
             if (state.taxEnabled && totalTax > 0 && itemsWithTaxCount >= 2) {
                  summaryHTML += `<div class="invoice-separator"></div>`; 
                  summaryHTML += `<div class="invoice-summary-line"><span>جمع مالیات</span><span>${formatNumber(totalTax)} تومان</span></div>`;
-            } else if (state.manualDiscount > 0 || (state.roundDiscountEnabled && roundDiscountAmount > 0) || (excessGoldWeight > 0 && !excessGoldContainer.classList.contains('hidden'))) { 
-                // Only add separator if excess gold is actually shown
+            } else if (state.manualDiscount > 0 || (state.roundDiscountEnabled && roundDiscountAmount > 0) || excessGoldWeight > 0) { 
                 summaryHTML += `<div class="invoice-separator"></div>`;
             }
             
@@ -1220,7 +1131,7 @@
             
             const customerPrefix = state.customerGender === 'male' ? 'جناب آقای' : (state.customerGender === 'female' ? 'سرکار خانم' : '');
             
-            invoiceContentContainer.innerHTML = productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
+            invoiceContentContainer.innerHTML = productsHTML + purchasesHTML + excessGoldPurchaseHTML + summaryHTML + finalTotalHTML;
             
             // Re-inject the print-only div at the top inside the invoice card content
             const printOnlyDiv = document.createElement('div');
@@ -1238,13 +1149,41 @@
             `;
             invoiceContentContainer.prepend(printOnlyDiv);
 
-            // Re-assign listeners for excess gold if they were reset (not needed now they are outside)
-            // But ensure their initial state is correct.
-            // These event listeners are now attached once in DOMContentLoaded
+            // Add event listener for the new excess gold price input if it exists
+            const excessGoldPriceInput = document.getElementById('excess-gold-price-input');
             if (excessGoldPriceInput) {
-                if (state.excessGoldPurchasePricePerGram === 0 && !excessGoldPriceInput.matches(':focus')) {
-                    excessGoldPriceInput.value = ''; // Keep empty if 0 and not focused
-                } else if (!excessGoldPriceInput.matches(':focus')) {
+                let isFocused = false; // Track if the input is focused
+
+                excessGoldPriceInput.addEventListener('focus', () => {
+                    isFocused = true;
+                    // When focused, show raw English number for easier typing
+                    excessGoldPriceInput.value = toEnglishDigits(String(state.excessGoldPurchasePricePerGram));
+                });
+
+                excessGoldPriceInput.addEventListener('input', (e) => {
+                    // Only process digits, no immediate re-formatting for display
+                    const value = toEnglishDigits(e.target.value.replace(/,/g, ''));
+                    const cleanedValue = value.replace(/[^0-9]/g, ''); 
+                    
+                    // Update state with the parsed number
+                    state.excessGoldPurchasePricePerGram = parseInt(cleanedValue, 10) || 0;
+                    
+                    // Do NOT update e.target.value here to prevent keyboard hiding
+                    
+                    calculateAndRender(); // Re-calculate to update totals in invoice
+                });
+
+                // Format the number only when the user leaves the field
+                excessGoldPriceInput.addEventListener('blur', (e) => {
+                    isFocused = false;
+                    e.target.value = formatNumber(state.excessGoldPurchasePricePerGram);
+                    calculateAndRender();
+                });
+
+                // Set initial value formatted, but if it's 0, keep it empty
+                if (state.excessGoldPurchasePricePerGram === 0) {
+                    excessGoldPriceInput.value = '';
+                } else {
                     excessGoldPriceInput.value = formatNumber(state.excessGoldPurchasePricePerGram);
                 }
             }
@@ -1284,37 +1223,20 @@
         };
         
         // --- Event Listeners (Main Invoice) ---
-        goldPriceInput.addEventListener('focus', (e) => {
-            e.target.value = toEnglishDigits(state.goldPrice);
-        });
         goldPriceInput.addEventListener('input', (e) => {
             const value = parseFormattedNumber(e.target.value);
             if (value.toString().length <= 8) {
                 state.goldPrice = value;
-            } else {
-                e.target.value = formatNumber(state.goldPrice);
-            }
+                e.target.value = formatNumber(value);
+            } else e.target.value = formatNumber(state.goldPrice);
             updatePriceInWords();
             calculateAndRender();
         });
-        goldPriceInput.addEventListener('blur', (e) => {
-            e.target.value = formatNumber(state.goldPrice);
-        });
-
         addProductBtn.addEventListener('click', () => createProductItem());
         taxSwitch.addEventListener('change', (e) => { state.taxEnabled = e.target.checked; calculateAndRender(); });
-        
-        manualDiscountInput.addEventListener('focus', (e) => {
-            e.target.value = toEnglishDigits(state.manualDiscount);
-        });
         manualDiscountInput.addEventListener('input', () => {
-            // value will be parsed inside calculateAndRender now
             calculateAndRender();
         });
-        manualDiscountInput.addEventListener('blur', (e) => {
-            e.target.value = formatNumber(state.manualDiscount);
-        });
-
         roundDiscountSwitch.addEventListener('change', (e) => { 
             state.roundDiscountEnabled = e.target.checked;
             calculateAndRender();
@@ -1381,9 +1303,6 @@
             calculateAndRender(); 
         });
 
-        yearInput.addEventListener('focus', (e) => {
-            e.target.value = toEnglishDigits(state.year);
-        });
         yearInput.addEventListener('input', (e) => {
             const value = parseInt(toEnglishDigits(e.target.value), 10);
             if ((!isNaN(value) && value >= MIN_YEAR && value <= MAX_YEAR) || e.target.value === '') {
@@ -1398,9 +1317,6 @@
             }
             renderCustomerInfoDateWidget();
             calculateAndRender(); 
-        });
-        yearInput.addEventListener('blur', (e) => {
-            e.target.value = toPersianDigits(state.year || currentJalaliDate.jy);
         });
 
         yearPlusBtn.addEventListener('click', () => {
@@ -1428,35 +1344,6 @@
                 calculateAndRender(); 
             }
         });
-
-        // --- Event Listeners (Excess Gold) ---
-        if (excessGoldSwitch) {
-            excessGoldSwitch.addEventListener('change', (e) => {
-                state.excessGoldPurchaseEnabled = e.target.checked;
-                calculateAndRender(); // Only triggers re-calculation and visibility update
-            });
-        }
-
-        if (excessGoldPriceInput) {
-            excessGoldPriceInput.addEventListener('focus', () => {
-                excessGoldPriceInput.value = toEnglishDigits(String(state.excessGoldPurchasePricePerGram));
-            });
-
-            excessGoldPriceInput.addEventListener('input', (e) => {
-                const value = toEnglishDigits(e.target.value.replace(/,/g, ''));
-                const cleanedValue = value.replace(/[^0-9]/g, ''); 
-                
-                state.excessGoldPurchasePricePerGram = parseInt(cleanedValue, 10) || 0;
-                
-                calculateAndRender(); 
-            });
-
-            excessGoldPriceInput.addEventListener('blur', (e) => {
-                e.target.value = formatNumber(state.excessGoldPurchasePricePerGram);
-                calculateAndRender();
-            });
-        }
-
 
         // --- Initialization ---
         const today = new Date();
