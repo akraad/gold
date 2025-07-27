@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>فاکتور هوشمند طلا</title>
+    <title>فاکتور آبشده و متفرقه</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* CSS Variables for theming */
         :root {
             --bg-color: #f7f8fc;
             --card-bg: #ffffff;
@@ -19,13 +18,12 @@
             --text-light: #8a94a6;
             --border-color: #e6e9f0;
             --danger-color: #e74c3c;
-            --discount-color: #c0392b; /* Cherry Red for discount */
+            --discount-color: #c0392b; 
             --font-family: 'Vazirmatn', sans-serif;
             --border-radius: 0.75rem;
             --shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
         }
 
-        /* General Styles */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -43,8 +41,7 @@
             color: var(--text-color);
             font-size: 14px;
             line-height: 1.6;
-            overflow-x: hidden; /* Prevent horizontal scroll on some devices */
-            overscroll-behavior-y: contain;
+            overflow-x: hidden; 
         }
 
         .container {
@@ -81,7 +78,7 @@
         }
 
         .form-group {
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem; 
         }
         
         .form-group:last-child {
@@ -153,11 +150,14 @@
             font-weight: 500;
         }
         
-        .toggle-switch {
+        /* Styles for the new Toggle Switch */
+        .toggle-switch-group {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            margin-bottom: 1rem; /* Space from the discount field below */
             padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color); /* Separator line */
         }
 
         .switch {
@@ -165,6 +165,7 @@
             display: inline-block;
             width: 50px;
             height: 28px;
+            flex-shrink: 0; 
         }
 
         .switch input { opacity: 0; width: 0; height: 0; }
@@ -196,6 +197,7 @@
         input:checked + .slider { background-color: var(--primary-color); }
         input:checked + .slider:before { transform: translateX(22px); }
         
+        /* Existing segmented control - untouched */
         .segmented-control {
             display: flex;
             border: 1px solid var(--primary-color);
@@ -211,16 +213,46 @@
 
         .segmented-control button.active { background-color: var(--primary-color); color: #fff; }
         .segmented-control button:first-child { border-left: 1px solid var(--primary-color); }
-        .segmented-control button:last-child { border-right: 1px solid var(--primary-color); }
+        .segmented-control button:last-child { border-right: 1px solid var(--border-color); }
         
-        .item-card {
-            display: flex; flex-direction: column; gap: 1rem;
-            padding: 1rem; border: 1px solid var(--border-color);
-            border-radius: var(--border-radius); position: relative;
+        .item-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 1rem; 
         }
         
-        .item-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-        .item-row .form-group, .item-card .form-group { margin-bottom: 0; }
+        .item-row .form-group {
+            margin-bottom: 0;
+        }
+
+        .item-card {
+            display: flex; flex-direction: column; gap: 0.75rem; 
+            padding: 1rem; border: 1px solid var(--border-color);
+            border-radius: var(--border-radius); position: relative;
+            margin-bottom: 1rem; 
+        }
+
+        .item-label-input-compact {
+            display: flex;
+            flex-direction: column; 
+            margin-bottom: 0.5rem; 
+        }
+
+        .item-label-input-compact:last-of-type {
+            margin-bottom: 0; 
+        }
+
+        .compact-label {
+            margin-bottom: 0.25rem; 
+            font-weight: 500; 
+            font-size: 0.9rem; 
+        }
+
+        .compact-input-group .input-field,
+        .compact-input-group .input-group-text {
+            padding-top: 0.5rem; 
+            padding-bottom: 0.5rem;
+        }
         
         #product-items-container .input-field,
         #product-items-container .select-field,
@@ -233,13 +265,16 @@
 
         .delete-item-btn {
             position: absolute; top: -10px; left: -10px; width: 24px; height: 24px;
-            border-radius: 50%; background-color: var(--danger-color); color: white;
-            border: none; cursor: pointer; display: flex; align-items: center;
+            border-radius: 50%;
+            border: 1px solid black; 
+            color: black; 
+            background-color: white; 
+            cursor: pointer; display: flex; align-items: center;
             justify-content: center; font-weight: bold; transition: all 0.2s ease;
             z-index: 10;
         }
         
-        .delete-item-btn:hover { transform: scale(1.1); background-color: #c0392b; }
+        .delete-item-btn:hover { transform: scale(1.1); }
         
         .btn {
             width: 100%; padding: 0.85rem 1rem; font-family: var(--font-family);
@@ -256,30 +291,31 @@
         }
         .btn-secondary:hover { background-color: #dbe8fd; }
         
-        /* Styles for individual product profit slider */
-        .product-profit-group {
-            padding-top: 0.5rem; /* Reduced padding */
-            margin-top: 0.5rem; /* Small margin to separate from ajrat */
+        .profit-slider-group {
+            padding-top: 0.5rem; 
+            margin-top: 0.5rem; 
         }
-        .product-profit-slider {
-            -webkit-appearance: none; width: 100%; height: 6px; /* Narrower slider */
-            background: var(--border-color); outline: none; border-radius: 3px; /* Smaller border radius */
+        .profit-slider {
+            -webkit-appearance: none; width: 100%; height: 6px; 
+            background: var(--border-color); outline: none; border-radius: 3px; 
         }
 
-        .product-profit-slider::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 18px; height: 18px; /* Smaller thumb */
-            background: var(--primary-color); cursor: pointer; border: 2px solid #fff; /* Thinner border */
+        .profit-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; width: 18px; height: 18px; 
+            background: var(--primary-color); cursor: pointer; border: 2px solid #fff; 
         }
         
-        .product-slider-value {
-            text-align: center; font-weight: 600; font-size: 0.95rem; /* Slightly smaller text */
-            margin-top: 0.3rem; /* Reduced margin */
+        .profit-slider-value {
+            text-align: center; font-weight: 600; font-size: 0.95rem; 
+            margin-top: 0.3rem; 
             color: var(--primary-color);
         }
 
         .add-purchase-options {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 0.75rem; margin-bottom: 1.5rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr; 
+            gap: 0.75rem;
+            margin-top: 1.5rem; 
         }
 
         #purchase-items-container .item-card:not(:first-child) { margin-top: 1rem; }
@@ -291,21 +327,8 @@
             font-size: 0.9rem; padding-top: 0.6rem; padding-bottom: 0.6rem;
         }
 
-        .smart-discount-options {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 0.75rem;
-        }
-
-        .smart-discount-btn {
-            background-color: var(--primary-light); color: var(--primary-color);
-            border: 2px solid transparent; font-weight: 600; padding: 0.75rem 0.5rem;
-            font-size: 0.9rem;
-        }
+        /* Smart Discount specific styles (removed from previous versions) */
         
-        .smart-discount-btn:hover { border-color: var(--primary-color); }
-        .smart-discount-btn.active { background-color: var(--primary-color); color: #fff; }
-        
-        /* Invoice structure styling */
         .invoice-section { margin-bottom: 1rem; }
         .invoice-section-title { font-weight: 600; margin-bottom: 0.75rem; color: var(--text-color); }
         .invoice-item { margin-bottom: 1rem; font-size: 0.95rem; }
@@ -324,11 +347,22 @@
         
         .hidden { display: none !important; }
 
-        /* Print-specific styles */
+        /* Styles for the disclaimer text */
+        .disclaimer-text {
+            font-size: 0.8em;
+            color: var(--text-light);
+            text-align: right; /* Changed to right-align */
+            margin-top: 0.5rem;
+            line-height: 1.4; /* Added for better line spacing */
+        }
+
+        .disclaimer-text strong {
+            color: var(--danger-color);
+        }
+
         @media print {
             body > .container > *:not(#invoice-card),
-            #print-btn-container,
-            #profit-tax-section { /* Hide elements not part of the invoice */
+            #print-btn-container { 
                 display: none;
             }
             #invoice-card {
@@ -337,14 +371,21 @@
                 margin: 0;
                 padding: 0;
             }
-            .print-only { /* Show elements only in print */
+            .print-only { 
                 display: block !important;
+            }
+            #profit-section,
+            .invoice-summary-line:has(span:contains("سود")) {
+                display: none !important;
+            }
+            /* For print, the disclaimer text should also be right-aligned */
+            .disclaimer-text {
+                text-align: right;
             }
         }
 
-        /* Screen-only styles */
         .print-only {
-            display: none; /* Hide by default on screen */
+            display: none; 
         }
 
 
@@ -359,10 +400,10 @@
 <body>
 
     <div class="container">
-        <h1 class="main-title">فاکتور هوشمند طلا</h1>
+        <h1 class="main-title">فاکتور آبشده و متفرقه</h1>
 
         <div class="card">
-            <h2 class="card-header">قیمت هر گرم طلا ۱۸ عیار</h2>
+            <h2 class="card-header">قیمت مظنه طلا</h2>
             <div class="form-group">
                 <div class="input-group rtl">
                     <input type="tel" id="gold-price" class="input-field" inputmode="numeric" maxlength="11">
@@ -373,47 +414,36 @@
         </div>
 
         <div class="card">
-            <h2 class="card-header">مشخصات محصولات</h2>
-            <div id="product-items-container"></div>
-            <button id="add-product-item" class="btn btn-primary" style="margin-top: 1rem;">+ افزودن محصول جدید</button>
-        </div>
-        
-        <div class="card">
-            <h2 class="card-header">خرید از مشتری</h2>
-            <div class="add-purchase-options">
-                <button class="btn btn-secondary add-purchase-btn" data-type="gold">طلای متفرقه</button>
-                <button class="btn btn-secondary add-purchase-btn" data-type="bullion">شمش</button>
-                <button class="btn btn-secondary add-purchase-btn" data-type="parsian">پارسیان</button>
-                <button class="btn btn-secondary add-purchase-btn" data-type="coin">سکه</button>
+            <h2 class="card-header">نوع معامله</h2>
+            <div id="abshe-input-section">
+                <div id="product-items-container" class="hidden">
+                </div>
+
+                <div class="add-purchase-options">
+                    <button id="add-abshe-btn" class="btn btn-secondary">افزودن آبشده</button>
+                    <button id="add-motaferghe-btn" class="btn btn-secondary">افزودن متفرقه</button>
+                </div>
             </div>
-            <div id="purchase-items-container"></div>
         </div>
 
-        <div class="card" id="profit-tax-section">
-            <h2 class="card-header">مالیات</h2>
-            <div class="toggle-switch">
-                <label for="tax-switch" class="form-label" style="margin-bottom:0;">مالیات (۱۰٪ بر سود و اجرت)</label>
+        <div class="card">
+            <h2 class="card-header">تخفیف</h2> 
+            
+            <div class="toggle-switch-group">
+                <label for="round-switch">رند کردن مبلغ نهایی</label>
                 <label class="switch">
-                    <input type="checkbox" id="tax-switch" checked>
-                    <span class="slider"></span>
+                    <input type="checkbox" id="round-switch" checked> <span class="slider"></span>
                 </label>
             </div>
-        </div>
 
-        <div class="card">
-            <h2 class="card-header">تخفیف</h2>
             <div class="form-group">
-                <label for="manual-discount" class="form-label">تخفیف دستی</label>
-                 <div class="input-group rtl">
-                    <input type="tel" id="manual-discount" class="input-field" inputmode="numeric">
+                <label class="form-label">تخفیف (تومان)</label> <div class="input-group rtl">
+                    <input type="tel" id="manual-discount-input" class="input-field" inputmode="numeric">
                     <span class="input-group-text">تومان</span>
                 </div>
             </div>
-            <div id="smart-discount-container" class="form-group hidden">
-                <label class="form-label">تخفیف هوشمند (برای رند شدن)</label>
-                <div class="smart-discount-options" id="smart-discount-options"></div>
+
             </div>
-        </div>
 
         <div class="card" id="invoice-card">
             <h2 class="card-header">فاکتور</h2>
@@ -431,34 +461,33 @@
         // --- DOM Elements ---
         const goldPriceInput = document.getElementById('gold-price');
         const priceInWords = document.getElementById('price-in-words');
-        const productItemsContainer = document.getElementById('product-items-container');
-        const addProductBtn = document.getElementById('add-product-item');
-        // Removed profitSlider and profitValue from global elements as they are now per-product
-        const taxSwitch = document.getElementById('tax-switch');
-        const manualDiscountInput = document.getElementById('manual-discount');
-        const smartDiscountContainer = document.getElementById('smart-discount-container');
-        const smartDiscountOptions = document.getElementById('smart-discount-options');
+        const manualDiscountInput = document.getElementById('manual-discount-input');
         const invoiceContentContainer = document.getElementById('invoice-content');
-        const addPurchaseBtnContainer = document.querySelector('.add-purchase-options');
-        const purchaseItemsContainer = document.getElementById('purchase-items-container');
         const printBtn = document.getElementById('print-btn');
 
+        // New DOM Element for the round switch
+        const roundSwitch = document.getElementById('round-switch'); 
+
+        // New DOM Elements for dynamic items
+        const productItemsContainer = document.getElementById('product-items-container');
+        const addAbsheBtn = document.getElementById('add-abshe-btn');
+        const addMotafergheBtn = document.getElementById('add-motaferghe-btn');
+
         // --- State ---
+        const MESGHAL_GRAM_FACTOR = 4.608;
+        let itemIdCounter = 0;
+        
         let state = {
             goldPrice: 0,
-            products: [],
-            purchases: [],
-            // profitPercentage: 7, // This is now per product
-            taxEnabled: true,
             manualDiscount: 0,
-            smartDiscount: 0,
+            isRoundingActive: true, // Set to true by default for the switch
+            products: []
         };
 
         // --- Helper Functions ---
         const toPersianDigits = (n) => {
-             if (n === null || typeof n === 'undefined') return '';
+            if (n === null || typeof n === 'undefined') return '';
             const persian = { 0: '۰', 1: '۱', 2: '۲', 3: '۳', 4: '۴', 5: '۵', 6: '۶', 7: '۷', 8: '۸', 9: '۹' };
-            // Ensure n is a number or can be converted to a string before replacing
             return String(n).replace(/[0-9]/g, (w) => persian[w]);
         };
         const toEnglishDigits = (str) => {
@@ -478,40 +507,58 @@
             if (!str) return 0;
             return parseInt(toEnglishDigits(str).replace(/,/g, ''), 10) || 0;
         };
+        const parseFloatFormattedNumber = (str) => {
+            if (!str) return 0;
+            return parseFloat(toEnglishDigits(str).replace(/,/g, '')) || 0;
+        };
         const numberToWords = (num) => {
             if (num === 0) return 'صفر';
             num = Math.floor(num);
-            const ones = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
+
+            const units = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
             const teens = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
             const tens = ['', 'ده', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
             const hundreds = ['', 'یکصد', 'دویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
-            const scales = ['', 'هزار', 'میلیون', 'میلیارد'];
+            const scales = ['', 'هزار', 'میلیون', 'میلیارد', 'تریلیون'];
+
+            function convertThreeDigits(n) {
+                let chunk = [];
+                const h = Math.floor(n / 100);
+                const t = Math.floor((n % 100) / 10);
+                const u = n % 10;
+
+                if (h > 0) {
+                    chunk.push(hundreds[h]);
+                }
+                if (t === 1) {
+                    chunk.push(teens[u]);
+                } else {
+                    if (t > 0) chunk.push(tens[t]);
+                    if (u > 0) chunk.push(units[u]);
+                }
+                return chunk.join(' و ');
+            }
 
             let words = [];
-            if (num === 0) return 'صفر';
-            for(let i=0; num > 0; i++){
-                let threeDigits = num % 1000;
-                if(threeDigits > 0){
-                    let chunk = '';
-                    let h = Math.floor(threeDigits / 100);
-                    let t = Math.floor((threeDigits % 100) / 10);
-                    let o = threeDigits % 10;
-                    if (h > 0) { chunk += hundreds[h] + ' و '; }
-                    if (t === 1) { chunk += teens[o]; }
-                    else {
-                        chunk += tens[t];
-                        if (t > 0 && o > 0) chunk += ' و ';
-                        chunk += ones[o];
+            let i = 0;
+
+            while (num > 0) {
+                const threeDigits = num % 1000;
+                if (threeDigits > 0) {
+                    let chunkWord = convertThreeDigits(threeDigits);
+                    let scaleWord = scales[i];
+                    if (scaleWord) {
+                        chunkWord = chunkWord + (chunkWord ? ' ' : '') + scaleWord;
                     }
-                    chunk = chunk.trim();
-                    if(chunk.endsWith(' و')) chunk = chunk.slice(0, -2);
-                    if(scales[i]) chunk += ' ' + scales[i];
-                    words.unshift(chunk);
+                    words.unshift(chunkWord);
                 }
-                num = Math.floor(num/1000);
+                num = Math.floor(num / 1000);
+                i++;
             }
-            return words.join(' و ');
+            return words.filter(Boolean).join(' و ');
         };
+
+
         const updatePriceInWords = () => {
             const price = state.goldPrice;
             if (price > 0) {
@@ -522,444 +569,499 @@
             }
         };
 
-        // --- Product Item Management ---
-        let productItemId = 0;
-        function createProductItem(isFirst = false) {
-            const id = productItemId++;
-            const item = {
-                id, type: 'طلا', weight: '',
-                ajratType: 'toman', ajratValue: '',
-                profitPercentage: 7 // Default profit for each new product
-            };
+        const getRandomGradient = () => {
+            const colors = [
+                '#e74c3c', '#9b59b6', '#3498db', '#2ecc71', '#f1c40f', '#e67e22', '#34495e', '#1abc9c'
+            ];
+            const shuffled = colors.sort(() => 0.5 - Math.random());
+            const selectedColors = shuffled.slice(0, Math.floor(Math.random() * 3) + 3);
+            const angle = Math.floor(Math.random() * 360);
+            return `linear-gradient(${angle}deg, ${selectedColors.join(', ')})`;
+        };
+
+        // --- Dynamic Item Management ---
+        function createProductItem(type, weight = 0, ayar = null, eng = 0, lab = '', profit = 2.0) { 
+            const id = itemIdCounter++;
+            const item = { id, type, weight, ayar, eng, lab, profit }; 
             state.products.push(item);
-            
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'item-card';
-            itemDiv.dataset.id = id;
-            
-            const modelOptions = ['طلا', 'سرویس', 'النگو', 'نیم‌ست', 'دستبند', 'زنجیر', 'گردنبند', 'گوشواره', 'مدال', 'پلاک', 'خلخال', 'آویز ساعت', 'رو لباسی', 'سفارشی'];
-            const optionsHTML = modelOptions.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+            renderProductItems();
+            calculateAndRender();
+        }
 
-            itemDiv.innerHTML = `
-                ${!isFirst ? '<button class="delete-item-btn">&times;</button>' : ''}
-                <div class="item-row">
-                    <div class="form-group">
-                        <label class="form-label">نوع محصول</label>
-                        <select class="select-field product-type">${optionsHTML}</select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">وزن (گرم)</label>
-                        <div class="input-group rtl">
-                            <input type="text" class="input-field product-weight" inputmode="decimal">
-                            <span class="input-group-text">گرم</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">اجرت</label>
-                    <div style="display: flex; gap: 0.5rem;">
-                        <div class="segmented-control" style="flex-shrink: 0;">
-                            <button class="ajrat-type-btn" data-type="percent">%</button>
-                            <button class="ajrat-type-btn active" data-type="toman">تومان</button>
-                        </div>
-                        <div class="input-group rtl" style="flex-grow: 1;">
-                            <input type="text" class="input-field product-ajrat left-align" inputmode="decimal">
-                            <span class="input-group-text ajrat-unit">تومان</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group product-profit-group">
-                    <label class="form-label">سود فروشنده</label>
-                    <div class="product-slider-value">${toPersianDigits(item.profitPercentage.toFixed(1))} %</div>
-                    <div class="range-slider-group">
-                        <input type="range" min="1" max="7" value="${item.profitPercentage}" step="0.1" class="range-slider product-profit-slider">
-                    </div>
-                </div>
-            `;
-            productItemsContainer.appendChild(itemDiv);
-            
-            const typeInput = itemDiv.querySelector('.product-type');
-            const weightInput = itemDiv.querySelector('.product-weight');
-            const ajratInput = itemDiv.querySelector('.product-ajrat');
-            const profitSlider = itemDiv.querySelector('.product-profit-slider'); // Get slider for THIS item
-            const profitDisplay = itemDiv.querySelector('.product-slider-value'); // Get display for THIS item
-            
-            typeInput.addEventListener('change', (e) => { item.type = e.target.value; calculateAndRender(); });
-            weightInput.addEventListener('input', (e) => {
-                const value = toEnglishDigits(e.target.value);
-                if (/^\d*\.?\d*$/.test(value)) {
-                    item.weight = value;
-                    e.target.value = toPersianDigits(value);
-                } else e.target.value = toPersianDigits(item.weight);
-                calculateAndRender();
-            });
-            ajratInput.addEventListener('input', (e) => {
-                const isPercent = item.ajratType === 'percent';
-                if (isPercent) {
-                    let value = toEnglishDigits(e.target.value);
-                    if (/^\d*\.?\d*$/.test(value)) {
-                        if (parseFloat(value) > 30) value = '30';
-                        item.ajratValue = value;
-                        e.target.value = toPersianDigits(value);
-                    } else e.target.value = toPersianDigits(item.ajratValue);
-                } else {
-                    const value = parseFormattedNumber(e.target.value);
-                     if (value.toString().length <= 7) {
-                        item.ajratValue = value;
-                        e.target.value = formatNumber(value);
-                    } else e.target.value = formatNumber(item.ajratValue);
-                }
-                calculateAndRender();
-            });
-            itemDiv.querySelectorAll('.ajrat-type-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    itemDiv.querySelectorAll('.ajrat-type-btn').forEach(b => b.classList.remove('active'));
-                    e.target.classList.add('active');
-                    item.ajratType = e.target.dataset.type;
-                    item.ajratValue = '';
-                    ajratInput.value = '';
-                    itemDiv.querySelector('.ajrat-unit').textContent = item.ajratType === 'percent' ? '%' : 'تومان';
-                    ajratInput.placeholder = '';
-                    if (item.ajratType === 'toman') {
-                        ajratInput.classList.add('left-align');
-                    } else {
-                        ajratInput.classList.remove('left-align');
-                    }
-                    calculateAndRender();
-                });
-            });
+        function removeProductItem(id) {
+            state.products = state.products.filter(item => item.id !== id);
+            renderProductItems();
+            calculateAndRender();
+        }
 
-            // Event listener for THIS product's profit slider
-            profitSlider.addEventListener('input', (e) => {
-                item.profitPercentage = parseFloat(e.target.value);
-                // Display profit value, ensuring no .0 if it's a whole number
-                let displayValue = item.profitPercentage;
-                if (displayValue === Math.floor(displayValue)) {
-                    profitDisplay.textContent = `${toPersianDigits(displayValue)} %`;
-                } else {
-                    profitDisplay.textContent = `${toPersianDigits(displayValue.toFixed(1))} %`;
-                }
+        function updateProductItem(id, field, value) {
+            const itemIndex = state.products.findIndex(item => item.id === id);
+            if (itemIndex > -1) {
+                state.products[itemIndex][field] = value;
                 calculateAndRender();
-            });
-
-            if (!isFirst) {
-                itemDiv.querySelector('.delete-item-btn').addEventListener('click', () => {
-                    state.products = state.products.filter(p => p.id !== id);
-                    itemDiv.remove();
-                    calculateAndRender();
-                });
             }
         }
 
-        // --- Purchase Management ---
-        let purchaseItemId = 0;
-        function createPurchaseItem(type) {
-            const id = purchaseItemId++;
-            const item = { id, type };
-            
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'item-card';
-            itemDiv.dataset.id = id;
-            let content = '';
-            if (type === 'gold' || type === 'bullion' || type === 'parsian') {
-                const typeName = {gold: 'طلای متفرقه', bullion: 'شمش', parsian: 'پارسیان'}[type];
-                item.weight = '';
-                content = `<div class="form-group"><label class="form-label">وزن ${typeName}</label><div class="input-group rtl"><input type="text" class="input-field purchase-weight" inputmode="decimal"><span class="input-group-text">گرم</span></div></div>`;
-            } else if (type === 'coin') {
-                const coinTypes = ['ربع ۸۶', 'نیم ۸۶', 'امامی ۸۶', 'ربع زیر ۸۶', 'نیم زیر ۸۶', 'امامی زیر ۸۶', 'یک گرمی بانکی'];
-                item.coinType = 'ربع ۸۶';
-                item.price = '';
-                content = `<div class="item-row"><div class="form-group"><label class="form-label">نوع سکه</label><select class="select-field purchase-coin-type">${coinTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div><div class="form-group"><label class="form-label">قیمت خرید (تومان)</label><input type="tel" class="input-field purchase-coin-price" inputmode="numeric"></div></div>`;
+        // Helper for formatting profit percentage consistently
+        const formatProfitPercentage = (value) => {
+            // Using a slightly larger epsilon for better robustness after calculations.
+            // This ensures numbers like 2.0000000000000004 are treated as integers.
+            if (Math.abs(value - Math.round(value)) < 0.000001) { 
+                return toPersianDigits(Math.round(value).toFixed(0)); // Show without decimal
             }
-            itemDiv.innerHTML = `<button class="delete-item-btn">&times;</button>${content}`;
-            purchaseItemsContainer.appendChild(itemDiv);
-            state.purchases.push(item);
-            
-            itemDiv.querySelector('.delete-item-btn').addEventListener('click', () => {
-                state.purchases = state.purchases.filter(p => p.id !== id);
-                itemDiv.remove();
-                calculateAndRender();
+            return toPersianDigits(value.toFixed(1)); // Show with one decimal
+        };
+
+
+        function renderProductItems() {
+            productItemsContainer.innerHTML = '';
+            state.products.forEach(item => {
+                let itemCardHTML = `
+                    <div class="item-card" data-id="${item.id}">
+                        <button class="delete-item-btn" data-id="${item.id}">×</button>
+                        <div class="item-row">
+                `;
+
+                if (item.type === 'abshe') {
+                    itemCardHTML += `
+                            <div class="form-group">
+                                <label class="form-label">وزن</label>
+                                <div class="input-group rtl">
+                                    <input type="text" class="input-field abshe-weight-gram-input" inputmode="decimal" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
+                                    <span class="input-group-text">گرم</span>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عیار</label>
+                                <div class="input-group rtl">
+                                    <input type="text" class="input-field abshe-ayar-input" inputmode="decimal" value="${item.ayar === null ? '' : toPersianDigits(item.ayar)}">
+                                    <span class="input-group-text">عیار</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="item-label-input-compact">
+                            <label class="form-label compact-label">انگ</label>
+                            <div class="input-group rtl compact-input-group">
+                                <input type="text" class="input-field abshe-eng-input" inputmode="numeric" value="${item.eng === 0 ? '' : toPersianDigits(item.eng)}">
+                                <span class="input-group-text">انگ</span>
+                            </div>
+                        </div>
+                        
+                        <div class="item-label-input-compact">
+                            <label class="form-label compact-label">آزمایشگاه</label>
+                            <div class="input-group rtl compact-input-group">
+                                <input type="text" class="input-field abshe-lab-input" style="text-align: right;" value="${item.lab || ''}">
+                                <span class="input-group-text">نام</span>
+                            </div>
+                        </div>
+
+                        <div class="profit-slider-group" style="margin-top: 1rem;">
+                            <div class="profit-slider-value" data-id="${item.id}" data-type="profit-display-abshe">${formatProfitPercentage(item.profit)} %</div>
+                            <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
+                        </div>
+                    `;
+                } else if (item.type === 'motaferghe') {
+                    itemCardHTML += `
+                            <div class="form-group" style="grid-column: span 2;">
+                                <label class="form-label">وزن متفرقه</label>
+                                <div class="input-group rtl">
+                                    <input type="text" class="input-field motaferghe-weight-gram-input" inputmode="decimal" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
+                                    <span class="input-group-text">گرم</span>
+                                </div>
+                                <div style="font-size: 0.85em; color: var(--text-light); text-align: right; margin-top: 0.5rem;">(با عیار پیش‌فرض ۷۵۰ محاسبه می‌شود)</div>
+                            </div>
+                        </div>
+
+                        <div class="profit-slider-group" style="margin-top: 1rem;">
+                            <div class="profit-slider-value" data-id="${item.id}" data-type="profit-display-motaferghe">${formatProfitPercentage(item.profit)} %</div>
+                            <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
+                        </div>
+                    `;
+                }
+                itemCardHTML += `
+                        </div>
+                    </div>
+                `;
+                productItemsContainer.insertAdjacentHTML('beforeend', itemCardHTML);
             });
-            if (item.type === 'coin') {
-                const coinTypeInput = itemDiv.querySelector('.purchase-coin-type');
-                const coinPriceInput = itemDiv.querySelector('.purchase-coin-price');
-                coinTypeInput.addEventListener('change', e => { item.coinType = e.target.value; calculateAndRender(); });
-                coinPriceInput.addEventListener('input', e => {
-                    const value = parseFormattedNumber(e.target.value);
-                    if (value.toString().length <= 9) {
-                        item.price = value;
-                        e.target.value = formatNumber(value);
-                    } else e.target.value = formatNumber(item.price);
-                    calculateAndRender();
-                });
-            } else {
-                 const weightInput = itemDiv.querySelector('.purchase-weight');
-                 weightInput.addEventListener('input', e => {
+
+            attachItemEventListeners();
+        }
+
+        function attachItemEventListeners() {
+            productItemsContainer.querySelectorAll('.abshe-weight-gram-input').forEach(input => {
+                input.oninput = (e) => {
+                    const id = parseInt(e.target.closest('.item-card').dataset.id);
                     const value = toEnglishDigits(e.target.value);
                     if (/^\d*\.?\d*$/.test(value)) {
-                        item.weight = value;
+                        updateProductItem(id, 'weight', parseFloat(value));
                         e.target.value = toPersianDigits(value);
-                    } else e.target.value = toPersianDigits(item.weight);
-                    calculateAndRender();
-                 });
-            }
+                    } else {
+                        e.target.value = toPersianDigits(state.products.find(item => item.id === id).weight);
+                    }
+                };
+            });
+
+            productItemsContainer.querySelectorAll('.abshe-ayar-input').forEach(input => {
+                input.oninput = (e) => {
+                    const id = parseInt(e.target.closest('.item-card').dataset.id);
+                    const rawValue = e.target.value;
+                    const englishValue = toEnglishDigits(rawValue);
+                    
+                    if (englishValue === '') {
+                        updateProductItem(id, 'ayar', null);
+                        e.target.value = '';
+                    } else if (/^\d*\.?\d*$/.test(englishValue)) {
+                        updateProductItem(id, 'ayar', parseFloat(englishValue));
+                        e.target.value = toPersianDigits(englishValue);
+                    } else {
+                        e.target.value = toPersianDigits(state.products.find(item => item.id === id).ayar || '');
+                    }
+                };
+            });
+
+            productItemsContainer.querySelectorAll('.abshe-eng-input').forEach(input => {
+                input.oninput = (e) => {
+                    const id = parseInt(e.target.closest('.item-card').dataset.id);
+                    const rawValue = e.target.value;
+                    const englishValue = toEnglishDigits(rawValue);
+                    
+                    if (/^\d*$/.test(englishValue)) {
+                        updateProductItem(id, 'eng', parseInt(englishValue) || 0);
+                        e.target.value = toPersianDigits(englishValue);
+                    } else {
+                        e.target.value = toPersianDigits(state.products.find(item => item.id === id).eng);
+                    }
+                };
+            });
+
+            productItemsContainer.querySelectorAll('.abshe-lab-input').forEach(input => {
+                input.oninput = (e) => {
+                    const id = parseInt(e.target.closest('.item-card').dataset.id);
+                    const value = e.target.value;
+                    if (!/\d/.test(value)) {
+                        updateProductItem(id, 'lab', value);
+                    } else {
+                        e.target.value = state.products.find(item => item.id === id).lab;
+                    }
+                };
+            });
+
+            productItemsContainer.querySelectorAll('.motaferghe-weight-gram-input').forEach(input => {
+                input.oninput = (e) => {
+                    const id = parseInt(e.target.closest('.item-card').dataset.id);
+                    const rawValue = e.target.value;
+                    const englishValue = toEnglishDigits(rawValue);
+                    
+                    if (/^\d*\.?\d*$/.test(englishValue)) {
+                        updateProductItem(id, 'weight', parseFloat(englishValue));
+                        e.target.value = toPersianDigits(englishValue);
+                    } else {
+                        e.target.value = toPersianDigits(state.products.find(item => item.id === id).weight);
+                    }
+                };
+            });
+
+            productItemsContainer.querySelectorAll('.item-profit-slider').forEach(slider => {
+                slider.oninput = (e) => {
+                    const id = parseInt(e.target.closest('.item-card').dataset.id);
+                    let value = parseFloat(e.target.value);
+                    
+                    updateProductItem(id, 'profit', value);
+                    
+                    const display = e.target.closest('.profit-slider-group').querySelector('.profit-slider-value');
+                    if (display) {
+                        display.textContent = `${formatProfitPercentage(value)} %`; // Using helper function
+                    }
+                };
+            });
+
+            productItemsContainer.querySelectorAll('.delete-item-btn').forEach(button => {
+                button.onclick = (e) => {
+                    const id = parseInt(e.target.closest('.item-card').dataset.id);
+                    removeProductItem(id);
+                };
+                button.style.backgroundColor = 'white';
+                button.style.color = 'black';
+            });
         }
+
 
         // --- Calculation & Rendering ---
         function calculateAndRender() {
-            let productsHTML = '';
-            let purchasesHTML = '';
-            let summaryHTML = '';
-            let grandTotal = 0;
-            let totalTax = 0;
+            let invoiceHTML = '';
+            let totalBaseValueBeforeProfit = 0;
+            let absheProfitAmount = 0;
+            let motafergheProfitAmount = 0;
+            let absheBaseValueTotal = 0;
+            let motafergheBaseValueTotal = 0;
+            let hasAbsheItems = false;
+            let hasMotafergheItems = false;
+            let conditionalAbsheItems = []; // To store conditional items for disclaimer
 
-            const validProducts = state.products.filter(p => parseFloat(p.weight) > 0);
-            if (validProducts.length > 0) {
-                productsHTML += `<div class="invoice-section"><div class="invoice-section-title">محصولات</div>`;
-                validProducts.forEach((p, index) => {
-                    const weight = parseFloat(p.weight) || 0;
-                    const goldPricePerGram = state.goldPrice; // قیمت هر گرم طلا
-                    
-                    // محاسبه اجرت هر گرم
-                    let ajratPerGram = 0;
-                    let isAjratEntered = false; // پرچم برای بررسی اینکه اجرت وارد شده است یا خیر
-                    
-                    if (p.ajratType === 'toman') {
-                        const enteredAjrat = parseFormattedNumber(p.ajratValue.toString()) || 0;
-                        if (enteredAjrat > 0) {
-                            ajratPerGram = weight > 0 ? enteredAjrat / weight : 0;
-                            isAjratEntered = true;
-                        }
-                    } else { // ajratType is 'percent'
-                        const ajratPercentage = (parseFloat(p.ajratValue) || 0) / 100;
-                        if (ajratPercentage > 0) {
-                            ajratPerGram = goldPricePerGram * ajratPercentage;
-                            isAjratEntered = true;
-                        }
+            const absheProfitDetails = {};
+            const motafergheProfitDetails = {};
+
+            invoiceHTML += `<div class="invoice-section"><div class="invoice-section-title">جزئیات اقلام</div>`;
+
+            state.products.forEach((item, index) => {
+                let itemRawBaseValue = 0;
+                let itemValueWithProfit = 0;
+                let itemDescription = '';
+
+                if (item.type === 'abshe') {
+                    hasAbsheItems = true;
+                    if (index > 0 && state.products[index-1].type !== 'abshe') {
+                        invoiceHTML += `<div class="invoice-separator" style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></div>`;
                     }
 
-                    const profitPercentage = (p.profitPercentage || 0) / 100; // سود به درصد (از هر محصول)
-                    
-                    // محاسبه قیمت پایه (طلا + اجرت) برای هر گرم
-                    const basePricePerGram = goldPricePerGram + ajratPerGram;
-                    
-                    // محاسبه سود برای هر گرم
-                    const profitPerGram = basePricePerGram * profitPercentage;
+                    const ayarForCalculation = item.ayar !== null && item.ayar > 0 ? item.ayar : 750;
 
-                    // محاسبه کل مبلغ هر گرم (طلا + اجرت + سود)
-                    const totalBeforeTaxPerGram = basePricePerGram + profitPerGram;
-                    
-                    // محاسبه مالیات (10% بر اجرت و سود)
-                    const itemTaxPerGram = state.taxEnabled ? (ajratPerGram + profitPerGram) * 0.10 : 0;
-                    const itemTax = itemTaxPerGram * weight;
-                    totalTax += itemTax;
-
-                    // مبلغ کل آیتم شامل طلا، اجرت, سود و مالیات
-                    const itemTotal = (totalBeforeTaxPerGram * weight) + itemTax;
-
-
-                    productsHTML += `<div class="invoice-item">`;
-                    if(validProducts.length > 1) productsHTML += `<b>آیتم ${toPersianDigits(index+1)}</b>`;
-                    productsHTML += `<div class="invoice-item-header"><span>${p.type} - ${toPersianDigits(weight)} گرم</span><span>${formatNumber(itemTotal)} تومان</span></div>`;
-                    let details = [];
-                    
-                    // 1. نمایش سود
-                    if (p.profitPercentage > 0) {
-                        // نمایش درصد سود بدون اعشار .0
-                        details.push(`سود: ${toPersianDigits(Math.round(p.profitPercentage))}٪`); 
-                    } else {
-                        details.push(`بدون سود`); 
-                    }
-
-                    // 2. نمایش اجرت
-                    if (isAjratEntered) {
-                        if (p.ajratType === 'toman') {
-                            details.push(`اجرت: ${formatNumber(parseFormattedNumber(p.ajratValue.toString()) || 0)} تومان`); // نمایش اجرت کل (تومان)
+                    if (item.weight > 0 && state.goldPrice > 0) {
+                        const absheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (ayarForCalculation / 750);
+                        itemRawBaseValue = absheEquivalent18KMesghals * state.goldPrice;
+                        itemValueWithProfit = itemRawBaseValue * (1 + item.profit / 100);
+                        
+                        let ayarDisplay = '';
+                        if (item.ayar === null || item.ayar === 0) {
+                            ayarDisplay = `<strong style="color:var(--danger-color);">شرطی</strong>`;
+                            conditionalAbsheItems.push({ id: item.id, weight: item.weight }); // Just push ID and weight
                         } else {
-                            // اگر اجرت درصدی است، مقدار درصدی را بدون اعشار .0 نمایش دهد
-                            details.push(`اجرت: ${toPersianDigits(Math.round(parseFloat(p.ajratValue)))}٪`); // نمایش اجرت درصدی
+                            ayarDisplay = toPersianDigits(item.ayar);
                         }
-                    } else {
-                        details.push(`بدون اجرت`);
+
+                        itemDescription = `آبشده ${toPersianDigits(item.weight)} گرم با عیار ${ayarDisplay}`;
+
+                        if (item.eng > 0) {
+                            itemDescription += `<br><span class="invoice-item-details">انگ: ${toPersianDigits(item.eng)}</span>`;
+                        }
+                        if (item.lab) {
+                            itemDescription += `<br><span class="invoice-item-details">آزمایشگاه: ${item.lab}</span>`;
+                        }
+                        
+                        if (ayarForCalculation !== 750) {
+                            const equivalentWeight750 = item.weight * (ayarForCalculation / 750);
+                            itemDescription += `<br><span class="invoice-item-details">وزن آبشده به عیار ۷۵۰: ${toPersianDigits(equivalentWeight750.toFixed(2))} گرم</span>`;
+                        }
+
+                        if (itemRawBaseValue > 0 && item.profit > 0) {
+                            const profitPercentageString = item.profit.toFixed(1);
+                            if (!absheProfitDetails[profitPercentageString]) {
+                                absheProfitDetails[profitPercentageString] = { totalProfitValue: 0, totalBaseValue: 0 };
+                            }
+                            absheProfitDetails[profitPercentageString].totalProfitValue += itemRawBaseValue * (item.profit / 100);
+                            absheProfitDetails[profitPercentageString].totalBaseValue += itemRawBaseValue;
+                        }
+                    }
+                } else if (item.type === 'motaferghe') {
+                    hasMotafergheItems = true;
+                    if (index > 0) {
+                        invoiceHTML += `<div class="invoice-separator" style="margin-top: 0.5rem; margin-bottom: 0.5rem;"></div>`;
                     }
                     
-                    // 3. نمایش مالیات
-                    // فقط اگر مالیات فعال باشه و مالیات محاسبه شده بیشتر از 0 باشه، مقدارش رو نشون بده
-                    if (state.taxEnabled && itemTax > 0) { 
-                        details.push(`مالیات: ${formatNumber(itemTax)}`);
-                    } else if (!state.taxEnabled) { // اگر مالیات کلاً از طریق سویچ غیر فعال شده بود
-                        details.push(`بدون مالیات`);
+                    if (item.weight > 0 && state.goldPrice > 0) {
+                        const MOTAFERGHE_DEFAULT_AYAR = 750;
+                        const motafergheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (MOTAFERGHE_DEFAULT_AYAR / 750);
+                        itemRawBaseValue = motafergheEquivalent18KMesghals * state.goldPrice;
+                        itemValueWithProfit = itemRawBaseValue * (1 + item.profit / 100);
+                        
+                        itemDescription = `متفرقه ${toPersianDigits(item.weight)} گرم`; 
+                        
+                        if (itemRawBaseValue > 0 && item.profit > 0) {
+                            const profitPercentageString = item.profit.toFixed(1);
+                            if (!motafergheProfitDetails[profitPercentageString]) {
+                                motafergheProfitDetails[profitPercentageString] = { totalProfitValue: 0, totalBaseValue: 0 };
+                            }
+                            motafergheProfitDetails[profitPercentageString].totalProfitValue += itemRawBaseValue * (item.profit / 100);
+                            motafergheProfitDetails[profitPercentageString].totalBaseValue += itemRawBaseValue;
+                        }
                     }
-                    // در غیر این صورت (مالیات فعال است اما itemTax صفر است)، چیزی نمایش داده نمی‌شود.
+                }
+                
+                if (itemRawBaseValue > 0) {
+                    totalBaseValueBeforeProfit += itemRawBaseValue;
+                    invoiceHTML += `<div class="invoice-item">
+                        <div class="invoice-item-header">
+                            <span>${itemDescription}</span>
+                            <span>${formatNumber(itemValueWithProfit)} تومان</span>
+                        </div>
+                    </div>`;
+                }
+            });
+            invoiceHTML += `</div>`; // Close invoice-section for items
 
+            let totalProfitBeforeDiscount = 0;
+            
+            let allProfitLines = [];
 
-                    if (details.length > 0) productsHTML += `<div class="invoice-item-details">${details.join(' - ')}</div>`;
-                    productsHTML += `</div>`;
-                });
-                productsHTML += `</div>`;
+            for (const profitPercentKey in absheProfitDetails) {
+                const detail = absheProfitDetails[profitPercentKey];
+                if (detail.totalBaseValue > 0) {
+                    totalProfitBeforeDiscount += detail.totalProfitValue;
+                    allProfitLines.push({ type: 'abshe', percentage: parseFloat(profitPercentKey), amount: detail.totalProfitValue });
+                }
             }
 
-            let totalPurchaseValue = 0;
-            const validPurchases = state.purchases.filter(p => (p.weight && parseFloat(p.weight) > 0) || (p.price && parseFloat(p.price) > 0));
-            if (validPurchases.length > 0) {
-                 const hasCoin = validPurchases.some(p => ['coin', 'parsian', 'bullion'].includes(p.type));
-                 const hasGold = validPurchases.some(p => p.type === 'gold');
-                 let purchaseTitle = 'خرید ';
-                 if(hasGold && hasCoin) purchaseTitle += 'طلا و سکه از مشتری';
-                 else if(hasGold) purchaseTitle += 'طلا از مشتری';
-                 else if(hasCoin) purchaseTitle += 'سکه از مشتری';
-
-                purchasesHTML += `<div class="invoice-separator"></div><div class="invoice-section"><div class="invoice-section-title">${purchaseTitle}</div>`;
-                validPurchases.forEach(p => {
-                    let value = 0;
-                    let label = '';
-                    if (p.type === 'coin') {
-                        value = p.price || 0;
-                        label = `سکه ${p.coinType}`;
-                    } else {
-                        const weight = parseFloat(p.weight) || 0;
-                        if (p.type === 'bullion') value = (weight * 995 / 750) * state.goldPrice;
-                        else if (p.type === 'parsian') value = (weight * 740 / 750) * state.goldPrice; // فرض بر طلای 17.76 عیار برای پارسیان
-                        else value = weight * state.goldPrice; // برای طلای متفرقه همان 18 عیار
-                        const typeName = {gold: 'طلای متفرقه', bullion: 'شمش', parsian: 'پارسیان'}[p.type];
-                        label = `${typeName} - ${toPersianDigits(weight)} گرم`;
-                    }
-                    totalPurchaseValue += value;
-                    purchasesHTML += `<div class="invoice-summary-line"><span>${label}</span><span class="invoice-value-danger">${formatNumber(value)} تومان</span></div>`;
-                });
-                purchasesHTML += `</div>`;
+            for (const profitPercentKey in motafergheProfitDetails) {
+                const detail = motafergheProfitDetails[profitPercentKey];
+                if (detail.totalBaseValue > 0) {
+                    totalProfitBeforeDiscount += detail.totalProfitValue;
+                    allProfitLines.push({ type: 'motaferghe', percentage: parseFloat(profitPercentKey), amount: detail.totalProfitValue });
+                }
             }
 
-            // محاسبه مجموع فروش بر اساس فرمول جدید برای محاسبه totalBeforeDiscount
-            const saleTotal = validProducts.reduce((acc, p) => {
-                 const weight = parseFloat(p.weight) || 0;
-                 const goldPricePerGram = state.goldPrice;
-                 
-                 let ajratPerGram = 0;
-                 if (p.ajratType === 'toman') {
-                     ajratPerGram = weight > 0 ? (parseFormattedNumber(p.ajratValue.toString()) || 0) / weight : 0;
-                 } else {
-                     const ajratPercentage = (parseFloat(p.ajratValue) || 0) / 100;
-                     ajratPerGram = goldPricePerGram * ajratPercentage;
-                 }
+            allProfitLines.sort((a, b) => {
+                if (a.type === b.type) {
+                    return a.percentage - b.percentage;
+                }
+                return a.type === 'abshe' ? -1 : 1;
+            });
 
-                 const profitPercentage = (p.profitPercentage || 0) / 100; // از هر محصول
-                 const basePricePerGram = goldPricePerGram + ajratPerGram;
-                 const profitPerGram = basePricePerGram * profitPercentage;
-                 const totalBeforeTaxPerGram = basePricePerGram + profitPerGram;
+            let finalInvoiceValue = totalBaseValueBeforeProfit + totalProfitBeforeDiscount;
 
-                 return acc + (totalBeforeTaxPerGram * weight);
-            }, 0);
-
-            const totalBeforeDiscount = saleTotal + totalTax; // جمع کل فروش و مالیات
-
-            state.manualDiscount = parseFormattedNumber(manualDiscountInput.value);
-            const maxDiscount = totalBeforeDiscount * 0.3; // حداکثر 30% تخفیف از کل مبلغ قابل پرداخت
-            if (state.manualDiscount > maxDiscount) {
-                state.manualDiscount = maxDiscount;
-                manualDiscountInput.value = formatNumber(state.manualDiscount);
-            }
-            const effectiveDiscount = state.smartDiscount > 0 ? state.smartDiscount : state.manualDiscount;
-
-            if (totalTax > 0 || effectiveDiscount > 0) {
-                 summaryHTML += `<div class="invoice-separator"></div>`;
-            }
-            if (totalTax > 0) {
-                // این مالیات کل بر اساس جمع اجرت و سود تمام محصولات است
-                const taxLabel = validProducts.filter(p => state.taxEnabled && ((parseFormattedNumber(p.ajratValue.toString()) || 0) > 0 || (p.profitPercentage || 0) > 0)).length > 0 ? 'مالیات کل' : 'مالیات';
-                summaryHTML += `<div class="invoice-summary-line"><span>${taxLabel}</span><span>${formatNumber(totalTax)} تومان</span></div>`;
-            }
-            if (effectiveDiscount > 0) {
-                 summaryHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-discount">${formatNumber(effectiveDiscount)} تومان</span></div>`;
+            // Calculate rounding discount based on the new switch
+            let roundingDiscount = 0;
+            if (state.isRoundingActive && finalInvoiceValue > 0) {
+                const remainder = finalInvoiceValue % 10000;
+                if (remainder !== 0) {
+                    roundingDiscount = remainder;
+                }
             }
             
-            grandTotal = totalBeforeDiscount - totalPurchaseValue - effectiveDiscount;
+            let totalCombinedDiscount = state.manualDiscount + roundingDiscount; 
             
+            let totalAmountBeforeAllDiscounts = totalBaseValueBeforeProfit + totalProfitBeforeDiscount;
+            let discountPercentageOfTotalAmount = 0;
+            if (totalAmountBeforeAllDiscounts > 0) {
+                discountPercentageOfTotalAmount = totalCombinedDiscount / totalAmountBeforeAllDiscounts;
+            }
+
+            if (allProfitLines.length > 0) {
+                invoiceHTML += `<div class="invoice-separator"></div>`;
+
+                const hasAbsheProfitLine = allProfitLines.some(line => line.type === 'abshe');
+                const hasMotafergheProfitLine = allProfitLines.some(line => line.type === 'motaferghe');
+                const showTypeLabelInProfitLine = hasAbsheProfitLine && hasMotafergheProfitLine;
+
+                allProfitLines.forEach(line => {
+                    // تغییر اصلی اینجاست: درصد سود همیشه همان درصد اصلی باقی می‌ماند
+                    const displayPercentage = line.percentage; 
+
+                    // Using the helper function for consistent formatting
+                    let formattedPercentage = formatProfitPercentage(displayPercentage);
+                    
+                    let typeLabel = '';
+                    if (showTypeLabelInProfitLine) {
+                        typeLabel = line.type === 'abshe' ? ` <span style="color:var(--text-light);">(آبشده)</span>` : ` <span style="color:var(--text-light);">(متفرقه)</span>`;
+                    }
+                    invoiceHTML += `<div class="invoice-summary-line"><span>سود${typeLabel}: ${formattedPercentage}٪</span></div>`;
+                });
+            }
+            
+            let grandTotal = finalInvoiceValue - totalCombinedDiscount;
+            
+            // Display combined discount or "تخفیف رند" if only rounding is active
+            if (totalCombinedDiscount > 0) {
+                let discountLabel = "تخفیف";
+                if (state.isRoundingActive && state.manualDiscount === 0 && roundingDiscount > 0) {
+                    discountLabel = "تخفیف رند";
+                }
+                invoiceHTML += `<div class="invoice-summary-line"><span>${discountLabel}</span><span class="invoice-value-danger">${formatNumber(totalCombinedDiscount)} تومان</span></div>`;
+            }
+
             let finalTotalHTML = `<div class="invoice-final-total">`;
             if (grandTotal >= 0) {
                 finalTotalHTML += `<span>مبلغ نهایی</span><span>${formatNumber(grandTotal) || '۰'} تومان</span>`;
-            } else {
+            }
+            else {
                  finalTotalHTML += `<span>پرداخت به مشتری</span><span>${formatNumber(Math.abs(grandTotal)) || '۰'} تومان</span>`;
             }
             finalTotalHTML += `</div>`;
+
+            let disclaimerHTML = '';
+            if (conditionalAbsheItems.length > 0) {
+                let conditionalParts = [];
+                // Sort conditional items by their original index to get consistent "اول", "دوم"
+                const sortedConditionalAbsheItems = conditionalAbsheItems
+                    .map(item => ({
+                        ...item,
+                        originalIndex: state.products.findIndex(p => p.id === item.id)
+                    }))
+                    .sort((a, b) => a.originalIndex - b.originalIndex);
+
+                if (sortedConditionalAbsheItems.length === 1) {
+                    const condItem = sortedConditionalAbsheItems[0];
+                    conditionalParts.push(`آبشده (وزن ${toPersianDigits(condItem.weight)} گرم)`);
+                } else {
+                    const ordinalMap = {1: 'اول', 2: 'دوم', 3: 'سوم', 4: 'چهارم', 5: 'پنجم'};
+                    sortedConditionalAbsheItems.forEach((condItem, i) => {
+                        const ordinal = ordinalMap[i + 1] || toPersianDigits(i + 1);
+                        conditionalParts.push(`آبشده ${ordinal} (وزن ${toPersianDigits(condItem.weight)} گرم)`);
+                    });
+                }
+                
+                // Construct the disclaimer message with newlines
+                disclaimerHTML = `<p class="disclaimer-text">
+                                    <strong style="color:var(--danger-color);">توجه:</strong><br>
+                                    به دلیل شرطی بودن ${conditionalParts.join(' و ')}<br>
+                                    مبلغ نهایی می‌تواند کمتر یا بیشتر شود.
+                                  </p>`;
+            }
             
-            // Add gold price to the invoice header, only visible in print
             let invoiceHeaderExtra = '';
             if (state.goldPrice > 0) {
-                invoiceHeaderExtra = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">قیمت هر گرم طلا ۱۸ عیار: ${formatNumber(state.goldPrice)} تومان</div>`;
+                invoiceHeaderExtra = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">قیمت مظنه طلا: ${formatNumber(state.goldPrice)} تومان</div>`;
             }
 
-            invoiceContentContainer.innerHTML = invoiceHeaderExtra + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
-            renderSmartDiscount(grandTotal); // Smart discount should be based on the final grand total before applying smart discount
-        }
-        
-        function renderSmartDiscount(total) {
-            if (total <= 1000 || state.manualDiscount > 0) {
-                smartDiscountContainer.classList.add('hidden');
-                state.smartDiscount = 0;
-                return;
-            }
-            smartDiscountContainer.classList.remove('hidden');
-            smartDiscountOptions.innerHTML = '';
-            let options = new Set();
-            [1000, 10000, 100000, 500000, 1000000].forEach(unit => {
-                const remainder = total % unit;
-                if (remainder > 0 && remainder <= 990000 && (total - remainder) >= 0) options.add(remainder);
-            });
-            const sortedOptions = Array.from(options).sort((a,b) => a - b).slice(0, 5);
-            if (sortedOptions.length === 0) {
-                 smartDiscountContainer.classList.add('hidden'); return;
-            }
-            sortedOptions.forEach(optValue => {
-                const btn = document.createElement('button');
-                btn.className = 'btn smart-discount-btn';
-                btn.textContent = `رند به ${formatNumber(total - optValue)}`;
-                btn.dataset.value = optValue;
-                if (state.smartDiscount === optValue) btn.classList.add('active');
-                smartDiscountOptions.appendChild(btn);
-            });
+            invoiceContentContainer.innerHTML = invoiceHeaderExtra + invoiceHTML + finalTotalHTML + disclaimerHTML;
         }
         
         // --- Event Listeners ---
         goldPriceInput.addEventListener('input', (e) => {
             const value = parseFormattedNumber(e.target.value);
-            if (value.toString().length <= 8) {
+            if (value.toString().length <= 11) {
                 state.goldPrice = value;
                 e.target.value = formatNumber(value);
-            } else e.target.value = formatNumber(state.goldPrice);
+            } else {
+                e.target.value = formatNumber(state.goldPrice);
+            }
             updatePriceInWords();
             calculateAndRender();
         });
-        addProductBtn.addEventListener('click', () => createProductItem());
-        // Removed global profitSlider event listener as it's now per product
-        taxSwitch.addEventListener('change', (e) => { state.taxEnabled = e.target.checked; calculateAndRender(); });
-        manualDiscountInput.addEventListener('input', () => {
-            if (state.smartDiscount > 0) state.smartDiscount = 0; // Clear smart discount if manual is used
-            calculateAndRender();
-        });
-        addPurchaseBtnContainer.addEventListener('click', e => {
-            if (e.target.classList.contains('add-purchase-btn')) createPurchaseItem(e.target.dataset.type);
-        });
-        smartDiscountOptions.addEventListener('click', e => {
-            const targetButton = e.target.closest('.smart-discount-btn');
-            if (targetButton) {
-                const discountValue = Number(targetButton.dataset.value);
-                if (state.smartDiscount === discountValue) state.smartDiscount = 0; // Deselect if already active
-                else {
-                    state.smartDiscount = discountValue;
-                    state.manualDiscount = 0; // Clear manual discount if smart is used
-                    manualDiscountInput.value = '';
-                }
+
+        manualDiscountInput.addEventListener('input', (e) => {
+            const value = parseFormattedNumber(e.target.value);
+            if (value.toString().length <= 11) {
+                state.manualDiscount = value;
                 calculateAndRender();
+                e.target.value = formatNumber(value);
+            } else {
+                e.target.value = formatNumber(state.manualDiscount);
             }
         });
+
+        // Event Listener for the new rounding switch
+        roundSwitch.addEventListener('change', () => {
+            state.isRoundingActive = roundSwitch.checked; // Update state based on switch
+            calculateAndRender(); // Recalculate and render
+        });
+
+
+        addAbsheBtn.addEventListener('click', () => {
+            productItemsContainer.classList.remove('hidden');
+            createProductItem('abshe');
+        });
+        addMotafergheBtn.addEventListener('click', () => { 
+            productItemsContainer.classList.remove('hidden');
+            createProductItem('motaferghe');
+        });
+
         printBtn.addEventListener('click', () => {
             window.print();
         });
 
-        // --- Initial Load ---
-        createProductItem(true);
+        // Initial render on page load
         calculateAndRender();
     });
     </script>
