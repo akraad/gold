@@ -781,8 +781,7 @@
             const profitDisplay = itemDiv.querySelector('.product-slider-value'); 
             
             typeInput.addEventListener('change', (e) => { item.type = e.target.value; calculateAndRender(); });
-            
-            // --- Unified Input/Blur handling for numeric fields ---
+            // --- Input/Blur handling for numeric fields (Product Weight) ---
             weightInput.addEventListener('focus', (e) => {
                 e.target.value = toEnglishDigits(item.weight);
             });
@@ -800,6 +799,7 @@
             });
 
 
+            // --- Input/Blur handling for numeric fields (Product Ajrat) ---
             ajratInput.addEventListener('focus', (e) => {
                 e.target.value = toEnglishDigits(item.ajratValue);
             });
@@ -903,6 +903,7 @@
                 const coinPriceInput = itemDiv.querySelector('.purchase-coin-price');
                 coinTypeInput.addEventListener('change', e => { item.coinType = e.target.value; calculateAndRender(); });
                 
+                // --- Input/Blur handling for numeric fields (Coin Price) ---
                 coinPriceInput.addEventListener('focus', (e) => {
                     e.target.value = toEnglishDigits(item.price);
                 });
@@ -921,6 +922,7 @@
 
             } else {
                  const weightInput = itemDiv.querySelector('.purchase-weight');
+                 // --- Input/Blur handling for numeric fields (Purchase Weight) ---
                  weightInput.addEventListener('focus', (e) => {
                      e.target.value = toEnglishDigits(item.weight);
                  });
@@ -1087,14 +1089,14 @@
 
             let currentGrandTotal = saleTotal + totalTax - totalPurchaseValue;
             
+            // Manual Discount Input/Blur handling
             state.manualDiscount = parseFormattedNumber(manualDiscountInput.value);
             const maxDiscount = currentGrandTotal * 0.3; 
             if (currentGrandTotal > 0 && state.manualDiscount > maxDiscount) {
                 state.manualDiscount = maxDiscount;
-                // Don't format here, only on blur
-                // manualDiscountInput.value = formatNumber(state.manualDiscount); 
             }
-            
+            // NO `manualDiscountInput.value = formatNumber(state.manualDiscount);` here
+
             currentGrandTotal -= state.manualDiscount;
 
             let roundDiscountAmount = 0;
@@ -1181,6 +1183,8 @@
 
                 // Ensure input wrapper visibility based on switch state
                 excessGoldInputWrapper.classList.toggle('hidden', !state.excessGoldPurchaseEnabled);
+                // Ensure switch reflects state (it's already handled by its own event listener)
+                // excessGoldSwitch.checked = state.excessGoldPurchaseEnabled; 
 
             } else {
                 // Hide the entire excess gold container if no excess gold
@@ -1238,9 +1242,7 @@
             `;
             invoiceContentContainer.prepend(printOnlyDiv);
 
-            // Re-assign listeners for excess gold if they were reset (not needed now they are outside)
-            // But ensure their initial state is correct.
-            // These event listeners are now attached once in DOMContentLoaded
+            // Ensure initial state of excess gold input value is correct after calculateAndRender
             if (excessGoldPriceInput) {
                 if (state.excessGoldPurchasePricePerGram === 0 && !excessGoldPriceInput.matches(':focus')) {
                     excessGoldPriceInput.value = ''; // Keep empty if 0 and not focused
@@ -1284,6 +1286,7 @@
         };
         
         // --- Event Listeners (Main Invoice) ---
+        // Input/Blur handling for gold-price
         goldPriceInput.addEventListener('focus', (e) => {
             e.target.value = toEnglishDigits(state.goldPrice);
         });
@@ -1304,6 +1307,7 @@
         addProductBtn.addEventListener('click', () => createProductItem());
         taxSwitch.addEventListener('change', (e) => { state.taxEnabled = e.target.checked; calculateAndRender(); });
         
+        // Input/Blur handling for manual-discount
         manualDiscountInput.addEventListener('focus', (e) => {
             e.target.value = toEnglishDigits(state.manualDiscount);
         });
@@ -1380,7 +1384,7 @@
             renderCustomerInfoDateWidget();
             calculateAndRender(); 
         });
-
+        // Input/Blur handling for year-input
         yearInput.addEventListener('focus', (e) => {
             e.target.value = toEnglishDigits(state.year);
         });
