@@ -510,7 +510,7 @@
                     <span class="input-group-text">تومان</span>
                 </div>
             </div>
-            </div>
+        </div>
 
         <div class="card" id="invoice-card">
             <h2 class="card-header">فاکتور</h2>
@@ -582,8 +582,7 @@
         const addProductBtn = document.getElementById('add-product-item');
         const taxSwitch = document.getElementById('tax-switch');
         const manualDiscountInput = document.getElementById('manual-discount');
-        // Removed smartDiscountContainer and smartDiscountOptions
-        const roundDiscountSwitch = document.getElementById('round-discount-switch'); // New: Round discount switch
+        const roundDiscountSwitch = document.getElementById('round-discount-switch'); 
         const invoiceContentContainer = document.getElementById('invoice-content');
         const addPurchaseBtnContainer = document.querySelector('.add-purchase-options');
         const purchaseItemsContainer = document.getElementById('purchase-items-container');
@@ -613,10 +612,9 @@
             purchases: [],
             taxEnabled: true,
             manualDiscount: 0,
-            roundDiscountEnabled: true, // New: Default true for round discount
-            // New state properties for customer info and date
+            roundDiscountEnabled: true, 
             customerName: '',
-            customerGender: null, // 'male', 'female', or null
+            customerGender: null, 
             day: null,
             month: null,
             year: null
@@ -891,6 +889,7 @@
             let summaryHTML = '';
             let grandTotal = 0;
             let totalTax = 0;
+            let itemsWithTaxCount = 0; // New: Counter for items with tax
 
             const validProducts = state.products.filter(p => parseFloat(p.weight) > 0);
             if (validProducts.length > 0) {
@@ -928,6 +927,11 @@
                     const itemTax = itemTaxPerGram * weight;
                     totalTax += itemTax;
 
+                    // Increment itemsWithTaxCount if this item has calculated tax
+                    if (itemTax > 0) {
+                        itemsWithTaxCount++;
+                    }
+
                     const itemTotal = (totalBeforeTaxPerGram * weight) + itemTax;
 
 
@@ -952,6 +956,7 @@
                         details.push(`بدون اجرت`);
                     }
                     
+                    // Only show tax per item if tax is enabled and itemTax > 0
                     if (state.taxEnabled && itemTax > 0) { 
                         details.push(`مالیات: ${formatNumber(itemTax)}`);
                     } else if (!state.taxEnabled) { 
@@ -1018,51 +1023,47 @@
             let currentGrandTotal = saleTotal + totalTax - totalPurchaseValue;
             
             state.manualDiscount = parseFormattedNumber(manualDiscountInput.value);
-            const maxDiscount = currentGrandTotal * 0.3; // حداکثر 30% تخفیف از کل مبلغ قابل پرداخت
+            const maxDiscount = currentGrandTotal * 0.3; 
             if (state.manualDiscount > maxDiscount) {
                 state.manualDiscount = maxDiscount;
                 manualDiscountInput.value = formatNumber(state.manualDiscount);
             }
             
-            // Apply manual discount
             currentGrandTotal -= state.manualDiscount;
 
-            // Apply round discount if enabled
             let roundDiscountAmount = 0;
             if (state.roundDiscountEnabled && currentGrandTotal > 0) {
                 const remainder5k = currentGrandTotal % 5000;
                 const remainder10k = currentGrandTotal % 10000;
 
-                if (remainder10k !== 0) { // If not already rounded to 10k
-                    if (remainder5k !== 0) { // If not already rounded to 5k
-                        // Find the amount to make it end in 0 or 5
-                        if (remainder5k < 2500) { // Round down to the nearest 000
+                if (remainder10k !== 0) { 
+                    if (remainder5k !== 0) { 
+                        if (remainder5k < 2500) { 
                             roundDiscountAmount = remainder5k;
-                        } else { // Round down to the nearest 5000
-                            roundDiscountAmount = remainder5k - 5000; // This will be negative, so we subtract its absolute
+                        } else { 
+                            roundDiscountAmount = remainder5k - 5000; 
                             roundDiscountAmount = Math.abs(roundDiscountAmount);
                         }
                     }
                 }
                 
-                // Ensure roundDiscountAmount doesn't make total negative
                 roundDiscountAmount = Math.min(roundDiscountAmount, currentGrandTotal);
                 currentGrandTotal -= roundDiscountAmount;
 
-                 // Only show round discount if it was actually applied
                 if (roundDiscountAmount > 0) {
                     summaryHTML += `<div class="invoice-summary-line"><span>تخفیف رند</span><span class="invoice-value-discount">${formatNumber(roundDiscountAmount)} تومان</span></div>`;
                 }
             }
 
 
-            if (totalTax > 0 || state.manualDiscount > 0) {
-                 summaryHTML += `<div class="invoice-separator"></div>`;
+            // Condition for displaying total tax
+            if (state.taxEnabled && totalTax > 0 && itemsWithTaxCount >= 2) {
+                 summaryHTML += `<div class="invoice-separator"></div>`; // Add separator only if tax and/or manual discount is displayed
+                 summaryHTML += `<div class="invoice-summary-line"><span>جمع مالیات</span><span>${formatNumber(totalTax)} تومان</span></div>`;
+            } else if (state.manualDiscount > 0) { // If only manual discount is present
+                summaryHTML += `<div class="invoice-separator"></div>`;
             }
-            if (totalTax > 0) {
-                const taxLabel = validProducts.filter(p => state.taxEnabled && ((parseFormattedNumber(p.ajratValue.toString()) || 0) > 0 || (p.profitPercentage || 0) > 0)).length > 0 ? 'مالیات کل' : 'مالیات';
-                summaryHTML += `<div class="invoice-summary-line"><span>${taxLabel}</span><span>${formatNumber(totalTax)} تومان</span></div>`;
-            }
+            
             if (state.manualDiscount > 0) {
                  summaryHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-discount">${formatNumber(state.manualDiscount)} تومان</span></div>`;
             }
@@ -1138,7 +1139,7 @@
         manualDiscountInput.addEventListener('input', () => {
             calculateAndRender();
         });
-        roundDiscountSwitch.addEventListener('change', (e) => { // New: Listener for round discount switch
+        roundDiscountSwitch.addEventListener('change', (e) => { 
             state.roundDiscountEnabled = e.target.checked;
             calculateAndRender();
         });
@@ -1301,7 +1302,6 @@
             yearInput.value = toPersianDigits(state.year); 
         }
 
-        // Set the initial state of the round discount switch
         roundDiscountSwitch.checked = state.roundDiscountEnabled;
 
         createProductItem(true);
