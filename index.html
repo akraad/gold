@@ -326,12 +326,13 @@
 
         /* Print-specific styles */
         @media print {
-            body > .container > *:not(#invoice-card, #customer-info-card), /* Keep customer info card visible in print */
+            body > .container > *:not(#invoice-card), /* Hide all cards except invoice card */
             #print-btn-container,
-            #profit-tax-section { /* Hide elements not part of the invoice */
+            #profit-tax-section,
+            #customer-info-card { /* Hide customer info card in print (as its content is moved to invoice-card) */
                 display: none;
             }
-            #invoice-card, #customer-info-card { /* Ensure customer info card has no shadow/border in print */
+            #invoice-card {
                 box-shadow: none;
                 border: none;
                 margin: 0;
@@ -339,9 +340,6 @@
             }
             .print-only { /* Show elements only in print */
                 display: block !important;
-            }
-            .print-hidden { /* Hide elements specifically for print */
-                display: none !important;
             }
         }
 
@@ -351,6 +349,15 @@
         }
         
         /* Styles for gender text "آقا" and "خانم" (from new code) */
+        /* Adjusted for left alignment */
+        .form-label .gender-option-container {
+            display: flex;
+            gap: 5px; /* Space between "آقا" and "خانم" */
+            flex-shrink: 0; /* Prevent options from shrinking */
+            order: -1; /* Move to the beginning of the flex container (left side in RTL) */
+            margin-right: auto; /* Push to the left */
+        }
+
         .gender-text {
             font-size: 1rem; 
             font-weight: bold; 
@@ -398,9 +405,17 @@
         .year-control-group .input-field {
             flex-grow: 1; 
             text-align: center; 
-            border-radius: 0 var(--border-radius) var(--border-radius) 0; /* Specific for group input */
+            /* Adjusted border-radius for year input within the group */
+            border-radius: 0; 
         }
-        /* Re-using existing input-group-text for 'سال' */
+        /* Adjusted input-group-text for year unit to fit into year-control-group */
+        .year-control-group .input-group-text {
+            border-radius: var(--border-radius) 0 0 var(--border-radius);
+            border-right: 1px solid var(--border-color);
+            border-left: 0;
+            padding: 0.75rem;
+        }
+
         .year-control-btn {
             background-color: var(--primary-light);
             color: var(--primary-color);
@@ -495,7 +510,24 @@
             </div>
         </div>
 
-        <div class="card print-hidden" id="customer-info-card"> <h2 class="card-header">اطلاعات خریدار و تاریخ</h2>
+        <div class="card" id="invoice-card">
+            <h2 class="card-header">فاکتور</h2>
+            <div id="invoice-content">
+                <div class="print-only" style="margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                        <span>خریدار: <span id="print-customer-name"></span></span>
+                        <span>تاریخ: <span id="print-date"></span></span>
+                    </div>
+                    <div style="text-align: right; margin-bottom: 0.5rem;">
+                        <span>قیمت هر گرم طلا ۱۸ عیار: <span id="print-gold-price"></span> تومان</span>
+                    </div>
+                    <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.75rem 0;">
+                </div>
+            </div>
+        </div>
+
+        <div class="card" id="customer-info-card">
+            <h2 class="card-header">اطلاعات خریدار و تاریخ</h2>
             
             <div class="form-group">
                 <div class="form-label">
@@ -532,18 +564,6 @@
                 </div>
             </div>
         </div>
-        <div class="card" id="invoice-card">
-            <h2 class="card-header">فاکتور</h2>
-            <div id="invoice-content">
-                <div class="print-only" style="margin-bottom: 1.5rem; font-size: 0.9em;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
-                        <span>خریدار: <span id="print-customer-name"></span></span>
-                        <span>تاریخ: <span id="print-date"></span></span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div id="print-btn-container">
             <button id="print-btn" class="btn btn-primary">چاپ فاکتور</button>
         </div>
@@ -567,7 +587,8 @@
         const printBtn = document.getElementById('print-btn');
 
         // --- DOM Elements (Customer Info and Date) ---
-        const customerNameInput = document.getElementById('customer-name');
+        // Note: Using querySelectorAll for customer-name to get both visible and print-only elements
+        const customerNameInput = document.getElementById('customer-name'); // The visible input
         const maleOption = document.getElementById('male-option');
         const femaleOption = document.getElementById('female-option');
         const daySlider = document.getElementById('day-slider');
@@ -575,8 +596,12 @@
         const yearInput = document.getElementById('year-input');
         const yearMinusBtn = document.getElementById('year-minus-btn'); 
         const yearPlusBtn = document.getElementById('year-plus-btn');   
-        const printCustomerName = document.getElementById('print-customer-name');
-        const printDate = document.getElementById('print-date');
+        
+        // Print-only elements within the invoice card
+        const printCustomerNameSpan = document.getElementById('print-customer-name');
+        const printDateSpan = document.getElementById('print-date');
+        const printGoldPriceSpan = document.getElementById('print-gold-price');
+
 
         // --- State ---
         let state = {
@@ -1037,18 +1062,15 @@
             }
             finalTotalHTML += `</div>`;
             
-            // Add gold price to the invoice header, only visible in print
-            let invoiceHeaderExtra = '';
-            if (state.goldPrice > 0) {
-                invoiceHeaderExtra = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">قیمت هر گرم طلا ۱۸ عیار: ${formatNumber(state.goldPrice)} تومان</div>`;
-            }
-            
             // Render customer info and date for print-only section
             const customerPrefix = state.customerGender === 'male' ? 'جناب آقای' : (state.customerGender === 'female' ? 'سرکار خانم' : '');
-            printCustomerName.textContent = `${customerPrefix} ${state.customerName || ''}`;
-            printDate.textContent = `${toPersianDigits(state.day || '')} ${getJalaliMonthName(state.month || '')} ${toPersianDigits(state.year || '')}`;
+            printCustomerNameSpan.textContent = `${customerPrefix} ${state.customerName || ''}`;
+            printDateSpan.textContent = `${toPersianDigits(state.day || '')} ${getJalaliMonthName(state.month || '')} ${toPersianDigits(state.year || '')}`;
+            printGoldPriceSpan.textContent = formatNumber(state.goldPrice);
 
-            invoiceContentContainer.innerHTML = invoiceHeaderExtra + invoiceContentContainer.querySelector('.print-only').outerHTML + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
+            // Re-inject the print-only div to ensure it's always up-to-date and at the top
+            const existingPrintOnlyDiv = invoiceContentContainer.querySelector('.print-only');
+            invoiceContentContainer.innerHTML = existingPrintOnlyDiv.outerHTML + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
             
             renderSmartDiscount(grandTotal); // Smart discount should be based on the final grand total before applying smart discount
         }
@@ -1251,8 +1273,10 @@
         const currentJalaliDate = jalaali.toJalaali(today.getFullYear(), today.getMonth() + 1, today.getDate()); 
         
         // Define the allowed year range (current year and previous year)
-        const MIN_YEAR = currentJalaliDate.jy - 1; 
-        const MAX_YEAR = currentJalaliDate.jy;     
+        // Adjusting MAX_YEAR based on current system time to be accurate for 1404
+        const currentYearInJalali = currentJalaliDate.jy;
+        const MIN_YEAR = currentYearInJalali - 1; 
+        const MAX_YEAR = currentYearInJalali;     
 
         // Set initial values for sliders and year input
         if (state.day === null) {
@@ -1262,7 +1286,8 @@
             monthSlider.value = state.month = currentJalaliDate.jm;
         }
         if (state.year === null) {
-            yearInput.value = toPersianDigits(state.year = currentJalaliDate.jy);
+            state.year = currentJalaliDate.jy; // Initialize state.year correctly
+            yearInput.value = toPersianDigits(state.year); // Update input field
         }
 
         createProductItem(true);
