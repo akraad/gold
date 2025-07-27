@@ -543,9 +543,9 @@
             products: [],
             customerName: '', // New
             customerGender: null, // 'male', 'female', or null (New)
-            day: 1, // New
-            month: 1, // New
-            year: null // New
+            day: null, // Initialized later based on current Jalali date
+            month: null, // Initialized later based on current Jalali date
+            year: null // Initialized later based on current Jalali date
         };
 
         // --- Helper Functions ---
@@ -1119,17 +1119,22 @@
                     customerDisplay = `جناب آقای ${state.customerName}`;
                 } else if (state.customerGender === 'female') {
                     customerDisplay = `سرکار خانم ${state.customerName}`;
-                    femaleIcon.classList.add('gender-icon-selected'); // Ensure the icon is selected if coming from state load
-                    maleIcon.classList.remove('gender-icon-selected');
                 } else {
                     customerDisplay = state.customerName;
-                    maleIcon.classList.remove('gender-icon-selected'); // Ensure no icon is selected
-                    femaleIcon.classList.remove('gender-icon-selected');
                 }
-            } else { // If customer name is empty, clear gender selection visually
+            }
+            // Sync icon display with state.customerGender
+            if (state.customerGender === 'male') {
+                maleIcon.classList.add('gender-icon-selected');
+                femaleIcon.classList.remove('gender-icon-selected');
+            } else if (state.customerGender === 'female') {
+                femaleIcon.classList.add('gender-icon-selected');
+                maleIcon.classList.remove('gender-icon-selected');
+            } else {
                 maleIcon.classList.remove('gender-icon-selected');
                 femaleIcon.classList.remove('gender-icon-selected');
             }
+
 
             let dateDisplay = '';
             if (state.day && state.month && state.year) {
@@ -1216,11 +1221,8 @@
         maleIcon.addEventListener('click', () => {
             if (state.customerGender === 'male') { // If already selected, deselect
                 state.customerGender = null;
-                maleIcon.classList.remove('gender-icon-selected');
             } else {
                 state.customerGender = 'male';
-                maleIcon.classList.add('gender-icon-selected');
-                femaleIcon.classList.remove('gender-icon-selected');
             }
             calculateAndRender();
         });
@@ -1228,11 +1230,8 @@
         femaleIcon.addEventListener('click', () => {
             if (state.customerGender === 'female') { // If already selected, deselect
                 state.customerGender = null;
-                femaleIcon.classList.remove('gender-icon-selected');
             } else {
                 state.customerGender = 'female';
-                femaleIcon.classList.add('gender-icon-selected');
-                maleIcon.classList.remove('gender-icon-selected');
             }
             calculateAndRender();
         });
@@ -1242,9 +1241,16 @@
         const [currentJalaliYear, currentJalaliMonth, currentJalaliDay] = gregorianToJalali(today.getFullYear(), today.getMonth() + 1, today.getDate());
 
         // Set initial values for sliders and year input
-        daySlider.value = state.day = currentJalaliDay;
-        monthSlider.value = state.month = currentJalaliMonth;
-        yearInput.value = toPersianDigits(state.year = currentJalaliYear);
+        // Only initialize if they haven't been set, to preserve user input on recalculation
+        if (state.day === null) {
+            daySlider.value = state.day = currentJalaliDay;
+        }
+        if (state.month === null) {
+            monthSlider.value = state.month = currentJalaliMonth;
+        }
+        if (state.year === null) {
+            yearInput.value = toPersianDigits(state.year = currentJalaliYear);
+        }
 
         const updateDaySliderMax = () => {
             const maxDays = getDaysInMonth(state.year, state.month);
