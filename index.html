@@ -407,62 +407,12 @@
             color: var(--primary-color);
         }
 
-        /* Styles for collapsible discount section */
-        .collapsible-card details {
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            margin-bottom: 1.5rem;
-            background-color: var(--card-bg);
-        }
-
-        .collapsible-card summary {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 1.25rem;
-            font-size: 1.1rem;
-            font-weight: 600;
-            cursor: pointer;
-            outline: none;
-            position: relative;
-            list-style: none; /* Remove default marker */
-        }
-        
-        .collapsible-card summary::-webkit-details-marker {
-            display: none; /* Remove default marker for Chrome */
-        }
-
-        .collapsible-card summary:focus {
-            outline: none;
-        }
-
-        .collapsible-card summary::after {
-            content: '▼';
-            font-size: 0.8rem;
-            margin-right: 1rem; /* Adjust margin for RTL */
-            transform: rotate(0deg);
-            transition: transform 0.2s ease;
-            position: absolute;
-            left: 1.25rem; /* Position the arrow on the left for RTL */
-        }
-
-        .collapsible-card details[open] summary::after {
-            transform: rotate(180deg);
-        }
-
-        .collapsible-card .card-content {
-            padding: 0 1.25rem 1.25rem 1.25rem; /* Adjust padding for content inside details */
-            border-top: 1px solid var(--border-color);
-        }
-
         /* Print-specific styles */
         @media print {
             body > .container > *:not(#invoice-card),
             #print-btn-container,
-            #profit-tax-section, /* Hide this general tax section as it's separate from new discount */
-            #customer-info-card,
-            .collapsible-card, /* Hide the entire discount section in print */
-            .product-discount-toggle { /* Hide ajrat discount switch in print */
+            #profit-tax-section,
+            #customer-info-card {
                 display: none;
             }
             .screen-only {
@@ -484,13 +434,6 @@
             .container { padding: 1rem 0.75rem; }
             .main-title { font-size: 1.5rem; margin-bottom: 1.5rem; }
             .card { padding: 1rem; }
-            .collapsible-card summary, .collapsible-card .card-content {
-                padding-left: 1rem;
-                padding-right: 1rem;
-            }
-            .collapsible-card summary::after {
-                left: 1rem;
-            }
         }
     </style>
 </head>
@@ -538,34 +481,24 @@
             </div>
         </div>
 
-        <div class="collapsible-card">
-            <details id="discount-section-details">
-                <summary>تخفیف</summary>
-                <div class="card-content">
-                    <div class="toggle-switch">
-                        <label for="round-discount-switch" class="form-label" style="margin-bottom:0;">تخفیف رند</label>
-                        <label class="switch">
-                            <input type="checkbox" id="round-discount-switch" checked>
-                            <span class="slider"></span>
-                        </label>
-                    </div>
-                    <div class="form-group" style="margin-top: 1rem;">
-                        <label for="manual-discount" class="form-label">تخفیف دستی</label>
-                         <div class="input-group rtl">
-                            <input type="tel" id="manual-discount" class="input-field" inputmode="numeric">
-                            <span class="input-group-text">تومان</span>
-                        </div>
-                    </div>
-                    <div class="toggle-switch" style="margin-top: 1rem;">
-                        <label for="discount-on-tax-switch" class="form-label" style="margin-bottom:0;">تخفیف مالیات</label>
-                        <label class="switch">
-                            <input type="checkbox" id="discount-on-tax-switch">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
+        <div class="card">
+            <h2 class="card-header">تخفیف</h2>
+            <div class="toggle-switch">
+                <label for="round-discount-switch" class="form-label" style="margin-bottom:0;">تخفیف رند</label>
+                <label class="switch">
+                    <input type="checkbox" id="round-discount-switch" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <label for="manual-discount" class="form-label">تخفیف</label>
+                 <div class="input-group rtl">
+                    <input type="tel" id="manual-discount" class="input-field" inputmode="numeric">
+                    <span class="input-group-text">تومان</span>
                 </div>
-            </details>
+            </div>
         </div>
+
         <div class="card" id="invoice-card">
             <h2 class="card-header screen-only">فاکتور</h2>
             <div id="invoice-content">
@@ -633,17 +566,13 @@
         const priceInWords = document.getElementById('price-in-words');
         const productItemsContainer = document.getElementById('product-items-container');
         const addProductBtn = document.getElementById('add-product-item');
-        const taxSwitch = document.getElementById('tax-switch'); // Original tax switch
+        const taxSwitch = document.getElementById('tax-switch');
         const manualDiscountInput = document.getElementById('manual-discount');
         const roundDiscountSwitch = document.getElementById('round-discount-switch'); 
         const invoiceContentContainer = document.getElementById('invoice-content');
         const addPurchaseBtnContainer = document.querySelector('.add-purchase-options');
         const purchaseItemsContainer = document.getElementById('purchase-items-container');
         const printBtn = document.getElementById('print-btn');
-
-        // NEW: Discount Section DOM Elements
-        const discountSectionDetails = document.getElementById('discount-section-details');
-        const discountOnTaxSwitch = document.getElementById('discount-on-tax-switch');
 
         // --- DOM Elements (Customer Info and Date) ---
         const customerNameInput = document.getElementById('customer-name'); 
@@ -666,17 +595,14 @@
             goldPrice: 0,
             products: [],
             purchases: [],
-            taxEnabled: true, // Original tax enabled
+            taxEnabled: true,
             manualDiscount: 0,
             roundDiscountEnabled: true, 
             customerName: '',
             customerGender: null, 
             day: null,
             month: null,
-            year: null,
-            // NEW: Discount States
-            discountOnTaxEnabled: false, // Default: no discount on tax
-            isDiscountSectionOpen: false // Default: discount section is closed
+            year: null
         };
 
         // --- Helper Functions ---
@@ -766,8 +692,7 @@
             const item = {
                 id, type: 'طلا', weight: '',
                 ajratType: 'toman', ajratValue: '',
-                profitPercentage: 7,
-                ajratDiscountEnabled: false // NEW: Ajrat discount for this item
+                profitPercentage: 7 
             };
             state.products.push(item);
             
@@ -813,13 +738,6 @@
                         <input type="range" min="1" max="7" value="${item.profitPercentage}" step="0.1" class="range-slider product-profit-slider">
                     </div>
                 </div>
-                <div class="toggle-switch product-discount-toggle">
-                    <label for="ajrat-discount-switch-${id}" class="form-label" style="margin-bottom:0;">تخفیف اجرت</label>
-                    <label class="switch">
-                        <input type="checkbox" id="ajrat-discount-switch-${id}" ${item.ajratDiscountEnabled ? 'checked' : ''}>
-                        <span class="slider"></span>
-                    </label>
-                </div>
             `;
             productItemsContainer.appendChild(itemDiv);
             
@@ -828,8 +746,7 @@
             const ajratInput = itemDiv.querySelector('.product-ajrat');
             const profitSlider = itemDiv.querySelector('.product-profit-slider'); 
             const profitDisplay = itemDiv.querySelector('.product-slider-value'); 
-            const ajratDiscountSwitch = itemDiv.querySelector(`#ajrat-discount-switch-${id}`); // NEW
-
+            
             typeInput.addEventListener('change', (e) => { item.type = e.target.value; calculateAndRender(); });
             weightInput.addEventListener('input', (e) => {
                 const value = toEnglishDigits(e.target.value);
@@ -884,12 +801,6 @@
                 } else {
                     profitDisplay.textContent = `${toPersianDigits(displayValue.toFixed(1))} %`;
                 }
-                calculateAndRender();
-            });
-
-            // NEW: Ajrat Discount Switch Listener
-            ajratDiscountSwitch.addEventListener('change', (e) => {
-                item.ajratDiscountEnabled = e.target.checked;
                 calculateAndRender();
             });
 
@@ -991,17 +902,13 @@
 
                     const profitPercentage = (p.profitPercentage || 0) / 100; 
                     
-                    // NEW: Apply ajrat discount if enabled for this item
-                    const effectiveAjratPerGram = p.ajratDiscountEnabled ? 0 : ajratPerGram; 
-
-                    const basePricePerGram = goldPricePerGram + effectiveAjratPerGram;
+                    const basePricePerGram = goldPricePerGram + ajratPerGram;
                     
                     const profitPerGram = basePricePerGram * profitPercentage;
 
                     const totalBeforeTaxPerGram = basePricePerGram + profitPerGram;
                     
-                    // NEW: Apply tax discount if enabled globally
-                    const itemTaxPerGram = (state.taxEnabled && !state.discountOnTaxEnabled) ? (effectiveAjratPerGram + profitPerGram) * 0.10 : 0;
+                    const itemTaxPerGram = state.taxEnabled ? (ajratPerGram + profitPerGram) * 0.10 : 0;
                     const itemTax = itemTaxPerGram * weight;
                     totalTax += itemTax;
 
@@ -1032,18 +939,11 @@
                     } else {
                         details.push(`بدون اجرت`);
                     }
-
-                    // NEW: Indicate ajrat discount for the item
-                    if (p.ajratDiscountEnabled) {
-                        details.push('<span class="invoice-value-discount">با تخفیف اجرت</span>');
-                    }
                     
-                    // --- MODIFIED: Add tax info per item based on discount state ---
+                    // --- MODIFIED: Add tax info per item ---
                     if(state.taxEnabled) {
                         if (itemTax > 0) {
                            details.push(`مالیات: ${formatNumber(itemTax)} تومان`);
-                        } else if (state.discountOnTaxEnabled) {
-                           details.push('<span class="invoice-value-discount">بدون مالیات (تخفیف)</span>');
                         }
                     } else {
                         details.push('بدون مالیات');
@@ -1098,19 +998,15 @@
                      ajratPerGram = goldPricePerGram * ajratPercentage;
                  }
 
-                 // NEW: Apply ajrat discount for total sale calculation
-                 const effectiveAjratPerGram = p.ajratDiscountEnabled ? 0 : ajratPerGram; 
-
                  const profitPercentage = (p.profitPercentage || 0) / 100; 
-                 const basePricePerGram = goldPricePerGram + effectiveAjratPerGram;
+                 const basePricePerGram = goldPricePerGram + ajratPerGram;
                  const profitPerGram = basePricePerGram * profitPercentage;
                  const totalBeforeTaxPerGram = basePricePerGram + profitPerGram;
 
                  return acc + (totalBeforeTaxPerGram * weight);
             }, 0);
 
-            // NEW: Only add tax to total if not discounted globally
-            let currentGrandTotal = saleTotal + (state.discountOnTaxEnabled ? 0 : totalTax) - totalPurchaseValue;
+            let currentGrandTotal = saleTotal + totalTax - totalPurchaseValue;
             
             state.manualDiscount = parseFormattedNumber(manualDiscountInput.value);
             const maxDiscount = currentGrandTotal * 0.3; 
@@ -1177,20 +1073,15 @@
             }
 
 
-            // Only show total tax if it's applied (not discounted globally) and there are multiple items
-            if (state.taxEnabled && !state.discountOnTaxEnabled && totalTax > 0 && itemsWithTaxCount >= 2) {
+            if (state.taxEnabled && totalTax > 0 && itemsWithTaxCount >= 2) {
                  summaryHTML += `<div class="invoice-separator"></div>`; 
                  summaryHTML += `<div class="invoice-summary-line"><span>جمع مالیات</span><span>${formatNumber(totalTax)} تومان</span></div>`;
-            } else if (state.manualDiscount > 0 || (state.roundDiscountEnabled && roundDiscountAmount > 0) || state.discountOnTaxEnabled) { // Show separator if any discount applies
+            } else if (state.manualDiscount > 0 || (state.roundDiscountEnabled && roundDiscountAmount > 0)) { 
                 summaryHTML += `<div class="invoice-separator"></div>`;
             }
             
             if (state.manualDiscount > 0) {
-                 summaryHTML += `<div class="invoice-summary-line"><span>تخفیف دستی</span><span class="invoice-value-discount">${formatNumber(state.manualDiscount)} تومان</span></div>`;
-            }
-
-            if (state.discountOnTaxEnabled) { // NEW: Display tax discount line
-                summaryHTML += `<div class="invoice-summary-line"><span>تخفیف مالیات</span><span class="invoice-value-discount">کل مالیات حذف شد</span></div>`;
+                 summaryHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-discount">${formatNumber(state.manualDiscount)} تومان</span></div>`;
             }
 
             if (state.roundDiscountEnabled && roundDiscountAmount > 0) {
@@ -1275,7 +1166,7 @@
             calculateAndRender();
         });
         addProductBtn.addEventListener('click', () => createProductItem());
-        taxSwitch.addEventListener('change', (e) => { state.taxEnabled = e.target.checked; calculateAndRender(); }); // Original tax switch
+        taxSwitch.addEventListener('change', (e) => { state.taxEnabled = e.target.checked; calculateAndRender(); });
         manualDiscountInput.addEventListener('input', () => {
             calculateAndRender();
         });
@@ -1291,16 +1182,6 @@
             window.print();
         });
 
-        // NEW: Discount Section Event Listeners
-        discountSectionDetails.addEventListener('toggle', (e) => {
-            state.isDiscountSectionOpen = e.target.open;
-            // No need to call calculateAndRender here, as toggling visibility doesn't change calculations
-        });
-
-        discountOnTaxSwitch.addEventListener('change', (e) => {
-            state.discountOnTaxEnabled = e.target.checked;
-            calculateAndRender();
-        });
 
         // --- Event Listeners (Customer Info and Date) ---
         customerNameInput.addEventListener('input', (e) => {
@@ -1417,13 +1298,12 @@
         }
 
         roundDiscountSwitch.checked = state.roundDiscountEnabled;
-        discountOnTaxSwitch.checked = state.discountOnTaxEnabled; // Initialize the new tax discount switch
-        discountSectionDetails.open = state.isDiscountSectionOpen; // Set initial state for collapsible section
 
         createProductItem(true);
         renderCustomerInfoDateWidget(); 
         calculateAndRender(); 
     });
     </script>
+
 </body>
 </html>
