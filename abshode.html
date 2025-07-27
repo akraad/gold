@@ -330,40 +330,68 @@
             margin-top: 0.75rem; 
         }
 
-        /* --- Updated CSS for Smart Discount Buttons --- */
-        .smart-discount-btn {
+        /* Styles for the custom text options in smart discount section */
+        .smart-discount-text-option {
             background-color: var(--primary-light); 
             color: var(--primary-color);
-            border: 1px solid transparent; /* Key change: transparent border to prevent shifting */
+            border: 1px solid var(--border-color); /* Border for visual separation */
             border-radius: 0.5rem; 
             font-weight: 600; 
             padding: 0.75rem 0.5rem;
             font-size: 0.9rem; 
             cursor: pointer; 
             transition: all 0.2s ease;
-            text-align: center;
             white-space: nowrap; 
             overflow: hidden;
             text-overflow: ellipsis; 
-            min-height: 40px; /* Ensures consistent height */
-            display: flex; /* Centers content */
-            align-items: center;
-            justify-content: center;
+            min-height: 40px; 
+            display: flex; /* Use flexbox to align text and indicator */
+            justify-content: space-between; /* Puts space between text and circle */
+            align-items: center; /* Vertically centers content */
         }
         
-        .smart-discount-btn:hover { 
+        .smart-discount-text-option:hover { 
             background-color: var(--primary-color);
             color: #fff;
-            border-color: var(--primary-color); /* Adds color to the border on hover */
+            border-color: var(--primary-color);
         }
 
-        .smart-discount-btn.active { 
+        /* Styles for the active (selected) option */
+        .smart-discount-text-option.active { 
             background-color: var(--primary-color);
             color: #fff;
-            border-color: var(--primary-color); /* Fills the transparent border with color */
+            border-color: var(--primary-color);
             box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.4); 
         }
-        /* --- End Updated CSS for Smart Discount Buttons --- */
+
+        /* Styles for the circular indicator */
+        .smart-discount-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%; /* Makes it a circle */
+            border: 2px solid var(--primary-color); /* Default border color */
+            background-color: transparent; /* Transparent background when not active */
+            margin-left: 0.5rem; /* Space between indicator and text in RTL (indicator on left) */
+            flex-shrink: 0; /* Prevents shrinking */
+            transition: all 0.2s ease;
+            box-sizing: border-box; /* Includes padding/border in size */
+        }
+        
+        /* Styles for the active indicator */
+        .smart-discount-text-option.active .smart-discount-indicator {
+            background-color: #fff; /* Fills circle with white when active */
+            border-color: #fff; /* Border color matches fill */
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.3); /* Soft white shadow */
+        }
+
+        /* Styles for the text content within the option */
+        .smart-discount-text-content {
+            flex-grow: 1; /* Allows text to take available space */
+            text-align: right; /* Aligns text to the right in RTL */
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
         
         .invoice-section { margin-bottom: 1rem; }
         .invoice-section-title { font-weight: 600; margin-bottom: 0.75rem; color: var(--text-color); }
@@ -400,6 +428,12 @@
             #profit-section,
             .invoice-summary-line:has(span:contains("سود")) {
                 display: none !important;
+            }
+            .smart-discount-indicator {
+                display: none; /* Hide indicator for print */
+            }
+            .smart-discount-text-content {
+                text-align: right; /* Ensure text is right-aligned for print */
             }
         }
 
@@ -1004,61 +1038,54 @@
         }
         
         // --- Smart Discount Functions ---
-        let lastRenderedTotalForSmartDiscount = -1; // Keep track of the last total that generated smart discount options
+        let lastRenderedTotalForSmartDiscount = -1; 
 
         function renderSmartDiscount(currentTotal) {
             // Only rebuild buttons if currentTotal has changed significantly,
             // or if there are no products (to hide the section), preventing unnecessary re-renders.
             if (Math.abs(currentTotal - lastRenderedTotalForSmartDiscount) < 1000 && smartDiscountOptions.children.length > 0 && state.products.length > 0) {
-                // If total hasn't changed much, just update active state on existing buttons
-                smartDiscountOptions.querySelectorAll('.smart-discount-btn').forEach(btn => {
-                    const discountAmount = Number(btn.dataset.discountAmount);
+                smartDiscountOptions.querySelectorAll('.smart-discount-text-option').forEach(element => {
+                    const discountAmount = Number(element.dataset.discountAmount);
                     if (state.smartDiscount === discountAmount) {
-                        btn.classList.add('active');
+                        element.classList.add('active');
                     } else {
-                        btn.classList.remove('active');
+                        element.classList.remove('active');
                     }
                 });
-                return; // Exit if no need to rebuild buttons
+                return; 
             }
 
-            // Update the last rendered total
             lastRenderedTotalForSmartDiscount = currentTotal;
 
-            if (currentTotal <= 0 || state.products.length === 0) { // Also hide if no products
+            if (currentTotal <= 0 || state.products.length === 0) { 
                 smartDiscountContainer.classList.add('hidden');
                 state.smartDiscount = 0;
-                smartDiscountOptions.innerHTML = ''; // Clear options if hidden
+                smartDiscountOptions.innerHTML = '';
                 return;
             }
             smartDiscountContainer.classList.remove('hidden');
 
-            smartDiscountOptions.innerHTML = ''; // Clear existing buttons before adding new ones
+            smartDiscountOptions.innerHTML = ''; 
 
-            const optionsMap = new Map(); // Use a Map to store {roundedValue: {roundedValue, discountAmount}}
-            const roundingUnits = [1000, 5000, 10000, 50000, 100000, 200000]; // Added 1000 for finer rounding
+            const optionsMap = new Map(); 
+            const roundingUnits = [1000, 5000, 10000, 50000, 100000, 200000];
 
             roundingUnits.forEach(unit => {
                 const roundedValue = Math.floor(currentTotal / unit) * unit;
                 const discountAmount = currentTotal - roundedValue;
 
-                if (discountAmount >= 0 && roundedValue >= 0) {
-                    // Store the option, keyed by roundedValue to ensure uniqueness based on the final rounded price
-                    // If a rounded value already exists, we keep the one with the smaller discount (meaning closer to original total)
+                if (discountAmount >= 0 && roundedValue >= 0) { 
                     if (!optionsMap.has(roundedValue) || optionsMap.get(roundedValue).discountAmount > discountAmount) {
                         optionsMap.set(roundedValue, { roundedValue, discountAmount });
                     }
                 }
             });
 
-            // Consider a special option for rounding down to the nearest million or 500k
             const largeRoundingUnits = [1000000, 500000];
             largeRoundingUnits.forEach(unit => {
                 const roundedValue = Math.floor(currentTotal / unit) * unit;
                 const discountAmount = currentTotal - roundedValue;
                 
-                // Add this large rounding option only if it's significantly different
-                // from other options and provides a meaningful discount (e.g., between 10,000 and 500,000)
                 if (discountAmount > 10000 && discountAmount <= 500000 && roundedValue >= 0) {
                      if (!optionsMap.has(roundedValue) || optionsMap.get(roundedValue).discountAmount > discountAmount) {
                         optionsMap.set(roundedValue, { roundedValue, discountAmount });
@@ -1068,9 +1095,9 @@
 
 
             const sortedOptions = Array.from(optionsMap.values())
-                                    .filter(option => option.discountAmount > 0) // Only show options with a positive discount
-                                    .sort((a, b) => a.discountAmount - b.discountAmount) // Sort by discount amount
-                                    .slice(0, 6); // Limit to top 6 suggestions
+                                    .filter(option => option.discountAmount > 0) 
+                                    .sort((a, b) => a.discountAmount - b.discountAmount) 
+                                    .slice(0, 6); 
 
             if (sortedOptions.length === 0) {
                  smartDiscountContainer.classList.add('hidden');
@@ -1079,19 +1106,28 @@
             }
 
             sortedOptions.forEach(option => {
-                const btn = document.createElement('button');
-                btn.className = 'btn smart-discount-btn';
-                btn.dataset.discountAmount = option.discountAmount;
+                const divElement = document.createElement('div');
+                divElement.className = 'smart-discount-text-option';
+                divElement.dataset.discountAmount = option.discountAmount;
 
                 const roundedFinalPrice = option.roundedValue; 
-                btn.textContent = `رند به ${formatNumber(roundedFinalPrice)}`;
+                const formattedDiscount = formatNumber(option.discountAmount);
+
+                const textContentDiv = document.createElement('div');
+                textContentDiv.className = 'smart-discount-text-content';
+                textContentDiv.textContent = `رند به ${formatNumber(roundedFinalPrice)} (تخفیف: ${formattedDiscount} تومان)`;
+
+                const indicatorDiv = document.createElement('div');
+                indicatorDiv.className = 'smart-discount-indicator';
+
+                divElement.appendChild(indicatorDiv);
+                divElement.appendChild(textContentDiv);
                 
-                // Apply active state based on current state.smartDiscount
                 if (state.smartDiscount === option.discountAmount) {
-                    btn.classList.add('active');
+                    divElement.classList.add('active');
                 }
 
-                smartDiscountOptions.appendChild(btn);
+                smartDiscountOptions.appendChild(divElement);
             });
         }
         
@@ -1121,26 +1157,24 @@
         });
 
         smartDiscountOptions.addEventListener('click', e => {
-            const targetButton = e.target.closest('.smart-discount-btn');
-            if (targetButton) {
-                const clickedDiscountAmount = Number(targetButton.dataset.discountAmount);
+            const targetElement = e.target.closest('.smart-discount-text-option');
+            if (targetElement) {
+                const clickedDiscountAmount = Number(targetElement.dataset.discountAmount);
                 
-                // Determine new smartDiscount state
                 let newSmartDiscountValue = 0;
-                // If the clicked button is already active, deactivate it (toggle off)
+                // If the clicked option is already active, deactivate it (toggle off)
                 if (state.smartDiscount === clickedDiscountAmount) {
                     newSmartDiscountValue = 0;
                 } else {
-                    // Otherwise, activate the clicked button
+                    // Otherwise, activate the clicked option
                     newSmartDiscountValue = clickedDiscountAmount;
                 }
 
-                // Apply changes to state
-                state.manualDiscount = 0; // Clear manual discount when smart discount is applied/toggled
-                manualDiscountInput.value = ''; // Visually clear manual input
+                state.manualDiscount = 0; 
+                manualDiscountInput.value = ''; 
                 state.smartDiscount = newSmartDiscountValue;
                 
-                calculateAndRender(); // This will trigger renderSmartDiscount and correctly apply styles
+                calculateAndRender();
             }
         });
 
