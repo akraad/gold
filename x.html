@@ -11,8 +11,8 @@
         :root {
             --bg-color: #f7f8fc;
             --card-bg: #ffffff;
-            --primary-color: #4a90e2;
-            --primary-light: #e8f0fe;
+            --primary-color: #4a90e2; /* Blue */
+            --primary-light: #e8f0fe; /* Light Blue */
             --secondary-color: #50e3c2;
             --text-color: #3d4a5c;
             --text-light: #8a94a6;
@@ -86,12 +86,28 @@
         }
 
         .form-label {
-            display: block;
+            /* Changed to flex-end for absolute right alignment of content */
+            display: flex;
+            align-items: center;
+            justify-content: flex-end; /* Pushes content to the right */
+            gap: 10px; /* Space between items */
+            direction: rtl; /* Ensure RTL layout for flex items */
             margin-bottom: 0.5rem;
             font-weight: 500;
             font-size: 0.9rem;
         }
 
+        /* Specific style to reverse the order of items within the label */
+        .form-label > * {
+            order: 1; /* Default order for all direct children */
+        }
+
+        .form-label .gender-option-container {
+            order: 2; /* Put the gender options to the left of "نام خریدار" text */
+            display: flex;
+            gap: 5px; /* Space between "آقا" and "خانم" */
+        }
+        
         .input-field, .select-field {
             width: 100%;
             padding: 0.75rem 1rem;
@@ -406,21 +422,16 @@
             font-weight: bold; /* Make bold */
             cursor: pointer;
             transition: all 0.2s ease;
-            padding: 0 5px; /* Add some padding around the text */
+            padding: 0.25rem 0.6rem; /* Add padding for clickable area */
+            border-radius: var(--border-radius); /* Rounded corners */
+            color: var(--primary-color); /* Both are primary color now */
+            background-color: transparent; /* Default transparent background */
         }
         
-        .gender-text.male {
-            color: #2ecc71; /* Green for Agha */
-        }
-
-        .gender-text.female {
-            color: #e74c8c; /* Pink for Khanom */
-        }
-
+        /* Removed .male and .female specific colors as both are primary-color */
+        
         .gender-text-selected {
-            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2); /* Soft blue glow */
-            border-radius: var(--border-radius); /* Rounded corners for the shadow */
-            transform: scale(1.05); /* Slightly enlarge when selected */
+            background-color: var(--primary-light); /* Light blue background when selected */
         }
 
 
@@ -527,9 +538,11 @@
             <h2 class="card-header">اطلاعات خریدار و تاریخ</h2>
             
             <div class="form-group">
-                <label class="form-label" style="display: flex; align-items: center; justify-content: flex-end; gap: 10px; direction: rtl;">
-                    <span class="gender-text male" id="male-option" title="جناب آقای">آقا</span>
-                    <span class="gender-text female" id="female-option" title="سرکار خانم">خانم</span>
+                <label class="form-label">
+                    <div class="gender-option-container">
+                        <span class="gender-text" id="male-option" title="جناب آقای">آقا</span>
+                        <span class="gender-text" id="female-option" title="سرکار خانم">خانم</span>
+                    </div>
                     نام خریدار
                 </label>
                 <input type="text" id="customer-name" class="input-field">
@@ -580,7 +593,6 @@
         const addMotafergheBtn = document.getElementById('add-motaferghe-btn');
 
         const customerNameInput = document.getElementById('customer-name');
-        // Changed IDs for text elements
         const maleOption = document.getElementById('male-option');
         const femaleOption = document.getElementById('female-option');
         const daySlider = document.getElementById('day-slider');
@@ -599,7 +611,7 @@
             isRoundingActive: true, 
             products: [],
             customerName: '', 
-            customerGender: null, // 'male', 'female', or null 
+            customerGender: null, 
             day: null, 
             month: null, 
             year: null 
