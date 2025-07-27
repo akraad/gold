@@ -911,7 +911,7 @@
 
             let finalInvoiceValue = totalBaseValueBeforeProfit + totalProfitBeforeDiscount;
 
-            let totalDiscount = state.manualDiscount + state.smartDiscount;
+            let totalDiscount = state.manualDiscount + state.smartDiscount; // Use state.smartDiscount here
             let totalAmountBeforeDiscount = totalBaseValueBeforeProfit + totalProfitBeforeDiscount;
             let discountPercentageOfTotalAmount = 0;
             if (totalAmountBeforeDiscount > 0) {
@@ -942,7 +942,7 @@
                 });
             }
             
-            let grandTotal = finalInvoiceValue - totalDiscount;
+            let grandTotal = finalInvoiceValue - totalDiscount; // Apply total discount
             
             if (totalDiscount > 0) {
                  invoiceHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-danger">${formatNumber(totalDiscount)} تومان</span></div>`;
@@ -987,10 +987,11 @@
             renderSmartDiscount(grandTotal);
         }
         
+        // This function now generates buttons and applies active/inactive styles correctly
         function renderSmartDiscount(currentTotal) {
             if (currentTotal <= 0) {
                 smartDiscountContainer.classList.add('hidden');
-                state.smartDiscount = 0;
+                state.smartDiscount = 0; // Ensure state reflects no discount if hidden
                 return;
             }
             smartDiscountContainer.classList.remove('hidden');
@@ -1025,7 +1026,6 @@
                 const roundedFinalPrice = currentTotal - option.discountAmount;
                 btn.textContent = `رند به ${formatNumber(roundedFinalPrice)}`;
                 
-                // Apply active state based on current state.smartDiscount
                 if (state.smartDiscount === option.discountAmount) {
                     btn.classList.add('active');
                     btn.style.backgroundColor = 'var(--primary-color)';
@@ -1096,7 +1096,7 @@
             productItemsContainer.classList.remove('hidden');
             createProductItem('abshe');
         });
-        addMotafergheBtn.addEventListener('click', () => { // Corrected missing 'click' in addEventListener
+        addMotafergheBtn.addEventListener('click', () => {
             productItemsContainer.classList.remove('hidden');
             createProductItem('motaferghe');
         });
