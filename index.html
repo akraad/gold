@@ -389,30 +389,32 @@
     <script>
     document.addEventListener('DOMContentLoaded', function () {
         // --- DOM Elements ---
-        const goldPriceInput = document.getElementById('gold-price');
-        const priceInWords = document.getElementById('price-in-words');
-        const productItemsContainer = document.getElementById('product-items-container');
-        const addProductBtn = document.getElementById('add-product-item');
-        const taxSwitch = document.getElementById('tax-switch');
-        const manualDiscountInput = document.getElementById('manual-discount');
-        const roundDiscountSwitch = document.getElementById('round-discount-switch'); 
-        const invoiceContentContainer = document.getElementById('invoice-content');
-        const addPurchaseBtnContainer = document.querySelector('.add-purchase-options');
-        const purchaseItemsContainer = document.getElementById('purchase-items-container');
-        const excessGoldContainer = document.getElementById('excess-gold-purchase-container');
-        const excessGoldSwitch = document.getElementById('excess-gold-switch');
-        const excessGoldPriceInput = document.getElementById('excess-gold-price-input');
-        const excessGoldInputWrapper = document.querySelector('#excess-gold-purchase-container .excess-gold-input-wrapper');
-        const excessGoldWeightDisplay = document.getElementById('excess-gold-weight-display');
-        const customerNameInput = document.getElementById('customer-name'); 
-        const maleOption = document.getElementById('male-option');
-        const femaleOption = document.getElementById('female-option');
-        const daySlider = document.getElementById('day-slider');
-        const monthSlider = document.getElementById('month-slider');
-        const yearInput = document.getElementById('year-input');
-        const yearMinusBtn = document.getElementById('year-minus-btn'); 
-        const yearPlusBtn = document.getElementById('year-plus-btn');   
-        const printBtn = document.getElementById('print-btn');
+        const dom = {
+            goldPriceInput: document.getElementById('gold-price'),
+            priceInWords: document.getElementById('price-in-words'),
+            productItemsContainer: document.getElementById('product-items-container'),
+            addProductBtn: document.getElementById('add-product-item'),
+            taxSwitch: document.getElementById('tax-switch'),
+            manualDiscountInput: document.getElementById('manual-discount'),
+            roundDiscountSwitch: document.getElementById('round-discount-switch'), 
+            invoiceContentContainer: document.getElementById('invoice-content'),
+            addPurchaseBtnContainer: document.querySelector('.add-purchase-options'),
+            purchaseItemsContainer: document.getElementById('purchase-items-container'),
+            excessGoldContainer: document.getElementById('excess-gold-purchase-container'),
+            excessGoldSwitch: document.getElementById('excess-gold-switch'),
+            excessGoldPriceInput: document.getElementById('excess-gold-price-input'),
+            excessGoldInputWrapper: document.querySelector('#excess-gold-purchase-container .excess-gold-input-wrapper'),
+            excessGoldWeightDisplay: document.getElementById('excess-gold-weight-display'),
+            customerNameInput: document.getElementById('customer-name'), 
+            maleOption: document.getElementById('male-option'),
+            femaleOption: document.getElementById('female-option'),
+            daySlider: document.getElementById('day-slider'),
+            monthSlider: document.getElementById('month-slider'),
+            yearInput: document.getElementById('year-input'),
+            yearMinusBtn: document.getElementById('year-minus-btn'), 
+            yearPlusBtn: document.getElementById('year-plus-btn'),   
+            printBtn: document.getElementById('print-btn')
+        };
 
         // --- State ---
         let state = {
@@ -448,36 +450,18 @@
         
         const liveFormatPrice = (event, stateUpdater, maxLength = 9) => {
             const input = event.target;
-            const originalValue = input.value;
-            const originalSelectionStart = input.selectionStart;
+            let numberString = toEnglishDigits(input.value).replace(/\D/g, '');
+            if (numberString.length > maxLength) numberString = numberString.slice(0, maxLength);
             
-            const digitsBeforeCursor = (toEnglishDigits(originalValue.substring(0, originalSelectionStart)).match(/\d/g) || []).length;
-
-            let numberString = toEnglishDigits(originalValue).replace(/\D/g, '');
-
-            if (numberString.length > maxLength) {
-                numberString = numberString.slice(0, maxLength);
-            }
-
             const numberValue = parseInt(numberString, 10) || null;
             stateUpdater(numberValue);
 
             const formattedValue = formatNumber(numberValue);
+            const selectionStart = input.selectionStart;
+            const originalLength = input.value.length;
             input.value = formattedValue;
-            
-            let newCursorPos = 0;
-            let digitsCounted = 0;
-            const persianDigits = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
-            for(const char of formattedValue) {
-                if(digitsCounted >= digitsBeforeCursor) break;
-                newCursorPos++;
-                if(persianDigits.includes(char)) {
-                    digitsCounted++;
-                }
-            }
-            if (digitsCounted < digitsBeforeCursor) newCursorPos = formattedValue.length;
-
-            input.setSelectionRange(newCursorPos, newCursorPos);
+            const newLength = input.value.length;
+            input.setSelectionRange(selectionStart + (newLength - originalLength), selectionStart + (newLength - originalLength));
         };
 
         const numberToWords = (num) => {
@@ -506,6 +490,7 @@
             }
             return words.join(' و ');
         };
+        const getJalaliMonthName = (monthNum) => ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'][monthNum - 1] || '';
 
         // --- Main Calculation & Rendering ---
         function calculateAndRender() {
@@ -514,7 +499,7 @@
             let totalTax = 0;
             let itemsWithTaxCount = 0; 
             let totalSoldGoldWeight = 0;
-            const validProducts = state.products.filter(p => parseFloat(p.weight) > 0 && state.goldPrice > 0);
+            const validProducts = state.products.filter(p => parseFloat(p.weight) > 0);
             
             if (validProducts.length > 0) {
                 productsHTML += `<div class="invoice-section"><div class="invoice-section-title">محصولات</div>`;
@@ -522,22 +507,23 @@
                     const weight = parseFloat(p.weight) || 0;
                     totalSoldGoldWeight += weight;
 
+                    const goldPrice = state.goldPrice || 0;
                     let ajratPerGram = 0;
                     if (p.ajratType === 'toman') {
                         ajratPerGram = weight > 0 ? (p.ajratValue || 0) / weight : 0;
                     } else {
-                        ajratPerGram = (state.goldPrice || 0) * ((parseFloat(p.ajratValue) || 0) / 100);
+                        ajratPerGram = goldPrice * ((parseFloat(p.ajratValue) || 0) / 100);
                     }
-                    const profitPerGram = ((state.goldPrice || 0) + ajratPerGram) * (p.profitPercentage / 100);
+                    const profitPerGram = (goldPrice + ajratPerGram) * (p.profitPercentage / 100);
                     const itemTax = state.taxEnabled ? (ajratPerGram + profitPerGram) * weight * 0.10 : 0;
                     totalTax += itemTax;
                     if(itemTax > 0) itemsWithTaxCount++;
                     
-                    const itemTotal = (weight * ((state.goldPrice || 0) + ajratPerGram + profitPerGram)) + itemTax;
+                    const itemTotal = (weight * (goldPrice + ajratPerGram + profitPerGram)) + itemTax;
 
                     productsHTML += `<div class="invoice-item">`;
                     if(validProducts.length > 1) productsHTML += `<b>آیتم ${toPersianDigits(index+1)}</b>`;
-                    productsHTML += `<div class="invoice-item-header"><span>${p.type} - ${toPersianDigits(weight)} گرم</span><span>${formatNumber(itemTotal)} تومان</span></div>`;
+                    productsHTML += `<div class="invoice-item-header"><span>${p.type} - ${toPersianDigits(weight)} گرم</span><span>${formatNumber(itemTotal) || '۰'} تومان</span></div>`;
                     let details = [`سود: ${toPersianDigits(p.profitPercentage)}٪`];
                     if (p.ajratValue) {
                         details.push(p.ajratType === 'toman' ? `اجرت: ${formatNumber(p.ajratValue)} تومان` : `اجرت: ${toPersianDigits(p.ajratValue)}٪`);
@@ -553,11 +539,11 @@
             let totalPurchaseValue = 0;
             const validPurchases = state.purchases.filter(p => (p.weight && parseFloat(p.weight) > 0) || (p.price && p.price > 0));
             
-            if (validPurchases.length > 0 && state.goldPrice > 0) {
+            if (validPurchases.length > 0) {
                 purchasesHTML += `<div class="invoice-separator"></div><div class="invoice-section"><div class="invoice-section-title">خرید از مشتری</div>`;
-                
                 const miscGoldItems = validPurchases.filter(p => p.type === 'gold');
                 const otherItems = validPurchases.filter(p => p.type !== 'gold');
+                const goldPrice = state.goldPrice || 0;
 
                 otherItems.forEach(p => {
                     let value = 0, label = '';
@@ -567,51 +553,45 @@
                     } else {
                         const weight = parseFloat(p.weight) || 0;
                         const typeName = {bullion: 'شمش', parsian: 'پارسیان'}[p.type];
-                        if (p.type === 'bullion') value = (weight * 995 / 750) * (state.goldPrice || 0);
-                        else if (p.type === 'parsian') value = (weight * 740 / 750) * (state.goldPrice || 0);
+                        if (p.type === 'bullion') value = (weight * 995 / 750) * goldPrice;
+                        else if (p.type === 'parsian') value = (weight * 740 / 750) * goldPrice;
                         label = `${typeName} - ${toPersianDigits(weight)} گرم`;
                     }
                     totalPurchaseValue += value;
-                    purchasesHTML += `<div class="invoice-summary-line"><span>${label}</span><span class="invoice-value-danger">${formatNumber(value)} تومان</span></div>`;
+                    purchasesHTML += `<div class="invoice-summary-line"><span>${label}</span><span class="invoice-value-danger">${formatNumber(value) || '۰'} تومان</span></div>`;
                 });
 
                 const totalMiscGoldWeight = miscGoldItems.reduce((sum, p) => sum + (parseFloat(p.weight) || 0), 0);
                 if (totalMiscGoldWeight > 0) {
                     const excessWeight = Math.max(0, totalMiscGoldWeight - totalSoldGoldWeight);
                     const nonExcessWeight = totalMiscGoldWeight - excessWeight;
-                    
-                    const effectiveExcessPricePerGram = (state.excessGoldPurchaseEnabled && state.excessGoldPurchasePricePerGram > 0) ? state.excessGoldPurchasePricePerGram : state.goldPrice;
-                    
-                    const totalMiscGoldValue = (nonExcessWeight * (state.goldPrice || 0)) + (excessWeight * effectiveExcessPricePerGram);
+                    const effectiveExcessPrice = (state.excessGoldPurchaseEnabled && state.excessGoldPurchasePricePerGram > 0) ? state.excessGoldPurchasePricePerGram : goldPrice;
+                    const totalMiscGoldValue = (nonExcessWeight * goldPrice) + (excessWeight * effectiveExcessPrice);
                     totalPurchaseValue += totalMiscGoldValue;
-                    purchasesHTML += `<div class="invoice-summary-line"><span>طلای متفرقه - ${toPersianDigits(totalMiscGoldWeight.toFixed(2))} گرم</span><span class="invoice-value-danger">${formatNumber(totalMiscGoldValue)} تومان</span></div>`;
+                    purchasesHTML += `<div class="invoice-summary-line"><span>طلای متفرقه - ${toPersianDigits(totalMiscGoldWeight.toFixed(2))} گرم</span><span class="invoice-value-danger">${formatNumber(totalMiscGoldValue) || '۰'} تومان</span></div>`;
                     
+                    dom.excessGoldContainer.classList.toggle('hidden', excessWeight <= 0);
                     if (excessWeight > 0) {
-                        excessGoldContainer.classList.remove('hidden');
-                        excessGoldWeightDisplay.textContent = toPersianDigits(excessWeight.toFixed(2));
-                        excessGoldInputWrapper.classList.toggle('hidden', !state.excessGoldPurchaseEnabled);
-                    } else {
-                        excessGoldContainer.classList.add('hidden');
+                        dom.excessGoldWeightDisplay.textContent = toPersianDigits(excessWeight.toFixed(2));
+                        dom.excessGoldInputWrapper.classList.toggle('hidden', !state.excessGoldPurchaseEnabled);
                     }
                 } else {
-                     excessGoldContainer.classList.add('hidden');
+                     dom.excessGoldContainer.classList.add('hidden');
                 }
                 purchasesHTML += `</div>`;
             } else {
-                excessGoldContainer.classList.add('hidden');
+                dom.excessGoldContainer.classList.add('hidden');
             }
 
             // Summary Section
             const saleTotal = validProducts.reduce((acc, p) => {
                  const weight = parseFloat(p.weight) || 0;
+                 const goldPrice = state.goldPrice || 0;
                  let ajratPerGram = 0;
-                 if (p.ajratType === 'toman') {
-                     ajratPerGram = weight > 0 ? (p.ajratValue || 0) / weight : 0;
-                 } else {
-                     ajratPerGram = (state.goldPrice || 0) * ((parseFloat(p.ajratValue) || 0) / 100);
-                 }
-                 const profitPerGram = ((state.goldPrice || 0) + ajratPerGram) * (p.profitPercentage / 100);
-                 return acc + (weight * ((state.goldPrice || 0) + ajratPerGram + profitPerGram));
+                 if (p.ajratType === 'toman') ajratPerGram = weight > 0 ? (p.ajratValue || 0) / weight : 0;
+                 else ajratPerGram = goldPrice * ((parseFloat(p.ajratValue) || 0) / 100);
+                 const profitPerGram = (goldPrice + ajratPerGram) * (p.profitPercentage / 100);
+                 return acc + (weight * (goldPrice + ajratPerGram + profitPerGram));
             }, 0);
 
             let currentGrandTotal = saleTotal + totalTax - totalPurchaseValue;
@@ -620,11 +600,8 @@
 
             let roundDiscountAmount = 0;
             if (state.roundDiscountEnabled) {
-                if(currentGrandTotal > 0) {
-                    roundDiscountAmount = currentGrandTotal % 5000;
-                } else if (currentGrandTotal < 0) {
-                    roundDiscountAmount = (5000 - (Math.abs(currentGrandTotal) % 5000)) % 5000;
-                }
+                if(currentGrandTotal > 0) roundDiscountAmount = currentGrandTotal % 5000;
+                else if (currentGrandTotal < 0) roundDiscountAmount = (5000 - (Math.abs(currentGrandTotal) % 5000)) % 5000;
             }
             currentGrandTotal -= roundDiscountAmount;
 
@@ -644,25 +621,24 @@
                 summaryHTML += `<div class="invoice-summary-line"><span>${label}</span><span class="${cssClass}">${formatNumber(roundDiscountAmount)} تومان</span></div>`;
             }
             
-            // Final Total
+            // Final Total & Render
             let finalTotalHTML = `<div class="invoice-final-total">`;
             finalTotalHTML += (currentGrandTotal >= 0)
                 ? `<span>مبلغ نهایی</span><span>${formatNumber(currentGrandTotal) || '۰'} تومان</span>`
                 : `<span>پرداخت به مشتری</span><span>${formatNumber(Math.abs(currentGrandTotal)) || '۰'} تومان</span>`;
             finalTotalHTML += `</div>`;
 
-            // Render All
-            priceInWords.textContent = state.goldPrice > 0 ? numberToWords(state.goldPrice) + ' تومان' : '';
+            dom.priceInWords.textContent = state.goldPrice > 0 ? numberToWords(state.goldPrice) + ' تومان' : '';
             const customerPrefix = state.customerGender === 'male' ? 'جناب آقای' : (state.customerGender === 'female' ? 'سرکار خانم' : '');
             const printHeader = `<div class="print-only" style="margin-bottom: 1rem; font-size: 0.9em;">
                 <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                     <span>خریدار: ${customerPrefix} ${state.customerName || ''}</span>
                     <span>تاریخ: ${toPersianDigits(state.day)} ${getJalaliMonthName(state.month)} ${toPersianDigits(state.year)}</span>
                 </div>
-                <div style="text-align: right; margin-bottom: 0.5rem;">قیمت هر گرم طلا ۱۸ عیار: ${formatNumber(state.goldPrice)} تومان</div>
+                <div style="text-align: right; margin-bottom: 0.5rem;">قیمت هر گرم طلا ۱۸ عیار: ${formatNumber(state.goldPrice) || '۰'} تومان</div>
                 <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.75rem 0;">
             </div>`;
-            invoiceContentContainer.innerHTML = printHeader + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
+            dom.invoiceContentContainer.innerHTML = printHeader + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
         }
 
         // --- Event Listeners Setup ---
@@ -673,16 +649,16 @@
             });
         };
 
-        addPriceInputListener(goldPriceInput, (val) => state.goldPrice = val, 8);
-        addPriceInputListener(manualDiscountInput, (val) => state.manualDiscount = val, 9);
-        addPriceInputListener(excessGoldPriceInput, (val) => state.excessGoldPurchasePricePerGram = val, 8);
+        addPriceInputListener(dom.goldPriceInput, (val) => state.goldPrice = val, 8);
+        addPriceInputListener(dom.manualDiscountInput, (val) => state.manualDiscount = val, 9);
+        addPriceInputListener(dom.excessGoldPriceInput, (val) => state.excessGoldPurchasePricePerGram = val, 8);
         
-        taxSwitch.addEventListener('change', (e) => { state.taxEnabled = e.target.checked; calculateAndRender(); });
-        roundDiscountSwitch.addEventListener('change', (e) => { state.roundDiscountEnabled = e.target.checked; calculateAndRender(); });
-        addProductBtn.addEventListener('click', () => createProductItem());
-        addPurchaseBtnContainer.addEventListener('click', e => { if (e.target.classList.contains('add-purchase-btn')) createPurchaseItem(e.target.dataset.type); });
-        excessGoldSwitch.addEventListener('change', (e) => { state.excessGoldPurchaseEnabled = e.target.checked; calculateAndRender(); });
-        printBtn.addEventListener('click', () => window.print());
+        dom.taxSwitch.addEventListener('change', (e) => { state.taxEnabled = e.target.checked; calculateAndRender(); });
+        dom.roundDiscountSwitch.addEventListener('change', (e) => { state.roundDiscountEnabled = e.target.checked; calculateAndRender(); });
+        dom.addProductBtn.addEventListener('click', () => createProductItem());
+        dom.addPurchaseBtnContainer.addEventListener('click', e => { if (e.target.classList.contains('add-purchase-btn')) createPurchaseItem(e.target.dataset.type); });
+        dom.excessGoldSwitch.addEventListener('change', (e) => { state.excessGoldPurchaseEnabled = e.target.checked; calculateAndRender(); });
+        dom.printBtn.addEventListener('click', () => window.print());
 
         // --- Item Creation (with specific listeners) ---
         let productItemId = 0;
@@ -694,7 +670,7 @@
             itemDiv.className = 'item-card';
             const optionsHTML = ['طلا', 'سرویس', 'النگو', 'نیم‌ست', 'دستبند', 'زنجیر', 'گردنبند', 'گوشواره', 'مدال', 'پلاک', 'خلخال', 'آویز ساعت', 'رو لباسی', 'سفارشی'].map(opt => `<option value="${opt}">${opt}</option>`).join('');
             itemDiv.innerHTML = `${!isFirst ? '<button class="delete-item-btn">&times;</button>' : ''}<div class="item-row"><div class="form-group"><label class="form-label">نوع</label><select class="select-field product-type">${optionsHTML}</select></div><div class="form-group"><label class="form-label">وزن</label><div class="input-group rtl"><input type="text" class="input-field product-weight" inputmode="decimal" style="text-align:right;"><span class="input-group-text">گرم</span></div></div></div><div class="form-group"><label class="form-label">اجرت</label><div style="display: flex; gap: 0.5rem;"><div class="segmented-control" style="flex-shrink: 0;"><button class="ajrat-type-btn" data-type="percent">%</button><button class="ajrat-type-btn active" data-type="toman">تومان</button></div><div class="input-group rtl" style="flex-grow: 1;"><input type="tel" class="input-field product-ajrat" inputmode="numeric"><span class="input-group-text ajrat-unit">تومان</span></div></div></div><div class="form-group"><label class="form-label">سود</label><div class="product-slider-value">${toPersianDigits(item.profitPercentage)} %</div><input type="range" min="1" max="7" value="7" step="1" class="profit-slider product-profit-slider"></div>`;
-            productItemsContainer.appendChild(itemDiv);
+            dom.productItemsContainer.appendChild(itemDiv);
 
             const weightInput = itemDiv.querySelector('.product-weight');
             const ajratInput = itemDiv.querySelector('.product-ajrat');
@@ -738,7 +714,7 @@
         let purchaseItemId = 0;
         function createPurchaseItem(type) {
             const id = purchaseItemId++;
-            const item = { id, type, weight: '', price: null };
+            const item = { id, type, weight: '', price: null, coinType: 'ربع ۸۶' };
             state.purchases.push(item);
             const itemDiv = document.createElement('div');
             itemDiv.className = 'item-card';
@@ -751,7 +727,7 @@
                 content = `<div class="item-row"><div class="form-group"><label class="form-label">نوع سکه</label><select class="select-field purchase-coin-type">${coinTypes.map(c => `<option value="${c}">${c}</option>`).join('')}</select></div><div class="form-group"><label class="form-label">قیمت</label><input type="tel" class="input-field purchase-coin-price" inputmode="numeric"></div></div>`;
             }
             itemDiv.innerHTML = `<button class="delete-item-btn">&times;</button>${content}`;
-            purchaseItemsContainer.appendChild(itemDiv);
+            dom.purchaseItemsContainer.appendChild(itemDiv);
             
             if (item.type === 'coin') {
                 addPriceInputListener(itemDiv.querySelector('.purchase-coin-price'), (val) => item.price = val, 9);
@@ -776,38 +752,38 @@
             const jDate = jalaali.toJalaali(today.getFullYear(), today.getMonth() + 1, today.getDate());
             const MIN_YEAR = jDate.jy - 1, MAX_YEAR = jDate.jy;
             
-            state.day = jDate.jd; daySlider.value = jDate.jd;
-            state.month = jDate.jm; monthSlider.value = jDate.jm;
-            state.year = jDate.jy; yearInput.value = toPersianDigits(jDate.jy);
+            state.day = jDate.jd; dom.daySlider.value = jDate.jd;
+            state.month = jDate.jm; dom.monthSlider.value = jDate.jm;
+            state.year = jDate.jy; dom.yearInput.value = toPersianDigits(jDate.jy);
             
             const updateDaySlider = () => {
                 const maxDays = jalaali.jalaaliMonthLength(state.year, state.month);
-                daySlider.max = maxDays;
+                dom.daySlider.max = maxDays;
                 if(state.day > maxDays) state.day = maxDays;
-                daySlider.value = state.day;
-                document.getElementById('day-display').textContent = `${toPersianDigits(state.day)} (روز)`;
+                dom.daySlider.value = state.day;
+                dom.dayDisplay.textContent = `${toPersianDigits(state.day)} (روز)`;
             };
             const updateDateDisplays = () => {
-                document.getElementById('month-display').textContent = `${getJalaliMonthName(state.month)} (ماه)`;
-                yearInput.value = toPersianDigits(state.year);
+                dom.monthDisplay.textContent = `${getJalaliMonthName(state.month)} (ماه)`;
+                dom.yearInput.value = toPersianDigits(state.year);
                 updateDaySlider();
                 calculateAndRender();
             };
             
-            daySlider.addEventListener('input', e => { state.day = parseInt(e.target.value); updateDateDisplays(); });
-            monthSlider.addEventListener('input', e => { state.month = parseInt(e.target.value); updateDateDisplays(); });
-            yearInput.addEventListener('input', e => { 
+            dom.daySlider.addEventListener('input', e => { state.day = parseInt(e.target.value); updateDateDisplays(); });
+            dom.monthSlider.addEventListener('input', e => { state.month = parseInt(e.target.value); updateDateDisplays(); });
+            dom.yearInput.addEventListener('input', e => { 
                 const val = parseInt(toEnglishDigits(e.target.value));
                 if (val >= MIN_YEAR && val <= MAX_YEAR) { state.year = val; updateDateDisplays(); }
             });
-            yearPlusBtn.addEventListener('click', () => { if(state.year < MAX_YEAR) { state.year++; updateDateDisplays(); } });
-            yearMinusBtn.addEventListener('click', () => { if(state.year > MIN_YEAR) { state.year--; updateDateDisplays(); } });
+            dom.yearPlusBtn.addEventListener('click', () => { if(state.year < MAX_YEAR) { state.year++; updateDateDisplays(); } });
+            dom.yearMinusBtn.addEventListener('click', () => { if(state.year > MIN_YEAR) { state.year--; updateDateDisplays(); } });
             updateDateDisplays();
         };
 
-        customerNameInput.addEventListener('input', e => { state.customerName = e.target.value; calculateAndRender(); });
-        maleOption.addEventListener('click', () => { state.customerGender = state.customerGender === 'male' ? null : 'male'; maleOption.classList.toggle('gender-text-selected'); femaleOption.classList.remove('gender-text-selected'); calculateAndRender(); });
-        femaleOption.addEventListener('click', () => { state.customerGender = state.customerGender === 'female' ? null : 'female'; femaleOption.classList.toggle('gender-text-selected'); maleOption.classList.remove('gender-text-selected'); calculateAndRender(); });
+        dom.customerNameInput.addEventListener('input', e => { state.customerName = e.target.value; calculateAndRender(); });
+        dom.maleOption.addEventListener('click', () => { state.customerGender = state.customerGender === 'male' ? null : 'male'; dom.maleOption.classList.toggle('gender-text-selected'); dom.femaleOption.classList.remove('gender-text-selected'); calculateAndRender(); });
+        dom.femaleOption.addEventListener('click', () => { state.customerGender = state.customerGender === 'female' ? null : 'female'; dom.femaleOption.classList.toggle('gender-text-selected'); dom.maleOption.classList.remove('gender-text-selected'); calculateAndRender(); });
 
         // --- Initialization ---
         createProductItem(true);
@@ -817,4 +793,3 @@
     </script>
 </body>
 </html>
-
