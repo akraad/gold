@@ -326,12 +326,12 @@
 
         /* Print-specific styles */
         @media print {
-            body > .container > *:not(#invoice-card),
+            body > .container > *:not(#invoice-card, #customer-info-card), /* Keep customer info card visible in print */
             #print-btn-container,
             #profit-tax-section { /* Hide elements not part of the invoice */
                 display: none;
             }
-            #invoice-card {
+            #invoice-card, #customer-info-card { /* Ensure customer info card has no shadow/border in print */
                 box-shadow: none;
                 border: none;
                 margin: 0;
@@ -340,13 +340,93 @@
             .print-only { /* Show elements only in print */
                 display: block !important;
             }
+            .print-hidden { /* Hide elements specifically for print */
+                display: none !important;
+            }
         }
 
         /* Screen-only styles */
         .print-only {
             display: none; /* Hide by default on screen */
         }
+        
+        /* Styles for gender text "آقا" and "خانم" (from new code) */
+        .gender-text {
+            font-size: 1rem; 
+            font-weight: bold; 
+            cursor: pointer;
+            transition: all 0.2s ease;
+            padding: 0.25rem 0.6rem; 
+            border-radius: var(--border-radius); 
+            color: var(--primary-color); 
+            background-color: transparent; 
+        }
+        
+        .gender-text-selected {
+            background-color: var(--primary-light); /* Light blue background when selected */
+        }
+        
+        /* Styles for date sliders (from new code) */
+        .date-slider-group {
+            padding-top: 0.5rem; 
+            margin-top: 0.5rem; 
+        }
+        .date-slider-value {
+            text-align: center; 
+            font-weight: 600; 
+            font-size: 0.95rem; 
+            margin-top: 0.3rem; 
+            color: var(--primary-color);
+        }
+        .profit-slider { /* Re-using the same slider style for consistency */
+            -webkit-appearance: none; width: 100%; height: 6px; 
+            background: var(--border-color); outline: none; border-radius: 3px; 
+        }
 
+        .profit-slider::-webkit-slider-thumb {
+            -webkit-appearance: none; appearance: none; width: 18px; height: 18px; 
+            background: var(--primary-color); cursor: pointer; border: 2px solid #fff; 
+        }
+
+        /* Styles for year control buttons (from new code) */
+        .year-control-group {
+            display: flex;
+            align-items: center;
+            gap: 5px; 
+            direction: rtl; /* For consistency with date inputs */
+        }
+        .year-control-group .input-field {
+            flex-grow: 1; 
+            text-align: center; 
+            border-radius: 0 var(--border-radius) var(--border-radius) 0; /* Specific for group input */
+        }
+        /* Re-using existing input-group-text for 'سال' */
+        .year-control-btn {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            padding: 0.5rem 0.8rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex; 
+            align-items: center;
+            justify-content: center;
+            width: 40px; 
+            flex-shrink: 0; 
+        }
+        .year-control-btn:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+        .year-control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
 
         @media (max-width: 768px) {
             body { font-size: 13px; }
@@ -415,10 +495,53 @@
             </div>
         </div>
 
+        <div class="card print-hidden" id="customer-info-card"> <h2 class="card-header">اطلاعات خریدار و تاریخ</h2>
+            
+            <div class="form-group">
+                <div class="form-label">
+                    <span class="form-label-text">نام خریدار</span>
+                    <div class="gender-option-container">
+                        <span class="gender-text" id="male-option" title="جناب آقای">آقا</span>
+                        <span class="gender-text" id="female-option" title="سرکار خانم">خانم</span>
+                    </div>
+                </div>
+                <input type="text" id="customer-name" class="input-field">
+            </div>
+
+            <div class="form-group">
+                <div class="form-label">
+                    <span class="form-label-text">تاریخ</span>
+                </div>
+                <div class="date-input-group">
+                    <div class="date-slider-group">
+                        <div class="date-slider-value" id="day-display"></div>
+                        <input type="range" min="1" max="31" value="1" class="profit-slider" id="day-slider">
+                    </div>
+                    <div class="date-slider-group" style="margin-top: 1rem;">
+                        <div class="date-slider-value" id="month-display"></div>
+                        <input type="range" min="1" max="12" value="1" class="profit-slider" id="month-slider">
+                    </div>
+                    <div class="form-group" style="margin-top: 1rem;">
+                        <div class="year-control-group">
+                            <button id="year-minus-btn" class="year-control-btn">-</button>
+                            <input type="tel" id="year-input" class="input-field" inputmode="numeric" maxlength="4">
+                            <span class="input-group-text">سال</span>
+                            <button id="year-plus-btn" class="year-control-btn">+</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <div class="card" id="invoice-card">
             <h2 class="card-header">فاکتور</h2>
             <div id="invoice-content">
+                <div class="print-only" style="margin-bottom: 1.5rem; font-size: 0.9em;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                        <span>خریدار: <span id="print-customer-name"></span></span>
+                        <span>تاریخ: <span id="print-date"></span></span>
+                    </div>
                 </div>
+            </div>
         </div>
 
         <div id="print-btn-container">
@@ -426,14 +549,14 @@
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/jalaali-js@1.2.6/dist/jalaali.min.js"></script>
     <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // --- DOM Elements ---
+        // --- DOM Elements (Main Invoice) ---
         const goldPriceInput = document.getElementById('gold-price');
         const priceInWords = document.getElementById('price-in-words');
         const productItemsContainer = document.getElementById('product-items-container');
         const addProductBtn = document.getElementById('add-product-item');
-        // Removed profitSlider and profitValue from global elements as they are now per-product
         const taxSwitch = document.getElementById('tax-switch');
         const manualDiscountInput = document.getElementById('manual-discount');
         const smartDiscountContainer = document.getElementById('smart-discount-container');
@@ -443,15 +566,32 @@
         const purchaseItemsContainer = document.getElementById('purchase-items-container');
         const printBtn = document.getElementById('print-btn');
 
+        // --- DOM Elements (Customer Info and Date) ---
+        const customerNameInput = document.getElementById('customer-name');
+        const maleOption = document.getElementById('male-option');
+        const femaleOption = document.getElementById('female-option');
+        const daySlider = document.getElementById('day-slider');
+        const monthSlider = document.getElementById('month-slider');
+        const yearInput = document.getElementById('year-input');
+        const yearMinusBtn = document.getElementById('year-minus-btn'); 
+        const yearPlusBtn = document.getElementById('year-plus-btn');   
+        const printCustomerName = document.getElementById('print-customer-name');
+        const printDate = document.getElementById('print-date');
+
         // --- State ---
         let state = {
             goldPrice: 0,
             products: [],
             purchases: [],
-            // profitPercentage: 7, // This is now per product
             taxEnabled: true,
             manualDiscount: 0,
             smartDiscount: 0,
+            // New state properties for customer info and date
+            customerName: '',
+            customerGender: null, // 'male', 'female', or null
+            day: null,
+            month: null,
+            year: null
         };
 
         // --- Helper Functions ---
@@ -521,6 +661,19 @@
                 priceInWords.textContent = '';
             }
         };
+
+        const getJalaliMonthName = (monthNum) => {
+            const monthNames = [
+                'فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور',
+                'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'
+            ];
+            return monthNames[monthNum - 1] || '';
+        };
+
+        const getDaysInMonth = (year, month) => {
+            return jalaali.jalaaliMonthLength(year, month - 1);
+        };
+
 
         // --- Product Item Management ---
         let productItemId = 0;
@@ -889,8 +1042,14 @@
             if (state.goldPrice > 0) {
                 invoiceHeaderExtra = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">قیمت هر گرم طلا ۱۸ عیار: ${formatNumber(state.goldPrice)} تومان</div>`;
             }
+            
+            // Render customer info and date for print-only section
+            const customerPrefix = state.customerGender === 'male' ? 'جناب آقای' : (state.customerGender === 'female' ? 'سرکار خانم' : '');
+            printCustomerName.textContent = `${customerPrefix} ${state.customerName || ''}`;
+            printDate.textContent = `${toPersianDigits(state.day || '')} ${getJalaliMonthName(state.month || '')} ${toPersianDigits(state.year || '')}`;
 
-            invoiceContentContainer.innerHTML = invoiceHeaderExtra + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
+            invoiceContentContainer.innerHTML = invoiceHeaderExtra + invoiceContentContainer.querySelector('.print-only').outerHTML + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
+            
             renderSmartDiscount(grandTotal); // Smart discount should be based on the final grand total before applying smart discount
         }
         
@@ -920,8 +1079,41 @@
                 smartDiscountOptions.appendChild(btn);
             });
         }
+
+        // --- Customer Info & Date Widget Rendering ---
+        function renderCustomerInfoDateWidget() {
+            maleOption.classList.toggle('gender-text-selected', state.customerGender === 'male');
+            femaleOption.classList.toggle('gender-text-selected', state.customerGender === 'female');
+
+            document.getElementById('day-display').textContent = toPersianDigits(state.day) + ' (روز)';
+            document.getElementById('month-display').textContent = getJalaliMonthName(state.month) + ' (ماه)';
+            yearInput.value = toPersianDigits(state.year);
+            
+            updateYearButtonsState();
+        }
         
-        // --- Event Listeners ---
+        const updateDaySliderMax = () => {
+            if (state.year && state.month) {
+                const maxDays = getDaysInMonth(state.year, state.month);
+                daySlider.max = maxDays;
+                if (state.day > maxDays) {
+                    state.day = maxDays;
+                    daySlider.value = maxDays;
+                }
+            }
+            document.getElementById('day-display').textContent = toPersianDigits(state.day) + ' (روز)';
+        };
+
+        const updateMonthDisplay = () => {
+            document.getElementById('month-display').textContent = getJalaliMonthName(state.month) + ' (ماه)';
+        };
+
+        const updateYearButtonsState = () => {
+            yearPlusBtn.disabled = (state.year >= MAX_YEAR);
+            yearMinusBtn.disabled = (state.year <= MIN_YEAR);
+        };
+        
+        // --- Event Listeners (Main Invoice) ---
         goldPriceInput.addEventListener('input', (e) => {
             const value = parseFormattedNumber(e.target.value);
             if (value.toString().length <= 8) {
@@ -932,7 +1124,6 @@
             calculateAndRender();
         });
         addProductBtn.addEventListener('click', () => createProductItem());
-        // Removed global profitSlider event listener as it's now per product
         taxSwitch.addEventListener('change', (e) => { state.taxEnabled = e.target.checked; calculateAndRender(); });
         manualDiscountInput.addEventListener('input', () => {
             if (state.smartDiscount > 0) state.smartDiscount = 0; // Clear smart discount if manual is used
@@ -958,9 +1149,125 @@
             window.print();
         });
 
-        // --- Initial Load ---
+        // --- Event Listeners (Customer Info and Date) ---
+        customerNameInput.addEventListener('input', (e) => {
+            const rawValue = e.target.value;
+            // Allow Persian letters and ZWNJ (نیم‌فاصله)
+            const persianOnly = rawValue.replace(/[^ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی ئأإؤكيك\u200C ]/g, ''); 
+            if (persianOnly !== rawValue) {
+                e.target.value = persianOnly; 
+            }
+            state.customerName = persianOnly;
+            calculateAndRender(); // Re-render invoice to update print-only customer name
+        });
+
+        maleOption.addEventListener('click', () => {
+            if (state.customerGender === 'male') { 
+                state.customerGender = null;
+            } else {
+                state.customerGender = 'male';
+            }
+            renderCustomerInfoDateWidget(); // Rerender to update selection highlight
+            calculateAndRender(); // Re-render invoice to update print-only customer name
+        });
+
+        femaleOption.addEventListener('click', () => {
+            if (state.customerGender === 'female') { 
+                state.customerGender = null;
+            } else {
+                state.customerGender = 'female';
+            }
+            renderCustomerInfoDateWidget(); // Rerender to update selection highlight
+            calculateAndRender(); // Re-render invoice to update print-only customer name
+        });
+
+        daySlider.addEventListener('input', (e) => {
+            state.day = parseInt(e.target.value);
+            if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
+                state.day = getDaysInMonth(state.year, state.month);
+                daySlider.value = state.day;
+            }
+            renderCustomerInfoDateWidget();
+            calculateAndRender(); // Re-render invoice to update print-only date
+        });
+
+        monthSlider.addEventListener('input', (e) => {
+            state.month = parseInt(e.target.value);
+            updateMonthDisplay();
+            updateDaySliderMax(); 
+            if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
+                state.day = getDaysInMonth(state.year, state.month);
+                daySlider.value = state.day;
+            }
+            renderCustomerInfoDateWidget();
+            calculateAndRender(); // Re-render invoice to update print-only date
+        });
+
+        yearInput.addEventListener('input', (e) => {
+            const value = parseInt(toEnglishDigits(e.target.value), 10);
+            if ((!isNaN(value) && value >= MIN_YEAR && value <= MAX_YEAR) || e.target.value === '') {
+                state.year = isNaN(value) ? null : value;
+            } else {
+                e.target.value = toPersianDigits(state.year || currentJalaliDate.jy); 
+            }
+            updateDaySliderMax(); 
+            if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
+                state.day = getDaysInMonth(state.year, state.month);
+                daySlider.value = state.day;
+            }
+            renderCustomerInfoDateWidget();
+            calculateAndRender(); // Re-render invoice to update print-only date
+        });
+
+        yearPlusBtn.addEventListener('click', () => {
+            if (state.year < MAX_YEAR) {
+                state.year++;
+                updateDaySliderMax();
+                if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
+                    state.day = getDaysInMonth(state.year, state.month);
+                    daySlider.value = state.day;
+                }
+                renderCustomerInfoDateWidget();
+                calculateAndRender(); // Re-render invoice to update print-only date
+            }
+        });
+
+        yearMinusBtn.addEventListener('click', () => {
+            if (state.year > MIN_YEAR) { 
+                state.year--;
+                updateDaySliderMax();
+                if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
+                    state.day = getDaysInMonth(state.year, state.month);
+                    daySlider.value = state.day;
+                }
+                renderCustomerInfoDateWidget();
+                calculateAndRender(); // Re-render invoice to update print-only date
+            }
+        });
+
+        // --- Initialization ---
+        // Get today's date in Gregorian and convert to Jalali
+        const today = new Date();
+        const currentJalaliDate = jalaali.toJalaali(today.getFullYear(), today.getMonth() + 1, today.getDate()); 
+        
+        // Define the allowed year range (current year and previous year)
+        const MIN_YEAR = currentJalaliDate.jy - 1; 
+        const MAX_YEAR = currentJalaliDate.jy;     
+
+        // Set initial values for sliders and year input
+        if (state.day === null) {
+            daySlider.value = state.day = currentJalaliDate.jd;
+        }
+        if (state.month === null) {
+            monthSlider.value = state.month = currentJalaliDate.jm;
+        }
+        if (state.year === null) {
+            yearInput.value = toPersianDigits(state.year = currentJalaliDate.jy);
+        }
+
         createProductItem(true);
-        calculateAndRender();
+        renderCustomerInfoDateWidget(); // Initial render for customer info/date
+        calculateAndRender(); // Initial render for invoice
     });
     </script>
 
