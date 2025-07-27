@@ -484,15 +484,15 @@
         // --- State ---
         const MESGHAL_GRAM_FACTOR = 4.608;
         let itemIdCounter = 0;
+        // Keep track of the last rendered total to avoid unnecessary smart discount button rebuilds
+        let lastRenderedSmartDiscountTotal = -1; 
 
         let state = {
             goldPrice: 0,
-            smartDiscount: 0, // Stores the AMOUNT of smart discount applied
+            smartDiscount: 0, 
             manualDiscount: 0,
             products: []
         };
-
-        let lastRenderedSmartDiscountTotal = -1; // Keep track of the total that last generated smart discount options
 
         // --- Helper Functions ---
         const toPersianDigits = (n) => {
@@ -998,12 +998,13 @@
             renderSmartDiscount(grandTotal); 
         }
         
-        let lastRenderedSmartDiscountTotal = -1; // Stores the total amount when smart discount buttons were last generated
+        // This function now generates buttons and applies active/inactive styles correctly
+        let lastRenderedTotalForSmartDiscount = -1; // Keep track of the last total that generated smart discount options
         function renderSmartDiscount(currentTotal) {
-            // Check if the currentTotal has changed enough to require regenerating the options
-            // This prevents flickering and reordering when only active state changes
-            if (Math.abs(currentTotal - lastRenderedSmartDiscountTotal) < 10 && smartDiscountOptions.children.length > 0) {
-                // If total hasn't changed significantly, just update active state on existing buttons
+            // Check if currentTotal has changed significantly to require new options
+            // This prevents re-rendering unless the options themselves would change
+            if (Math.abs(currentTotal - lastRenderedSmartDiscountTotal) < 1000 && smartDiscountOptions.children.length > 0) { // Threshold 1000 to prevent constant re-render
+                // If total hasn't changed much, just update active state on existing buttons
                 smartDiscountOptions.querySelectorAll('.smart-discount-btn').forEach(btn => {
                     const discountAmount = Number(btn.dataset.discountAmount);
                     if (state.smartDiscount === discountAmount) {
@@ -1019,7 +1020,7 @@
                 return; // Exit if no need to rebuild buttons
             }
 
-            // Only rebuild buttons if currentTotal has changed significantly or no buttons exist
+            // Only rebuild buttons if currentTotal has changed significantly
             lastRenderedSmartDiscountTotal = currentTotal;
 
             if (currentTotal <= 0) {
@@ -1029,9 +1030,9 @@
             }
             smartDiscountContainer.classList.remove('hidden');
             
-            smartDiscountOptions.innerHTML = ''; // Clear previous buttons for rebuild
+            smartDiscountOptions.innerHTML = ''; 
             
-            let optionsMap = new Map(); // Use a Map to store unique options by roundedValue
+            let options = new Set();
             const roundingUnits = [5000, 10000, 50000, 100000, 200000];
 
             roundingUnits.forEach(unit => {
@@ -1039,29 +1040,42 @@
                 const discountAmount = currentTotal - roundedValue;
 
                 if (discountAmount > 0 && roundedValue >=0) {
-                    // Store option in map, key is roundedValue to ensure uniqueness
-                    optionsMap.set(roundedValue, { roundedValue, discountAmount });
+                    // Check for uniqueness based on roundedValue to prevent duplicate suggestions
+                    let isUnique = true;
+                    options.forEach(existingOpt => {
+                        if (existingOpt.roundedValue === roundedValue) {
+                            isUnique = false;
+                        }
+                    });
+                    if (isUnique) {
+                        options.add({ roundedValue, discountAmount });
+                    }
                 }
             });
 
-            // Special case: round to nearest number between 300,000 to 500,000
             const lowerBoundSpecial = 300000;
             const upperBoundSpecial = 500000;
             
-            // Iterate down from currentTotal trying to find a suitable rounded value within the special range
-            for (let unit = 100000; unit >= 50000; unit -= 50000) { // Check multiples of 100k, then 50k
+            for (let unit = 100000; unit >= 50000; unit -= 50000) {
                 let potentialRoundedValue = Math.floor(currentTotal / unit) * unit;
                 let potentialDiscountAmount = currentTotal - potentialRoundedValue;
 
                 if (potentialDiscountAmount >= lowerBoundSpecial && potentialDiscountAmount <= upperBoundSpecial) {
-                    optionsMap.set(potentialRoundedValue, { roundedValue: potentialRoundedValue, discountAmount: potentialDiscountAmount });
-                    break; // Found a suitable special option, exit loop
+                    let isUnique = true;
+                    options.forEach(existingOpt => {
+                        if (existingOpt.roundedValue === potentialRoundedValue) {
+                            isUnique = false;
+                        }
+                    });
+                    if (isUnique) {
+                        options.add({ roundedValue: potentialRoundedValue, discountAmount: potentialDiscountAmount });
+                    }
+                    break; 
                 }
             }
 
 
-            // Convert map values to array and sort by discount amount
-            const sortedOptions = Array.from(optionsMap.values()).sort((a, b) => a.discountAmount - b.discountAmount).slice(0, 6); 
+            const sortedOptions = Array.from(options).sort((a, b) => a.discountAmount - b.discountAmount).slice(0, 6); 
 
             if (sortedOptions.length === 0) {
                  smartDiscountContainer.classList.add('hidden');
@@ -1072,11 +1086,12 @@
             sortedOptions.forEach(option => {
                 const btn = document.createElement('button');
                 btn.className = 'btn smart-discount-btn';
-                btn.dataset.discountAmount = option.discountAmount; // Store actual discount amount
+                btn.dataset.discountAmount = option.discountAmount;
 
                 const roundedFinalPrice = option.roundedValue; 
                 btn.textContent = `رند به ${formatNumber(roundedFinalPrice)}`;
                 
+                // Apply active state based on current state.smartDiscount
                 if (state.smartDiscount === option.discountAmount) {
                     btn.classList.add('active');
                     btn.style.backgroundColor = 'var(--primary-color)';
@@ -1115,7 +1130,6 @@
             }
         });
 
-        // Fixed: Smart Discount buttons click listener with event delegation and stable rendering
         smartDiscountOptions.addEventListener('click', e => {
             const targetButton = e.target.closest('.smart-discount-btn');
             if (targetButton) {
@@ -1123,13 +1137,13 @@
                 
                 // Determine new smartDiscount state
                 let newSmartDiscountValue = 0;
-                if (state.smartDiscount !== clickedDiscountAmount) { // If it's a new selection
+                if (state.smartDiscount !== clickedDiscountAmount) {
                     newSmartDiscountValue = clickedDiscountAmount;
                 } 
 
                 // Apply changes to state
-                state.manualDiscount = 0; // Clear manual discount
-                manualDiscountInput.value = ''; // Visually clear manual input field
+                state.manualDiscount = 0;
+                manualDiscountInput.value = ''; // Visually clear manual input
                 state.smartDiscount = newSmartDiscountValue;
                 
                 calculateAndRender(); // This will trigger renderSmartDiscount and correctly apply styles
