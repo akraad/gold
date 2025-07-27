@@ -602,6 +602,17 @@
             }
         }
 
+        // Helper for formatting profit percentage consistently
+        const formatProfitPercentage = (value) => {
+            // Using a small epsilon (0.0001) to check if a float is very close to an integer.
+            // This handles potential floating point inaccuracies.
+            if (Math.abs(value - Math.round(value)) < 0.0001) { 
+                return toPersianDigits(Math.round(value).toFixed(0)); // Show without decimal
+            }
+            return toPersianDigits(value.toFixed(1)); // Show with one decimal
+        };
+
+
         function renderProductItems() {
             productItemsContainer.innerHTML = '';
             state.products.forEach(item => {
@@ -646,7 +657,7 @@
                         </div>
 
                         <div class="profit-slider-group" style="margin-top: 1rem;">
-                            <div class="profit-slider-value" data-id="${item.id}" data-type="profit-display-abshe">${toPersianDigits(item.profit.toFixed(1))} %</div>
+                            <div class="profit-slider-value" data-id="${item.id}" data-type="profit-display-abshe">${formatProfitPercentage(item.profit)} %</div>
                             <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
                         </div>
                     `;
@@ -663,7 +674,7 @@
                         </div>
 
                         <div class="profit-slider-group" style="margin-top: 1rem;">
-                            <div class="profit-slider-value" data-id="${item.id}" data-type="profit-display-motaferghe">${toPersianDigits(item.profit.toFixed(1))} %</div>
+                            <div class="profit-slider-value" data-id="${item.id}" data-type="profit-display-motaferghe">${formatProfitPercentage(item.profit)} %</div>
                             <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
                         </div>
                     `;
@@ -761,10 +772,7 @@
                     
                     const display = e.target.closest('.profit-slider-group').querySelector('.profit-slider-value');
                     if (display) {
-                        const formattedProfit = value % 1 === 0
-                            ? toPersianDigits(value.toFixed(0))
-                            : toPersianDigits(value.toFixed(1));
-                        display.textContent = `${formattedProfit} %`;
+                        display.textContent = `${formatProfitPercentage(value)} %`; // Using helper function
                     }
                 };
             });
@@ -940,15 +948,8 @@
                     const originalPercentage = line.percentage;
                     const adjustedPercentage = originalPercentage * (1 - discountPercentageOfTotalAmount);
 
-                    // Formatted percentage: show as integer if it's practically an integer (e.g., 1.0, 2.0, etc.)
-                    // Using a small epsilon (0.0001) to check if a float is very close to an integer.
-                    // This handles potential floating point inaccuracies.
-                    let formattedPercentage;
-                    if (Math.abs(adjustedPercentage - Math.round(adjustedPercentage)) < 0.0001) { 
-                        formattedPercentage = toPersianDigits(Math.round(adjustedPercentage).toFixed(0)); // Show without decimal
-                    } else {
-                        formattedPercentage = toPersianDigits(adjustedPercentage.toFixed(1)); // Show with one decimal
-                    }
+                    // Using the helper function for consistent formatting
+                    let formattedPercentage = formatProfitPercentage(adjustedPercentage);
                     
                     let typeLabel = '';
                     if (showTypeLabelInProfitLine) {
