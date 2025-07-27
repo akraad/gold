@@ -478,15 +478,10 @@
 
         let state = {
             goldPrice: 0,
-            smartDiscount: 0,
+            smartDiscount: 0, // This will store the *amount* of rounding discount applied
             manualDiscount: 0,
             products: []
         };
-
-        // This global array is no longer strictly needed for event listener but kept for clarity
-        // if external direct manipulation of buttons were to occur.
-        // The event listener is now delegated to the parent.
-        let generatedSmartDiscountButtons = []; 
 
         // --- Helper Functions ---
         const toPersianDigits = (n) => {
@@ -522,7 +517,7 @@
             const units = ['', 'یک', 'دو', 'سه', 'چهار', 'پنج', 'شش', 'هفت', 'هشت', 'نه'];
             const teens = ['ده', 'یازده', 'دوازده', 'سیزده', 'چهارده', 'پانزده', 'شانزده', 'هفده', 'هجده', 'نوزده'];
             const tens = ['', 'ده', 'بیست', 'سی', 'چهل', 'پنجاه', 'شصت', 'هفتاد', 'هشتاد', 'نود'];
-            const hundreds = ['', 'یکصد', 'دویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
+            const hundreds = ['', 'یکصد', 'dویست', 'سیصد', 'چهارصد', 'پانصد', 'ششصد', 'هفتصد', 'هشتصد', 'نهصد'];
             const scales = ['', 'هزار', 'میلیون', 'میلیارد', 'تریلیون'];
 
             function convertThreeDigits(n) {
@@ -943,7 +938,7 @@
                     if (showTypeLabelInProfitLine) {
                         typeLabel = line.type === 'abshe' ? ` <span style="color:var(--text-light);">(آبشده)</span>` : ` <span style="color:var(--text-light);">(متفرقه)</span>`;
                     }
-                    invoiceHTML += `<div class="invoice-summary-line"><span>سود${typeLabel}: ${formattedPercentage}٪</span></div>`;
+                    invoiceHTML += `<div class="invoice-summary-line"><span>سود${typeLabel}: ${formattedPercentage}٪</span></div>`; // Removed amount
                 });
             }
             
@@ -989,59 +984,62 @@
             }
 
             invoiceContentContainer.innerHTML = invoiceHeaderExtra + invoiceHTML + finalTotalHTML + disclaimerHTML;
-            renderSmartDiscount(grandTotal);
+            renderSmartDiscount(grandTotal); // Pass the grandTotal to renderSmartDiscount for option calculation
         }
         
         function renderSmartDiscount(currentTotal) {
             if (currentTotal <= 0) {
                 smartDiscountContainer.classList.add('hidden');
-                state.smartDiscount = 0;
+                state.smartDiscount = 0; // Clear smart discount if total is zero or negative
                 return;
             }
             smartDiscountContainer.classList.remove('hidden');
             
             smartDiscountOptions.innerHTML = ''; 
-            generatedSmartDiscountButtons = []; // Clear global array for fresh population
+            // We no longer need generatedSmartDiscountButtons for direct event handling because of delegation.
+            // However, we still need to generate the buttons and apply styling based on state.smartDiscount.
 
             let options = new Set();
-            const roundingLevels = [1000, 5000, 10000, 50000, 100000, 500000, 1000000];
+            const roundingUnits = [50000, 100000, 250000, 500000, 1000000]; // Specific rounding options
 
-            roundingLevels.forEach(unit => {
-                const remainder = currentTotal % unit;
-                if (remainder > 0) {
-                    const discountAmount = remainder;
-                    const roundedValue = currentTotal - discountAmount;
-                    if (roundedValue >= 0) {
-                        options.add(discountAmount);
-                    }
+            roundingUnits.forEach(unit => {
+                const roundedValue = Math.floor(currentTotal / unit) * unit;
+                const discountAmount = currentTotal - roundedValue;
+
+                if (discountAmount > 0) { // Only show options that result in a positive discount
+                    options.add({ roundedValue, discountAmount });
                 }
             });
 
-            const sortedOptions = Array.from(options).sort((a, b) => a - b).slice(0, 5); 
+            // Sort options by the discount amount for consistent display, then take the top 5
+            const sortedOptions = Array.from(options).sort((a, b) => a.discountAmount - b.discountAmount).slice(0, 5); 
 
             if (sortedOptions.length === 0) {
-                 smartDiscountContainer.classList.add('hidden'); return;
+                 smartDiscountContainer.classList.add('hidden');
+                 state.smartDiscount = 0; // Ensure smart discount is off if no options
+                 return;
             }
 
-            sortedOptions.forEach(discountAmount => {
+            sortedOptions.forEach(option => {
                 const btn = document.createElement('button');
                 btn.className = 'btn smart-discount-btn';
-                btn.dataset.value = discountAmount;
+                btn.dataset.discountAmount = option.discountAmount; // Store the exact discount amount
 
-                const roundedFinalPrice = currentTotal - discountAmount;
-                btn.textContent = `رند به ${formatNumber(roundedFinalPrice)}`;
+                // Text should reflect the 'rounded to' value
+                btn.textContent = `رند به ${formatNumber(option.roundedValue)}`;
                 
-                if (state.smartDiscount === discountAmount) {
+                // Set initial active state based on current state.smartDiscount
+                if (state.smartDiscount === option.discountAmount) {
                     btn.classList.add('active');
-                    btn.style.backgroundColor = 'var(--primary-color)';
-                    btn.style.color = '#fff';
+                    btn.style.backgroundColor = 'var(--primary-color)'; // Apply blue background
+                    btn.style.color = '#fff'; // Apply white text
                 } else {
-                     btn.style.backgroundColor = '';
-                     btn.style.color = '';
+                     btn.style.backgroundColor = ''; // Reset background (from active state)
+                     btn.style.color = ''; // Reset text color (from active state)
                 }
 
                 smartDiscountOptions.appendChild(btn);
-                generatedSmartDiscountButtons.push(btn);
+                // No need to store in generatedSmartDiscountButtons if using delegation
             });
         }
         
@@ -1062,39 +1060,44 @@
             const value = parseFormattedNumber(e.target.value);
             if (value.toString().length <= 11) {
                 state.manualDiscount = value;
-                e.target.value = formatNumber(value);
                 state.smartDiscount = 0; // Clear smart discount if manual is used
                 calculateAndRender();
+                e.target.value = formatNumber(value); // Format after state update and re-render call
             } else {
                 e.target.value = formatNumber(state.manualDiscount);
             }
         });
 
-        // Fixed: Smart Discount buttons click listener to handle active state correctly and prevent shuffling
+        // Fixed: Smart Discount buttons click listener using event delegation
+        // This handles clicks on buttons even if they are dynamically re-rendered.
         smartDiscountOptions.addEventListener('click', e => {
             const targetButton = e.target.closest('.smart-discount-btn');
             if (targetButton) {
-                const discountValue = Number(targetButton.dataset.value);
+                const clickedDiscountAmount = Number(targetButton.dataset.discountAmount); // Get the discount amount directly
                 
-                // Iterate through ALL currently displayed smart discount buttons
-                // This ensures only the correct button is active or none if deselected
-                smartDiscountOptions.querySelectorAll('.smart-discount-btn').forEach(btn => { // Use querySelectorAll directly on parent
+                // First, remove active style from ALL buttons currently displayed
+                // This correctly handles the visual state without relying on a global array of detached elements
+                smartDiscountOptions.querySelectorAll('.smart-discount-btn').forEach(btn => {
                     btn.classList.remove('active');
-                    btn.style.backgroundColor = '';
-                    btn.style.color = '';
+                    btn.style.backgroundColor = ''; // Reset to default
+                    btn.style.color = ''; // Reset to default
                 });
 
-                if (state.smartDiscount === discountValue) {
-                    state.smartDiscount = 0; // State is updated to 0, will be rendered non-active on next calculateAndRender
+                if (state.smartDiscount === clickedDiscountAmount) {
+                    // If the clicked button was already active (i.e., this is a de-selection click)
+                    state.smartDiscount = 0; // Clear the smart discount
                 } else {
-                    state.manualDiscount = 0;
-                    manualDiscountInput.value = '';
-                    state.smartDiscount = discountValue;
+                    // Otherwise, select this new button
+                    state.manualDiscount = 0; // Clear manual discount
+                    manualDiscountInput.value = ''; // Visually clear manual input field
+                    state.smartDiscount = clickedDiscountAmount; // Set the new smart discount amount
+                    
+                    // Apply active style to the newly selected button immediately
                     targetButton.classList.add('active');
                     targetButton.style.backgroundColor = 'var(--primary-color)';
                     targetButton.style.color = '#fff';
                 }
-                calculateAndRender();
+                calculateAndRender(); // Recalculate to update totals and re-render smart discount buttons (which will apply consistent styles)
             }
         });
 
