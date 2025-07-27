@@ -298,20 +298,8 @@
             padding-bottom: 0.6rem;
         }
 
-        .smart-discount-options {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 0.75rem;
-        }
+        /* Smart discount styles are removed */
 
-        .smart-discount-btn {
-            background-color: var(--primary-light); color: var(--primary-color);
-            border: 2px solid transparent; font-weight: 600; padding: 0.75rem 0.5rem;
-            font-size: 0.9rem;
-        }
-        
-        .smart-discount-btn:hover { border-color: var(--primary-color); }
-        .smart-discount-btn.active { background-color: var(--primary-color); color: #fff; }
-        
         /* Invoice structure styling */
         .invoice-section { margin-bottom: 1rem; }
         .invoice-section-title { font-weight: 600; margin-bottom: 0.75rem; color: var(--text-color); }
@@ -508,18 +496,21 @@
 
         <div class="card">
             <h2 class="card-header">تخفیف</h2>
-            <div class="form-group">
-                <label for="manual-discount" class="form-label">تخفیف دستی</label>
+            <div class="toggle-switch">
+                <label for="round-discount-switch" class="form-label" style="margin-bottom:0;">تخفیف رند</label>
+                <label class="switch">
+                    <input type="checkbox" id="round-discount-switch" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="form-group" style="margin-top: 1rem;">
+                <label for="manual-discount" class="form-label">تخفیف</label>
                  <div class="input-group rtl">
                     <input type="tel" id="manual-discount" class="input-field" inputmode="numeric">
                     <span class="input-group-text">تومان</span>
                 </div>
             </div>
-            <div id="smart-discount-container" class="form-group hidden">
-                <label class="form-label">تخفیف هوشمند (برای رند شدن)</label>
-                <div class="smart-discount-options" id="smart-discount-options"></div>
             </div>
-        </div>
 
         <div class="card" id="invoice-card">
             <h2 class="card-header">فاکتور</h2>
@@ -591,17 +582,16 @@
         const addProductBtn = document.getElementById('add-product-item');
         const taxSwitch = document.getElementById('tax-switch');
         const manualDiscountInput = document.getElementById('manual-discount');
-        const smartDiscountContainer = document.getElementById('smart-discount-container');
-        const smartDiscountOptions = document.getElementById('smart-discount-options');
+        // Removed smartDiscountContainer and smartDiscountOptions
+        const roundDiscountSwitch = document.getElementById('round-discount-switch'); // New: Round discount switch
         const invoiceContentContainer = document.getElementById('invoice-content');
         const addPurchaseBtnContainer = document.querySelector('.add-purchase-options');
         const purchaseItemsContainer = document.getElementById('purchase-items-container');
         const printBtn = document.getElementById('print-btn');
-        // جدید: دکمه ذخیره به عنوان JPG
         const saveAsJpgBtn = document.getElementById('save-as-jpg-btn');
 
         // --- DOM Elements (Customer Info and Date) ---
-        const customerNameInput = document.getElementById('customer-name'); // The visible input
+        const customerNameInput = document.getElementById('customer-name'); 
         const maleOption = document.getElementById('male-option');
         const femaleOption = document.getElementById('female-option');
         const daySlider = document.getElementById('day-slider');
@@ -623,7 +613,7 @@
             purchases: [],
             taxEnabled: true,
             manualDiscount: 0,
-            smartDiscount: 0,
+            roundDiscountEnabled: true, // New: Default true for round discount
             // New state properties for customer info and date
             customerName: '',
             customerGender: null, // 'male', 'female', or null
@@ -636,7 +626,6 @@
         const toPersianDigits = (n) => {
              if (n === null || typeof n === 'undefined') return '';
             const persian = { 0: '۰', 1: '۱', 2: '۲', 3: '۳', 4: '۴', 5: '۵', 6: '۶', 7: '۷', 8: '۸', 9: '۹' };
-            // Ensure n is a number or can be converted to a string before replacing
             return String(n).replace(/[0-9]/g, (w) => persian[w]);
         };
         const toEnglishDigits = (str) => {
@@ -720,7 +709,7 @@
             const item = {
                 id, type: 'طلا', weight: '',
                 ajratType: 'toman', ajratValue: '',
-                profitPercentage: 7 // Default profit for each new product
+                profitPercentage: 7 
             };
             state.products.push(item);
             
@@ -772,8 +761,8 @@
             const typeInput = itemDiv.querySelector('.product-type');
             const weightInput = itemDiv.querySelector('.product-weight');
             const ajratInput = itemDiv.querySelector('.product-ajrat');
-            const profitSlider = itemDiv.querySelector('.product-profit-slider'); // Get slider for THIS item
-            const profitDisplay = itemDiv.querySelector('.product-slider-value'); // Get display for THIS item
+            const profitSlider = itemDiv.querySelector('.product-profit-slider'); 
+            const profitDisplay = itemDiv.querySelector('.product-slider-value'); 
             
             typeInput.addEventListener('change', (e) => { item.type = e.target.value; calculateAndRender(); });
             weightInput.addEventListener('input', (e) => {
@@ -821,10 +810,8 @@
                 });
             });
 
-            // Event listener for THIS product's profit slider
             profitSlider.addEventListener('input', (e) => {
                 item.profitPercentage = parseFloat(e.target.value);
-                // Display profit value, ensuring no .0 if it's a whole number
                 let displayValue = item.profitPercentage;
                 if (displayValue === Math.floor(displayValue)) {
                     profitDisplay.textContent = `${toPersianDigits(displayValue)} %`;
@@ -910,11 +897,10 @@
                 productsHTML += `<div class="invoice-section"><div class="invoice-section-title">محصولات</div>`;
                 validProducts.forEach((p, index) => {
                     const weight = parseFloat(p.weight) || 0;
-                    const goldPricePerGram = state.goldPrice; // قیمت هر گرم طلا
+                    const goldPricePerGram = state.goldPrice; 
                     
-                    // محاسبه اجرت هر گرم
                     let ajratPerGram = 0;
-                    let isAjratEntered = false; // پرچم برای بررسی اینکه اجرت وارد شده است یا خیر
+                    let isAjratEntered = false; 
                     
                     if (p.ajratType === 'toman') {
                         const enteredAjrat = parseFormattedNumber(p.ajratValue.toString()) || 0;
@@ -922,7 +908,7 @@
                             ajratPerGram = weight > 0 ? enteredAjrat / weight : 0;
                             isAjratEntered = true;
                         }
-                    } else { // ajratType is 'percent'
+                    } else { 
                         const ajratPercentage = (parseFloat(p.ajratValue) || 0) / 100;
                         if (ajratPercentage > 0) {
                             ajratPerGram = goldPricePerGram * ajratPercentage;
@@ -930,23 +916,18 @@
                         }
                     }
 
-                    const profitPercentage = (p.profitPercentage || 0) / 100; // سود به درصد (از هر محصول)
+                    const profitPercentage = (p.profitPercentage || 0) / 100; 
                     
-                    // محاسبه قیمت پایه (طلا + اجرت) برای هر گرم
                     const basePricePerGram = goldPricePerGram + ajratPerGram;
                     
-                    // محاسبه سود برای هر گرم
                     const profitPerGram = basePricePerGram * profitPercentage;
 
-                    // محاسبه کل مبلغ هر گرم (طلا + اجرت + سود)
                     const totalBeforeTaxPerGram = basePricePerGram + profitPerGram;
                     
-                    // محاسبه مالیات (10% بر اجرت و سود)
                     const itemTaxPerGram = state.taxEnabled ? (ajratPerGram + profitPerGram) * 0.10 : 0;
                     const itemTax = itemTaxPerGram * weight;
                     totalTax += itemTax;
 
-                    // مبلغ کل آیتم شامل طلا، اجرت, سود و مالیات
                     const itemTotal = (totalBeforeTaxPerGram * weight) + itemTax;
 
 
@@ -955,35 +936,27 @@
                     productsHTML += `<div class="invoice-item-header"><span>${p.type} - ${toPersianDigits(weight)} گرم</span><span>${formatNumber(itemTotal)} تومان</span></div>`;
                     let details = [];
                     
-                    // 1. نمایش سود
                     if (p.profitPercentage > 0) {
-                        // نمایش درصد سود بدون اعشار .0
                         details.push(`سود: ${toPersianDigits(Math.round(p.profitPercentage))}٪`); 
                     } else {
                         details.push(`بدون سود`); 
                     }
 
-                    // 2. نمایش اجرت
                     if (isAjratEntered) {
                         if (p.ajratType === 'toman') {
-                            details.push(`اجرت: ${formatNumber(parseFormattedNumber(p.ajratValue.toString()) || 0)} تومان`); // نمایش اجرت کل (تومان)
+                            details.push(`اجرت: ${formatNumber(parseFormattedNumber(p.ajratValue.toString()) || 0)} تومان`); 
                         } else {
-                            // اگر اجرت درصدی است، مقدار درصدی را بدون اعشار .0 نمایش دهد
-                            details.push(`اجرت: ${toPersianDigits(Math.round(parseFloat(p.ajratValue)))}٪`); // نمایش اجرت درصدی
+                            details.push(`اجرت: ${toPersianDigits(Math.round(parseFloat(p.ajratValue)))}٪`); 
                         }
                     } else {
                         details.push(`بدون اجرت`);
                     }
                     
-                    // 3. نمایش مالیات
-                    // فقط اگر مالیات فعال باشه و مالیات محاسبه شده بیشتر از 0 باشه، مقدارش رو نشون بده
                     if (state.taxEnabled && itemTax > 0) { 
                         details.push(`مالیات: ${formatNumber(itemTax)}`);
-                    } else if (!state.taxEnabled) { // اگر مالیات کلاً از طریق سویچ غیر فعال شده بود
+                    } else if (!state.taxEnabled) { 
                         details.push(`بدون مالیات`);
                     }
-                    // در غیر این صورت (مالیات فعال است اما itemTax صفر است)، چیزی نمایش داده نمی‌شود.
-
 
                     if (details.length > 0) productsHTML += `<div class="invoice-item-details">${details.join(' - ')}</div>`;
                     productsHTML += `</div>`;
@@ -1011,8 +984,8 @@
                     } else {
                         const weight = parseFloat(p.weight) || 0;
                         if (p.type === 'bullion') value = (weight * 995 / 750) * state.goldPrice;
-                        else if (p.type === 'parsian') value = (weight * 740 / 750) * state.goldPrice; // فرض بر طلای 17.76 عیار برای پارسیان
-                        else value = weight * state.goldPrice; // برای طلای متفرقه همان 18 عیار
+                        else if (p.type === 'parsian') value = (weight * 740 / 750) * state.goldPrice; 
+                        else value = weight * state.goldPrice; 
                         const typeName = {gold: 'طلای متفرقه', bullion: 'شمش', parsian: 'پارسیان'}[p.type];
                         label = `${typeName} - ${toPersianDigits(weight)} گرم`;
                     }
@@ -1022,7 +995,6 @@
                 purchasesHTML += `</div>`;
             }
 
-            // محاسبه مجموع فروش بر اساس فرمول جدید برای محاسبه totalBeforeDiscount
             const saleTotal = validProducts.reduce((acc, p) => {
                  const weight = parseFloat(p.weight) || 0;
                  const goldPricePerGram = state.goldPrice;
@@ -1035,7 +1007,7 @@
                      ajratPerGram = goldPricePerGram * ajratPercentage;
                  }
 
-                 const profitPercentage = (p.profitPercentage || 0) / 100; // از هر محصول
+                 const profitPercentage = (p.profitPercentage || 0) / 100; 
                  const basePricePerGram = goldPricePerGram + ajratPerGram;
                  const profitPerGram = basePricePerGram * profitPercentage;
                  const totalBeforeTaxPerGram = basePricePerGram + profitPerGram;
@@ -1043,29 +1015,59 @@
                  return acc + (totalBeforeTaxPerGram * weight);
             }, 0);
 
-            const totalBeforeDiscount = saleTotal + totalTax; // جمع کل فروش و مالیات
-
+            let currentGrandTotal = saleTotal + totalTax - totalPurchaseValue;
+            
             state.manualDiscount = parseFormattedNumber(manualDiscountInput.value);
-            const maxDiscount = totalBeforeDiscount * 0.3; // حداکثر 30% تخفیف از کل مبلغ قابل پرداخت
+            const maxDiscount = currentGrandTotal * 0.3; // حداکثر 30% تخفیف از کل مبلغ قابل پرداخت
             if (state.manualDiscount > maxDiscount) {
                 state.manualDiscount = maxDiscount;
                 manualDiscountInput.value = formatNumber(state.manualDiscount);
             }
-            const effectiveDiscount = state.smartDiscount > 0 ? state.smartDiscount : state.manualDiscount;
+            
+            // Apply manual discount
+            currentGrandTotal -= state.manualDiscount;
 
-            if (totalTax > 0 || effectiveDiscount > 0) {
+            // Apply round discount if enabled
+            let roundDiscountAmount = 0;
+            if (state.roundDiscountEnabled && currentGrandTotal > 0) {
+                const remainder5k = currentGrandTotal % 5000;
+                const remainder10k = currentGrandTotal % 10000;
+
+                if (remainder10k !== 0) { // If not already rounded to 10k
+                    if (remainder5k !== 0) { // If not already rounded to 5k
+                        // Find the amount to make it end in 0 or 5
+                        if (remainder5k < 2500) { // Round down to the nearest 000
+                            roundDiscountAmount = remainder5k;
+                        } else { // Round down to the nearest 5000
+                            roundDiscountAmount = remainder5k - 5000; // This will be negative, so we subtract its absolute
+                            roundDiscountAmount = Math.abs(roundDiscountAmount);
+                        }
+                    }
+                }
+                
+                // Ensure roundDiscountAmount doesn't make total negative
+                roundDiscountAmount = Math.min(roundDiscountAmount, currentGrandTotal);
+                currentGrandTotal -= roundDiscountAmount;
+
+                 // Only show round discount if it was actually applied
+                if (roundDiscountAmount > 0) {
+                    summaryHTML += `<div class="invoice-summary-line"><span>تخفیف رند</span><span class="invoice-value-discount">${formatNumber(roundDiscountAmount)} تومان</span></div>`;
+                }
+            }
+
+
+            if (totalTax > 0 || state.manualDiscount > 0) {
                  summaryHTML += `<div class="invoice-separator"></div>`;
             }
             if (totalTax > 0) {
-                // این مالیات کل بر اساس جمع اجرت و سود تمام محصولات است
                 const taxLabel = validProducts.filter(p => state.taxEnabled && ((parseFormattedNumber(p.ajratValue.toString()) || 0) > 0 || (p.profitPercentage || 0) > 0)).length > 0 ? 'مالیات کل' : 'مالیات';
                 summaryHTML += `<div class="invoice-summary-line"><span>${taxLabel}</span><span>${formatNumber(totalTax)} تومان</span></div>`;
             }
-            if (effectiveDiscount > 0) {
-                 summaryHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-discount">${formatNumber(effectiveDiscount)} تومان</span></div>`;
+            if (state.manualDiscount > 0) {
+                 summaryHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-discount">${formatNumber(state.manualDiscount)} تومان</span></div>`;
             }
             
-            grandTotal = totalBeforeDiscount - totalPurchaseValue - effectiveDiscount;
+            grandTotal = currentGrandTotal;
             
             let finalTotalHTML = `<div class="invoice-final-total">`;
             if (grandTotal >= 0) {
@@ -1081,44 +1083,13 @@
             printDateSpan.textContent = `${toPersianDigits(state.day || '')} ${getJalaliMonthName(state.month || '')} ${toPersianDigits(state.year || '')}`;
             printGoldPriceSpan.textContent = formatNumber(state.goldPrice);
 
-            // Get the existing print-only div's content
             const existingPrintOnlyDivContent = invoiceContentContainer.querySelector('.print-only').innerHTML;
             
-            // Re-inject the print-only div with its updated content at the very beginning
             invoiceContentContainer.innerHTML = `<div class="print-only" style="margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">
                                                     ${existingPrintOnlyDivContent}
                                                 </div>` + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
-            
-            renderSmartDiscount(grandTotal); // Smart discount should be based on the final grand total before applying smart discount
         }
         
-        function renderSmartDiscount(total) {
-            if (total <= 1000 || state.manualDiscount > 0) {
-                smartDiscountContainer.classList.add('hidden');
-                state.smartDiscount = 0;
-                return;
-            }
-            smartDiscountContainer.classList.remove('hidden');
-            smartDiscountOptions.innerHTML = '';
-            let options = new Set();
-            [1000, 10000, 100000, 500000, 1000000].forEach(unit => {
-                const remainder = total % unit;
-                if (remainder > 0 && remainder <= 990000 && (total - remainder) >= 0) options.add(remainder);
-            });
-            const sortedOptions = Array.from(options).sort((a,b) => a - b).slice(0, 5);
-            if (sortedOptions.length === 0) {
-                 smartDiscountContainer.classList.add('hidden'); return;
-            }
-            sortedOptions.forEach(optValue => {
-                const btn = document.createElement('button');
-                btn.className = 'btn smart-discount-btn';
-                btn.textContent = `رند به ${formatNumber(total - optValue)}`;
-                btn.dataset.value = optValue;
-                if (state.smartDiscount === optValue) btn.classList.add('active');
-                smartDiscountOptions.appendChild(btn);
-            });
-        }
-
         // --- Customer Info & Date Widget Rendering ---
         function renderCustomerInfoDateWidget() {
             maleOption.classList.toggle('gender-text-selected', state.customerGender === 'male');
@@ -1165,30 +1136,20 @@
         addProductBtn.addEventListener('click', () => createProductItem());
         taxSwitch.addEventListener('change', (e) => { state.taxEnabled = e.target.checked; calculateAndRender(); });
         manualDiscountInput.addEventListener('input', () => {
-            if (state.smartDiscount > 0) state.smartDiscount = 0; // Clear smart discount if manual is used
+            calculateAndRender();
+        });
+        roundDiscountSwitch.addEventListener('change', (e) => { // New: Listener for round discount switch
+            state.roundDiscountEnabled = e.target.checked;
             calculateAndRender();
         });
         addPurchaseBtnContainer.addEventListener('click', e => {
             if (e.target.classList.contains('add-purchase-btn')) createPurchaseItem(e.target.dataset.type);
         });
-        smartDiscountOptions.addEventListener('click', e => {
-            const targetButton = e.target.closest('.smart-discount-btn');
-            if (targetButton) {
-                const discountValue = Number(targetButton.dataset.value);
-                if (state.smartDiscount === discountValue) state.smartDiscount = 0; // Deselect if already active
-                else {
-                    state.smartDiscount = discountValue;
-                    state.manualDiscount = 0; // Clear manual discount if smart is used
-                    manualDiscountInput.value = '';
-                }
-                calculateAndRender();
-            }
-        });
+        
         printBtn.addEventListener('click', () => {
             window.print();
         });
 
-        // جدید: رویداد کلیک برای ذخیره به عنوان JPG
         saveAsJpgBtn.addEventListener('click', () => {
             saveInvoiceAsJPG();
         });
@@ -1196,13 +1157,12 @@
         // --- Event Listeners (Customer Info and Date) ---
         customerNameInput.addEventListener('input', (e) => {
             const rawValue = e.target.value;
-            // Allow Persian letters and ZWNJ (نیم‌فاصله)
             const persianOnly = rawValue.replace(/[^ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی ئأإؤكيك\u200C ]/g, ''); 
             if (persianOnly !== rawValue) {
                 e.target.value = persianOnly; 
             }
             state.customerName = persianOnly;
-            calculateAndRender(); // Re-render invoice to update print-only customer name
+            calculateAndRender(); 
         });
 
         maleOption.addEventListener('click', () => {
@@ -1211,8 +1171,8 @@
             } else {
                 state.customerGender = 'male';
             }
-            renderCustomerInfoDateWidget(); // Rerender to update selection highlight
-            calculateAndRender(); // Re-render invoice to update print-only customer name
+            renderCustomerInfoDateWidget(); 
+            calculateAndRender(); 
         });
 
         femaleOption.addEventListener('click', () => {
@@ -1221,8 +1181,8 @@
             } else {
                 state.customerGender = 'female';
             }
-            renderCustomerInfoDateWidget(); // Rerender to update selection highlight
-            calculateAndRender(); // Re-render invoice to update print-only customer name
+            renderCustomerInfoDateWidget(); 
+            calculateAndRender(); 
         });
 
         daySlider.addEventListener('input', (e) => {
@@ -1232,7 +1192,7 @@
                 daySlider.value = state.day;
             }
             renderCustomerInfoDateWidget();
-            calculateAndRender(); // Re-render invoice to update print-only date
+            calculateAndRender(); 
         });
 
         monthSlider.addEventListener('input', (e) => {
@@ -1244,7 +1204,7 @@
                 daySlider.value = state.day;
             }
             renderCustomerInfoDateWidget();
-            calculateAndRender(); // Re-render invoice to update print-only date
+            calculateAndRender(); 
         });
 
         yearInput.addEventListener('input', (e) => {
@@ -1260,7 +1220,7 @@
                 daySlider.value = state.day;
             }
             renderCustomerInfoDateWidget();
-            calculateAndRender(); // Re-render invoice to update print-only date
+            calculateAndRender(); 
         });
 
         yearPlusBtn.addEventListener('click', () => {
@@ -1272,7 +1232,7 @@
                     daySlider.value = state.day;
                 }
                 renderCustomerInfoDateWidget();
-                calculateAndRender(); // Re-render invoice to update print-only date
+                calculateAndRender(); 
             }
         });
 
@@ -1285,63 +1245,51 @@
                     daySlider.value = state.day;
                 }
                 renderCustomerInfoDateWidget();
-                calculateAndRender(); // Re-render invoice to update print-only date
+                calculateAndRender(); 
             }
         });
 
         // --- JPG Export Function ---
         function saveInvoiceAsJPG() {
-            // عنصری که شامل کل فاکتور شماست و باید به عکس تبدیل شود
             const invoiceCard = document.getElementById('invoice-card');
 
-            // قبل از تبدیل، عناصر کنترلی (دکمه‌ها، اسلایدرها و...) را مخفی کنید
-            // این کار باعث می‌شود عکس تمیزتر باشد و فقط شامل محتوای فاکتور باشد
             const elementsToHideForCapture = document.querySelectorAll(
-                '#print-btn-container, #profit-tax-section, #customer-info-card, .add-purchase-options, #add-product-item, #smart-discount-container, #manual-discount-input-group, .delete-item-btn'
+                '#print-btn-container, #profit-tax-section, #customer-info-card, .add-purchase-options, #add-product-item, .delete-item-btn'
             );
             elementsToHideForCapture.forEach(el => el.classList.add('hidden'));
 
-            // اجرای html2canvas
             html2canvas(invoiceCard, {
-                scale: 2, // افزایش مقیاس برای کیفیت بهتر تصویر
-                useCORS: true // اگر فاکتور شما شامل تصاویری از دامنه‌های دیگر باشد، ضروری است
+                scale: 2, 
+                useCORS: true 
             }).then(function(canvas) {
-                // تبدیل canvas به یک data URL با فرمت JPEG
-                const imgData = canvas.toDataURL('image/jpeg', 0.9); // 0.9 کیفیت عکس (از 0.0 تا 1.0)
+                const imgData = canvas.toDataURL('image/jpeg', 0.9); 
 
-                // ایجاد یک عنصر لینک موقت
                 const link = document.createElement('a');
                 link.href = imgData;
-                link.download = 'فاکتور_طلا.jpg'; // نام فایل دلخواه
+                link.download = 'فاکتور_طلا.jpg'; 
 
-                // کلیک برنامه‌نویسی روی لینک برای شروع دانلود
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
 
-                // پس از گرفتن عکس و شروع دانلود، عناصر مخفی شده را دوباره نمایش دهید
                 elementsToHideForCapture.forEach(el => el.classList.remove('hidden'));
 
             }).catch(err => {
                 console.error('خطا در تبدیل HTML به عکس:', err);
                 alert('فاکتور ذخیره نشد. لطفاً دوباره تلاش کنید.');
-                // در صورت خطا هم عناصر مخفی شده را دوباره نمایش دهید
                 elementsToHideForCapture.forEach(el => el.classList.remove('hidden'));
             });
         }
 
 
         // --- Initialization ---
-        // Get today's date in Gregorian and convert to Jalali
         const today = new Date();
         const currentJalaliDate = jalaali.toJalaali(today.getFullYear(), today.getMonth() + 1, today.getDate()); 
         
-        // Define the allowed year range (current year and previous year)
         const currentYearInJalali = currentJalaliDate.jy;
         const MIN_YEAR = currentYearInJalali - 1; 
         const MAX_YEAR = currentYearInJalali;     
 
-        // Set initial values for sliders and year input
         if (state.day === null) {
             daySlider.value = state.day = currentJalaliDate.jd;
         }
@@ -1349,13 +1297,16 @@
             monthSlider.value = state.month = currentJalaliDate.jm;
         }
         if (state.year === null) {
-            state.year = currentJalaliDate.jy; // Initialize state.year correctly
-            yearInput.value = toPersianDigits(state.year); // Update input field
+            state.year = currentJalaliDate.jy; 
+            yearInput.value = toPersianDigits(state.year); 
         }
 
+        // Set the initial state of the round discount switch
+        roundDiscountSwitch.checked = state.roundDiscountEnabled;
+
         createProductItem(true);
-        renderCustomerInfoDateWidget(); // Initial render for customer info/date
-        calculateAndRender(); // Initial render for invoice
+        renderCustomerInfoDateWidget(); 
+        calculateAndRender(); 
     });
     </script>
 
