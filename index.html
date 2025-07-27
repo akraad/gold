@@ -407,12 +407,6 @@
             color: var(--primary-color);
         }
 
-        /* No longer needed as the span is removed */
-        /* .tax-details-small {
-            font-size: 70%; 
-            vertical-align: super; 
-        } */
-
         .excess-gold-purchase-section {
             padding-top: 1rem;
             margin-top: 1rem;
@@ -1158,22 +1152,40 @@
             // Add event listener for the new excess gold price input if it exists
             const excessGoldPriceInput = document.getElementById('excess-gold-price-input');
             if (excessGoldPriceInput) {
-                // Keep input simple for typing, only filter non-digits
+                let isFocused = false; // Track if the input is focused
+
+                excessGoldPriceInput.addEventListener('focus', () => {
+                    isFocused = true;
+                    // When focused, show raw English number for easier typing
+                    excessGoldPriceInput.value = toEnglishDigits(String(state.excessGoldPurchasePricePerGram));
+                });
+
                 excessGoldPriceInput.addEventListener('input', (e) => {
+                    // Only process digits, no immediate re-formatting for display
                     const value = toEnglishDigits(e.target.value.replace(/,/g, ''));
                     const cleanedValue = value.replace(/[^0-9]/g, ''); 
-                    if (e.target.value !== toPersianDigits(cleanedValue)) {
-                        e.target.value = toPersianDigits(cleanedValue);
-                    }
+                    
+                    // Update state with the parsed number
                     state.excessGoldPurchasePricePerGram = parseInt(cleanedValue, 10) || 0;
-                    calculateAndRender(); // Re-calculate to update totals
+                    
+                    // Do NOT update e.target.value here to prevent keyboard hiding
+                    
+                    calculateAndRender(); // Re-calculate to update totals in invoice
                 });
 
                 // Format the number only when the user leaves the field
                 excessGoldPriceInput.addEventListener('blur', (e) => {
+                    isFocused = false;
                     e.target.value = formatNumber(state.excessGoldPurchasePricePerGram);
                     calculateAndRender();
                 });
+
+                // Set initial value formatted, but if it's 0, keep it empty
+                if (state.excessGoldPurchasePricePerGram === 0) {
+                    excessGoldPriceInput.value = '';
+                } else {
+                    excessGoldPriceInput.value = formatNumber(state.excessGoldPurchasePricePerGram);
+                }
             }
         }
         
