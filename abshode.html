@@ -604,8 +604,8 @@
 
         // Helper for formatting profit percentage consistently
         const formatProfitPercentage = (value) => {
-            // Check if the value is extremely close to an integer.
             // Using a slightly larger epsilon for better robustness after calculations.
+            // This ensures numbers like 2.0000000000000004 are treated as integers.
             if (Math.abs(value - Math.round(value)) < 0.000001) { 
                 return toPersianDigits(Math.round(value).toFixed(0)); // Show without decimal
             }
@@ -945,11 +945,11 @@
                 const showTypeLabelInProfitLine = hasAbsheProfitLine && hasMotafergheProfitLine;
 
                 allProfitLines.forEach(line => {
-                    const originalPercentage = line.percentage;
-                    const adjustedPercentage = originalPercentage * (1 - discountPercentageOfTotalAmount);
+                    // تغییر اصلی اینجاست: درصد سود همیشه همان درصد اصلی باقی می‌ماند
+                    const displayPercentage = line.percentage; 
 
                     // Using the helper function for consistent formatting
-                    let formattedPercentage = formatProfitPercentage(adjustedPercentage);
+                    let formattedPercentage = formatProfitPercentage(displayPercentage);
                     
                     let typeLabel = '';
                     if (showTypeLabelInProfitLine) {
