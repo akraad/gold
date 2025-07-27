@@ -337,9 +337,9 @@
             body > .container > *:not(#invoice-card), 
             /* Hide customer info card in print (as its content is moved to invoice-card) */
             #customer-info-card,
-            /* جدید: مخفی کردن دکمه‌ها و سایر عناصر کنترلی در حالت چاپ */
-            .screen-only { 
-                display: none;
+            /* جدید: مخفی کردن کانتینر دکمه های چاپ */
+            #print-buttons-container { 
+                display: none !important; /* از !important برای اطمینان از اعمال شدن استفاده می کنیم */
             }
             #invoice-card {
                 box-shadow: none;
@@ -355,14 +355,6 @@
         /* Screen-only styles */
         .print-only {
             display: none; /* Hide by default on screen */
-        }
-
-        /* جدید: نمایش عناصر screen-only در حالت عادی */
-        .screen-only {
-            display: block; /* Default to block, adjust for flex/grid as needed for specific containers */
-        }
-        #print-btn-container.screen-only { /* برای کانتینر دکمه ها */
-            display: flex; 
         }
         
         /* Styles for gender text "آقا" and "خانم" (from new code) */
@@ -585,7 +577,7 @@
                 </div>
             </div>
         </div>
-        <div id="print-btn-container" class="screen-only" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+        <div id="print-buttons-container" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
             <button id="print-btn" class="btn btn-primary" style="flex: 1;">چاپ فاکتور (PDF)</button>
             <button id="save-as-jpg-btn" class="btn btn-secondary" style="flex: 1;">ذخیره فاکتور (عکس)</button>
         </div>
@@ -1029,7 +1021,7 @@
 
                  const profitPercentage = (p.profitPercentage || 0) / 100;
                  const basePricePerGram = goldPricePerGram + ajratPerGram;
-                 const profitPerGram = basePricePerGram * profitPercentage;
+                 const profitPerGram = basePricePricePerGram * profitPercentage;
                  const totalBeforeTaxPerGram = basePricePerGram + profitPerGram;
 
                  return acc + (totalBeforeTaxPerGram * weight);
@@ -1074,11 +1066,10 @@
 
             // حفظ محتوای print-only موجود و افزودن بقیه HTML به invoiceContentContainer
             const printOnlyDiv = invoiceContentContainer.querySelector('.print-only');
-            // محتوای جدید را در بعد از printOnlyDiv اضافه می کنیم
-            invoiceContentContainer.innerHTML = ''; // اول همه چیز را پاک می کنیم
-            invoiceContentContainer.appendChild(printOnlyDiv); // بعد print-only را اضافه می کنیم
+            invoiceContentContainer.innerHTML = ''; 
+            invoiceContentContainer.appendChild(printOnlyDiv); 
             
-            const tempDiv = document.createElement('div'); // یک div موقت برای اضافه کردن بقیه محتوا
+            const tempDiv = document.createElement('div'); 
             tempDiv.innerHTML = productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
             while(tempDiv.firstChild) {
                 invoiceContentContainer.appendChild(tempDiv.firstChild);
@@ -1179,13 +1170,6 @@
                 calculateAndRender();
             }
         });
-        printBtn.addEventListener('click', () => {
-            window.print();
-        });
-
-        saveAsJpgBtn.addEventListener('click', () => {
-            saveInvoiceAsJPG();
-        });
 
         // --- Event Listeners (Customer Info and Date) ---
         customerNameInput.addEventListener('input', (e) => {
@@ -1195,7 +1179,7 @@
                 e.target.value = persianOnly; 
             }
             state.customerName = persianOnly;
-            calculateAndRender(); // فراخوانی برای بروزرسانی محتوای چاپ
+            calculateAndRender(); 
         });
 
         maleOption.addEventListener('click', () => {
@@ -1205,7 +1189,7 @@
                 state.customerGender = 'male';
             }
             renderCustomerInfoDateWidget(); 
-            calculateAndRender(); // فراخوانی برای بروزرسانی محتوای چاپ
+            calculateAndRender(); 
         });
 
         femaleOption.addEventListener('click', () => {
@@ -1215,7 +1199,7 @@
                 state.customerGender = 'female';
             }
             renderCustomerInfoDateWidget(); 
-            calculateAndRender(); // فراخوانی برای بروزرسانی محتوای چاپ
+            calculateAndRender(); 
         });
 
         daySlider.addEventListener('input', (e) => {
@@ -1225,7 +1209,7 @@
                 daySlider.value = state.day;
             }
             renderCustomerInfoDateWidget();
-            calculateAndRender(); // فراخوانی برای بروزرسانی محتوای چاپ
+            calculateAndRender(); 
         });
 
         monthSlider.addEventListener('input', (e) => {
@@ -1237,7 +1221,7 @@
                 daySlider.value = state.day;
             }
             renderCustomerInfoDateWidget();
-            calculateAndRender(); // فراخوانی برای بروزرسانی محتوای چاپ
+            calculateAndRender(); 
         });
 
         yearInput.addEventListener('input', (e) => {
@@ -1253,7 +1237,7 @@
                 daySlider.value = state.day;
             }
             renderCustomerInfoDateWidget();
-            calculateAndRender(); // فراخوانی برای بروزرسانی محتوای چاپ
+            calculateAndRender(); 
         });
 
         yearPlusBtn.addEventListener('click', () => {
@@ -1265,7 +1249,7 @@
                     daySlider.value = state.day;
                 }
                 renderCustomerInfoDateWidget();
-                calculateAndRender(); // فراخوانی برای بروزرسانی محتوای چاپ
+                calculateAndRender(); 
             }
         });
 
@@ -1278,7 +1262,7 @@
                     daySlider.value = state.day;
                 }
                 renderCustomerInfoDateWidget();
-                calculateAndRender(); // فراخوانی برای بروزرسانی محتوای چاپ
+                calculateAndRender(); 
             }
         });
 
@@ -1286,8 +1270,6 @@
         function saveInvoiceAsJPG() {
             const invoiceCard = document.getElementById('invoice-card');
 
-            // در اینجا نیازی به مخفی کردن دستی عناصر نیست زیرا کلاس 'screen-only' در CSS این کار را انجام می‌دهد.
-            // به سادگی html2canvas را اجرا می‌کنیم.
             html2canvas(invoiceCard, {
                 scale: 2, 
                 useCORS: true 
@@ -1308,6 +1290,14 @@
             });
         }
 
+        // --- Event Listeners (Print Buttons) ---
+        printBtn.addEventListener('click', () => {
+            window.print();
+        });
+
+        saveAsJpgBtn.addEventListener('click', () => {
+            saveInvoiceAsJPG();
+        });
 
         // --- Initialization ---
         const today = new Date();
