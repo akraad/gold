@@ -1158,14 +1158,20 @@
             // Add event listener for the new excess gold price input if it exists
             const excessGoldPriceInput = document.getElementById('excess-gold-price-input');
             if (excessGoldPriceInput) {
+                // Keep input simple for typing, only filter non-digits
                 excessGoldPriceInput.addEventListener('input', (e) => {
-                    const value = toEnglishDigits(e.target.value.replace(/,/g, '')); // Remove existing commas for parsing
-                    
-                    // Allow only digits
-                    const cleanedValue = value.replace(/[^0-9]/g, '');
-
+                    const value = toEnglishDigits(e.target.value.replace(/,/g, ''));
+                    const cleanedValue = value.replace(/[^0-9]/g, ''); 
+                    if (e.target.value !== toPersianDigits(cleanedValue)) {
+                        e.target.value = toPersianDigits(cleanedValue);
+                    }
                     state.excessGoldPurchasePricePerGram = parseInt(cleanedValue, 10) || 0;
-                    e.target.value = formatNumber(state.excessGoldPurchasePricePerGram); // Re-format for display
+                    calculateAndRender(); // Re-calculate to update totals
+                });
+
+                // Format the number only when the user leaves the field
+                excessGoldPriceInput.addEventListener('blur', (e) => {
+                    e.target.value = formatNumber(state.excessGoldPurchasePricePerGram);
                     calculateAndRender();
                 });
             }
