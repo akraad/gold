@@ -85,27 +85,27 @@
             margin-bottom: 0;
         }
 
+        /* Updated form-label to be a flex container for its children */
         .form-label {
-            /* Changed to flex-end for absolute right alignment of content */
             display: flex;
             align-items: center;
-            justify-content: flex-end; /* Pushes content to the right */
-            gap: 10px; /* Space between items */
-            direction: rtl; /* Ensure RTL layout for flex items */
+            justify-content: space-between; /* Pushes items to far ends */
             margin-bottom: 0.5rem;
             font-weight: 500;
             font-size: 0.9rem;
+            direction: rtl; /* Ensure RTL layout for flex items */
         }
 
-        /* Specific style to reverse the order of items within the label */
-        .form-label > * {
-            order: 1; /* Default order for all direct children */
+        /* Style for the text part of the label (e.g., "نام خریدار") */
+        .form-label-text {
+            /* This will naturally align to the right in an RTL flex container */
+            flex-shrink: 0; /* Prevent text from shrinking */
         }
 
-        .form-label .gender-option-container {
-            order: 2; /* Put the gender options to the left of "نام خریدار" text */
+        .gender-option-container {
             display: flex;
             gap: 5px; /* Space between "آقا" and "خانم" */
+            flex-shrink: 0; /* Prevent options from shrinking */
         }
         
         .input-field, .select-field {
@@ -520,7 +520,10 @@
             </div>
 
             <div class="form-group">
-                <label class="form-label">تخفیف (تومان)</label> <div class="input-group rtl">
+                <label class="form-label">
+                    <span class="form-label-text">تخفیف (تومان)</span>
+                </label> 
+                <div class="input-group rtl">
                     <input type="tel" id="manual-discount-input" class="input-field" inputmode="numeric">
                     <span class="input-group-text">تومان</span>
                 </div>
@@ -538,18 +541,20 @@
             <h2 class="card-header">اطلاعات خریدار و تاریخ</h2>
             
             <div class="form-group">
-                <label class="form-label">
+                <div class="form-label">
+                    <span class="form-label-text">نام خریدار</span>
                     <div class="gender-option-container">
                         <span class="gender-text" id="male-option" title="جناب آقای">آقا</span>
                         <span class="gender-text" id="female-option" title="سرکار خانم">خانم</span>
                     </div>
-                    نام خریدار
-                </label>
+                </div>
                 <input type="text" id="customer-name" class="input-field">
             </div>
 
             <div class="form-group">
-                <label class="form-label">تاریخ</label>
+                <label class="form-label">
+                    <span class="form-label-text">تاریخ</span>
+                </label>
                 <div class="date-input-group">
                     <div class="date-slider-group">
                         <div class="date-slider-value" id="day-display"></div>
@@ -755,14 +760,18 @@
                 if (item.type === 'abshe') {
                     itemCardHTML += `
                             <div class="form-group">
-                                <label class="form-label">وزن</label>
+                                <label class="form-label">
+                                    <span class="form-label-text">وزن</span>
+                                </label>
                                 <div class="input-group rtl">
                                     <input type="text" class="input-field abshe-weight-gram-input" inputmode="decimal" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
                                     <span class="input-group-text">گرم</span>
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label class="form-label">عیار</label>
+                                <label class="form-label">
+                                    <span class="form-label-text">عیار</span>
+                                </label>
                                 <div class="input-group rtl">
                                     <input type="text" class="input-field abshe-ayar-input" inputmode="decimal" value="${item.ayar === null ? '' : toPersianDigits(item.ayar)}">
                                     <span class="input-group-text">عیار</span>
@@ -794,7 +803,9 @@
                 } else if (item.type === 'motaferghe') {
                     itemCardHTML += `
                             <div class="form-group" style="grid-column: span 2;">
-                                <label class="form-label">وزن متفرقه</label>
+                                <label class="form-label">
+                                    <span class="form-label-text">وزن متفرقه</span>
+                                </label>
                                 <div class="input-group rtl">
                                     <input type="text" class="input-field motaferghe-weight-gram-input" inputmode="decimal" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
                                     <span class="input-group-text">گرم</span>
