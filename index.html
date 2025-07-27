@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         /* CSS Variables for theming */
         :root {
@@ -574,8 +575,9 @@
                 </div>
             </div>
         </div>
-        <div id="print-btn-container">
-            <button id="print-btn" class="btn btn-primary">چاپ فاکتور</button>
+        <div id="print-btn-container" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+            <button id="print-btn" class="btn btn-primary" style="flex: 1;">چاپ فاکتور (PDF)</button>
+            <button id="save-as-jpg-btn" class="btn btn-secondary" style="flex: 1;">ذخیره فاکتور (عکس)</button>
         </div>
     </div>
 
@@ -595,6 +597,8 @@
         const addPurchaseBtnContainer = document.querySelector('.add-purchase-options');
         const purchaseItemsContainer = document.getElementById('purchase-items-container');
         const printBtn = document.getElementById('print-btn');
+        // جدید: دکمه ذخیره به عنوان JPG
+        const saveAsJpgBtn = document.getElementById('save-as-jpg-btn');
 
         // --- DOM Elements (Customer Info and Date) ---
         const customerNameInput = document.getElementById('customer-name'); // The visible input
@@ -1184,6 +1188,11 @@
             window.print();
         });
 
+        // جدید: رویداد کلیک برای ذخیره به عنوان JPG
+        saveAsJpgBtn.addEventListener('click', () => {
+            saveInvoiceAsJPG();
+        });
+
         // --- Event Listeners (Customer Info and Date) ---
         customerNameInput.addEventListener('input', (e) => {
             const rawValue = e.target.value;
@@ -1279,6 +1288,48 @@
                 calculateAndRender(); // Re-render invoice to update print-only date
             }
         });
+
+        // --- JPG Export Function ---
+        function saveInvoiceAsJPG() {
+            // عنصری که شامل کل فاکتور شماست و باید به عکس تبدیل شود
+            const invoiceCard = document.getElementById('invoice-card');
+
+            // قبل از تبدیل، عناصر کنترلی (دکمه‌ها، اسلایدرها و...) را مخفی کنید
+            // این کار باعث می‌شود عکس تمیزتر باشد و فقط شامل محتوای فاکتور باشد
+            const elementsToHideForCapture = document.querySelectorAll(
+                '#print-btn-container, #profit-tax-section, #customer-info-card, .add-purchase-options, #add-product-item, #smart-discount-container, #manual-discount-input-group, .delete-item-btn'
+            );
+            elementsToHideForCapture.forEach(el => el.classList.add('hidden'));
+
+            // اجرای html2canvas
+            html2canvas(invoiceCard, {
+                scale: 2, // افزایش مقیاس برای کیفیت بهتر تصویر
+                useCORS: true // اگر فاکتور شما شامل تصاویری از دامنه‌های دیگر باشد، ضروری است
+            }).then(function(canvas) {
+                // تبدیل canvas به یک data URL با فرمت JPEG
+                const imgData = canvas.toDataURL('image/jpeg', 0.9); // 0.9 کیفیت عکس (از 0.0 تا 1.0)
+
+                // ایجاد یک عنصر لینک موقت
+                const link = document.createElement('a');
+                link.href = imgData;
+                link.download = 'فاکتور_طلا.jpg'; // نام فایل دلخواه
+
+                // کلیک برنامه‌نویسی روی لینک برای شروع دانلود
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // پس از گرفتن عکس و شروع دانلود، عناصر مخفی شده را دوباره نمایش دهید
+                elementsToHideForCapture.forEach(el => el.classList.remove('hidden'));
+
+            }).catch(err => {
+                console.error('خطا در تبدیل HTML به عکس:', err);
+                alert('فاکتور ذخیره نشد. لطفاً دوباره تلاش کنید.');
+                // در صورت خطا هم عناصر مخفی شده را دوباره نمایش دهید
+                elementsToHideForCapture.forEach(el => el.classList.remove('hidden'));
+            });
+        }
+
 
         // --- Initialization ---
         // Get today's date in Gregorian and convert to Jalali
