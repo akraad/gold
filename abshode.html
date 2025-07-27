@@ -323,8 +323,40 @@
             font-size: 0.9rem; padding-top: 0.6rem; padding-bottom: 0.6rem;
         }
 
-        /* REMOVED Smart Discount specific CSS classes */
-        /* .smart-discount-options, .smart-discount-btn, etc. are no longer needed */
+        .smart-discount-options {
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Responsive columns */
+            gap: 0.75rem;
+            margin-top: 0.75rem; /* Space below label */
+        }
+
+        .smart-discount-btn {
+            background-color: var(--primary-light); 
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color); 
+            border-radius: 0.5rem; 
+            font-weight: 600; 
+            padding: 0.75rem 0.5rem;
+            font-size: 0.9rem; 
+            cursor: pointer; 
+            transition: all 0.2s ease;
+            text-align: center;
+            white-space: nowrap; 
+            overflow: hidden;
+            text-overflow: ellipsis; 
+        }
+        
+        .smart-discount-btn:hover { 
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+
+        .smart-discount-btn.active { 
+            background-color: var(--primary-color);
+            color: #fff;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.4); 
+        }
         
         .invoice-section { margin-bottom: 1rem; }
         .invoice-section-title { font-weight: 600; margin-bottom: 0.75rem; color: var(--text-color); }
@@ -415,7 +447,12 @@
                     <span class="input-group-text">تومان</span>
                 </div>
             </div>
+
+            <div id="smart-discount-container" class="form-group" style="margin-top: 1.5rem;"> 
+                <label class="form-label">تخفیف هوشمند (برای رند شدن)</label>
+                <div class="smart-discount-options" id="smart-discount-options"></div>
             </div>
+        </div>
 
         <div class="card" id="invoice-card">
             <h2 class="card-header">فاکتور</h2>
@@ -433,11 +470,13 @@
         // --- DOM Elements ---
         const goldPriceInput = document.getElementById('gold-price');
         const priceInWords = document.getElementById('price-in-words');
-        // smartDiscountContainer and smartDiscountOptions are removed as the feature is removed
+        const smartDiscountContainer = document.getElementById('smart-discount-container');
+        const smartDiscountOptions = document.getElementById('smart-discount-options');
         const manualDiscountInput = document.getElementById('manual-discount-input');
         const invoiceContentContainer = document.getElementById('invoice-content');
         const printBtn = document.getElementById('print-btn');
 
+        // New DOM Elements for dynamic items
         const productItemsContainer = document.getElementById('product-items-container');
         const addAbsheBtn = document.getElementById('add-abshe-btn');
         const addMotafergheBtn = document.getElementById('add-motaferghe-btn');
@@ -448,7 +487,8 @@
 
         let state = {
             goldPrice: 0,
-            manualDiscount: 0, // smartDiscount is removed from state
+            smartDiscount: 0, // Stores the AMOUNT of smart discount applied
+            manualDiscount: 0,
             products: []
         };
 
@@ -548,9 +588,9 @@
         };
 
         // --- Dynamic Item Management ---
-        function createProductItem(type, weight = 0, ayar = null, eng = 0, lab = '', profit = 2.0) { // Ayar defaults to null
+        function createProductItem(type, weight = 0, ayar = null, eng = 0, lab = '', profit = 2.0) { 
             const id = itemIdCounter++;
-            const item = { id, type, weight, ayar, eng, lab, profit };
+            const item = { id, type, weight, ayar, eng, lab, profit }; 
             state.products.push(item);
             renderProductItems();
             calculateAndRender();
@@ -954,12 +994,14 @@
 
             invoiceContentContainer.innerHTML = invoiceHeaderExtra + invoiceHTML + finalTotalHTML + disclaimerHTML;
             // The call to renderSmartDiscount is removed as the feature is removed
-            // renderSmartDiscount(grandTotal);
+            // renderSmartDiscount(grandTotal); // THIS WAS THE CALL THAT WAS REBUILDING AND CAUSING THE ISSUE
         }
         
-        // The renderSmartDiscount function is completely removed
+        // The renderSmartDiscount function is completely removed as the feature is removed
         /*
-        function renderSmartDiscount(currentTotal) { ... }
+        function renderSmartDiscount(currentTotal) {
+             // ... all the smart discount button generation and styling logic ...
+        }
         */
         
         // --- Event Listeners ---
