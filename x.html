@@ -403,8 +403,10 @@
         /* Specific style for selected gender icons */
         .gender-icon-selected {
             opacity: 1 !important;
-            border: 2px solid var(--primary-color);
-            border-radius: 50%;
+            /* border: 2px solid var(--primary-color); */ /* Removed border for new icons */
+            /* border-radius: 50%; */ /* Removed border-radius for new icons */
+            filter: grayscale(0%) invert(20%) sepia(80%) saturate(1500%) hue-rotate(200deg) brightness(90%) contrast(90%); /* Example filter for color */
+            transform: scale(1.1);
         }
 
         /* Styles for year control buttons */
@@ -511,11 +513,11 @@
             
             <div class="form-group">
                 <label class="form-label" style="display: flex; align-items: center; justify-content: flex-end; gap: 10px;">
-                    <img src="https://img.icons8.com/ios-filled/20/000000/user-male-circle.png" alt="Male Icon" id="male-icon" style="cursor: pointer; opacity: 0.5;" title="جناب آقای">
-                    <img src="https://img.icons8.com/ios-filled/20/000000/user-female-circle.png" alt="Female Icon" id="female-icon" style="cursor: pointer; opacity: 0.5;" title="سرکار خانم">
+                    <img src="https://img.icons8.com/material-rounded/24/000000/gender-neutral-user.png" alt="Male Icon" id="male-icon" style="cursor: pointer; opacity: 0.5; width: 24px; height: 24px;" title="جناب آقای">
+                    <img src="https://img.icons8.com/material-rounded/24/000000/gender-female.png" alt="Female Icon" id="female-icon" style="cursor: pointer; opacity: 0.5; width: 24px; height: 24px;" title="سرکار خانم">
                     نام خریدار
                 </label>
-                <input type="text" id="customer-name" class="input-field" placeholder="فقط حروف فارسی">
+                <input type="text" id="customer-name" class="input-field">
             </div>
 
             <div class="form-group">
@@ -673,8 +675,6 @@
         };
 
         const getDaysInMonth = (year, month) => {
-            // Use jalaali-js to get days in month
-            // jalaali.jalaaliMonthLength(year, monthIndex) takes monthIndex (0-11)
             return jalaali.jalaaliMonthLength(year, month - 1);
         };
 
@@ -1118,16 +1118,9 @@
                     customerDisplay = state.customerName;
                 }
             }
-            if (state.customerGender === 'male') {
-                maleIcon.classList.add('gender-icon-selected');
-                femaleIcon.classList.remove('gender-icon-selected');
-            } else if (state.customerGender === 'female') {
-                femaleIcon.classList.add('gender-icon-selected');
-                maleIcon.classList.remove('gender-icon-selected');
-            } else {
-                maleIcon.classList.remove('gender-icon-selected');
-                femaleIcon.classList.remove('gender-icon-selected');
-            }
+            // Update icon display based on state.customerGender
+            maleIcon.classList.toggle('gender-icon-selected', state.customerGender === 'male');
+            femaleIcon.classList.toggle('gender-icon-selected', state.customerGender === 'female');
 
 
             let dateDisplay = '';
@@ -1230,17 +1223,12 @@
         });
 
         // --- Date Event Listeners ---
-        // Get today's date in Gregorian
         const today = new Date();
-        // Convert Gregorian today to Jalali using jalaali-js
         const currentJalaliDate = jalaali.toJalaali(today.getFullYear(), today.getMonth() + 1, today.getDate()); 
         
-        // Define the allowed year range
-        // Based on your prompt "الان سال 1404 هست" and allowing 1 year back
-        const MIN_YEAR = currentJalaliDate.jy - 1; // 1403
-        const MAX_YEAR = currentJalaliDate.jy;     // 1404
+        const MIN_YEAR = currentJalaliDate.jy - 1; 
+        const MAX_YEAR = currentJalaliDate.jy;     
 
-        // Set initial values for sliders and year input
         if (state.day === null) {
             daySlider.value = state.day = currentJalaliDate.jd;
         }
@@ -1252,7 +1240,6 @@
         }
 
         const updateDaySliderMax = () => {
-            // Ensure state.year and state.month are valid numbers before calling getDaysInMonth
             if (state.year && state.month) {
                 const maxDays = getDaysInMonth(state.year, state.month);
                 daySlider.max = maxDays;
@@ -1275,9 +1262,7 @@
 
         daySlider.addEventListener('input', (e) => {
             state.day = parseInt(e.target.value);
-            // Basic validation to prevent invalid day/month/year combinations
             if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
-                // If invalid, revert or adjust (e.g., set to max day for that month)
                 state.day = getDaysInMonth(state.year, state.month);
                 daySlider.value = state.day;
             }
@@ -1288,12 +1273,11 @@
         monthSlider.addEventListener('input', (e) => {
             state.month = parseInt(e.target.value);
             updateMonthDisplay();
-            updateDaySliderMax(); // Update day slider max based on new month
-            // Re-validate day after month change
+            updateDaySliderMax(); 
             if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
                 state.day = getDaysInMonth(state.year, state.month);
                 daySlider.value = state.day;
-                document.getElementById('day-display').textContent = toPersianDigits(state.day) + ' (روز)'; // Update display immediately
+                document.getElementById('day-display').textContent = toPersianDigits(state.day) + ' (روز)'; 
             }
             calculateAndRender();
         });
@@ -1307,7 +1291,6 @@
                 e.target.value = toPersianDigits(state.year || currentJalaliDate.jy); 
             }
             updateDaySliderMax(); 
-            // Re-validate day after year change (e.g., Esfand in leap vs non-leap year)
             if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
                 state.day = getDaysInMonth(state.year, state.month);
                 daySlider.value = state.day;
@@ -1321,7 +1304,6 @@
                 state.year++;
                 yearInput.value = toPersianDigits(state.year);
                 updateDaySliderMax();
-                // Re-validate day after year change
                 if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
                     state.day = getDaysInMonth(state.year, state.month);
                     daySlider.value = state.day;
@@ -1336,7 +1318,6 @@
                 state.year--;
                 yearInput.value = toPersianDigits(state.year);
                 updateDaySliderMax();
-                // Re-validate day after year change
                 if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
                     state.day = getDaysInMonth(state.year, state.month);
                     daySlider.value = state.day;
