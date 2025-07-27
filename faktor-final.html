@@ -341,7 +341,7 @@
             font-weight: 600;
             border: none;
             border-radius: var(--border-radius-button);
-            cursor: pointer; transition: all var(--transition-speed);
+            cursor: pointer; transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
             box-shadow: var(--shadow-subtle);
         }
 
@@ -395,7 +395,36 @@
             margin-bottom: 1rem;
             overflow-y: auto; /* Enable scrolling for many items */
             max-height: 400px; /* Max height for scrollable area */
+            padding-right: 5px; /* Space for scrollbar */
         }
+        /* Scrollbar styles for better aesthetics */
+        #product-items-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        #product-items-container::-webkit-scrollbar-track {
+            background: var(--bg-color);
+            border-radius: 3px;
+        }
+        #product-items-container::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+        #product-items-container::-webkit-scrollbar-thumb:hover {
+            background: var(--text-light);
+        }
+
+        /* Message when no items are added */
+        .empty-items-message {
+            text-align: center;
+            color: var(--text-light);
+            font-size: 0.95rem;
+            padding: 2rem 1rem;
+            border: 1px dashed var(--border-color);
+            border-radius: var(--border-radius-input);
+            background-color: var(--primary-light);
+            margin-bottom: 1rem;
+        }
+
 
         #purchase-items-container .item-card:not(:first-child) { margin-top: 0.8rem; }
         #purchase-items-container .item-card { background-color: var(--primary-light); }
@@ -622,8 +651,11 @@
         <div class="card">
             <h2 class="card-header"><span class="icon">⚖️</span> نوع معامله و اقلام</h2>
             <div id="abshe-input-section">
-                <div id="product-items-container" class="">
-                    </div>
+                <div id="product-items-container">
+                    <p class="empty-items-message">
+                        برای شروع، دکمه‌های "افزودن آبشده" یا "افزودن متفرقه" را بزنید.
+                    </p>
+                </div>
 
                 <div class="add-purchase-options">
                     <button id="add-abshe-btn" class="btn btn-secondary">افزودن آبشده</button>
@@ -867,77 +899,87 @@
 
 
         function renderProductItems() {
-            productItemsContainer.innerHTML = '';
-            state.products.forEach(item => {
-                let itemCardHTML = `
-                    <div class="item-card" data-id="${item.id}">
-                        <button class="delete-item-btn" data-id="${item.id}">×</button>
-                        <div class="item-row">
+            productItemsContainer.innerHTML = ''; // Clear existing content
+
+            if (state.products.length === 0) {
+                productItemsContainer.innerHTML = `
+                    <p class="empty-items-message">
+                        برای شروع، دکمه‌های "افزودن آبشده" یا "افزودن متفرقه" را بزنید.
+                    </p>
                 `;
+            } else {
+                state.products.forEach(item => {
+                    let itemCardHTML = `
+                        <div class="item-card" data-id="${item.id}">
+                            <button class="delete-item-btn" data-id="${item.id}">×</button>
+                            <div class="item-row">
+                    `;
 
-                if (item.type === 'abshe') {
+                    if (item.type === 'abshe') {
+                        itemCardHTML += `
+                                <div class="form-group">
+                                    <label class="compact-label" for="abshe-weight-${item.id}">وزن</label>
+                                    <div class="input-group rtl compact-input-group">
+                                        <input type="text" id="abshe-weight-${item.id}" class="input-field abshe-weight-gram-input" inputmode="decimal" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
+                                        <span class="input-group-text">گرم</span>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="compact-label" for="abshe-ayar-${item.id}">عیار</label>
+                                    <div class="input-group rtl compact-input-group">
+                                        <input type="text" id="abshe-ayar-${item.id}" class="input-field abshe-ayar-input" inputmode="decimal" value="${item.ayar === null ? '' : toPersianDigits(item.ayar)}">
+                                        <span class="input-group-text">عیار</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="item-label-input-compact">
+                                <label class="compact-label" for="abshe-eng-${item.id}">انگ</label>
+                                <div class="input-group rtl compact-input-group">
+                                    <input type="text" id="abshe-eng-${item.id}" class="input-field abshe-eng-input" inputmode="numeric" value="${item.eng === 0 ? '' : toPersianDigits(item.eng)}">
+                                    <span class="input-group-text">انگ</span>
+                                </div>
+                            </div>
+                            
+                            <div class="item-label-input-compact">
+                                <label class="compact-label" for="abshe-lab-${item.id}">آزمایشگاه</label>
+                                <div class="input-group rtl compact-input-group">
+                                    <input type="text" id="abshe-lab-${item.id}" class="input-field abshe-lab-input" style="text-align: right;" value="${item.lab || ''}">
+                                    <span class="input-group-text">نام</span>
+                                </div>
+                            </div>
+
+                            <div class="profit-slider-group" style="margin-top: 1rem;">
+                                <div class="profit-slider-value" data-id="${item.id}" data-type="profit-display-abshe">${formatProfitPercentage(item.profit)} %</div>
+                                <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
+                            </div>
+                        `;
+                    } else if (item.type === 'motaferghe') {
+                        itemCardHTML += `
+                                <div class="form-group" style="grid-column: span 2;">
+                                    <label class="compact-label" for="motaferghe-weight-${item.id}">وزن متفرقه</label>
+                                    <div class="input-group rtl compact-input-group">
+                                        <input type="text" id="motaferghe-weight-${item.id}" class="input-field motaferghe-weight-gram-input" inputmode="decimal" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
+                                        <span class="input-group-text">گرم</span>
+                                    </div>
+                                    <div style="font-size: 0.8em; color: var(--text-light); text-align: right; margin-top: 0.3rem;">(با عیار پیش‌فرض ۷۵۰ محاسبه می‌شود)</div>
+                                </div>
+                            </div>
+
+                            <div class="profit-slider-group" style="margin-top: 1rem;">
+                                <div class="profit-slider-value" data-id="${item.id}" data-type="profit-display-motaferghe">${formatProfitPercentage(item.profit)} %</div>
+                                <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
+                            </div>
+                        `;
+                    }
                     itemCardHTML += `
-                            <div class="form-group">
-                                <label class="compact-label" for="abshe-weight-${item.id}">وزن</label>
-                                <div class="input-group rtl compact-input-group">
-                                    <input type="text" id="abshe-weight-${item.id}" class="input-field abshe-weight-gram-input" inputmode="decimal" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
-                                    <span class="input-group-text">گرم</span>
-                                </div>
                             </div>
-                            <div class="form-group">
-                                <label class="compact-label" for="abshe-ayar-${item.id}">عیار</label>
-                                <div class="input-group rtl compact-input-group">
-                                    <input type="text" id="abshe-ayar-${item.id}" class="input-field abshe-ayar-input" inputmode="decimal" value="${item.ayar === null ? '' : toPersianDigits(item.ayar)}">
-                                    <span class="input-group-text">عیار</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="item-label-input-compact">
-                            <label class="compact-label" for="abshe-eng-${item.id}">انگ</label>
-                            <div class="input-group rtl compact-input-group">
-                                <input type="text" id="abshe-eng-${item.id}" class="input-field abshe-eng-input" inputmode="numeric" value="${item.eng === 0 ? '' : toPersianDigits(item.eng)}">
-                                <span class="input-group-text">انگ</span>
-                            </div>
-                        </div>
-                        
-                        <div class="item-label-input-compact">
-                            <label class="compact-label" for="abshe-lab-${item.id}">آزمایشگاه</label>
-                            <div class="input-group rtl compact-input-group">
-                                <input type="text" id="abshe-lab-${item.id}" class="input-field abshe-lab-input" style="text-align: right;" value="${item.lab || ''}">
-                                <span class="input-group-text">نام</span>
-                            </div>
-                        </div>
-
-                        <div class="profit-slider-group" style="margin-top: 1rem;">
-                            <div class="profit-slider-value" data-id="${item.id}" data-type="profit-display-abshe">${formatProfitPercentage(item.profit)} %</div>
-                            <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
                         </div>
                     `;
-                } else if (item.type === 'motaferghe') {
-                    itemCardHTML += `
-                            <div class="form-group" style="grid-column: span 2;">
-                                <label class="compact-label" for="motaferghe-weight-${item.id}">وزن متفرقه</label>
-                                <div class="input-group rtl compact-input-group">
-                                    <input type="text" id="motaferghe-weight-${item.id}" class="input-field motaferghe-weight-gram-input" inputmode="decimal" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
-                                    <span class="input-group-text">گرم</span>
-                                </div>
-                                <div style="font-size: 0.8em; color: var(--text-light); text-align: right; margin-top: 0.3rem;">(با عیار پیش‌فرض ۷۵۰ محاسبه می‌شود)</div>
-                            </div>
-                        </div>
+                    productItemsContainer.insertAdjacentHTML('beforeend', itemCardHTML);
+                });
+            }
 
-                        <div class="profit-slider-group" style="margin-top: 1rem;">
-                            <div class="profit-slider-value" data-id="${item.id}" data-type="profit-display-motaferghe">${formatProfitPercentage(item.profit)} %</div>
-                            <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
-                        </div>
-                    `;
-                }
-                itemCardHTML += `
-                        </div>
-                    </div>
-                `;
-                productItemsContainer.insertAdjacentHTML('beforeend', itemCardHTML);
-            });
 
             attachItemEventListeners();
         }
@@ -1339,11 +1381,9 @@
 
 
         addAbsheBtn.addEventListener('click', () => {
-            productItemsContainer.classList.remove('hidden');
             createProductItem('abshe');
         });
         addMotafergheBtn.addEventListener('click', () => { 
-            productItemsContainer.classList.remove('hidden');
             createProductItem('motaferghe');
         });
 
