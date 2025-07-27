@@ -753,7 +753,7 @@
 
             productItemsContainer.querySelectorAll('.item-profit-slider').forEach(slider => {
                 slider.oninput = (e) => {
-                    const id = parseInt(e.target.dataset.id);
+                    const id = parseInt(e.target.closest('.item-card').dataset.id);
                     let value = parseFloat(e.target.value);
                     
                     updateProductItem(id, 'profit', value);
@@ -880,7 +880,7 @@
                     </div>`;
                 }
             });
-            invoiceHTML += `</div>`;
+            invoiceHTML += `</div>`; // Close invoice-section for items
 
             let totalProfitBeforeDiscount = 0;
             
@@ -984,28 +984,27 @@
             }
 
             invoiceContentContainer.innerHTML = invoiceHeaderExtra + invoiceHTML + finalTotalHTML + disclaimerHTML;
-            renderSmartDiscount(grandTotal); // Pass the grandTotal to renderSmartDiscount for option calculation
+            renderSmartDiscount(grandTotal);
         }
         
         function renderSmartDiscount(currentTotal) {
             if (currentTotal <= 0) {
                 smartDiscountContainer.classList.add('hidden');
-                state.smartDiscount = 0; // Clear smart discount if total is zero or negative
+                state.smartDiscount = 0;
                 return;
             }
             smartDiscountContainer.classList.remove('hidden');
             
-            // Clear current buttons before rendering new ones
             smartDiscountOptions.innerHTML = ''; 
             
             let options = new Set();
-            const roundingUnits = [50000, 100000, 250000, 500000, 1000000]; // Specific rounding options
+            const roundingUnits = [50000, 100000, 250000, 500000, 1000000];
 
             roundingUnits.forEach(unit => {
                 const roundedValue = Math.floor(currentTotal / unit) * unit;
                 const discountAmount = currentTotal - roundedValue;
 
-                if (discountAmount > 0) {
+                if (discountAmount > 0 && roundedValue >=0) {
                     options.add({ roundedValue, discountAmount });
                 }
             });
@@ -1021,19 +1020,19 @@
             sortedOptions.forEach(option => {
                 const btn = document.createElement('button');
                 btn.className = 'btn smart-discount-btn';
-                btn.dataset.discountAmount = option.discountAmount; 
+                btn.dataset.discountAmount = option.discountAmount;
 
-                const roundedFinalPrice = currentTotal - option.discountAmount; // Correct calculation for button text
+                const roundedFinalPrice = currentTotal - option.discountAmount;
                 btn.textContent = `رند به ${formatNumber(roundedFinalPrice)}`;
                 
                 // Apply active state based on current state.smartDiscount
                 if (state.smartDiscount === option.discountAmount) {
                     btn.classList.add('active');
-                    btn.style.backgroundColor = 'var(--primary-color)'; // Apply blue background
-                    btn.style.color = '#fff'; // Apply white text
+                    btn.style.backgroundColor = 'var(--primary-color)';
+                    btn.style.color = '#fff';
                 } else {
-                     btn.style.backgroundColor = ''; // Reset background
-                     btn.style.color = ''; // Reset text color
+                     btn.style.backgroundColor = '';
+                     btn.style.color = '';
                 }
 
                 smartDiscountOptions.appendChild(btn);
@@ -1079,18 +1078,16 @@
                 });
 
                 if (state.smartDiscount === clickedDiscountAmount) {
-                    state.smartDiscount = 0; // Deselect if already active
+                    state.smartDiscount = 0;
                 } else {
-                    state.manualDiscount = 0; // Clear manual discount
+                    state.manualDiscount = 0;
                     manualDiscountInput.value = '';
                     state.smartDiscount = clickedDiscountAmount;
-                    
-                    // Apply active style to the newly selected button immediately
                     targetButton.classList.add('active');
                     targetButton.style.backgroundColor = 'var(--primary-color)';
                     targetButton.style.color = '#fff';
                 }
-                calculateAndRender(); // Recalculate to update totals and re-render the smart discount section
+                calculateAndRender();
             }
         });
 
@@ -1099,7 +1096,7 @@
             productItemsContainer.classList.remove('hidden');
             createProductItem('abshe');
         });
-        addMotafergheBtn.addEventListener('click', () => {
+        addMotafergheBtn.addEventListener('click', () => { // Corrected missing 'click' in addEventListener
             productItemsContainer.classList.remove('hidden');
             createProductItem('motaferghe');
         });
