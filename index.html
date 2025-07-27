@@ -538,10 +538,6 @@
                     </div>
                 </div>
             </div>
-            <div class="invoice-summary-line">
-                <span>ارزش مازاد طلا (<span id="excess-gold-summary-weight"></span> گرم)</span>
-                <span class="invoice-value-danger" id="excess-gold-summary-value"></span>
-            </div>
         </div>
         <div class="card" id="customer-info-card">
             <h2 class="card-header">اطلاعات خریدار و تاریخ</h2>
@@ -618,8 +614,6 @@
         const excessGoldPriceInput = document.getElementById('excess-gold-price-input');
         const excessGoldInputWrapper = document.querySelector('#excess-gold-purchase-container .excess-gold-input-wrapper');
         const excessGoldWeightDisplay = document.getElementById('excess-gold-weight-display');
-        const excessGoldSummaryWeight = document.getElementById('excess-gold-summary-weight');
-        const excessGoldSummaryValue = document.getElementById('excess-gold-summary-value');
         
         // --- State ---
         let state = {
@@ -634,22 +628,23 @@
             day: null,
             month: null,
             year: null,
-            excessGoldPurchasePricePerGram: 0, // New state for excess gold price
-            excessGoldPurchaseEnabled: false // New state for excess gold purchase switch (default off)
+            excessGoldPurchasePricePerGram: 0, 
+            excessGoldPurchaseEnabled: false 
         };
 
         // --- Helper Functions ---
         const toPersianDigits = (n) => {
              if (n === null || typeof n === 'undefined') return '';
-            const persian = { 0: '۰', 1: '۱', 2: '۲', 3: '۳', 4: '۴', 5: '۵', 6: '۶', 7: '۷', 8: '۸', 9: '۹' };
-            return String(n).replace(/[0-9]/g, (w) => persian[w]);
+             n = String(n);
+             const persian = { '0': '۰', '1': '۱', '2': '۲', '3': '۳', '4': '۴', '5': '۵', '6': '۶', '7': '۷', '8': '۸', '9': '۹' };
+             return n.replace(/[0-9]/g, (w) => persian[w]);
         };
         const toEnglishDigits = (str) => {
             if (!str) return '';
             const persian = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
             const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
             for (let i = 0; i < 10; i++) {
-                str = str.toString().replace(new RegExp(persian[i], 'g'), english[i]);
+                str = String(str).replace(new RegExp(persian[i], 'g'), english[i]);
             }
             return str;
         };
@@ -660,6 +655,16 @@
         const parseFormattedNumber = (str) => {
             if (!str) return 0;
             return parseInt(toEnglishDigits(str).replace(/,/g, ''), 10) || 0;
+        };
+        const applyLivePersianConversion = (e) => {
+            const input = e.target;
+            const selectionStart = input.selectionStart;
+            const rawValue = input.value;
+            const persianValue = toPersianDigits(rawValue);
+            if (rawValue !== persianValue) {
+                input.value = persianValue;
+                input.setSelectionRange(selectionStart, selectionStart);
+            }
         };
         const numberToWords = (num) => {
             if (num === 0) return 'صفر';
@@ -781,53 +786,37 @@
             const profitDisplay = itemDiv.querySelector('.product-slider-value'); 
             
             typeInput.addEventListener('change', (e) => { item.type = e.target.value; calculateAndRender(); });
-            // --- Input/Blur handling for numeric fields (Product Weight) ---
-            weightInput.addEventListener('focus', (e) => {
-                e.target.value = toEnglishDigits(item.weight);
-            });
+
             weightInput.addEventListener('input', (e) => {
+                applyLivePersianConversion(e);
                 const value = toEnglishDigits(e.target.value);
                 if (/^\d*\.?\d*$/.test(value)) {
                     item.weight = value;
                 } else {
-                    e.target.value = toPersianDigits(item.weight); // Revert if invalid char
+                    e.target.value = toPersianDigits(item.weight || '');
                 }
                 calculateAndRender();
             });
-            weightInput.addEventListener('blur', (e) => {
-                e.target.value = toPersianDigits(item.weight);
-            });
 
-
-            // --- Input/Blur handling for numeric fields (Product Ajrat) ---
-            ajratInput.addEventListener('focus', (e) => {
-                e.target.value = toEnglishDigits(item.ajratValue);
-            });
             ajratInput.addEventListener('input', (e) => {
+                applyLivePersianConversion(e);
                 const isPercent = item.ajratType === 'percent';
                 if (isPercent) {
                     let value = toEnglishDigits(e.target.value);
                     if (/^\d*\.?\d*$/.test(value)) {
-                        if (parseFloat(value) > 30) value = '30'; // Clamp percentage
+                        if (parseFloat(value) > 30) value = '30';
                         item.ajratValue = value;
                     } else {
-                        e.target.value = toPersianDigits(item.ajratValue); // Revert if invalid char
+                        e.target.value = toPersianDigits(item.ajratValue || '');
                     }
                 } else {
                     const value = parseFormattedNumber(e.target.value);
-                     if (value.toString().length <= 7) {
-                        item.ajratValue = value;
-                    } else {
-                        e.target.value = formatNumber(item.ajratValue); // Revert if too long
-                    }
+                    item.ajratValue = value;
                 }
                 calculateAndRender();
             });
             ajratInput.addEventListener('blur', (e) => {
-                const isPercent = item.ajratType === 'percent';
-                if (isPercent) {
-                    e.target.value = toPersianDigits(item.ajratValue);
-                } else {
+                 if (item.ajratType !== 'percent') {
                     e.target.value = formatNumber(item.ajratValue);
                 }
             });
@@ -839,7 +828,7 @@
                     itemDiv.querySelectorAll('.ajrat-type-btn').forEach(b => b.classList.remove('active'));
                     e.target.classList.add('active');
                     item.ajratType = e.target.dataset.type;
-                    item.ajratValue = ''; // Clear value on type change
+                    item.ajratValue = '';
                     ajratInput.value = '';
                     itemDiv.querySelector('.ajrat-unit').textContent = item.ajratType === 'percent' ? '%' : 'تومان';
                     ajratInput.placeholder = '';
@@ -854,8 +843,7 @@
 
             profitSlider.addEventListener('input', (e) => {
                 item.profitPercentage = parseFloat(e.target.value);
-                let displayValue = item.profitPercentage;
-                profitDisplay.textContent = `${toPersianDigits(Math.round(displayValue))} %`;
+                profitDisplay.textContent = `${toPersianDigits(Math.round(item.profitPercentage))} %`;
                 calculateAndRender();
             });
 
@@ -881,8 +869,7 @@
             if (type === 'gold' || type === 'bullion' || type === 'parsian') {
                 const typeName = {gold: 'طلای متفرقه', bullion: 'شمش', parsian: 'پارسیان'}[type];
                 item.weight = '';
-                content = `<div class="form-group"><label class="form-label">وزن ${typeName}</label><div class="input-group rtl"><input type="text" class="input-field purchase-weight" inputmode="decimal">
-                <span class="input-group-text">گرم</span></div></div>`;
+                content = `<div class="form-group"><label class="form-label">وزن ${typeName}</label><div class="input-group rtl"><input type="text" class="input-field purchase-weight" inputmode="decimal"><span class="input-group-text">گرم</span></div></div>`;
             } else if (type === 'coin') {
                 const coinTypes = ['ربع ۸۶', 'نیم ۸۶', 'امامی ۸۶', 'ربع زیر ۸۶', 'نیم زیر ۸۶', 'امامی زیر ۸۶', 'یک گرمی بانکی'];
                 item.coinType = 'ربع ۸۶';
@@ -903,17 +890,10 @@
                 const coinPriceInput = itemDiv.querySelector('.purchase-coin-price');
                 coinTypeInput.addEventListener('change', e => { item.coinType = e.target.value; calculateAndRender(); });
                 
-                // --- Input/Blur handling for numeric fields (Coin Price) ---
-                coinPriceInput.addEventListener('focus', (e) => {
-                    e.target.value = toEnglishDigits(item.price);
-                });
                 coinPriceInput.addEventListener('input', e => {
+                    applyLivePersianConversion(e);
                     const value = parseFormattedNumber(e.target.value);
-                    if (value.toString().length <= 9) {
-                        item.price = value;
-                    } else {
-                        e.target.value = formatNumber(item.price);
-                    }
+                    item.price = value;
                     calculateAndRender();
                 });
                 coinPriceInput.addEventListener('blur', (e) => {
@@ -922,21 +902,15 @@
 
             } else {
                  const weightInput = itemDiv.querySelector('.purchase-weight');
-                 // --- Input/Blur handling for numeric fields (Purchase Weight) ---
-                 weightInput.addEventListener('focus', (e) => {
-                     e.target.value = toEnglishDigits(item.weight);
-                 });
                  weightInput.addEventListener('input', e => {
+                    applyLivePersianConversion(e);
                     const value = toEnglishDigits(e.target.value);
                     if (/^\d*\.?\d*$/.test(value)) {
                         item.weight = value;
                     } else {
-                        e.target.value = toPersianDigits(item.weight);
+                        e.target.value = toPersianDigits(item.weight || '');
                     }
                     calculateAndRender();
-                 });
-                 weightInput.addEventListener('blur', (e) => {
-                     e.target.value = toPersianDigits(item.weight);
                  });
             }
         }
@@ -950,18 +924,16 @@
             let totalTax = 0;
             let itemsWithTaxCount = 0; 
             
-            let totalSoldGoldWeight = 0; // For products
-            let totalPurchasedGoldWeight = 0; // For gold/bullion/parsian purchases
+            let totalSoldGoldWeight = 0;
 
             const validProducts = state.products.filter(p => parseFloat(p.weight) > 0);
             if (validProducts.length > 0) {
                 productsHTML += `<div class="invoice-section"><div class="invoice-section-title">محصولات</div>`;
                 validProducts.forEach((p, index) => {
                     const weight = parseFloat(p.weight) || 0;
-                    totalSoldGoldWeight += weight; // Accumulate sold gold weight
+                    totalSoldGoldWeight += weight;
 
                     const goldPricePerGram = state.goldPrice; 
-                    
                     let ajratPerGram = 0;
                     let isAjratEntered = false; 
                     
@@ -980,9 +952,7 @@
                     }
 
                     const profitPercentage = (p.profitPercentage || 0) / 100; 
-                    
                     const basePricePerGram = goldPricePerGram + ajratPerGram;
-                    
                     const profitPerGram = basePricePerGram * profitPercentage;
                     const totalBeforeTaxPerGram = basePricePerGram + profitPerGram;
                     
@@ -990,60 +960,50 @@
                     const itemTax = itemTaxPerGram * weight;
                     totalTax += itemTax;
 
-                    if (itemTax > 0) {
-                        itemsWithTaxCount++;
-                    }
+                    if (itemTax > 0) itemsWithTaxCount++;
 
                     const itemTotal = (totalBeforeTaxPerGram * weight) + itemTax;
-
 
                     productsHTML += `<div class="invoice-item">`;
                     if(validProducts.length > 1) productsHTML += `<b>آیتم ${toPersianDigits(index+1)}</b>`;
                     productsHTML += `<div class="invoice-item-header"><span>${p.type} - ${toPersianDigits(weight)} گرم</span><span>${formatNumber(itemTotal)} تومان</span></div>`;
                     let details = [];
                     
-                    if (p.profitPercentage > 0) {
-                        details.push(`سود: ${toPersianDigits(Math.round(p.profitPercentage))}٪`); // Changed to round for integer display
-                    } else {
-                        details.push(`بدون سود`); 
-                    }
+                    if (p.profitPercentage > 0) details.push(`سود: ${toPersianDigits(Math.round(p.profitPercentage))}٪`);
+                    else details.push(`بدون سود`); 
 
                     if (isAjratEntered) {
-                        if (p.ajratType === 'toman') {
-                            details.push(`اجرت: ${formatNumber(parseFormattedNumber(p.ajratValue.toString()) || 0)} تومان`); 
-                        } else {
-                            details.push(`اجرت: ${toPersianDigits(parseFloat(p.ajratValue))}%`); 
-                        }
+                        if (p.ajratType === 'toman') details.push(`اجرت: ${formatNumber(parseFormattedNumber(p.ajratValue.toString()) || 0)} تومان`); 
+                        else details.push(`اجرت: ${toPersianDigits(parseFloat(p.ajratValue))}%`); 
                     } else {
                         details.push(`بدون اجرت`);
                     }
                     
-                    if(state.taxEnabled) {
-                        if (itemTax > 0) {
-                           details.push(`مالیات: ۱۰٪`);
-                        }
-                    } else {
-                        details.push('بدون مالیات');
-                    }
+                    if(state.taxEnabled && itemTax > 0) details.push(`مالیات: ۱۰٪`);
+                    else details.push('بدون مالیات');
                     
                     if (details.length > 0) productsHTML += `<div class="invoice-item-details">${details.join(' - ')}</div>`;
                     productsHTML += `</div>`;
                 });
                 productsHTML += `</div>`;
             }
-
+            
             let totalPurchaseValue = 0;
             const validPurchases = state.purchases.filter(p => (p.weight && parseFloat(p.weight) > 0) || (p.price && parseFloat(p.price) > 0));
+            const miscGoldPurchases = validPurchases.filter(p => p.type === 'gold');
+            const otherPurchases = validPurchases.filter(p => p.type !== 'gold');
+
             if (validPurchases.length > 0) {
-                 const hasCoin = validPurchases.some(p => ['coin'].includes(p.type));
-                 const hasGoldTypes = validPurchases.some(p => p.type === 'gold' || p.type === 'bullion' || p.type === 'parsian');
+                 const hasMiscGold = miscGoldPurchases.length > 0;
+                 const hasOthers = otherPurchases.length > 0;
                  let purchaseTitle = 'خرید ';
-                 if(hasGoldTypes && hasCoin) purchaseTitle += 'طلا و سکه از مشتری';
-                 else if(hasGoldTypes) purchaseTitle += 'طلا از مشتری';
-                 else if(hasCoin) purchaseTitle += 'سکه از مشتری';
+                 if(hasMiscGold && hasOthers) purchaseTitle += 'طلا و سکه از مشتری';
+                 else if(hasMiscGold) purchaseTitle += 'طلا از مشتری';
+                 else if(hasOthers) purchaseTitle += 'متفرقه از مشتری';
 
                 purchasesHTML += `<div class="invoice-separator"></div><div class="invoice-section"><div class="invoice-section-title">${purchaseTitle}</div>`;
-                validPurchases.forEach(p => {
+                
+                otherPurchases.forEach(p => {
                     let value = 0;
                     let label = '';
                     if (p.type === 'coin') {
@@ -1051,51 +1011,72 @@
                         label = `سکه ${p.coinType}`;
                     } else {
                         const weight = parseFloat(p.weight) || 0;
-                        // Only count gold/bullion/parsian for totalPurchasedGoldWeight
-                        if (['gold', 'bullion', 'parsian'].includes(p.type)) {
-                            totalPurchasedGoldWeight += weight; 
-                        }
                         if (p.type === 'bullion') value = (weight * 995 / 750) * state.goldPrice;
                         else if (p.type === 'parsian') value = (weight * 740 / 750) * state.goldPrice; 
-                        else value = weight * state.goldPrice; 
-                        const typeName = {gold: 'طلای متفرقه', bullion: 'شمش', parsian: 'پارسیان'}[p.type];
+                        const typeName = {bullion: 'شمش', parsian: 'پارسیان'}[p.type];
                         label = `${typeName} - ${toPersianDigits(weight)} گرم`;
                     }
                     totalPurchaseValue += value;
                     purchasesHTML += `<div class="invoice-summary-line"><span>${label}</span><span class="invoice-value-danger">${formatNumber(value)} تومان</span></div>`;
                 });
+                
+                const totalMiscGoldWeight = miscGoldPurchases.reduce((sum, p) => sum + (parseFloat(p.weight) || 0), 0);
+                if (totalMiscGoldWeight > 0) {
+                    const excessWeight = Math.max(0, totalMiscGoldWeight - totalSoldGoldWeight);
+                    const nonExcessWeight = totalMiscGoldWeight - excessWeight;
+                    
+                    const effectiveExcessPricePerGram = (state.excessGoldPurchaseEnabled && state.excessGoldPurchasePricePerGram > 0)
+                        ? state.excessGoldPurchasePricePerGram
+                        : state.goldPrice;
+                    
+                    const totalMiscGoldValue = (nonExcessWeight * state.goldPrice) + (excessWeight * effectiveExcessPricePerGram);
+                    totalPurchaseValue += totalMiscGoldValue;
+                    
+                    purchasesHTML += `<div class="invoice-summary-line"><span>طلای متفرقه - ${toPersianDigits(totalMiscGoldWeight.toFixed(2))} گرم</span><span class="invoice-value-danger">${formatNumber(totalMiscGoldValue)} تومان</span></div>`;
+                    
+                    if (excessWeight > 0) {
+                        excessGoldContainer.classList.remove('hidden');
+                        excessGoldWeightDisplay.textContent = toPersianDigits(excessWeight.toFixed(2));
+                        excessGoldInputWrapper.classList.toggle('hidden', !state.excessGoldPurchaseEnabled);
+                    } else {
+                        excessGoldContainer.classList.add('hidden');
+                        state.excessGoldPurchaseEnabled = false;
+                        excessGoldSwitch.checked = false;
+                    }
+                } else {
+                    excessGoldContainer.classList.add('hidden');
+                }
+
                 purchasesHTML += `</div>`;
+            } else {
+                 excessGoldContainer.classList.add('hidden');
             }
+
 
             const saleTotal = validProducts.reduce((acc, p) => {
                  const weight = parseFloat(p.weight) || 0;
                  const goldPricePerGram = state.goldPrice;
-                 
                  let ajratPerGram = 0;
                  if (p.ajratType === 'toman') {
                      ajratPerGram = weight > 0 ? (parseFormattedNumber(p.ajratValue.toString()) || 0) / weight : 0;
                  } else {
-                     const ajratPercentage = (parseFloat(p.ajratValue) || 0) / 100;
-                     ajratPerGram = goldPricePerGram * ajratPercentage;
+                     ajratPerGram = goldPricePerGram * ((parseFloat(p.ajratValue) || 0) / 100);
                  }
-
-                 const profitPercentage = (p.profitPercentage || 0) / 100; 
                  const basePricePerGram = goldPricePerGram + ajratPerGram;
-                 const profitPerGram = basePricePerGram * profitPercentage;
-                 const totalBeforeTaxPerGram = basePricePerGram + profitPerGram;
-
-                 return acc + (totalBeforeTaxPerGram * weight);
+                 const profitPerGram = basePricePerGram * ((p.profitPercentage || 0) / 100);
+                 return acc + ((basePricePerGram + profitPerGram) * weight);
             }, 0);
 
             let currentGrandTotal = saleTotal + totalTax - totalPurchaseValue;
             
-            // Manual Discount Input/Blur handling
             state.manualDiscount = parseFormattedNumber(manualDiscountInput.value);
-            const maxDiscount = currentGrandTotal * 0.3; 
-            if (currentGrandTotal > 0 && state.manualDiscount > maxDiscount) {
+            const maxDiscount = currentGrandTotal > 0 ? currentGrandTotal * 0.3 : 0; 
+            if (state.manualDiscount > maxDiscount) {
                 state.manualDiscount = maxDiscount;
             }
-            // NO `manualDiscountInput.value = formatNumber(state.manualDiscount);` here
+            if (!manualDiscountInput.matches(':focus')) {
+                manualDiscountInput.value = formatNumber(state.manualDiscount);
+            }
 
             currentGrandTotal -= state.manualDiscount;
 
@@ -1107,107 +1088,34 @@
                 if (currentGrandTotal > 0) {
                     const lastThreeDigits = currentGrandTotal % 1000;
                     let desiredRoundedValue = currentGrandTotal - lastThreeDigits; 
-
                     const remainder5k = desiredRoundedValue % 5000;
-                    if (remainder5k !== 0) { 
-                        desiredRoundedValue = desiredRoundedValue - remainder5k; 
-                    }
-                    
-                    roundDiscountAmount = currentGrandTotal - desiredRoundedValue;
-                    roundDiscountAmount = Math.max(0, Math.min(roundDiscountAmount, currentGrandTotal));
-                    
-                    if (roundDiscountAmount > 0) {
-                        currentGrandTotal -= roundDiscountAmount;
-                        roundDiscountLabel = 'تخفیف رند';
-                        roundDiscountClass = 'invoice-value-discount';
-                    } else {
-                        roundDiscountAmount = 0;
-                    }
-
+                    if (remainder5k !== 0) desiredRoundedValue = desiredRoundedValue - remainder5k; 
+                    roundDiscountAmount = Math.max(0, currentGrandTotal - desiredRoundedValue);
                 } else if (currentGrandTotal < 0) {
                     let absoluteTotal = Math.abs(currentGrandTotal);
-                    
                     const lastThreeDigits = absoluteTotal % 1000;
-                    let desiredRoundedValue;
-
-                    if (lastThreeDigits === 0) {
-                        desiredRoundedValue = absoluteTotal;
-                    } else {
-                        desiredRoundedValue = absoluteTotal + (1000 - lastThreeDigits);
-                    }
-
+                    let desiredRoundedValue = (lastThreeDigits === 0) ? absoluteTotal : absoluteTotal + (1000 - lastThreeDigits);
                     const remainder5k = desiredRoundedValue % 5000;
-                    if (remainder5k !== 0) { 
-                        desiredRoundedValue = desiredRoundedValue + (5000 - remainder5k); 
-                    }
-                    
+                    if (remainder5k !== 0) desiredRoundedValue = desiredRoundedValue + (5000 - remainder5k); 
                     roundDiscountAmount = desiredRoundedValue - absoluteTotal;
-                    
-                    currentGrandTotal -= roundDiscountAmount;
-                    
                     if (roundDiscountAmount > 0) {
                         roundDiscountLabel = 'رند به نفع مشتری';
                         roundDiscountClass = 'invoice-value-success';
-                    } else {
-                         roundDiscountAmount = 0;
                     }
                 }
+                currentGrandTotal -= roundDiscountAmount;
             }
             
-            // --- UPDATED: Excess Gold Purchase Price Section (Direct DOM manipulation) ---
-            let excessGoldWeight = 0;
-            let effectiveExcessPricePerGram = 0;
-            let excessPrice = 0;
-
-            if (totalPurchasedGoldWeight > totalSoldGoldWeight) {
-                excessGoldWeight = totalPurchasedGoldWeight - totalSoldGoldWeight;
-                
-                // Show the excess gold container
-                excessGoldContainer.classList.remove('hidden'); 
-                
-                // Update weight displays
-                excessGoldWeightDisplay.textContent = toPersianDigits(excessGoldWeight);
-                excessGoldSummaryWeight.textContent = toPersianDigits(excessGoldWeight);
-
-                if (state.excessGoldPurchaseEnabled && state.excessGoldPurchasePricePerGram > 0) {
-                    effectiveExcessPricePerGram = state.excessGoldPurchasePricePerGram;
-                } else {
-                    effectiveExcessPricePerGram = state.goldPrice;
-                }
-                
-                excessPrice = effectiveExcessPricePerGram * excessGoldWeight;
-                currentGrandTotal -= excessPrice; 
-
-                // Update summary value
-                excessGoldSummaryValue.textContent = formatNumber(excessPrice) + ' تومان';
-
-                // Ensure input wrapper visibility based on switch state
-                excessGoldInputWrapper.classList.toggle('hidden', !state.excessGoldPurchaseEnabled);
-                // Ensure switch reflects state (it's already handled by its own event listener)
-                // excessGoldSwitch.checked = state.excessGoldPurchaseEnabled; 
-
-            } else {
-                // Hide the entire excess gold container if no excess gold
-                excessGoldContainer.classList.add('hidden');
-                // Also reset the state related to excess gold if it's no longer applicable
-                state.excessGoldPurchasePricePerGram = 0; 
-                state.excessGoldPurchaseEnabled = false; 
-                excessGoldSwitch.checked = false; // Ensure switch reflects state
-            }
-
-
             if (state.taxEnabled && totalTax > 0 && itemsWithTaxCount >= 2) {
                  summaryHTML += `<div class="invoice-separator"></div>`; 
                  summaryHTML += `<div class="invoice-summary-line"><span>جمع مالیات</span><span>${formatNumber(totalTax)} تومان</span></div>`;
-            } else if (state.manualDiscount > 0 || (state.roundDiscountEnabled && roundDiscountAmount > 0) || (excessGoldWeight > 0 && !excessGoldContainer.classList.contains('hidden'))) { 
-                // Only add separator if excess gold is actually shown
+            } else if (state.manualDiscount > 0 || (state.roundDiscountEnabled && roundDiscountAmount > 0)) { 
                 summaryHTML += `<div class="invoice-separator"></div>`;
             }
             
             if (state.manualDiscount > 0) {
                  summaryHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-discount">${formatNumber(state.manualDiscount)} تومان</span></div>`;
             }
-
             if (state.roundDiscountEnabled && roundDiscountAmount > 0) {
                 summaryHTML += `<div class="invoice-summary-line"><span>${roundDiscountLabel}</span><span class="${roundDiscountClass}">${formatNumber(roundDiscountAmount)} تومان</span></div>`;
             }
@@ -1226,26 +1134,15 @@
             
             invoiceContentContainer.innerHTML = productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
             
-            // Re-inject the print-only div at the top inside the invoice card content
             const printOnlyDiv = document.createElement('div');
             printOnlyDiv.className = 'print-only';
             printOnlyDiv.style = "margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);";
-            printOnlyDiv.innerHTML = `
-                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
-                    <span>خریدار: <span id="print-customer-name">${customerPrefix} ${state.customerName || ''}</span></span>
-                    <span>تاریخ: <span id="print-date">${toPersianDigits(state.day || '')} ${getJalaliMonthName(state.month || '')} ${toPersianDigits(state.year || '')}</span></span>
-                </div>
-                <div style="text-align: right; margin-bottom: 0.5rem;">
-                    <span>قیمت هر گرم طلا ۱۸ عیار: <span id="print-gold-price">${formatNumber(state.goldPrice)}</span> تومان</span>
-                </div>
-                <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.75rem 0;">
-            `;
+            printOnlyDiv.innerHTML = `<div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;"><span>خریدار: <span id="print-customer-name">${customerPrefix} ${state.customerName || ''}</span></span><span>تاریخ: <span id="print-date">${toPersianDigits(state.day || '')} ${getJalaliMonthName(state.month || '')} ${toPersianDigits(state.year || '')}</span></span></div><div style="text-align: right; margin-bottom: 0.5rem;"><span>قیمت هر گرم طلا ۱۸ عیار: <span id="print-gold-price">${formatNumber(state.goldPrice)}</span> تومان</span></div><hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.75rem 0;">`;
             invoiceContentContainer.prepend(printOnlyDiv);
-
-            // Ensure initial state of excess gold input value is correct after calculateAndRender
+            
             if (excessGoldPriceInput) {
                 if (state.excessGoldPurchasePricePerGram === 0 && !excessGoldPriceInput.matches(':focus')) {
-                    excessGoldPriceInput.value = ''; // Keep empty if 0 and not focused
+                    excessGoldPriceInput.value = '';
                 } else if (!excessGoldPriceInput.matches(':focus')) {
                     excessGoldPriceInput.value = formatNumber(state.excessGoldPurchasePricePerGram);
                 }
@@ -1256,11 +1153,11 @@
         function renderCustomerInfoDateWidget() {
             maleOption.classList.toggle('gender-text-selected', state.customerGender === 'male');
             femaleOption.classList.toggle('gender-text-selected', state.customerGender === 'female');
-
             document.getElementById('day-display').textContent = toPersianDigits(state.day) + ' (روز)';
             document.getElementById('month-display').textContent = getJalaliMonthName(state.month) + ' (ماه)';
-            yearInput.value = toPersianDigits(state.year);
-            
+            if (!yearInput.matches(':focus')) {
+                yearInput.value = toPersianDigits(state.year);
+            }
             updateYearButtonsState();
         }
         
@@ -1285,18 +1182,11 @@
             yearMinusBtn.disabled = (state.year <= MIN_YEAR);
         };
         
-        // --- Event Listeners (Main Invoice) ---
-        // Input/Blur handling for gold-price
-        goldPriceInput.addEventListener('focus', (e) => {
-            e.target.value = toEnglishDigits(state.goldPrice);
-        });
+        // --- Event Listeners ---
         goldPriceInput.addEventListener('input', (e) => {
+            applyLivePersianConversion(e);
             const value = parseFormattedNumber(e.target.value);
-            if (value.toString().length <= 8) {
-                state.goldPrice = value;
-            } else {
-                e.target.value = formatNumber(state.goldPrice);
-            }
+            state.goldPrice = value;
             updatePriceInWords();
             calculateAndRender();
         });
@@ -1307,12 +1197,8 @@
         addProductBtn.addEventListener('click', () => createProductItem());
         taxSwitch.addEventListener('change', (e) => { state.taxEnabled = e.target.checked; calculateAndRender(); });
         
-        // Input/Blur handling for manual-discount
-        manualDiscountInput.addEventListener('focus', (e) => {
-            e.target.value = toEnglishDigits(state.manualDiscount);
-        });
-        manualDiscountInput.addEventListener('input', () => {
-            // value will be parsed inside calculateAndRender now
+        manualDiscountInput.addEventListener('input', (e) => {
+            applyLivePersianConversion(e);
             calculateAndRender();
         });
         manualDiscountInput.addEventListener('blur', (e) => {
@@ -1327,160 +1213,85 @@
             if (e.target.classList.contains('add-purchase-btn')) createPurchaseItem(e.target.dataset.type);
         });
         
-        printBtn.addEventListener('click', () => {
-            window.print();
-        });
+        printBtn.addEventListener('click', () => { window.print(); });
 
-
-        // --- Event Listeners (Customer Info and Date) ---
         customerNameInput.addEventListener('input', (e) => {
             const rawValue = e.target.value;
             const persianOnly = rawValue.replace(/[^ابپتثجچحخدذرزژسشصضطظعغفقکگلمنوهی ئأإؤكيك\u200C ]/g, ''); 
-            if (persianOnly !== rawValue) {
-                e.target.value = persianOnly; 
-            }
+            if (persianOnly !== rawValue) e.target.value = persianOnly; 
             state.customerName = persianOnly;
             calculateAndRender(); 
         });
 
         maleOption.addEventListener('click', () => {
-            if (state.customerGender === 'male') { 
-                state.customerGender = null;
-            } else {
-                state.customerGender = 'male';
-            }
-            renderCustomerInfoDateWidget(); 
-            calculateAndRender(); 
+            state.customerGender = state.customerGender === 'male' ? null : 'male';
+            renderCustomerInfoDateWidget(); calculateAndRender(); 
         });
-
         femaleOption.addEventListener('click', () => {
-            if (state.customerGender === 'female') { 
-                state.customerGender = null;
-            } else {
-                state.customerGender = 'female';
-            }
-            renderCustomerInfoDateWidget(); 
-            calculateAndRender(); 
+            state.customerGender = state.customerGender === 'female' ? null : 'female';
+            renderCustomerInfoDateWidget(); calculateAndRender(); 
         });
 
         daySlider.addEventListener('input', (e) => {
             state.day = parseInt(e.target.value);
-            if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
-                state.day = getDaysInMonth(state.year, state.month);
-                daySlider.value = state.day;
-            }
-            renderCustomerInfoDateWidget();
-            calculateAndRender(); 
+            renderCustomerInfoDateWidget(); calculateAndRender(); 
         });
-
         monthSlider.addEventListener('input', (e) => {
             state.month = parseInt(e.target.value);
-            updateMonthDisplay();
-            updateDaySliderMax(); 
-            if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
-                state.day = getDaysInMonth(state.year, state.month);
-                daySlider.value = state.day;
-            }
-            renderCustomerInfoDateWidget();
-            calculateAndRender(); 
+            updateMonthDisplay(); updateDaySliderMax(); 
+            renderCustomerInfoDateWidget(); calculateAndRender(); 
         });
-        // Input/Blur handling for year-input
-        yearInput.addEventListener('focus', (e) => {
-            e.target.value = toEnglishDigits(state.year);
-        });
+        
         yearInput.addEventListener('input', (e) => {
+            applyLivePersianConversion(e);
             const value = parseInt(toEnglishDigits(e.target.value), 10);
-            if ((!isNaN(value) && value >= MIN_YEAR && value <= MAX_YEAR) || e.target.value === '') {
-                state.year = isNaN(value) ? null : value;
-            } else {
-                e.target.value = toPersianDigits(state.year || currentJalaliDate.jy); 
+            if (!isNaN(value) && value >= MIN_YEAR && value <= MAX_YEAR) {
+                state.year = value;
+                updateDaySliderMax();
+                renderCustomerInfoDateWidget();
+                calculateAndRender();
             }
-            updateDaySliderMax(); 
-            if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
-                state.day = getDaysInMonth(state.year, state.month);
-                daySlider.value = state.day;
-            }
-            renderCustomerInfoDateWidget();
-            calculateAndRender(); 
-        });
-        yearInput.addEventListener('blur', (e) => {
-            e.target.value = toPersianDigits(state.year || currentJalaliDate.jy);
         });
 
         yearPlusBtn.addEventListener('click', () => {
-            if (state.year < MAX_YEAR) {
-                state.year++;
-                updateDaySliderMax();
-                if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
-                    state.day = getDaysInMonth(state.year, state.month);
-                    daySlider.value = state.day;
-                }
-                renderCustomerInfoDateWidget();
-                calculateAndRender(); 
-            }
+            if (state.year < MAX_YEAR) { state.year++; updateDaySliderMax(); renderCustomerInfoDateWidget(); calculateAndRender(); }
         });
-
         yearMinusBtn.addEventListener('click', () => {
-            if (state.year > MIN_YEAR) { 
-                state.year--;
-                updateDaySliderMax();
-                if (!jalaali.isValidJalaaliDate(state.year, state.month, state.day)) {
-                    state.day = getDaysInMonth(state.year, state.month);
-                    daySlider.value = state.day;
-                }
-                renderCustomerInfoDateWidget();
-                calculateAndRender(); 
-            }
+            if (state.year > MIN_YEAR) { state.year--; updateDaySliderMax(); renderCustomerInfoDateWidget(); calculateAndRender(); }
         });
-
-        // --- Event Listeners (Excess Gold) ---
+        
         if (excessGoldSwitch) {
             excessGoldSwitch.addEventListener('change', (e) => {
                 state.excessGoldPurchaseEnabled = e.target.checked;
-                calculateAndRender(); // Only triggers re-calculation and visibility update
+                calculateAndRender();
             });
         }
-
         if (excessGoldPriceInput) {
-            excessGoldPriceInput.addEventListener('focus', () => {
-                excessGoldPriceInput.value = toEnglishDigits(String(state.excessGoldPurchasePricePerGram));
-            });
-
             excessGoldPriceInput.addEventListener('input', (e) => {
-                const value = toEnglishDigits(e.target.value.replace(/,/g, ''));
-                const cleanedValue = value.replace(/[^0-9]/g, ''); 
-                
-                state.excessGoldPurchasePricePerGram = parseInt(cleanedValue, 10) || 0;
-                
+                applyLivePersianConversion(e);
+                const value = parseFormattedNumber(e.target.value);
+                state.excessGoldPurchasePricePerGram = value;
                 calculateAndRender(); 
             });
-
             excessGoldPriceInput.addEventListener('blur', (e) => {
                 e.target.value = formatNumber(state.excessGoldPurchasePricePerGram);
                 calculateAndRender();
             });
         }
 
-
         // --- Initialization ---
         const today = new Date();
         const currentJalaliDate = jalaali.toJalaali(today.getFullYear(), today.getMonth() + 1, today.getDate()); 
-        
         const currentYearInJalali = currentJalaliDate.jy;
         const MIN_YEAR = currentYearInJalali - 1; 
         const MAX_YEAR = currentYearInJalali;     
 
-        if (state.day === null) {
-            daySlider.value = state.day = currentJalaliDate.jd;
-        }
-        if (state.month === null) {
-            monthSlider.value = state.month = currentJalaliDate.jm;
-        }
-        if (state.year === null) {
-            state.year = currentJalaliDate.jy; 
-            yearInput.value = toPersianDigits(state.year); 
-        }
-
+        state.day = currentJalaliDate.jd;
+        daySlider.value = state.day;
+        state.month = currentJalaliDate.jm;
+        monthSlider.value = state.month;
+        state.year = currentJalaliDate.jy;
+        
         roundDiscountSwitch.checked = state.roundDiscountEnabled;
 
         createProductItem(true);
@@ -1488,6 +1299,5 @@
         calculateAndRender(); 
     });
     </script>
-
 </body>
 </html>
