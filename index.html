@@ -7,7 +7,6 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         /* CSS Variables for theming */
         :root {
@@ -90,15 +89,13 @@
             margin-bottom: 0;
         }
 
-        /* Updated form-label to properly align elements */
         .form-label {
             display: flex;
             align-items: center;
-            justify-content: space-between; /* Pushes items to far ends */
+            justify-content: space-between;
             margin-bottom: 0.5rem;
             font-weight: 500;
             font-size: 0.9rem;
-            /* No need for direction: rtl here if children handle their own direction */
         }
 
         .input-field, .select-field {
@@ -262,24 +259,23 @@
         }
         .btn-secondary:hover { background-color: #dbe8fd; }
         
-        /* Styles for individual product profit slider */
         .product-profit-group {
-            padding-top: 0.5rem; /* Reduced padding */
-            margin-top: 0.5rem; /* Small margin to separate from ajrat */
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
         }
         .product-profit-slider {
-            -webkit-appearance: none; width: 100%; height: 6px; /* Narrower slider */
-            background: var(--border-color); outline: none; border-radius: 3px; /* Smaller border radius */
+            -webkit-appearance: none; width: 100%; height: 6px;
+            background: var(--border-color); outline: none; border-radius: 3px;
         }
 
         .product-profit-slider::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 18px; height: 18px; /* Smaller thumb */
-            background: var(--primary-color); cursor: pointer; border: 2px solid #fff; /* Thinner border */
+            -webkit-appearance: none; appearance: none; width: 18px; height: 18px;
+            background: var(--primary-color); cursor: pointer; border: 2px solid #fff;
         }
         
         .product-slider-value {
-            text-align: center; font-weight: 600; font-size: 0.95rem; /* Slightly smaller text */
-            margin-top: 0.3rem; /* Reduced margin */
+            text-align: center; font-weight: 600; font-size: 0.95rem;
+            margin-top: 0.3rem;
             color: var(--primary-color);
         }
 
@@ -299,9 +295,6 @@
             padding-bottom: 0.6rem;
         }
 
-        /* Smart discount styles are removed */
-
-        /* Invoice structure styling */
         .invoice-section { margin-bottom: 1rem; }
         .invoice-section-title { font-weight: 600; margin-bottom: 0.75rem; color: var(--text-color); }
         .invoice-item { margin-bottom: 1rem; font-size: 0.95rem; }
@@ -311,7 +304,7 @@
         .invoice-separator { height: 1px; background-color: var(--border-color); margin: 1rem 0; }
         .invoice-value-danger { color: var(--danger-color); }
         .invoice-value-discount { color: var(--discount-color); }
-        .invoice-value-success { color: var(--success-color); } /* New style for success (green) */
+        .invoice-value-success { color: var(--success-color); }
         .invoice-final-total {
             display: flex; justify-content: space-between;
             padding-top: 1rem; margin-top: 1rem;
@@ -321,42 +314,16 @@
         
         .hidden { display: none !important; }
 
-        /* Print-specific styles */
-        @media print {
-            body > .container > *:not(#invoice-card), /* Hide all cards except invoice card */
-            #print-btn-container,
-            #profit-tax-section,
-            #customer-info-card { /* Hide customer info card in print (as its content is moved to invoice-card) */
-                display: none;
-            }
-            #invoice-card {
-                box-shadow: none;
-                border: none;
-                margin: 0;
-                padding: 0;
-            }
-            .print-only { /* Show elements only in print */
-                display: block !important;
-            }
-        }
-
-        /* Screen-only styles */
         .print-only {
-            display: none; /* Hide by default on screen */
+            display: none;
         }
         
-        /* Styles for gender text "آقا" and "خانم" (from new code) */
-        /* Adjusted to align 'آقا' and 'خانم' next to 'نام خریدار' and push them left */
-        .form-label-text {
-            /* flex-shrink: 0; Remove this if it causes issues with text wrapping */
-        }
+        .form-label-text { }
         .gender-option-container {
             display: flex;
-            gap: 5px; /* Space between "آقا" and "خانم" */
-            flex-shrink: 0; /* Prevent options from shrinking */
-            /* Removed order: -1; and margin-right: auto; as they are not needed with flex-grow on text */
-            /* Instead, we make the label text take up available space to push options left */
-            margin-left: auto; /* Pushes to the left in RTL context */
+            gap: 5px;
+            flex-shrink: 0;
+            margin-left: auto;
         }
 
         .gender-text {
@@ -371,10 +338,9 @@
         }
         
         .gender-text-selected {
-            background-color: var(--primary-light); /* Light blue background when selected */
+            background-color: var(--primary-light);
         }
         
-        /* Styles for date sliders (from new code) */
         .date-slider-group {
             padding-top: 0.5rem; 
             margin-top: 0.5rem; 
@@ -386,7 +352,7 @@
             margin-top: 0.3rem; 
             color: var(--primary-color);
         }
-        .profit-slider { /* Re-using the same slider style for consistency */
+        .profit-slider {
             -webkit-appearance: none; width: 100%; height: 6px; 
             background: var(--border-color); outline: none; border-radius: 3px; 
         }
@@ -396,20 +362,17 @@
             background: var(--primary-color); cursor: pointer; border: 2px solid #fff; 
         }
 
-        /* Styles for year control buttons (from new code) */
         .year-control-group {
             display: flex;
             align-items: center;
             gap: 5px; 
-            direction: rtl; /* For consistency with date inputs */
+            direction: rtl;
         }
         .year-control-group .input-field {
             flex-grow: 1; 
             text-align: center; 
-            /* Adjusted border-radius for year input within the group */
             border-radius: 0; 
         }
-        /* Adjusted input-group-text for year unit to fit into year-control-group */
         .year-control-group .input-group-text {
             border-radius: var(--border-radius) 0 0 var(--border-radius);
             border-right: 1px solid var(--border-color);
@@ -442,6 +405,28 @@
             cursor: not-allowed;
             background-color: var(--primary-light);
             color: var(--primary-color);
+        }
+
+        /* Print-specific styles */
+        @media print {
+            body > .container > *:not(#invoice-card),
+            #print-btn-container,
+            #profit-tax-section,
+            #customer-info-card {
+                display: none;
+            }
+            .screen-only {
+                display: none !important;
+            }
+            #invoice-card {
+                box-shadow: none;
+                border: none;
+                margin: 0;
+                padding: 0;
+            }
+            .print-only {
+                display: block !important;
+            }
         }
 
         @media (max-width: 768px) {
@@ -515,7 +500,7 @@
         </div>
 
         <div class="card" id="invoice-card">
-            <h2 class="card-header">فاکتور</h2>
+            <h2 class="card-header screen-only">فاکتور</h2>
             <div id="invoice-content">
                 <div class="print-only" style="margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
@@ -570,7 +555,6 @@
         </div>
         <div id="print-btn-container" style="display: flex; gap: 1rem; margin-top: 1.5rem;">
             <button id="print-btn" class="btn btn-primary" style="flex: 1;">چاپ فاکتور (PDF)</button>
-            <button id="save-as-jpg-btn" class="btn btn-secondary" style="flex: 1;">ذخیره فاکتور (عکس)</button>
         </div>
     </div>
 
@@ -589,7 +573,6 @@
         const addPurchaseBtnContainer = document.querySelector('.add-purchase-options');
         const purchaseItemsContainer = document.getElementById('purchase-items-container');
         const printBtn = document.getElementById('print-btn');
-        const saveAsJpgBtn = document.getElementById('save-as-jpg-btn');
 
         // --- DOM Elements (Customer Info and Date) ---
         const customerNameInput = document.getElementById('customer-name'); 
@@ -942,7 +925,7 @@
                     let details = [];
                     
                     if (p.profitPercentage > 0) {
-                        details.push(`سود: ${toPersianDigits(Math.round(p.profitPercentage))}٪`); 
+                        details.push(`سود: ${toPersianDigits(p.profitPercentage.toFixed(1))}٪`); 
                     } else {
                         details.push(`بدون سود`); 
                     }
@@ -951,10 +934,19 @@
                         if (p.ajratType === 'toman') {
                             details.push(`اجرت: ${formatNumber(parseFormattedNumber(p.ajratValue.toString()) || 0)} تومان`); 
                         } else {
-                            details.push(`اجرت: ${toPersianDigits(Math.round(parseFloat(p.ajratValue)))}٪`); 
+                            details.push(`اجرت: ${toPersianDigits(parseFloat(p.ajratValue))}%`); 
                         }
                     } else {
                         details.push(`بدون اجرت`);
+                    }
+                    
+                    // --- MODIFIED: Add tax info per item ---
+                    if(state.taxEnabled) {
+                        if (itemTax > 0) {
+                           details.push(`مالیات: ${formatNumber(itemTax)} تومان`);
+                        }
+                    } else {
+                        details.push('بدون مالیات');
                     }
                     
                     if (details.length > 0) productsHTML += `<div class="invoice-item-details">${details.join(' - ')}</div>`;
@@ -1018,7 +1010,7 @@
             
             state.manualDiscount = parseFormattedNumber(manualDiscountInput.value);
             const maxDiscount = currentGrandTotal * 0.3; 
-            if (currentGrandTotal > 0 && state.manualDiscount > maxDiscount) { // Only cap discount if total is positive
+            if (currentGrandTotal > 0 && state.manualDiscount > maxDiscount) {
                 state.manualDiscount = maxDiscount;
                 manualDiscountInput.value = formatNumber(state.manualDiscount);
             }
@@ -1026,11 +1018,11 @@
             currentGrandTotal -= state.manualDiscount;
 
             let roundDiscountAmount = 0;
-            let roundDiscountLabel = 'تخفیف رند'; // Default label
-            let roundDiscountClass = 'invoice-value-discount'; // Default class (red)
+            let roundDiscountLabel = 'تخفیف رند';
+            let roundDiscountClass = 'invoice-value-discount';
 
             if (state.roundDiscountEnabled) {
-                if (currentGrandTotal > 0) { // Scenario 1: We receive money from customer (needs to be rounded down)
+                if (currentGrandTotal > 0) {
                     const lastThreeDigits = currentGrandTotal % 1000;
                     let desiredRoundedValue = currentGrandTotal - lastThreeDigits; 
 
@@ -1040,53 +1032,47 @@
                     }
                     
                     roundDiscountAmount = currentGrandTotal - desiredRoundedValue;
-                    roundDiscountAmount = Math.max(0, Math.min(roundDiscountAmount, currentGrandTotal)); // Ensure positive and not over total
+                    roundDiscountAmount = Math.max(0, Math.min(roundDiscountAmount, currentGrandTotal));
                     
-                    if (roundDiscountAmount > 0) { // Only apply if there's a positive discount
+                    if (roundDiscountAmount > 0) {
                         currentGrandTotal -= roundDiscountAmount;
                         roundDiscountLabel = 'تخفیف رند';
                         roundDiscountClass = 'invoice-value-discount';
                     } else {
-                        roundDiscountAmount = 0; // No effective round discount
+                        roundDiscountAmount = 0;
                     }
 
-                } else if (currentGrandTotal < 0) { // Scenario 2: We pay money to customer (needs to be rounded up, to customer's benefit)
-                    // Work with absolute value for rounding
+                } else if (currentGrandTotal < 0) {
                     let absoluteTotal = Math.abs(currentGrandTotal);
                     
                     const lastThreeDigits = absoluteTotal % 1000;
                     let desiredRoundedValue;
 
-                    if (lastThreeDigits === 0) { // Already ends in 000
+                    if (lastThreeDigits === 0) {
                         desiredRoundedValue = absoluteTotal;
                     } else {
-                        desiredRoundedValue = absoluteTotal + (1000 - lastThreeDigits); // Round up to nearest 000
+                        desiredRoundedValue = absoluteTotal + (1000 - lastThreeDigits);
                     }
 
                     const remainder5k = desiredRoundedValue % 5000;
                     if (remainder5k !== 0) { 
-                        // If not divisible by 5000, round up to the next 5000 multiple
                         desiredRoundedValue = desiredRoundedValue + (5000 - remainder5k); 
                     }
                     
                     roundDiscountAmount = desiredRoundedValue - absoluteTotal;
                     
-                    // The roundDiscountAmount here is effectively an "extra payment" to the customer
-                    // We need to ADD this amount to the currentGrandTotal (which is negative)
-                    // Or, subtract it from the absolute value, then convert back to negative.
-                    currentGrandTotal -= roundDiscountAmount; // This makes negative number "less negative" or positive
+                    currentGrandTotal -= roundDiscountAmount;
                     
                     if (roundDiscountAmount > 0) {
                         roundDiscountLabel = 'رند به نفع مشتری';
                         roundDiscountClass = 'invoice-value-success';
                     } else {
-                         roundDiscountAmount = 0; // No effective round adjustment
+                         roundDiscountAmount = 0;
                     }
                 }
             }
 
 
-            // Condition for displaying total tax
             if (state.taxEnabled && totalTax > 0 && itemsWithTaxCount >= 2) {
                  summaryHTML += `<div class="invoice-separator"></div>`; 
                  summaryHTML += `<div class="invoice-summary-line"><span>جمع مالیات</span><span>${formatNumber(totalTax)} تومان</span></div>`;
@@ -1098,7 +1084,7 @@
                  summaryHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-discount">${formatNumber(state.manualDiscount)} تومان</span></div>`;
             }
 
-            if (state.roundDiscountEnabled && roundDiscountAmount > 0) { // Display round discount if it was applied
+            if (state.roundDiscountEnabled && roundDiscountAmount > 0) {
                 summaryHTML += `<div class="invoice-summary-line"><span>${roundDiscountLabel}</span><span class="${roundDiscountClass}">${formatNumber(roundDiscountAmount)} تومان</span></div>`;
             }
             
@@ -1112,17 +1098,28 @@
             }
             finalTotalHTML += `</div>`;
             
-            // Render customer info and date for print-only section
             const customerPrefix = state.customerGender === 'male' ? 'جناب آقای' : (state.customerGender === 'female' ? 'سرکار خانم' : '');
             printCustomerNameSpan.textContent = `${customerPrefix} ${state.customerName || ''}`;
             printDateSpan.textContent = `${toPersianDigits(state.day || '')} ${getJalaliMonthName(state.month || '')} ${toPersianDigits(state.year || '')}`;
             printGoldPriceSpan.textContent = formatNumber(state.goldPrice);
 
-            const existingPrintOnlyDivContent = invoiceContentContainer.querySelector('.print-only').innerHTML;
+            invoiceContentContainer.innerHTML = productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
             
-            invoiceContentContainer.innerHTML = `<div class="print-only" style="margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">
-                                                    ${existingPrintOnlyDivContent}
-                                                </div>` + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
+            // Re-inject the print-only div at the top inside the invoice card content
+            const printOnlyDiv = document.createElement('div');
+            printOnlyDiv.className = 'print-only';
+            printOnlyDiv.style = "margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);";
+            printOnlyDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; flex-wrap: wrap; gap: 0.5rem;">
+                    <span>خریدار: <span id="print-customer-name">${customerPrefix} ${state.customerName || ''}</span></span>
+                    <span>تاریخ: <span id="print-date">${toPersianDigits(state.day || '')} ${getJalaliMonthName(state.month || '')} ${toPersianDigits(state.year || '')}</span></span>
+                </div>
+                <div style="text-align: right; margin-bottom: 0.5rem;">
+                    <span>قیمت هر گرم طلا ۱۸ عیار: <span id="print-gold-price">${formatNumber(state.goldPrice)}</span> تومان</span>
+                </div>
+                <hr style="border: none; border-top: 1px solid var(--border-color); margin: 0.75rem 0;">
+            `;
+            invoiceContentContainer.prepend(printOnlyDiv);
         }
         
         // --- Customer Info & Date Widget Rendering ---
@@ -1185,9 +1182,6 @@
             window.print();
         });
 
-        saveAsJpgBtn.addEventListener('click', () => {
-            saveInvoiceAsJPG();
-        });
 
         // --- Event Listeners (Customer Info and Date) ---
         customerNameInput.addEventListener('input', (e) => {
@@ -1283,39 +1277,6 @@
                 calculateAndRender(); 
             }
         });
-
-        // --- JPG Export Function ---
-        function saveInvoiceAsJPG() {
-            const invoiceCard = document.getElementById('invoice-card');
-
-            const elementsToHideForCapture = document.querySelectorAll(
-                '#print-btn-container, #profit-tax-section, #customer-info-card, .add-purchase-options, #add-product-item, .delete-item-btn'
-            );
-            elementsToHideForCapture.forEach(el => el.classList.add('hidden'));
-
-            html2canvas(invoiceCard, {
-                scale: 2, 
-                useCORS: true 
-            }).then(function(canvas) {
-                const imgData = canvas.toDataURL('image/jpeg', 0.9); 
-
-                const link = document.createElement('a');
-                link.href = imgData;
-                link.download = 'فاکتور_طلا.jpg'; 
-
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-
-                elementsToHideForCapture.forEach(el => el.classList.remove('hidden'));
-
-            }).catch(err => {
-                console.error('خطا در تبدیل HTML به عکس:', err);
-                alert('فاکتور ذخیره نشد. لطفاً دوباره تلاش کنید.');
-                elementsToHideForCapture.forEach(el => el.classList.remove('hidden'));
-            });
-        }
-
 
         // --- Initialization ---
         const today = new Date();
