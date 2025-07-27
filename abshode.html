@@ -333,6 +333,8 @@
             font-size: 0.9rem; padding-top: 0.6rem; padding-bottom: 0.6rem;
         }
 
+        /* REMOVED .smart-discount-options CSS as the feature is removed */
+        /*
         .smart-discount-options {
             display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
             gap: 0.75rem;
@@ -346,6 +348,7 @@
         
         .smart-discount-btn:hover { border-color: var(--primary-color); }
         .smart-discount-btn.active { background-color: var(--primary-color); color: #fff; }
+        */
         
         /* Invoice structure styling */
         .invoice-section { margin-bottom: 1rem; }
@@ -439,11 +442,7 @@
                     <span class="input-group-text">تومان</span>
                 </div>
             </div>
-
-            <div id="smart-discount-container" class="form-group" style="margin-top: 1.5rem;"> <label class="form-label">تخفیف هوشمند (برای رند شدن)</label>
-                <div class="smart-discount-options" id="smart-discount-options"></div>
             </div>
-        </div>
 
         <div class="card" id="invoice-card">
             <h2 class="card-header">فاکتور</h2>
@@ -461,8 +460,9 @@
         // --- DOM Elements ---
         const goldPriceInput = document.getElementById('gold-price');
         const priceInWords = document.getElementById('price-in-words');
-        const smartDiscountContainer = document.getElementById('smart-discount-container');
-        const smartDiscountOptions = document.getElementById('smart-discount-options');
+        // REMOVED smartDiscountContainer, smartDiscountOptions
+        // const smartDiscountContainer = document.getElementById('smart-discount-container');
+        // const smartDiscountOptions = document.getElementById('smart-discount-options');
         const manualDiscountInput = document.getElementById('manual-discount-input');
         const invoiceContentContainer = document.getElementById('invoice-content');
         const printBtn = document.getElementById('print-btn');
@@ -478,7 +478,8 @@
 
         let state = {
             goldPrice: 0,
-            smartDiscount: 0, // This will store the *amount* of rounding discount applied
+            // REMOVED smartDiscount
+            // smartDiscount: 0, 
             manualDiscount: 0,
             products: []
         };
@@ -911,7 +912,7 @@
 
             let finalInvoiceValue = totalBaseValueBeforeProfit + totalProfitBeforeDiscount;
 
-            let totalDiscount = state.manualDiscount + state.smartDiscount;
+            let totalDiscount = state.manualDiscount; // Only manual discount remains
             let totalAmountBeforeDiscount = totalBaseValueBeforeProfit + totalProfitBeforeDiscount;
             let discountPercentageOfTotalAmount = 0;
             if (totalAmountBeforeDiscount > 0) {
@@ -984,60 +985,14 @@
             }
 
             invoiceContentContainer.innerHTML = invoiceHeaderExtra + invoiceHTML + finalTotalHTML + disclaimerHTML;
-            renderSmartDiscount(grandTotal); // Pass the grandTotal to renderSmartDiscount for option calculation
+            // REMOVED smart discount rendering call
+            // renderSmartDiscount(grandTotal);
         }
         
-        function renderSmartDiscount(currentTotal) {
-            if (currentTotal <= 0) {
-                smartDiscountContainer.classList.add('hidden');
-                state.smartDiscount = 0; // Ensure state reflects no discount if hidden
-                return;
-            }
-            smartDiscountContainer.classList.remove('hidden');
-            
-            smartDiscountOptions.innerHTML = ''; 
-            
-            let options = new Set();
-            const roundingUnits = [50000, 100000, 250000, 500000, 1000000];
-
-            roundingUnits.forEach(unit => {
-                const roundedValue = Math.floor(currentTotal / unit) * unit;
-                const discountAmount = currentTotal - roundedValue;
-
-                if (discountAmount > 0 && roundedValue >=0) {
-                    options.add({ roundedValue, discountAmount });
-                }
-            });
-
-            const sortedOptions = Array.from(options).sort((a, b) => a.discountAmount - b.discountAmount).slice(0, 5); 
-
-            if (sortedOptions.length === 0) {
-                 smartDiscountContainer.classList.add('hidden');
-                 state.smartDiscount = 0;
-                 return;
-            }
-
-            sortedOptions.forEach(option => {
-                const btn = document.createElement('button');
-                btn.className = 'btn smart-discount-btn';
-                btn.dataset.discountAmount = option.discountAmount;
-
-                const roundedFinalPrice = currentTotal - option.discountAmount;
-                btn.textContent = `رند به ${formatNumber(roundedFinalPrice)}`;
-                
-                // Apply active state based on current state.smartDiscount
-                if (state.smartDiscount === option.discountAmount) {
-                    btn.classList.add('active');
-                    btn.style.backgroundColor = 'var(--primary-color)';
-                    btn.style.color = '#fff';
-                } else {
-                     btn.style.backgroundColor = '';
-                     btn.style.color = '';
-                }
-
-                smartDiscountOptions.appendChild(btn);
-            });
-        }
+        // REMOVED renderSmartDiscount function as the feature is removed
+        /*
+        function renderSmartDiscount(currentTotal) { ... }
+        */
         
         // --- Event Listeners ---
         goldPriceInput.addEventListener('input', (e) => {
@@ -1056,7 +1011,8 @@
             const value = parseFormattedNumber(e.target.value);
             if (value.toString().length <= 11) {
                 state.manualDiscount = value;
-                state.smartDiscount = 0; // Clear smart discount if manual is used
+                // REMOVED smartDiscount reset
+                // state.smartDiscount = 0; 
                 calculateAndRender();
                 e.target.value = formatNumber(value);
             } else {
@@ -1064,39 +1020,16 @@
             }
         });
 
-        // Fixed: Smart Discount buttons click listener to handle active state correctly and prevent shuffling
-        smartDiscountOptions.addEventListener('click', e => {
-            const targetButton = e.target.closest('.smart-discount-btn');
-            if (targetButton) {
-                const clickedDiscountAmount = Number(targetButton.dataset.discountAmount);
-                
-                // Reset all buttons' styles before applying the new active state
-                smartDiscountOptions.querySelectorAll('.smart-discount-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    btn.style.backgroundColor = '';
-                    btn.style.color = '';
-                });
-
-                if (state.smartDiscount === clickedDiscountAmount) {
-                    state.smartDiscount = 0;
-                } else {
-                    state.manualDiscount = 0;
-                    manualDiscountInput.value = '';
-                    state.smartDiscount = clickedDiscountAmount;
-                    targetButton.classList.add('active');
-                    targetButton.style.backgroundColor = 'var(--primary-color)';
-                    targetButton.style.color = '#fff';
-                }
-                calculateAndRender();
-            }
-        });
-
+        // REMOVED smartDiscountOptions event listener as the feature is removed
+        /*
+        smartDiscountOptions.addEventListener('click', e => { ... });
+        */
 
         addAbsheBtn.addEventListener('click', () => {
             productItemsContainer.classList.remove('hidden');
             createProductItem('abshe');
         });
-        addMotafergheBtn.addEventListener('click', () => { // Corrected missing 'click' in addEventListener
+        addMotafergheBtn.addEventListener('click', () => {
             productItemsContainer.classList.remove('hidden');
             createProductItem('motaferghe');
         });
