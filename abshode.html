@@ -347,6 +347,19 @@
         
         .hidden { display: none !important; }
 
+        /* Styles for the disclaimer text */
+        .disclaimer-text {
+            font-size: 0.8em;
+            color: var(--text-light);
+            text-align: right; /* Changed to right-align */
+            margin-top: 0.5rem;
+            line-height: 1.4; /* Added for better line spacing */
+        }
+
+        .disclaimer-text strong {
+            color: var(--danger-color);
+        }
+
         @media print {
             body > .container > *:not(#invoice-card),
             #print-btn-container { 
@@ -365,7 +378,10 @@
             .invoice-summary-line:has(span:contains("سود")) {
                 display: none !important;
             }
-            /* Ensure any previous smart discount indicator styles are fully removed */
+            /* For print, the disclaimer text should also be right-aligned */
+            .disclaimer-text {
+                text-align: right;
+            }
         }
 
         .print-only {
@@ -901,9 +917,6 @@
             if (state.isRoundingActive && finalInvoiceValue > 0) {
                 const remainder = finalInvoiceValue % 10000;
                 if (remainder !== 0) {
-                    // If remainder is <= 5000, round down to nearest 5000 (e.g., 123456 -> 120000, discount 3456. Or 12345 -> 10000, discount 3456)
-                    // If remainder is > 5000, round down to nearest 10000 (e.g., 128765 -> 120000, discount 8765)
-                    // The 'remainder' itself is the amount to discount to reach the next lower 10000 or 5000 interval
                     roundingDiscount = remainder;
                 }
             }
@@ -927,10 +940,11 @@
                     const originalPercentage = line.percentage;
                     const adjustedPercentage = originalPercentage * (1 - discountPercentageOfTotalAmount);
 
-                    // Format percentage: show as integer if .0, otherwise with one decimal
+                    // Format percentage: show as integer if it's practically an integer (e.g., 1.0, 2.0, etc.)
                     let formattedPercentage;
-                    if (adjustedPercentage % 1 === 0) { // Check if it's an integer (e.g., 1.0, 2.0, etc.)
-                        formattedPercentage = toPersianDigits(adjustedPercentage.toFixed(0)); // Show without decimal
+                    // Using a small epsilon to check if a float is very close to an integer
+                    if (Math.abs(adjustedPercentage - Math.round(adjustedPercentage)) < 0.0001) { 
+                        formattedPercentage = toPersianDigits(Math.round(adjustedPercentage).toFixed(0)); // Show without decimal
                     } else {
                         formattedPercentage = toPersianDigits(adjustedPercentage.toFixed(1)); // Show with one decimal
                     }
@@ -945,9 +959,13 @@
             
             let grandTotal = finalInvoiceValue - totalCombinedDiscount;
             
-            // Display combined discount if any discount is applied
+            // Display combined discount or "تخفیف رند" if only rounding is active
             if (totalCombinedDiscount > 0) {
-                 invoiceHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-danger">${formatNumber(totalCombinedDiscount)} تومان</span></div>`;
+                let discountLabel = "تخفیف";
+                if (state.isRoundingActive && state.manualDiscount === 0 && roundingDiscount > 0) {
+                    discountLabel = "تخفیف رند";
+                }
+                invoiceHTML += `<div class="invoice-summary-line"><span>${discountLabel}</span><span class="invoice-value-danger">${formatNumber(totalCombinedDiscount)} تومان</span></div>`;
             }
 
             let finalTotalHTML = `<div class="invoice-final-total">`;
@@ -960,25 +978,18 @@
 
             let disclaimerHTML = '';
             if (conditionalAbsheItems.length > 0) {
-                let conditionalText = '';
-                if (conditionalAbsheItems.length === 1) {
-                    const item = conditionalAbsheItems[0];
-                    // Updated: Separate weight and the rest of the message with <br>
-                    conditionalText = `وزن ${toPersianDigits(item.weight)}<br>مبلغ نهایی می‌تواند کمتر یا بیشتر شود`;
-                } else {
-                    const formattedItems = conditionalAbsheItems.map(condItem => {
-                        const absheItemsOnly = state.products.filter(p => p.type === 'abshe');
-                        const absheOrder = absheItemsOnly.findIndex(absheItem => absheItem.id === condItem.id) + 1;
-
-                        const ordinalMap = {1: 'اول', 2: 'دوم', 3: 'سوم', 4: 'چهارم', 5: 'پنجم'};
-                        const ordinal = ordinalMap[absheOrder] || toPersianDigits(absheOrder);
-                        // Updated: Separate weight and the rest of the message with <br>
-                        return `وزن ${toPersianDigits(condItem.weight)} (آبشده ${ordinal})`;
-                    }).join(' و ');
-                    conditionalText = `${formattedItems}<br>مبلغ نهایی می‌تواند کمتر یا بیشتر شود`;
-                }
-                disclaimerHTML = `<p style="font-size:0.8em; color:var(--text-light); text-align:center; margin-top:0.5rem;">
-                                    <strong style="color:var(--danger-color);">توجه:</strong> (به دلیل شرطی بودن ${conditionalText})
+                let conditionalParts = [];
+                conditionalAbsheItems.forEach(condItem => {
+                    const absheItemsOnly = state.products.filter(p => p.type === 'abshe');
+                    const absheOrder = absheItemsOnly.findIndex(absheItem => absheItem.id === condItem.id) + 1;
+                    const ordinalMap = {1: 'اول', 2: 'دوم', 3: 'سوم', 4: 'چهارم', 5: 'پنجم'};
+                    const ordinal = ordinalMap[absheOrder] || toPersianDigits(absheOrder);
+                    conditionalParts.push(`آبشده ${ordinal} (وزن ${toPersianDigits(condItem.weight)})`);
+                });
+                
+                // Join parts with " و " and add the rest of the message on a new line
+                disclaimerHTML = `<p class="disclaimer-text">
+                                    <strong style="color:var(--danger-color);">توجه:</strong> (به دلیل شرطی بودن ${conditionalParts.join(' و ')})<br>مبلغ نهایی می‌تواند کمتر یا بیشتر شود
                                   </p>`;
             }
             
