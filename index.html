@@ -88,11 +88,15 @@
             margin-bottom: 0;
         }
 
+        /* Updated form-label to properly align elements */
         .form-label {
-            display: block;
+            display: flex;
+            align-items: center;
+            justify-content: space-between; /* Pushes items to far ends */
             margin-bottom: 0.5rem;
             font-weight: 500;
             font-size: 0.9rem;
+            /* No need for direction: rtl here if children handle their own direction */
         }
 
         .input-field, .select-field {
@@ -288,7 +292,9 @@
         #purchase-items-container .input-field,
         #purchase-items-container .select-field,
         #purchase-items-container .input-group-text {
-            font-size: 0.9rem; padding-top: 0.6rem; padding-bottom: 0.6rem;
+            font-size: 0.9rem;
+            padding-top: 0.6rem;
+            padding-bottom: 0.6rem;
         }
 
         .smart-discount-options {
@@ -349,13 +355,17 @@
         }
         
         /* Styles for gender text "آقا" and "خانم" (from new code) */
-        /* Adjusted for left alignment */
-        .form-label .gender-option-container {
+        /* Adjusted to align 'آقا' and 'خانم' next to 'نام خریدار' and push them left */
+        .form-label-text {
+            /* flex-shrink: 0; Remove this if it causes issues with text wrapping */
+        }
+        .gender-option-container {
             display: flex;
             gap: 5px; /* Space between "آقا" and "خانم" */
             flex-shrink: 0; /* Prevent options from shrinking */
-            order: -1; /* Move to the beginning of the flex container (left side in RTL) */
-            margin-right: auto; /* Push to the left */
+            /* Removed order: -1; and margin-right: auto; as they are not needed with flex-grow on text */
+            /* Instead, we make the label text take up available space to push options left */
+            margin-left: auto; /* Pushes to the left in RTL context */
         }
 
         .gender-text {
@@ -587,7 +597,6 @@
         const printBtn = document.getElementById('print-btn');
 
         // --- DOM Elements (Customer Info and Date) ---
-        // Note: Using querySelectorAll for customer-name to get both visible and print-only elements
         const customerNameInput = document.getElementById('customer-name'); // The visible input
         const maleOption = document.getElementById('male-option');
         const femaleOption = document.getElementById('female-option');
@@ -1068,9 +1077,13 @@
             printDateSpan.textContent = `${toPersianDigits(state.day || '')} ${getJalaliMonthName(state.month || '')} ${toPersianDigits(state.year || '')}`;
             printGoldPriceSpan.textContent = formatNumber(state.goldPrice);
 
-            // Re-inject the print-only div to ensure it's always up-to-date and at the top
-            const existingPrintOnlyDiv = invoiceContentContainer.querySelector('.print-only');
-            invoiceContentContainer.innerHTML = existingPrintOnlyDiv.outerHTML + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
+            // Get the existing print-only div's content
+            const existingPrintOnlyDivContent = invoiceContentContainer.querySelector('.print-only').innerHTML;
+            
+            // Re-inject the print-only div with its updated content at the very beginning
+            invoiceContentContainer.innerHTML = `<div class="print-only" style="margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">
+                                                    ${existingPrintOnlyDivContent}
+                                                </div>` + productsHTML + purchasesHTML + summaryHTML + finalTotalHTML;
             
             renderSmartDiscount(grandTotal); // Smart discount should be based on the final grand total before applying smart discount
         }
@@ -1273,7 +1286,6 @@
         const currentJalaliDate = jalaali.toJalaali(today.getFullYear(), today.getMonth() + 1, today.getDate()); 
         
         // Define the allowed year range (current year and previous year)
-        // Adjusting MAX_YEAR based on current system time to be accurate for 1404
         const currentYearInJalali = currentJalaliDate.jy;
         const MIN_YEAR = currentYearInJalali - 1; 
         const MAX_YEAR = currentYearInJalali;     
