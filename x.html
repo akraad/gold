@@ -486,7 +486,7 @@
         <h1 class="main-title">فاکتور آبشده و متفرقه</h1>
 
         <div class="card">
-            <h2 class="card-header">قیمت مظنه طلا</h2>
+            <h2 class="card-header">قیمت مظنه طلا (مبنای هر گرم)</h2>
             <div class="form-group">
                 <div class="input-group rtl">
                     <input type="tel" id="gold-price" class="input-field" inputmode="numeric" maxlength="11">
@@ -607,7 +607,6 @@
         const yearPlusBtn = document.getElementById('year-plus-btn');   
 
         // --- State ---
-        const MESGHAL_GRAM_FACTOR = 4.608;
         let itemIdCounter = 0;
         
         let state = {
@@ -960,8 +959,12 @@
                     const ayarForCalculation = item.ayar !== null && item.ayar > 0 ? item.ayar : 750;
 
                     if (item.weight > 0 && state.goldPrice > 0) {
-                        const absheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (ayarForCalculation / 750);
-                        itemRawBaseValue = absheEquivalent18KMesghals * state.goldPrice;
+                        // #### شروع تغییر ####
+                        // در اینجا دیگر تقسیم بر MESGHAL_GRAM_FACTOR را نداریم
+                        const equivalentWeightInGrams750 = item.weight * (ayarForCalculation / 750);
+                        itemRawBaseValue = equivalentWeightInGrams750 * state.goldPrice;
+                        // #### پایان تغییر ####
+
                         itemValueWithProfit = itemRawBaseValue * (1 + item.profit / 100);
                         
                         let ayarDisplay = '';
@@ -1003,8 +1006,13 @@
                     
                     if (item.weight > 0 && state.goldPrice > 0) {
                         const MOTAFERGHE_DEFAULT_AYAR = 750;
-                        const motafergheEquivalent18KMesghals = (item.weight / MESGHAL_GRAM_FACTOR) * (MOTAFERGHE_DEFAULT_AYAR / 750);
-                        itemRawBaseValue = motafergheEquivalent18KMesghals * state.goldPrice;
+
+                        // #### شروع تغییر ####
+                        // در اینجا هم تقسیم بر MESGHAL_GRAM_FACTOR حذف شده است
+                        const motafergheEquivalentWeightInGrams750 = (item.weight * (MOTAFERGHE_DEFAULT_AYAR / 750));
+                        itemRawBaseValue = motafergheEquivalentWeightInGrams750 * state.goldPrice;
+                        // #### پایان تغییر ####
+
                         itemValueWithProfit = itemRawBaseValue * (1 + item.profit / 100);
                         
                         itemDescription = `متفرقه ${toPersianDigits(item.weight)} گرم`; 
@@ -1166,7 +1174,8 @@
 
             let invoiceHeaderExtra = ''; 
             if (state.goldPrice > 0) {
-                invoiceHeaderExtra = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">قیمت مظنه طلا: ${formatNumber(state.goldPrice)} تومان</div>`;
+                // عنوان در پرینت همچنان مظنه باقی می‌ماند ولی محاسبه بر اساس گرم است
+                invoiceHeaderExtra = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 0.9em; color: var(--text-color);">قیمت طلا (مبنای هر گرم): ${formatNumber(state.goldPrice)} تومان</div>`;
             }
 
             let combinedPrintHeader = `<div class="print-only" style="text-align: right; margin-bottom: 1rem; font-size: 1em; color: var(--text-color);">`;
