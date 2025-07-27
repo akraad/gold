@@ -323,12 +323,11 @@
             font-size: 0.9rem; padding-top: 0.6rem; padding-bottom: 0.6rem;
         }
 
-        /* NEW Smart Discount specific CSS classes */
         .smart-discount-options {
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Responsive columns */
             gap: 0.75rem;
-            margin-top: 0.75rem; /* Space below label */
+            margin-top: 0.75rem; 
         }
 
         .smart-discount-btn {
@@ -488,7 +487,7 @@
 
         let state = {
             goldPrice: 0,
-            smartDiscount: 0, // Stores the AMOUNT of smart discount applied
+            smartDiscount: 0, 
             manualDiscount: 0,
             products: []
         };
@@ -921,7 +920,7 @@
 
             let finalInvoiceValue = totalBaseValueBeforeProfit + totalProfitBeforeDiscount;
 
-            let totalDiscount = state.manualDiscount + state.smartDiscount; // Now smartDiscount is directly the amount
+            let totalDiscount = state.manualDiscount + state.smartDiscount; 
             let totalAmountBeforeDiscount = totalBaseValueBeforeProfit + totalProfitBeforeDiscount;
             let discountPercentageOfTotalAmount = 0;
             if (totalAmountBeforeDiscount > 0) {
@@ -1009,7 +1008,7 @@
             smartDiscountOptions.innerHTML = ''; 
             
             let options = new Set();
-            // Defined rounding units
+            // Define the rounding levels
             const roundingUnits = [5000, 10000, 50000, 100000, 200000];
 
             roundingUnits.forEach(unit => {
@@ -1021,38 +1020,34 @@
                 }
             });
 
-            // Special case: round to nearest number between 300,000 and 500,000
+            // Special case: round to nearest number between 300,000 to 500,000
             const lowerBoundSpecial = 300000;
             const upperBoundSpecial = 500000;
             
             // Try to find a rounded value that results in a discount within this range
-            let foundSpecialOption = false;
             // Iterate down from currentTotal to find a suitable rounded value
-            for (let i = 0; i < 5; i++) { // Check a few steps down
-                let potentialRoundedValue = currentTotal - (i * 100000); // Start by trying to round to nearest 100k
-                potentialRoundedValue = Math.floor(potentialRoundedValue / 10000) * 10000; // Round to nearest 10k for finer control
-                if (potentialRoundedValue < 0) continue;
-
+            // We'll try to get multiples of 50,000 or 100,000 within the range
+            for (let unit = 100000; unit >= 50000; unit -= 50000) {
+                let potentialRoundedValue = Math.floor(currentTotal / unit) * unit;
                 let potentialDiscountAmount = currentTotal - potentialRoundedValue;
 
                 if (potentialDiscountAmount >= lowerBoundSpecial && potentialDiscountAmount <= upperBoundSpecial) {
                     options.add({ roundedValue: potentialRoundedValue, discountAmount: potentialDiscountAmount });
-                    foundSpecialOption = true;
-                    break;
+                    break; // Found a suitable special option
                 }
             }
 
 
-            const sortedOptions = Array.from(options).sort((a, b) => a.discountAmount - b.discountAmount); 
-            const finalDisplayOptions = sortedOptions.slice(0, 6); // Display up to 6 unique options
+            // Sort options by their discount amount (smallest discount first)
+            const sortedOptions = Array.from(options).sort((a, b) => a.discountAmount - b.discountAmount).slice(0, 6); // Display up to 6 unique options
 
-            if (finalDisplayOptions.length === 0) {
+            if (sortedOptions.length === 0) {
                  smartDiscountContainer.classList.add('hidden');
                  state.smartDiscount = 0;
                  return;
             }
 
-            finalDisplayOptions.forEach(option => {
+            sortedOptions.forEach(option => {
                 const btn = document.createElement('button');
                 btn.className = 'btn smart-discount-btn';
                 btn.dataset.discountAmount = option.discountAmount;
@@ -1090,7 +1085,7 @@
             const value = parseFormattedNumber(e.target.value);
             if (value.toString().length <= 11) {
                 state.manualDiscount = value;
-                state.smartDiscount = 0; 
+                state.smartDiscount = 0; // Clear smart discount if manual is used
                 calculateAndRender();
                 e.target.value = formatNumber(value);
             } else {
@@ -1098,28 +1093,22 @@
             }
         });
 
+        // Fixed: Smart Discount buttons click listener with event delegation
         smartDiscountOptions.addEventListener('click', e => {
             const targetButton = e.target.closest('.smart-discount-btn');
             if (targetButton) {
                 const clickedDiscountAmount = Number(targetButton.dataset.discountAmount);
                 
-                smartDiscountOptions.querySelectorAll('.smart-discount-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                    btn.style.backgroundColor = '';
-                    btn.style.color = '';
-                });
-
-                if (state.smartDiscount === clickedDiscountAmount) {
-                    state.smartDiscount = 0;
-                } else {
-                    state.manualDiscount = 0;
-                    manualDiscountInput.value = '';
-                    state.smartDiscount = clickedDiscountAmount;
-                    targetButton.classList.add('active');
-                    targetButton.style.backgroundColor = 'var(--primary-color)';
-                    targetButton.style.color = '#fff';
+                // Clear state.smartDiscount and manualDiscount if selecting a new button
+                let newSmartDiscountAmount = 0;
+                if (state.smartDiscount !== clickedDiscountAmount) { // If it's a new selection
+                    state.manualDiscount = 0; // Clear manual discount
+                    manualDiscountInput.value = ''; // Visually clear manual input field
+                    newSmartDiscountAmount = clickedDiscountAmount;
                 }
-                calculateAndRender();
+                
+                state.smartDiscount = newSmartDiscountAmount; // Update state
+                calculateAndRender(); // Recalculate and re-render the section (styles will be applied by renderSmartDiscount)
             }
         });
 
