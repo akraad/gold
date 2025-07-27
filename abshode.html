@@ -604,9 +604,9 @@
 
         // Helper for formatting profit percentage consistently
         const formatProfitPercentage = (value) => {
-            // Using a small epsilon (0.0001) to check if a float is very close to an integer.
-            // This handles potential floating point inaccuracies.
-            if (Math.abs(value - Math.round(value)) < 0.0001) { 
+            // Check if the value is extremely close to an integer.
+            // Using a slightly larger epsilon for better robustness after calculations.
+            if (Math.abs(value - Math.round(value)) < 0.000001) { 
                 return toPersianDigits(Math.round(value).toFixed(0)); // Show without decimal
             }
             return toPersianDigits(value.toFixed(1)); // Show with one decimal
@@ -798,7 +798,7 @@
             let motafergheBaseValueTotal = 0;
             let hasAbsheItems = false;
             let hasMotafergheItems = false;
-            let conditionalAbsheItems = [];
+            let conditionalAbsheItems = []; // To store conditional items for disclaimer
 
             const absheProfitDetails = {};
             const motafergheProfitDetails = {};
@@ -826,7 +826,7 @@
                         let ayarDisplay = '';
                         if (item.ayar === null || item.ayar === 0) {
                             ayarDisplay = `<strong style="color:var(--danger-color);">شرطی</strong>`;
-                            conditionalAbsheItems.push({ id: item.id, index: index + 1, weight: item.weight });
+                            conditionalAbsheItems.push({ id: item.id, weight: item.weight }); // Just push ID and weight
                         } else {
                             ayarDisplay = toPersianDigits(item.ayar);
                         }
@@ -982,14 +982,24 @@
             let disclaimerHTML = '';
             if (conditionalAbsheItems.length > 0) {
                 let conditionalParts = [];
-                conditionalAbsheItems.forEach(condItem => {
-                    const absheItemsOnly = state.products.filter(p => p.type === 'abshe');
-                    const absheOrder = absheItemsOnly.findIndex(absheItem => absheItem.id === condItem.id) + 1;
+                // Sort conditional items by their original index to get consistent "اول", "دوم"
+                const sortedConditionalAbsheItems = conditionalAbsheItems
+                    .map(item => ({
+                        ...item,
+                        originalIndex: state.products.findIndex(p => p.id === item.id)
+                    }))
+                    .sort((a, b) => a.originalIndex - b.originalIndex);
+
+                if (sortedConditionalAbsheItems.length === 1) {
+                    const condItem = sortedConditionalAbsheItems[0];
+                    conditionalParts.push(`آبشده (وزن ${toPersianDigits(condItem.weight)} گرم)`);
+                } else {
                     const ordinalMap = {1: 'اول', 2: 'دوم', 3: 'سوم', 4: 'چهارم', 5: 'پنجم'};
-                    const ordinal = ordinalMap[absheOrder] || toPersianDigits(absheOrder);
-                    // Reverted to include "آبشده" and added "گرم" inside parentheses
-                    conditionalParts.push(`آبشده ${ordinal} (وزن ${toPersianDigits(condItem.weight)} گرم)`);
-                });
+                    sortedConditionalAbsheItems.forEach((condItem, i) => {
+                        const ordinal = ordinalMap[i + 1] || toPersianDigits(i + 1);
+                        conditionalParts.push(`آبشده ${ordinal} (وزن ${toPersianDigits(condItem.weight)} گرم)`);
+                    });
+                }
                 
                 // Construct the disclaimer message with newlines
                 disclaimerHTML = `<p class="disclaimer-text">
