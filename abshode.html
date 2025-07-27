@@ -940,9 +940,10 @@
                     const originalPercentage = line.percentage;
                     const adjustedPercentage = originalPercentage * (1 - discountPercentageOfTotalAmount);
 
-                    // Format percentage: show as integer if it's practically an integer (e.g., 1.0, 2.0, etc.)
+                    // Formatted percentage: show as integer if it's practically an integer (e.g., 1.0, 2.0, etc.)
+                    // Using a small epsilon (0.0001) to check if a float is very close to an integer.
+                    // This handles potential floating point inaccuracies.
                     let formattedPercentage;
-                    // Using a small epsilon to check if a float is very close to an integer
                     if (Math.abs(adjustedPercentage - Math.round(adjustedPercentage)) < 0.0001) { 
                         formattedPercentage = toPersianDigits(Math.round(adjustedPercentage).toFixed(0)); // Show without decimal
                     } else {
@@ -971,7 +972,8 @@
             let finalTotalHTML = `<div class="invoice-final-total">`;
             if (grandTotal >= 0) {
                 finalTotalHTML += `<span>مبلغ نهایی</span><span>${formatNumber(grandTotal) || '۰'} تومان</span>`;
-            } else {
+            }
+            else {
                  finalTotalHTML += `<span>پرداخت به مشتری</span><span>${formatNumber(Math.abs(grandTotal)) || '۰'} تومان</span>`;
             }
             finalTotalHTML += `</div>`;
@@ -984,12 +986,15 @@
                     const absheOrder = absheItemsOnly.findIndex(absheItem => absheItem.id === condItem.id) + 1;
                     const ordinalMap = {1: 'اول', 2: 'دوم', 3: 'سوم', 4: 'چهارم', 5: 'پنجم'};
                     const ordinal = ordinalMap[absheOrder] || toPersianDigits(absheOrder);
-                    conditionalParts.push(`آبشده ${ordinal} (وزن ${toPersianDigits(condItem.weight)})`);
+                    // Reverted to include "آبشده" and added "گرم" inside parentheses
+                    conditionalParts.push(`آبشده ${ordinal} (وزن ${toPersianDigits(condItem.weight)} گرم)`);
                 });
                 
-                // Join parts with " و " and add the rest of the message on a new line
+                // Construct the disclaimer message with newlines
                 disclaimerHTML = `<p class="disclaimer-text">
-                                    <strong style="color:var(--danger-color);">توجه:</strong> (به دلیل شرطی بودن ${conditionalParts.join(' و ')})<br>مبلغ نهایی می‌تواند کمتر یا بیشتر شود
+                                    <strong style="color:var(--danger-color);">توجه:</strong><br>
+                                    به دلیل شرطی بودن ${conditionalParts.join(' و ')}<br>
+                                    مبلغ نهایی می‌تواند کمتر یا بیشتر شود.
                                   </p>`;
             }
             
