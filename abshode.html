@@ -464,7 +464,7 @@
         let state = {
             goldPrice: 0,
             manualDiscount: 0,
-            isRoundingActive: true, // Set to true by default
+            isRoundingActive: true, // Set to true by default for the switch
             products: []
         };
 
@@ -901,11 +901,10 @@
             if (state.isRoundingActive && finalInvoiceValue > 0) {
                 const remainder = finalInvoiceValue % 10000;
                 if (remainder !== 0) {
-                    if (remainder <= 5000) { // If remainder is 1 to 5000, round down to nearest 5000
-                        roundingDiscount = remainder;
-                    } else { // If remainder is 5001 to 9999, round down to nearest 10000
-                        roundingDiscount = remainder;
-                    }
+                    // If remainder is <= 5000, round down to nearest 5000 (e.g., 123456 -> 120000, discount 3456. Or 12345 -> 10000, discount 3456)
+                    // If remainder is > 5000, round down to nearest 10000 (e.g., 128765 -> 120000, discount 8765)
+                    // The 'remainder' itself is the amount to discount to reach the next lower 10000 or 5000 interval
+                    roundingDiscount = remainder;
                 }
             }
             
@@ -926,12 +925,15 @@
 
                 allProfitLines.forEach(line => {
                     const originalPercentage = line.percentage;
-                    
                     const adjustedPercentage = originalPercentage * (1 - discountPercentageOfTotalAmount);
 
-                    const formattedPercentage = adjustedPercentage % 1 === 0 
-                        ? toPersianDigits(adjustedPercentage.toFixed(0)) 
-                        : toPersianDigits(adjustedPercentage.toFixed(1));
+                    // Format percentage: show as integer if .0, otherwise with one decimal
+                    let formattedPercentage;
+                    if (adjustedPercentage % 1 === 0) { // Check if it's an integer (e.g., 1.0, 2.0, etc.)
+                        formattedPercentage = toPersianDigits(adjustedPercentage.toFixed(0)); // Show without decimal
+                    } else {
+                        formattedPercentage = toPersianDigits(adjustedPercentage.toFixed(1)); // Show with one decimal
+                    }
                     
                     let typeLabel = '';
                     if (showTypeLabelInProfitLine) {
@@ -943,7 +945,7 @@
             
             let grandTotal = finalInvoiceValue - totalCombinedDiscount;
             
-            // Display combined discount
+            // Display combined discount if any discount is applied
             if (totalCombinedDiscount > 0) {
                  invoiceHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-danger">${formatNumber(totalCombinedDiscount)} تومان</span></div>`;
             }
@@ -961,7 +963,8 @@
                 let conditionalText = '';
                 if (conditionalAbsheItems.length === 1) {
                     const item = conditionalAbsheItems[0];
-                    conditionalText = `آبشده (وزن ${toPersianDigits(item.weight)})`;
+                    // Updated: Separate weight and the rest of the message with <br>
+                    conditionalText = `وزن ${toPersianDigits(item.weight)}<br>مبلغ نهایی می‌تواند کمتر یا بیشتر شود`;
                 } else {
                     const formattedItems = conditionalAbsheItems.map(condItem => {
                         const absheItemsOnly = state.products.filter(p => p.type === 'abshe');
@@ -969,12 +972,13 @@
 
                         const ordinalMap = {1: 'اول', 2: 'دوم', 3: 'سوم', 4: 'چهارم', 5: 'پنجم'};
                         const ordinal = ordinalMap[absheOrder] || toPersianDigits(absheOrder);
-                        return `آبشده ${ordinal} (وزن ${toPersianDigits(condItem.weight)})`;
+                        // Updated: Separate weight and the rest of the message with <br>
+                        return `وزن ${toPersianDigits(condItem.weight)} (آبشده ${ordinal})`;
                     }).join(' و ');
-                    conditionalText = formattedItems;
+                    conditionalText = `${formattedItems}<br>مبلغ نهایی می‌تواند کمتر یا بیشتر شود`;
                 }
                 disclaimerHTML = `<p style="font-size:0.8em; color:var(--text-light); text-align:center; margin-top:0.5rem;">
-                                    <strong style="color:var(--danger-color);">توجه:</strong> (به دلیل شرطی بودن ${conditionalText}؛ مبلغ نهایی می‌تواند کمتر یا بیشتر شود)
+                                    <strong style="color:var(--danger-color);">توجه:</strong> (به دلیل شرطی بودن ${conditionalText})
                                   </p>`;
             }
             
