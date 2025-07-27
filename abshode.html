@@ -327,8 +327,7 @@
             font-size: 0.9rem; padding-top: 0.6rem; padding-bottom: 0.6rem;
         }
 
-        /* --- Smart Discount specific styles removed --- */
-        /* .smart-discount-options, .smart-discount-text-option, .smart-discount-indicator, .smart-discount-text-content are removed */
+        /* Smart Discount specific styles (removed from previous versions) */
         
         .invoice-section { margin-bottom: 1rem; }
         .invoice-section-title { font-weight: 600; margin-bottom: 0.75rem; color: var(--text-color); }
@@ -366,12 +365,7 @@
             .invoice-summary-line:has(span:contains("سود")) {
                 display: none !important;
             }
-            /* Ensure previous smart discount indicator styles are gone */
-            .smart-discount-indicator, 
-            .smart-discount-text-content {
-                display: initial; /* Reset to default if any print-specific hides were applied */
-                /* If you had specific display:none for these in print, ensure they are removed or overridden */
-            }
+            /* Ensure any previous smart discount indicator styles are fully removed */
         }
 
         .print-only {
@@ -422,8 +416,7 @@
             <div class="toggle-switch-group">
                 <label for="round-switch">رند کردن مبلغ نهایی</label>
                 <label class="switch">
-                    <input type="checkbox" id="round-switch">
-                    <span class="slider"></span>
+                    <input type="checkbox" id="round-switch" checked> <span class="slider"></span>
                 </label>
             </div>
 
@@ -471,7 +464,7 @@
         let state = {
             goldPrice: 0,
             manualDiscount: 0,
-            isRoundingActive: false, // New state to track if rounding is active
+            isRoundingActive: true, // Set to true by default
             products: []
         };
 
@@ -908,19 +901,20 @@
             if (state.isRoundingActive && finalInvoiceValue > 0) {
                 const remainder = finalInvoiceValue % 10000;
                 if (remainder !== 0) {
-                    if (remainder <= 5000) { // If remainder is up to 5000, round to nearest 5000
+                    if (remainder <= 5000) { // If remainder is 1 to 5000, round down to nearest 5000
                         roundingDiscount = remainder;
-                    } else { // If remainder is more than 5000, round to nearest 10000
+                    } else { // If remainder is 5001 to 9999, round down to nearest 10000
                         roundingDiscount = remainder;
                     }
                 }
             }
-
-            let totalDiscount = state.manualDiscount + roundingDiscount; 
-            let totalAmountBeforeDiscount = totalBaseValueBeforeProfit + totalProfitBeforeDiscount;
+            
+            let totalCombinedDiscount = state.manualDiscount + roundingDiscount; 
+            
+            let totalAmountBeforeAllDiscounts = totalBaseValueBeforeProfit + totalProfitBeforeDiscount;
             let discountPercentageOfTotalAmount = 0;
-            if (totalAmountBeforeDiscount > 0) {
-                discountPercentageOfTotalAmount = totalDiscount / totalAmountBeforeDiscount;
+            if (totalAmountBeforeAllDiscounts > 0) {
+                discountPercentageOfTotalAmount = totalCombinedDiscount / totalAmountBeforeAllDiscounts;
             }
 
             if (allProfitLines.length > 0) {
@@ -947,16 +941,11 @@
                 });
             }
             
-            let grandTotal = finalInvoiceValue - totalDiscount;
+            let grandTotal = finalInvoiceValue - totalCombinedDiscount;
             
-            // Display rounding discount if applied
-            if (roundingDiscount > 0) {
-                invoiceHTML += `<div class="invoice-summary-line"><span>تخفیف رند</span><span class="invoice-value-danger">${formatNumber(roundingDiscount)} تومان</span></div>`;
-            }
-
-            // Display manual discount if applied
-            if (state.manualDiscount > 0) {
-                 invoiceHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-danger">${formatNumber(state.manualDiscount)} تومان</span></div>`;
+            // Display combined discount
+            if (totalCombinedDiscount > 0) {
+                 invoiceHTML += `<div class="invoice-summary-line"><span>تخفیف</span><span class="invoice-value-danger">${formatNumber(totalCombinedDiscount)} تومان</span></div>`;
             }
 
             let finalTotalHTML = `<div class="invoice-final-total">`;
