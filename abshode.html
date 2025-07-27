@@ -323,6 +323,7 @@
             font-size: 0.9rem; padding-top: 0.6rem; padding-bottom: 0.6rem;
         }
 
+        /* NEW Smart Discount specific CSS classes */
         .smart-discount-options {
             display: grid; 
             grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); /* Responsive columns */
@@ -920,7 +921,7 @@
 
             let finalInvoiceValue = totalBaseValueBeforeProfit + totalProfitBeforeDiscount;
 
-            let totalDiscount = state.manualDiscount; // Only manual discount remains
+            let totalDiscount = state.manualDiscount + state.smartDiscount; // Now smartDiscount is directly the amount
             let totalAmountBeforeDiscount = totalBaseValueBeforeProfit + totalProfitBeforeDiscount;
             let discountPercentageOfTotalAmount = 0;
             if (totalAmountBeforeDiscount > 0) {
@@ -993,16 +994,84 @@
             }
 
             invoiceContentContainer.innerHTML = invoiceHeaderExtra + invoiceHTML + finalTotalHTML + disclaimerHTML;
-            // The call to renderSmartDiscount is removed as the feature is removed
-            // renderSmartDiscount(grandTotal); // THIS WAS THE CALL THAT WAS REBUILDING AND CAUSING THE ISSUE
+            renderSmartDiscount(grandTotal); 
         }
         
-        // The renderSmartDiscount function is completely removed as the feature is removed
-        /*
+        // This function now generates buttons and applies active/inactive styles correctly
         function renderSmartDiscount(currentTotal) {
-             // ... all the smart discount button generation and styling logic ...
+            if (currentTotal <= 0) {
+                smartDiscountContainer.classList.add('hidden');
+                state.smartDiscount = 0; 
+                return;
+            }
+            smartDiscountContainer.classList.remove('hidden');
+            
+            smartDiscountOptions.innerHTML = ''; 
+            
+            let options = new Set();
+            // Defined rounding units
+            const roundingUnits = [5000, 10000, 50000, 100000, 200000];
+
+            roundingUnits.forEach(unit => {
+                const roundedValue = Math.floor(currentTotal / unit) * unit;
+                const discountAmount = currentTotal - roundedValue;
+
+                if (discountAmount >= 0) { // Only suggest positive or zero discounts
+                    options.add({ roundedValue, discountAmount });
+                }
+            });
+
+            // Special case: round to nearest number between 300,000 and 500,000
+            const lowerBoundSpecial = 300000;
+            const upperBoundSpecial = 500000;
+            
+            // Try to find a rounded value that results in a discount within this range
+            let foundSpecialOption = false;
+            // Iterate down from currentTotal to find a suitable rounded value
+            for (let i = 0; i < 5; i++) { // Check a few steps down
+                let potentialRoundedValue = currentTotal - (i * 100000); // Start by trying to round to nearest 100k
+                potentialRoundedValue = Math.floor(potentialRoundedValue / 10000) * 10000; // Round to nearest 10k for finer control
+                if (potentialRoundedValue < 0) continue;
+
+                let potentialDiscountAmount = currentTotal - potentialRoundedValue;
+
+                if (potentialDiscountAmount >= lowerBoundSpecial && potentialDiscountAmount <= upperBoundSpecial) {
+                    options.add({ roundedValue: potentialRoundedValue, discountAmount: potentialDiscountAmount });
+                    foundSpecialOption = true;
+                    break;
+                }
+            }
+
+
+            const sortedOptions = Array.from(options).sort((a, b) => a.discountAmount - b.discountAmount); 
+            const finalDisplayOptions = sortedOptions.slice(0, 6); // Display up to 6 unique options
+
+            if (finalDisplayOptions.length === 0) {
+                 smartDiscountContainer.classList.add('hidden');
+                 state.smartDiscount = 0;
+                 return;
+            }
+
+            finalDisplayOptions.forEach(option => {
+                const btn = document.createElement('button');
+                btn.className = 'btn smart-discount-btn';
+                btn.dataset.discountAmount = option.discountAmount;
+
+                const roundedFinalPrice = option.roundedValue; // The text is the rounded value itself
+                btn.textContent = `رند به ${formatNumber(roundedFinalPrice)}`;
+                
+                if (state.smartDiscount === option.discountAmount) {
+                    btn.classList.add('active');
+                    btn.style.backgroundColor = 'var(--primary-color)';
+                    btn.style.color = '#fff';
+                } else {
+                     btn.style.backgroundColor = '';
+                     btn.style.color = '';
+                }
+
+                smartDiscountOptions.appendChild(btn);
+            });
         }
-        */
         
         // --- Event Listeners ---
         goldPriceInput.addEventListener('input', (e) => {
@@ -1021,7 +1090,7 @@
             const value = parseFormattedNumber(e.target.value);
             if (value.toString().length <= 11) {
                 state.manualDiscount = value;
-                // state.smartDiscount is removed, so no need to clear it
+                state.smartDiscount = 0; 
                 calculateAndRender();
                 e.target.value = formatNumber(value);
             } else {
@@ -1029,10 +1098,30 @@
             }
         });
 
-        // The smartDiscountOptions event listener is completely removed as the feature is removed
-        /*
-        smartDiscountOptions.addEventListener('click', e => { ... });
-        */
+        smartDiscountOptions.addEventListener('click', e => {
+            const targetButton = e.target.closest('.smart-discount-btn');
+            if (targetButton) {
+                const clickedDiscountAmount = Number(targetButton.dataset.discountAmount);
+                
+                smartDiscountOptions.querySelectorAll('.smart-discount-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                    btn.style.backgroundColor = '';
+                    btn.style.color = '';
+                });
+
+                if (state.smartDiscount === clickedDiscountAmount) {
+                    state.smartDiscount = 0;
+                } else {
+                    state.manualDiscount = 0;
+                    manualDiscountInput.value = '';
+                    state.smartDiscount = clickedDiscountAmount;
+                    targetButton.classList.add('active');
+                    targetButton.style.backgroundColor = 'var(--primary-color)';
+                    targetButton.style.color = '#fff';
+                }
+                calculateAndRender();
+            }
+        });
 
 
         addAbsheBtn.addEventListener('click', () => {
