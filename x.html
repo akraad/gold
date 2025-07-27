@@ -407,6 +407,42 @@
             border-radius: 50%;
         }
 
+        /* Styles for year control buttons */
+        .year-control-group {
+            display: flex;
+            align-items: center;
+            gap: 5px; /* Space between buttons and input */
+        }
+        .year-control-group .input-field {
+            flex-grow: 1; /* Allow input field to take available space */
+            text-align: center; /* Center year text */
+        }
+        .year-control-btn {
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            padding: 0.5rem 0.8rem;
+            cursor: pointer;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            display: flex; /* For centering content like '+' '-' */
+            align-items: center;
+            justify-content: center;
+            width: 40px; /* Fixed width for consistency */
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+        .year-control-btn:hover {
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+        .year-control-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: var(--primary-light);
+            color: var(--primary-color);
+        }
 
         @media (max-width: 768px) {
             body { font-size: 13px; }
@@ -494,9 +530,11 @@
                         <input type="range" min="1" max="12" value="1" class="profit-slider" id="month-slider">
                     </div>
                     <div class="form-group" style="margin-top: 1rem;">
-                        <div class="input-group rtl">
+                        <div class="year-control-group input-group rtl">
+                            <button id="year-minus-btn" class="year-control-btn">-</button>
                             <input type="tel" id="year-input" class="input-field" inputmode="numeric" maxlength="4">
                             <span class="input-group-text">سال</span>
+                            <button id="year-plus-btn" class="year-control-btn">+</button>
                         </div>
                     </div>
                 </div>
@@ -531,6 +569,8 @@
         const daySlider = document.getElementById('day-slider');
         const monthSlider = document.getElementById('month-slider');
         const yearInput = document.getElementById('year-input');
+        const yearMinusBtn = document.getElementById('year-minus-btn'); // New
+        const yearPlusBtn = document.getElementById('year-plus-btn');   // New
 
         // --- State ---
         const MESGHAL_GRAM_FACTOR = 4.608;
@@ -622,27 +662,42 @@
             return words.filter(Boolean).join(' و ');
         };
 
-        // Helper function for Jalali Date conversion
+        // --- CORRECTED Jalali Date conversion ---
         function gregorianToJalali(gy, gm, gd) {
             var g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365];
-            var jy = (gy <= 1600) ? 979 : 10;
-            gy -= (gy >= 1600) ? 1600 : -471;
+            var J_Y_DAYS = [29, 30, 30, 30, 30, 30, 30, 29, 29, 29, 29, 29]; // Days in Jalali months
+
+            var jalali_days_in_month = [31, 31, 31, 31, 31, 31, 30, 30, 30, 30, 30, 29];
+
+            var g_days_in_month = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+            if (gy % 4 === 0 && (gy % 100 !== 0 || gy % 400 === 0)) {
+                g_days_in_month[1] = 29; // Leap year
+            }
+
             var gy2 = (gm > 2) ? (gy + 1) : gy;
-            var days = (365 * gy) + (parseInt((gy2 + 3) / 4)) - (parseInt((gy2 + 99) / 100)) + (parseInt((gy2 + 399) / 400)) - 80 + gd + g_d_m[gm - 1];
-            jy += 33 * (parseInt(days / 12053));
+            var days = -79 + gd;
+            for (var i = 0; i < gm - 1; i++) {
+                days += g_days_in_month[i];
+            }
+
+            var J_Y = 979 + 33 * Math.floor(days / 12053);
             days %= 12053;
-            jy += 4 * (parseInt(days / 1461));
+            J_Y += 4 * Math.floor(days / 1461);
             days %= 1461;
-            jy += parseInt(days / 365);
-            days %= 365;
-            for (var i = 0; i < 11; i++) {
-                if (days < (31 * (i + 1))) {
+            if (days > 365) {
+                J_Y += Math.floor((days - 1) / 365);
+                days = (days - 1) % 365;
+            }
+
+            var J_M;
+            for (J_M = 1; J_M <= 12; J_M++) {
+                if (days < jalali_days_in_month[J_M - 1]) {
                     break;
                 }
+                days -= jalali_days_in_month[J_M - 1];
             }
-            var jm = i + 1;
-            var jd = days - (31 * i) + 1;
-            return [jy, jm, jd];
+            var J_D = days + 1;
+            return [J_Y, J_M, J_D];
         }
 
         const getJalaliMonthName = (monthNum) => {
@@ -1159,6 +1214,9 @@
 
 
             invoiceContentContainer.innerHTML = combinedPrintHeader + invoiceHTML + finalTotalHTML + disclaimerHTML;
+            
+            // Update year buttons state after rendering
+            updateYearButtonsState();
         }
         
         // --- Event Listeners ---
@@ -1238,7 +1296,10 @@
 
         // --- Date Event Listeners ---
         const today = new Date();
-        const [currentJalaliYear, currentJalaliMonth, currentJalaliDay] = gregorianToJalali(today.getFullYear(), today.getMonth() + 1, today.getDate());
+        // Updated context for current date to match Mashhad, Razavi Khorasan Province, Iran
+        // Current time is Sunday, July 27, 2025 at 1:32:33 PM +0330.
+        // Convert this Gregorian date to Jalali
+        const [currentJalaliYear, currentJalaliMonth, currentJalaliDay] = gregorianToJalali(2025, 7, 27); // Year, Month (1-12), Day
 
         // Set initial values for sliders and year input
         // Only initialize if they haven't been set, to preserve user input on recalculation
@@ -1266,6 +1327,11 @@
             document.getElementById('month-display').textContent = getJalaliMonthName(state.month) + ' (ماه)';
         };
 
+        const updateYearButtonsState = () => {
+            yearPlusBtn.disabled = (state.year >= currentJalaliYear);
+            yearMinusBtn.disabled = (state.year <= currentJalaliYear - 1);
+        };
+
         daySlider.addEventListener('input', (e) => {
             state.day = parseInt(e.target.value);
             document.getElementById('day-display').textContent = toPersianDigits(state.day) + ' (روز)';
@@ -1282,7 +1348,7 @@
         yearInput.addEventListener('input', (e) => {
             const value = parseFormattedNumber(e.target.value);
             // Allow only current year or current year - 1 (or empty/0)
-            if (value === currentJalaliYear || value === currentJalaliYear - 1 || value === 0 || isNaN(value)) {
+            if ((value === currentJalaliYear || value === currentJalaliYear - 1) || value === 0 || isNaN(value)) {
                 state.year = value === 0 || isNaN(value) ? null : value;
                 e.target.value = value === 0 || isNaN(value) ? '' : toPersianDigits(value);
             } else {
@@ -1292,10 +1358,28 @@
             calculateAndRender();
         });
 
+        yearPlusBtn.addEventListener('click', () => {
+            if (state.year < currentJalaliYear) {
+                state.year++;
+                yearInput.value = toPersianDigits(state.year);
+                updateDaySliderMax();
+                calculateAndRender();
+            }
+        });
+
+        yearMinusBtn.addEventListener('click', () => {
+            if (state.year > currentJalaliYear - 1) { // Allow going back one year
+                state.year--;
+                yearInput.value = toPersianDigits(state.year);
+                updateDaySliderMax();
+                calculateAndRender();
+            }
+        });
+
         // Initial render on page load
         updateDaySliderMax(); // Set initial max days for the day slider
         updateMonthDisplay(); // Set initial month name for the month slider
-        calculateAndRender();
+        calculateAndRender(); // Perform initial calculation and rendering
     });
     </script>
 
