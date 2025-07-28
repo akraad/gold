@@ -357,26 +357,22 @@
             font-size: 1.1em;
         }
 
-        .item-details-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Responsive grid for details */
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        /* New: for two column layout for weight/ayar, then full width for eng/lab */
+        /* NEW: Simplified and improved item details layout */
         .item-details-rows {
             display: flex;
             flex-direction: column;
-            gap: 0.8rem; /* Gap between logical rows of inputs */
+            gap: 0.8rem; /* Space between rows of inputs */
         }
-        .item-row.inline-inputs { /* For weight/ayar */
+        
+        .item-details-row-two-col { /* For weight/ayar and eng/lab pairs */
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 0.8rem;
+            gap: 1rem; /* Gap between columns */
         }
-        .item-detail-group.full-width { /* For lab */
-            grid-column: span 2; /* Make it span full width if needed in a grid context */
+
+        .item-details-row-full-col { /* For lab field in its own row */
+            display: flex; /* Use flex for single item to keep structure */
+            flex-direction: column;
         }
 
         .item-detail-group {
@@ -546,12 +542,29 @@
                 font-size: 0.85em; /* Smaller font */
             }
             .item-header-bar .profit-percentage { display: none; } /* Hide profit percentage */
-            .item-details-grid {
-                grid-template-columns: 1fr; /* Single column for print */
+            .item-details-rows {
                 gap: 0.2rem; /* Reduced gap */
                 margin-bottom: 0.5rem;
             }
-            .compact-label { font-size: 0.75em; color: black; }
+            .item-details-row-two-col {
+                grid-template-columns: 1fr; /* Single column for print */
+                gap: 0.2rem;
+            }
+            .item-detail-group {
+                flex-direction: row; /* Make fields inline for print */
+                align-items: baseline;
+                gap: 0.5rem;
+            }
+            .item-detail-group .compact-label {
+                flex-shrink: 0; /* Prevent label from shrinking */
+                width: auto; /* Auto width */
+                min-width: 50px; /* Minimum width for alignment */
+                text-align: left;
+                margin-bottom: 0;
+            }
+            .compact-input-group {
+                flex-grow: 1; /* Input group takes rest of space */
+            }
             .compact-input-group .input-field,
             .compact-input-group .input-group-text {
                 border: none;
@@ -559,6 +572,10 @@
                 padding: 0;
                 font-size: 0.8em;
                 color: black;
+                text-align: right; /* Align numbers right */
+            }
+            .compact-input-group .input-group-text {
+                padding-right: 0.2em; /* Small padding to separate from number */
             }
             .add-purchase-options { display: none; } /* Hide add buttons */
             .empty-items-message { display: none; } /* Hide empty message */
@@ -955,11 +972,7 @@
             productItemsContainer.innerHTML = ''; // Clear existing content
 
             if (state.products.length === 0) {
-                productItemsContainer.innerHTML = `
-                    <p class="empty-items-message">
-                        برای شروع، دکمه‌های "افزودن آبشده" یا "افزودن متفرقه" را بزنید.
-                    </p>
-                `;
+                // Removed the empty-items-message
             } else {
                 state.products.forEach(item => {
                     let itemCardHTML = `
@@ -976,7 +989,7 @@
 
                     if (item.type === 'abshe') {
                         itemCardHTML += `
-                                <div class="item-row inline-inputs">
+                                <div class="item-details-row-two-col">
                                     <div class="item-detail-group">
                                         <label class="compact-label" for="abshe-weight-${item.id}">وزن</label>
                                         <div class="input-group rtl compact-input-group">
@@ -993,7 +1006,7 @@
                                     </div>
                                 </div>
 
-                                <div class="item-row inline-inputs">
+                                <div class="item-details-row-two-col">
                                     <div class="item-detail-group">
                                         <label class="compact-label" for="abshe-eng-${item.id}">انگ</label>
                                         <div class="input-group rtl compact-input-group">
@@ -1015,7 +1028,7 @@
                             `;
                     } else if (item.type === 'motaferghe') {
                         itemCardHTML += `
-                                <div class="item-row inline-inputs">
+                                <div class="item-details-row-two-col">
                                     <div class="item-detail-group" style="grid-column: span 2;">
                                         <label class="compact-label" for="motaferghe-weight-${item.id}">وزن متفرقه</label>
                                         <div class="input-group rtl compact-input-group">
@@ -1120,9 +1133,7 @@
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
                     removeProductItem(id);
                 };
-                button.style.backgroundColor = 'white'; // Keep dynamic styling
-                button.style.color = 'var(--danger-color)'; // Keep dynamic styling
-                button.style.border = '1px solid var(--danger-color)'; // Keep dynamic styling
+                // Styling handled by CSS classes now
             });
         }
 
