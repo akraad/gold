@@ -361,23 +361,24 @@
         .item-details-rows {
             display: flex;
             flex-direction: column;
-            gap: 0.8rem; /* Space between rows of inputs */
+            gap: 0.8rem; /* Space between logical rows of inputs */
         }
         
-        .item-details-row-two-col { /* For weight/ayar and eng/lab pairs */
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem; /* Gap between columns */
+        .item-field-row { /* Replaced .item-details-row-two-col */
+            display: flex; /* Default to flex for column behavior on small screens */
+            flex-direction: column;
+            gap: 0.8rem; /* Gap between individual fields in a column */
         }
 
-        .item-details-row-full-col { /* For lab field in its own row */
-            display: flex; /* Use flex for single item to keep structure */
+        .item-details-row-full-col { /* Specific for full-width items like Lab */
+            display: flex;
             flex-direction: column;
         }
 
         .item-detail-group {
             display: flex;
             flex-direction: column;
+            flex-grow: 1; /* Allow fields to grow in flex container */
         }
         .compact-label {
             font-size: 0.8rem;
@@ -389,6 +390,22 @@
             padding: 0.5rem 0.75rem;
             font-size: 0.9rem;
         }
+
+        /* Responsive adjustments for item-field-row */
+        @media (min-width: 576px) { /* Adjust breakpoint as needed, e.g., 576px for small tablets */
+            .item-field-row {
+                flex-direction: row; /* Make fields row on larger screens */
+                gap: 1rem; /* Gap between row items */
+            }
+            .item-detail-group {
+                flex: 1; /* Distribute space evenly */
+            }
+            /* Specific fix for lab field when it's supposed to be full width */
+            .item-details-row-full-col .item-detail-group {
+                flex: 1 1 100%; /* Ensure it takes full width when in a flex row context */
+            }
+        }
+
 
         .delete-item-btn {
             position: absolute;
@@ -546,8 +563,8 @@
                 gap: 0.2rem; /* Reduced gap */
                 margin-bottom: 0.5rem;
             }
-            .item-details-row-two-col {
-                grid-template-columns: 1fr; /* Single column for print */
+            .item-field-row { /* Print: make them stack */
+                flex-direction: column; 
                 gap: 0.2rem;
             }
             .item-detail-group {
@@ -972,7 +989,7 @@
             productItemsContainer.innerHTML = ''; // Clear existing content
 
             if (state.products.length === 0) {
-                // Removed the empty-items-message
+                // Removed the empty-items-message as requested
             } else {
                 state.products.forEach(item => {
                     let itemCardHTML = `
@@ -989,7 +1006,7 @@
 
                     if (item.type === 'abshe') {
                         itemCardHTML += `
-                                <div class="item-details-row-two-col">
+                                <div class="item-field-row">
                                     <div class="item-detail-group">
                                         <label class="compact-label" for="abshe-weight-${item.id}">وزن</label>
                                         <div class="input-group rtl compact-input-group">
@@ -1006,7 +1023,7 @@
                                     </div>
                                 </div>
 
-                                <div class="item-details-row-two-col">
+                                <div class="item-field-row">
                                     <div class="item-detail-group">
                                         <label class="compact-label" for="abshe-eng-${item.id}">انگ</label>
                                         <div class="input-group rtl compact-input-group">
@@ -1014,7 +1031,7 @@
                                             <span class="input-group-text">انگ</span>
                                         </div>
                                     </div>
-                                    <div class="item-detail-group full-width">
+                                    <div class="item-detail-group">
                                         <label class="compact-label" for="abshe-lab-${item.id}">آزمایشگاه</label>
                                         <div class="input-group rtl compact-input-group">
                                             <input type="text" id="abshe-lab-${item.id}" class="input-field abshe-lab-input" style="text-align: right;" value="${item.lab || ''}">
@@ -1028,8 +1045,8 @@
                             `;
                     } else if (item.type === 'motaferghe') {
                         itemCardHTML += `
-                                <div class="item-details-row-two-col">
-                                    <div class="item-detail-group" style="grid-column: span 2;">
+                                <div class="item-field-row">
+                                    <div class="item-detail-group">
                                         <label class="compact-label" for="motaferghe-weight-${item.id}">وزن متفرقه</label>
                                         <div class="input-group rtl compact-input-group">
                                             <input type="text" id="motaferghe-weight-${item.id}" class="input-field motaferghe-weight-gram-input" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
@@ -1037,6 +1054,8 @@
                                         </div>
                                         <div style="font-size: 0.8em; color: var(--text-light); text-align: right; margin-top: 0.3rem;">(با عیار پیش‌فرض ۷۵۰ محاسبه می‌شود)</div>
                                     </div>
+                                    <div class="item-detail-group">
+                                        </div>
                                 </div>
                                 <div class="profit-slider-group">
                                     <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
