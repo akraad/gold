@@ -264,163 +264,18 @@
         .segmented-control button:first-child { border-right: 1px solid var(--border-color); }
         .segmented-control button:last-child { border-left: 1px solid var(--border-color); }
         
-        /* New Styles for Item Cards within "نوع معامله و اقلام" */
-        .item-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr; /* Two columns for weight/ayar */
-            gap: 0.8rem;
-        }
-        
-        .item-row .form-group {
-            margin-bottom: 0;
-        }
-
-        .item-card {
-            display: flex;
-            flex-direction: column;
-            gap: 0.6rem;
-            padding: 0.9rem;
-            border: 1px solid var(--border-color);
-            border-radius: var(--border-radius-input);
-            position: relative;
-            margin-bottom: 0.8rem;
-            background-color: var(--primary-light); /* Lighter background for nested items */
-            
-            /* Animation for new items */
-            opacity: 0;
-            transform: translateY(10px);
-            animation: fadeInSlideUp 0.3s ease-out forwards;
-        }
-
-        @keyframes fadeInSlideUp {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .item-card.removing {
-            animation: fadeOutSlideDown 0.3s ease-in forwards;
-        }
-
-        @keyframes fadeOutSlideDown {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(10px); }
-        }
-
-
-        .item-label-input-compact {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 0.4rem;
-        }
-
-        .item-label-input-compact:last-of-type {
-            margin-bottom: 0;
-        }
-
-        .compact-label {
-            margin-bottom: 0.2rem;
-            font-weight: 500;
-            font-size: 0.8rem;
-            color: var(--text-light);
-        }
-
-        .compact-input-group .input-field,
-        .compact-input-group .input-group-text {
-            padding-top: 0.45rem;
-            padding-bottom: 0.45rem;
-            font-size: 0.85rem;
-        }
-        
-        #product-items-container .input-field,
-        #product-items-container .select-field,
-        #product-items-container .input-group-text,
-        #product-items-container .segmented-control button {
-            font-size: 0.85rem;
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
-        }
-
-        .delete-item-btn {
-            position: absolute; top: -8px; left: -8px; width: 22px; height: 22px;
-            border-radius: 50%;
-            border: 1px solid var(--danger-color);
-            color: var(--danger-color);
-            background-color: white;
-            cursor: pointer; display: flex; align-items: center;
-            justify-content: center; font-weight: bold; transition: all var(--transition-speed);
-            z-index: 10;
-            font-size: 0.9rem;
-        }
-        
-        .delete-item-btn:hover {
-            background-color: var(--danger-color);
-            color: white;
-            transform: scale(1.1);
-        }
-        
-        .btn {
-            width: 100%; padding: 0.75rem 1rem;
-            font-family: var(--font-family);
-            font-size: 0.95rem;
-            font-weight: 600;
-            border: none;
-            border-radius: var(--border-radius-button);
-            cursor: pointer; transition: background-color var(--transition-speed), box-shadow var(--transition-speed);
-            box-shadow: var(--shadow-subtle);
-        }
-
-        .btn-primary { background-color: var(--primary-color); color: #fff; }
-        .btn-primary:hover { background-color: var(--primary-dark); }
-
-        .btn-secondary {
-            background-color: var(--secondary-color);
-            color: #fff;
-            font-size: 0.9rem;
-            padding: 0.65rem 0.9rem;
-            font-weight: 500;
-        }
-        .btn-secondary:hover { background-color: hsl(210, 15%, 45%); }
-        
-        .profit-slider-group {
-            padding-top: 0.5rem;
-            margin-top: 0.5rem;
-        }
-        .profit-slider {
-            -webkit-appearance: none; width: 100%; height: 4px;
-            background: var(--border-color); outline: none; border-radius: 2px;
-        }
-
-        .profit-slider::-webkit-slider-thumb {
-            -webkit-appearance: none; appearance: none; width: 14px; height: 14px;
-            background: var(--primary-color); cursor: pointer; border: 2px solid #fff;
-            border-radius: 50%;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-        }
-        
-        .profit-slider-value {
-            text-align: center; font-weight: 600; font-size: 0.85rem;
-            margin-top: 0.3rem;
-            color: var(--primary-color);
-        }
-
-        .add-purchase-options {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 0.8rem;
-            margin-top: 1.25rem;
-            flex-shrink: 0; /* Prevent from shrinking in column layout */
-            margin-top: auto; /* Push to bottom of card */
-            padding-top: 1rem; /* Add some space above buttons */
-            border-top: 1px dashed var(--border-color); /* Separator line */
-        }
-
+        /* MODERN STYLES FOR PRODUCT ITEMS SECTION */
         #product-items-container {
             flex-grow: 1; /* Allows item container to take available space */
             margin-bottom: 1rem;
             overflow-y: auto; /* Enable scrolling for many items */
             max-height: 400px; /* Max height for scrollable area */
             padding-right: 5px; /* Space for scrollbar */
+            display: flex; /* Use flex to manage items or empty message */
+            flex-direction: column;
+            gap: 0.8rem; /* Space between item cards */
         }
+
         /* Scrollbar styles for better aesthetics */
         #product-items-container::-webkit-scrollbar {
             width: 6px;
@@ -446,17 +301,130 @@
             border: 1px dashed var(--border-color);
             border-radius: var(--border-radius-input);
             background-color: var(--primary-light);
+            margin: auto; /* Center the message vertically and horizontally */
+            flex-grow: 0; /* Don't let it grow */
+            width: 100%;
+        }
+
+        /* Modern Item Card */
+        .item-card {
+            background-color: var(--card-bg); /* Use card background for clarity */
+            border: 1px solid var(--border-color);
+            border-radius: var(--border-radius-card); /* Consistent with main cards */
+            padding: 1rem;
+            position: relative;
+            box-shadow: var(--shadow-subtle);
+            overflow: hidden; /* For inner elements */
+            
+            /* Animation for new items */
+            opacity: 0;
+            transform: translateY(15px);
+            animation: fadeInSlideUp 0.3s ease-out forwards;
+        }
+
+        @keyframes fadeInSlideUp {
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .item-card.removing {
+            animation: fadeOutSlideDown 0.3s ease-in forwards;
+        }
+
+        @keyframes fadeOutSlideDown {
+            from { opacity: 1; transform: translateY(0); }
+            to { opacity: 0; transform: translateY(15px); }
+        }
+
+        .item-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--primary-light);
+        }
+        .item-header-bar span {
+            color: var(--text-light); /* Weight text */
+            font-weight: 500;
+        }
+        .item-header-bar .profit-percentage {
+            color: var(--primary-color);
+            font-weight: 700;
+            font-size: 1.1em;
+        }
+
+        .item-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); /* Responsive grid for details */
+            gap: 1rem;
             margin-bottom: 1rem;
         }
 
+        .item-detail-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .compact-label {
+            font-size: 0.8rem;
+            color: var(--text-light);
+            margin-bottom: 0.2rem;
+        }
+        .compact-input-group .input-field,
+        .compact-input-group .input-group-text {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.9rem;
+        }
 
-        #purchase-items-container .item-card:not(:first-child) { margin-top: 0.8rem; }
-        #purchase-items-container .item-card { background-color: var(--primary-light); }
-        
-        #purchase-items-container .input-field,
-        #purchase-items-container .select-field,
-        #purchase-items-container .input-group-text {
-            font-size: 0.85rem; padding-top: 0.5rem; padding-bottom: 0.5rem;
+        .delete-item-btn {
+            position: absolute;
+            top: 5px; /* Adjusted position */
+            right: 5px; /* Adjusted position */
+            width: 30px; /* Larger hit area */
+            height: 30px;
+            border: none; /* No border for a cleaner look */
+            background-color: transparent; /* Transparent background */
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: transform 0.2s ease;
+        }
+        .delete-item-btn svg {
+            width: 18px; /* Icon size */
+            height: 18px;
+            fill: var(--text-light); /* Default color */
+            transition: fill 0.2s ease;
+        }
+        .delete-item-btn:hover svg {
+            fill: var(--danger-color); /* Red on hover */
+            transform: scale(1.1);
+        }
+
+        .add-purchase-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+            margin-top: 1.25rem;
+            flex-shrink: 0;
+            margin-top: auto;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color); /* Solid border for formal look */
+        }
+        .btn-secondary {
+            background-color: var(--primary-light); /* Use light primary for secondary buttons */
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color); /* Add a border matching primary color */
+            font-weight: 600;
+        }
+        .btn-secondary:hover {
+            background-color: var(--primary-color);
+            color: white;
+            box-shadow: var(--shadow-subtle);
         }
 
         /* Invoice Section */
@@ -544,6 +512,44 @@
                 padding: 0;
             }
             .card-header::before { display: none; } /* Hide accent bar in print */
+            
+            /* Print specific styles for item cards */
+            .item-card {
+                padding: 0.5rem 0; /* Reduce padding */
+                margin-bottom: 0.5rem; /* Reduce margin */
+                border: none; /* No borders */
+                background-color: transparent; /* No background */
+                box-shadow: none; /* No shadow */
+                animation: none !important; /* Disable animations */
+                opacity: 1 !important; /* Ensure visibility */
+                transform: none !important; /* Ensure position */
+            }
+            .item-card .delete-item-btn { display: none; } /* Hide delete button */
+            .item-header-bar {
+                border-bottom: none; /* No border for print */
+                margin-bottom: 0.2rem;
+                font-size: 0.85em; /* Smaller font */
+            }
+            .item-header-bar .profit-percentage { display: none; } /* Hide profit percentage */
+            .item-details-grid {
+                grid-template-columns: 1fr; /* Single column for print */
+                gap: 0.2rem; /* Reduced gap */
+                margin-bottom: 0.5rem;
+            }
+            .compact-label { font-size: 0.75em; color: black; }
+            .compact-input-group .input-field,
+            .compact-input-group .input-group-text {
+                border: none;
+                background-color: transparent;
+                padding: 0;
+                font-size: 0.8em;
+                color: black;
+            }
+            .add-purchase-options { display: none; } /* Hide add buttons */
+            .empty-items-message { display: none; } /* Hide empty message */
+            #product-items-container { max-height: none; overflow: visible; padding-right: 0; } /* Show all items */
+            #product-items-container::-webkit-scrollbar { display: none; } /* Hide scrollbar */
+
         }
 
         .print-only {
@@ -676,10 +682,7 @@
             <h2 class="card-header"><span class="icon">⚖️</span> نوع معامله و اقلام</h2>
             <div id="abshe-input-section">
                 <div id="product-items-container">
-                    <p class="empty-items-message">
-                        برای شروع، دکمه‌های "افزودن آبشده" یا "افزودن متفرقه" را بزنید.
-                    </p>
-                </div>
+                    </div>
 
                 <div class="add-purchase-options">
                     <button id="add-abshe-btn" class="btn btn-secondary">افزودن آبشده</button>
@@ -945,52 +948,55 @@
                 state.products.forEach(item => {
                     let itemCardHTML = `
                         <div class="item-card" data-id="${item.id}">
-                            <button class="delete-item-btn" data-id="${item.id}">×</button>
-                            <div class="item-row">
+                            <div class="item-header-bar">
+                                ${item.type === 'abshe' ? `<span>آبشده</span>` : `<span>متفرقه</span>`}
+                                <span class="profit-percentage">${formatProfitPercentage(item.profit)} % سود</span>
+                                <button class="delete-item-btn" data-id="${item.id}" aria-label="حذف آیتم">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                </button>
+                            </div>
+                            <div class="item-details-grid">
                     `;
 
                     if (item.type === 'abshe') {
                         itemCardHTML += `
-                                <div class="form-group">
+                                <div class="item-detail-group">
                                     <label class="compact-label" for="abshe-weight-${item.id}">وزن</label>
                                     <div class="input-group rtl compact-input-group">
                                         <input type="text" id="abshe-weight-${item.id}" class="input-field abshe-weight-gram-input" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
                                         <span class="input-group-text">گرم</span>
                                     </div>
                                 </div>
-                                <div class="form-group">
+                                <div class="item-detail-group">
                                     <label class="compact-label" for="abshe-ayar-${item.id}">عیار</label>
                                     <div class="input-group rtl compact-input-group">
                                         <input type="text" id="abshe-ayar-${item.id}" class="input-field abshe-ayar-input" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${item.ayar === null ? '' : toPersianDigits(item.ayar)}">
                                         <span class="input-group-text">عیار</span>
                                     </div>
                                 </div>
-                            </div>
-
-                            <div class="item-label-input-compact">
-                                <label class="compact-label" for="abshe-eng-${item.id}">انگ</label>
-                                <div class="input-group rtl compact-input-group">
-                                    <input type="text" id="abshe-eng-${item.id}" class="input-field abshe-eng-input" inputmode="numeric" pattern="[0-9]*" value="${item.eng === 0 ? '' : toPersianDigits(item.eng)}">
-                                    <span class="input-group-text">انگ</span>
+                                <div class="item-detail-group">
+                                    <label class="compact-label" for="abshe-eng-${item.id}">انگ</label>
+                                    <div class="input-group rtl compact-input-group">
+                                        <input type="text" id="abshe-eng-${item.id}" class="input-field abshe-eng-input" inputmode="numeric" pattern="[0-9]*" value="${item.eng === 0 ? '' : toPersianDigits(item.eng)}">
+                                        <span class="input-group-text">انگ</span>
+                                    </div>
+                                </div>
+                                <div class="item-detail-group">
+                                    <label class="compact-label" for="abshe-lab-${item.id}">آزمایشگاه</label>
+                                    <div class="input-group rtl compact-input-group">
+                                        <input type="text" id="abshe-lab-${item.id}" class="input-field abshe-lab-input" style="text-align: right;" value="${item.lab || ''}">
+                                        <span class="input-group-text">نام</span>
+                                    </div>
                                 </div>
                             </div>
-                            
-                            <div class="item-label-input-compact">
-                                <label class="compact-label" for="abshe-lab-${item.id}">آزمایشگاه</label>
-                                <div class="input-group rtl compact-input-group">
-                                    <input type="text" id="abshe-lab-${item.id}" class="input-field abshe-lab-input" style="text-align: right;" value="${item.lab || ''}">
-                                    <span class="input-group-text">نام</span>
-                                </div>
-                            </div>
-
-                            <div class="profit-slider-group" style="margin-top: 1rem;">
+                            <div class="profit-slider-group">
                                 <div class="profit-slider-value" data-id="${item.id}" data-type="profit-display-abshe">${formatProfitPercentage(item.profit)} %</div>
                                 <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
                             </div>
                         `;
                     } else if (item.type === 'motaferghe') {
                         itemCardHTML += `
-                                <div class="form-group" style="grid-column: span 2;">
+                                <div class="item-detail-group" style="grid-column: span 2;">
                                     <label class="compact-label" for="motaferghe-weight-${item.id}">وزن متفرقه</label>
                                     <div class="input-group rtl compact-input-group">
                                         <input type="text" id="motaferghe-weight-${item.id}" class="input-field motaferghe-weight-gram-input" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
@@ -999,27 +1005,24 @@
                                     <div style="font-size: 0.8em; color: var(--text-light); text-align: right; margin-top: 0.3rem;">(با عیار پیش‌فرض ۷۵۰ محاسبه می‌شود)</div>
                                 </div>
                             </div>
-
-                            <div class="profit-slider-group" style="margin-top: 1rem;">
+                            <div class="profit-slider-group">
                                 <div class="profit-slider-value" data-id="${item.id}" data-type="profit-display-motaferghe">${formatProfitPercentage(item.profit)} %</div>
                                 <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
                             </div>
                         `;
                     }
                     itemCardHTML += `
-                            </div>
                         </div>
                     `;
                     productItemsContainer.insertAdjacentHTML('beforeend', itemCardHTML);
                 });
             }
 
-
             attachItemEventListeners();
         }
 
         function attachItemEventListeners() {
-            productItemsContainer.querySelectorAll('.abshe-weight-gram-input').forEach(input => {
+            productItemsContainer.querySelectorAll('.abshe-weight-gram-input, .motaferghe-weight-gram-input').forEach(input => {
                 input.oninput = (e) => {
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
                     const value = toEnglishDigits(e.target.value).replace(/,/g, '.'); // Replace comma with dot for float parsing
@@ -1077,21 +1080,6 @@
                 };
             });
 
-            productItemsContainer.querySelectorAll('.motaferghe-weight-gram-input').forEach(input => {
-                input.oninput = (e) => {
-                    const id = parseInt(e.target.closest('.item-card').dataset.id);
-                    const rawValue = e.target.value;
-                    const englishValue = toEnglishDigits(rawValue).replace(/,/g, '.'); // Replace comma with dot for float parsing
-                    
-                    if (/^\d*\.?\d*$/.test(englishValue)) {
-                        updateProductItem(id, 'weight', parseFloat(englishValue));
-                        e.target.value = toPersianDigits(englishValue);
-                    } else {
-                        e.target.value = toPersianDigits(state.products.find(item => item.id === id).weight);
-                    }
-                };
-            });
-
             productItemsContainer.querySelectorAll('.item-profit-slider').forEach(slider => {
                 slider.oninput = (e) => {
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
@@ -1099,9 +1087,10 @@
                     
                     updateProductItem(id, 'profit', value);
                     
-                    const display = e.target.closest('.profit-slider-group').querySelector('.profit-slider-value');
+                    // Update the profit percentage display within the item-header-bar
+                    const display = e.target.closest('.item-card').querySelector('.profit-percentage');
                     if (display) {
-                        display.textContent = `${formatProfitPercentage(value)} %`; 
+                        display.textContent = `${formatProfitPercentage(value)} % سود`; 
                     }
                 };
             });
@@ -1111,9 +1100,7 @@
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
                     removeProductItem(id);
                 };
-                button.style.backgroundColor = 'white';
-                button.style.color = 'var(--danger-color)';
-                button.style.border = '1px solid var(--danger-color)';
+                // Styling handled by CSS classes now
             });
         }
 
