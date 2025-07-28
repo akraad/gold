@@ -364,6 +364,21 @@
             margin-bottom: 1rem;
         }
 
+        /* New: for two column layout for weight/ayar, then full width for eng/lab */
+        .item-details-rows {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem; /* Gap between logical rows of inputs */
+        }
+        .item-row.inline-inputs { /* For weight/ayar */
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+        .item-detail-group.full-width { /* For lab */
+            grid-column: span 2; /* Make it span full width if needed in a grid context */
+        }
+
         .item-detail-group {
             display: flex;
             flex-direction: column;
@@ -928,6 +943,7 @@
         }
 
         const formatProfitPercentage = (value) => {
+            if (isNaN(value)) return ''; // Handle NaN for percentage
             if (Math.abs(value - Math.round(value)) < 0.000001) { 
                 return toPersianDigits(Math.round(value).toFixed(0)); 
             }
@@ -955,63 +971,67 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
                                 </button>
                             </div>
-                            <div class="item-details-grid">
+                            <div class="item-details-rows">
                     `;
 
                     if (item.type === 'abshe') {
                         itemCardHTML += `
-                                <div class="item-detail-group">
-                                    <label class="compact-label" for="abshe-weight-${item.id}">وزن</label>
-                                    <div class="input-group rtl compact-input-group">
-                                        <input type="text" id="abshe-weight-${item.id}" class="input-field abshe-weight-gram-input" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
-                                        <span class="input-group-text">گرم</span>
+                                <div class="item-row inline-inputs">
+                                    <div class="item-detail-group">
+                                        <label class="compact-label" for="abshe-weight-${item.id}">وزن</label>
+                                        <div class="input-group rtl compact-input-group">
+                                            <input type="text" id="abshe-weight-${item.id}" class="input-field abshe-weight-gram-input" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
+                                            <span class="input-group-text">گرم</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-detail-group">
+                                        <label class="compact-label" for="abshe-ayar-${item.id}">عیار</label>
+                                        <div class="input-group rtl compact-input-group">
+                                            <input type="text" id="abshe-ayar-${item.id}" class="input-field abshe-ayar-input" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${item.ayar === null ? '' : toPersianDigits(item.ayar)}">
+                                            <span class="input-group-text">عیار</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="item-detail-group">
-                                    <label class="compact-label" for="abshe-ayar-${item.id}">عیار</label>
-                                    <div class="input-group rtl compact-input-group">
-                                        <input type="text" id="abshe-ayar-${item.id}" class="input-field abshe-ayar-input" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${item.ayar === null ? '' : toPersianDigits(item.ayar)}">
-                                        <span class="input-group-text">عیار</span>
+
+                                <div class="item-row inline-inputs">
+                                    <div class="item-detail-group">
+                                        <label class="compact-label" for="abshe-eng-${item.id}">انگ</label>
+                                        <div class="input-group rtl compact-input-group">
+                                            <input type="text" id="abshe-eng-${item.id}" class="input-field abshe-eng-input" inputmode="numeric" pattern="[0-9]*" value="${item.eng === 0 ? '' : toPersianDigits(item.eng)}">
+                                            <span class="input-group-text">انگ</span>
+                                        </div>
+                                    </div>
+                                    <div class="item-detail-group full-width">
+                                        <label class="compact-label" for="abshe-lab-${item.id}">آزمایشگاه</label>
+                                        <div class="input-group rtl compact-input-group">
+                                            <input type="text" id="abshe-lab-${item.id}" class="input-field abshe-lab-input" style="text-align: right;" value="${item.lab || ''}">
+                                            <span class="input-group-text">نام</span>
+                                        </div>
                                     </div>
                                 </div>
-                                <div class="item-detail-group">
-                                    <label class="compact-label" for="abshe-eng-${item.id}">انگ</label>
-                                    <div class="input-group rtl compact-input-group">
-                                        <input type="text" id="abshe-eng-${item.id}" class="input-field abshe-eng-input" inputmode="numeric" pattern="[0-9]*" value="${item.eng === 0 ? '' : toPersianDigits(item.eng)}">
-                                        <span class="input-group-text">انگ</span>
-                                    </div>
+                                <div class="profit-slider-group">
+                                    <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
                                 </div>
-                                <div class="item-detail-group">
-                                    <label class="compact-label" for="abshe-lab-${item.id}">آزمایشگاه</label>
-                                    <div class="input-group rtl compact-input-group">
-                                        <input type="text" id="abshe-lab-${item.id}" class="input-field abshe-lab-input" style="text-align: right;" value="${item.lab || ''}">
-                                        <span class="input-group-text">نام</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="profit-slider-group">
-                                <div class="profit-slider-value" data-id="${item.id}" data-type="profit-display-abshe">${formatProfitPercentage(item.profit)} %</div>
-                                <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
-                            </div>
-                        `;
+                            `;
                     } else if (item.type === 'motaferghe') {
                         itemCardHTML += `
-                                <div class="item-detail-group" style="grid-column: span 2;">
-                                    <label class="compact-label" for="motaferghe-weight-${item.id}">وزن متفرقه</label>
-                                    <div class="input-group rtl compact-input-group">
-                                        <input type="text" id="motaferghe-weight-${item.id}" class="input-field motaferghe-weight-gram-input" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
-                                        <span class="input-group-text">گرم</span>
+                                <div class="item-row inline-inputs">
+                                    <div class="item-detail-group" style="grid-column: span 2;">
+                                        <label class="compact-label" for="motaferghe-weight-${item.id}">وزن متفرقه</label>
+                                        <div class="input-group rtl compact-input-group">
+                                            <input type="text" id="motaferghe-weight-${item.id}" class="input-field motaferghe-weight-gram-input" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" value="${item.weight === 0 ? '' : toPersianDigits(item.weight)}">
+                                            <span class="input-group-text">گرم</span>
+                                        </div>
+                                        <div style="font-size: 0.8em; color: var(--text-light); text-align: right; margin-top: 0.3rem;">(با عیار پیش‌فرض ۷۵۰ محاسبه می‌شود)</div>
                                     </div>
-                                    <div style="font-size: 0.8em; color: var(--text-light); text-align: right; margin-top: 0.3rem;">(با عیار پیش‌فرض ۷۵۰ محاسبه می‌شود)</div>
                                 </div>
-                            </div>
-                            <div class="profit-slider-group">
-                                <div class="profit-slider-value" data-id="${item.id}" data-type="profit-display-motaferghe">${formatProfitPercentage(item.profit)} %</div>
-                                <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
-                            </div>
-                        `;
+                                <div class="profit-slider-group">
+                                    <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
+                                </div>
+                            `;
                     }
                     itemCardHTML += `
+                            </div>
                         </div>
                     `;
                     productItemsContainer.insertAdjacentHTML('beforeend', itemCardHTML);
@@ -1100,7 +1120,9 @@
                     const id = parseInt(e.target.closest('.item-card').dataset.id);
                     removeProductItem(id);
                 };
-                // Styling handled by CSS classes now
+                button.style.backgroundColor = 'white'; // Keep dynamic styling
+                button.style.color = 'var(--danger-color)'; // Keep dynamic styling
+                button.style.border = '1px solid var(--danger-color)'; // Keep dynamic styling
             });
         }
 
