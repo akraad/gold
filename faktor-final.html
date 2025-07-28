@@ -315,6 +315,7 @@
             position: relative;
             box-shadow: var(--shadow-subtle);
             overflow: hidden; /* For inner elements */
+            flex-shrink: 0; /* PREVENT ITEM CARD FROM SHRINKING */
             
             /* Animation for new items */
             opacity: 0;
@@ -989,7 +990,7 @@
             productItemsContainer.innerHTML = ''; // Clear existing content
 
             if (state.products.length === 0) {
-                // Removed the empty-items-message as requested
+                // No empty message needed here
             } else {
                 state.products.forEach(item => {
                     let itemCardHTML = `
@@ -1055,10 +1056,10 @@
                                         <div style="font-size: 0.8em; color: var(--text-light); text-align: right; margin-top: 0.3rem;">(با عیار پیش‌فرض ۷۵۰ محاسبه می‌شود)</div>
                                     </div>
                                     <div class="item-detail-group">
+                                        <label class="compact-label" for="motaferghe-profit-${item.id}">درصد سود</label>
+                                        <div class="profit-slider-group" style="margin-top: 0;"> <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
                                         </div>
-                                </div>
-                                <div class="profit-slider-group">
-                                    <input type="range" min="1" max="5" value="${item.profit}" step="0.1" class="profit-slider item-profit-slider" data-id="${item.id}">
+                                    </div>
                                 </div>
                             `;
                     }
